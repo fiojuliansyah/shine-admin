@@ -13,7 +13,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-class SiteController extends Controller
+class DataController extends Controller
 {
     public function registrationForm()
     {
