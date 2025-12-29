@@ -36,13 +36,13 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
         
         foreach ($this->attendancesByUser as $user_id => $userAttendances) {
             $user = $userAttendances->first()->user;
-            $totals = $this->totalsByUser[$user_id] ?? [
-                'totalHK' => '',
-                'totalOvertime' => '',
-                'totalLate' => '',
-                'totalBA' => '',
-                'totalLeave' => '',
-            ];
+            
+            $totals = $this->totalsByUser[$user_id] ?? [];
+            $totalHK = $totals['totalHK'] ?? 0;
+            $totalOvertime = $totals['totalOvertime'] ?? 0;
+            $totalLate = $totals['totalLate'] ?? 0;
+            $totalBA = $totals['totalBA'] ?? 0;
+            $totalLeave = $totals['totalLeave'] ?? 0;
     
             $totalShiftOff = 0;
             $row = [
@@ -52,7 +52,7 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
             ];
             $rowIndex = count($data) + 3;
     
-            foreach ($this->dates as $index => $date) {
+            foreach ($this->dates as $date) {
                 $attendance = $userAttendances->get($date->format('Y-m-d'));
                 if ($attendance) {
                     if ($attendance->type == 'late') {
@@ -118,11 +118,11 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
                 }
             }
     
-            $row[] = $totals['totalHK'];
-            $row[] = $totals['totalOvertime'];
-            $row[] = $totals['totalLate'];
-            $row[] = $totals['totalBA'];
-            $row[] = $totals['totalLeave'];
+            $row[] = $totalHK;
+            $row[] = $totalOvertime;
+            $row[] = $totalLate;
+            $row[] = $totalBA;
+            $row[] = $totalLeave;
             $row[] = $totalShiftOff; 
     
             $data[] = $row;
