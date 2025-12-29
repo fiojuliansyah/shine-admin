@@ -29,6 +29,11 @@
                         </li>
                         <li class="#">
                             <a href="#">
+                                <i class="ti ti-edit"></i><span>Dokumen Digital</span>
+                            </a>
+                        </li>
+                        <li class="#">
+                            <a href="#">
                                 <i class="ti ti-help-octagon"></i><span>Pertanyaan</span>
                             </a>
                         </li>
