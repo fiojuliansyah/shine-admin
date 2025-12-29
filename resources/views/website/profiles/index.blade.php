@@ -109,18 +109,6 @@
                                     </span>
                                     <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->address ?? '' }}</h6>
                                 </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">
-                                        Tanggal Join
-                                    </span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->join_date ?? '' }}</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">
-                                        Tanggal Resign
-                                    </span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->resign_date ?? '' }}</h6>
-                                </div>
                             </div>
                         </div>
                     </div>
