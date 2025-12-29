@@ -94,4 +94,18 @@ class ApplicantController extends Controller
                         ->with('success', 'Applicant berhasil diperbarui');
     }
 
+    public function destroy($id)
+    {
+        try {
+            $applicant = Applicant::findOrFail($id);
+            
+            // Hapus data applicant
+            $applicant->delete();
+
+            return redirect()->back()->with('success', 'Data pelamar berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
+    }
+
 }
