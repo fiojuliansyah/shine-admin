@@ -42,6 +42,7 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
             $totalOvertime = $totals['totalOvertime'] ?? '';
             $totalBA = $totals['totalBA'] ?? '';
             $totalLeave = $totals['totalLeave'] ?? '';
+            $totalLateFromController = $totals['totalLate'] ?? null;
     
             $totalShiftOff = 0;
             $counterLateManual = 0; 
@@ -128,7 +129,7 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
     
             $row[] = $totalHK;
             $row[] = $totalOvertime;
-            $row[] = ($totals['totalLate'] != 0 && $totals['totalLate'] != '') ? $totals['totalLate'] : $counterLateManual;
+            $row[] = ($totalLateFromController !== null && $totalLateFromController !== '') ? $totalLateFromController : $counterLateManual;
             $row[] = $totalBA;
             $row[] = $totalLeave;
             $row[] = $totalShiftOff; 
@@ -190,7 +191,7 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
         }
         
         $lastColumn = $sheet->getHighestColumn(); 
-        $sheet->getStyle('A1:' . $lastColumn . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::CENTER);
+        $sheet->getStyle('A1:' . $lastColumn . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle('A1:' . $lastColumn . $sheet->getHighestRow())->getAlignment()->setIndent(1);
         $sheet->getDefaultColumnDimension()->setWidth(15);
     
