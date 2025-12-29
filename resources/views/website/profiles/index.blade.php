@@ -4,17 +4,6 @@
     <div class="page-wrapper">
         <div class="content">
 
-            <!-- Breadcrumb -->
-            <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
-                <div class="my-auto mb-2">
-                    <h6 class="fw-medium d-inline-flex align-items-center mb-3 mb-sm-0"><a
-                            href="{{ route('employees.index') }}">
-                            <i class="ti ti-arrow-left me-2"></i>Data Pegawai</a>
-                    </h6>
-                </div>
-            </div>
-            <!-- /Breadcrumb -->
-
             <div class="row">
                 <div class="col-xl-4">
                     <div class="card card-bg-1">
