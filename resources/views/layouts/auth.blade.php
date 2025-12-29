@@ -8,7 +8,7 @@
 	<meta name="keywords" content="admin, estimates, bootstrap, business, html5, responsive, Projects">
 	<meta name="author" content="Dreams technologies - Bootstrap Admin Template">
 	<meta name="robots" content="noindex, nofollow">
-	<title>GIS - HRIS & Productivity Management</title>
+	<title>SHINE - HRIS & Productivity Management</title>
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" type="image/x-icon" href="/admin/assets/img/favicon.png">
