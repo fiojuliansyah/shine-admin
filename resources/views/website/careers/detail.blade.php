@@ -125,40 +125,22 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="modal fade" id="modalIncomplete" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-body text-center p-5">
-                    <div class="mb-4">
-                        <i class="ti ti-user-exclamation text-warning" style="font-size: 5rem;"></i>
-                    </div>
-                    <h3 class="fw-bold mb-2">Profil Belum Lengkap</h3>
-                    <p class="text-muted mb-4">Mohon lengkapi profil Anda (CV, Foto, dan Data Diri) sebelum melanjutkan proses lamaran ini.</p>
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('web.applicants.profile') }}" class="btn btn-primary btn-lg fw-bold">Lengkapi Profil Sekarang</a>
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <style>
-        .bg-soft-success { background-color: #e8fadf; }
-        .job-description ul { padding-left: 20px; }
-        .job-description p { line-height: 1.6; color: #4b5563; }
-        .ti-user-exclamation { color: #ffc107; }
-    </style>
+        .bg-soft-success {
+            background-color: #e8fadf;
+        }
 
-    @if(session('profile_incomplete'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var myModal = new bootstrap.Modal(document.getElementById('modalIncomplete'));
-            myModal.show();
-        });
-    </script>
-    @endif
+        .job-description ul {
+            padding-left: 20px;
+        }
+
+        .job-description p {
+            line-height: 1.6;
+            color: #4b5563;
+        }
+    </style>
 @endsection
