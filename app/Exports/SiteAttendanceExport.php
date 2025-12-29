@@ -40,11 +40,12 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
             $totals = $this->totalsByUser[$user_id] ?? [];
             $totalHK = $totals['totalHK'] ?? 0;
             $totalOvertime = $totals['totalOvertime'] ?? 0;
-            $totalLate = $totals['totalLate'] ?? 0;
             $totalBA = $totals['totalBA'] ?? 0;
             $totalLeave = $totals['totalLeave'] ?? 0;
     
             $totalShiftOff = 0;
+            $counterLateManual = 0; 
+            
             $row = [
                 $user->name,
                 $user->employee_nik,
@@ -57,6 +58,7 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
                 if ($attendance) {
                     if ($attendance->type == 'late') {
                         $this->highlightCellsLate[] = [$rowIndex, count($row)];
+                        $counterLateManual++;
                     }
 
                     if ($attendance->leave_id != null) {
@@ -120,7 +122,7 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
     
             $row[] = $totalHK;
             $row[] = $totalOvertime;
-            $row[] = $totalLate;
+            $row[] = $totals['totalLate'] ?? $counterLateManual;
             $row[] = $totalBA;
             $row[] = $totalLeave;
             $row[] = $totalShiftOff; 
