@@ -27,13 +27,6 @@
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <span class="d-inline-flex align-items-center">
-                                            <i class="ti ti-id me-2"></i>
-                                            NIK Karyawan
-                                        </span>
-                                        <p class="text-dark">{{ $user->employee_nik ?? '-' }}</p>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="d-inline-flex align-items-center">
                                             <i class="ti ti-phone me-2"></i>
                                             Phone
                                         </span>
