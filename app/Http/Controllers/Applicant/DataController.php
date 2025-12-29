@@ -57,23 +57,11 @@ class DataController extends Controller
 
     public function apply($slug)
     {
-        $user = Auth::user();
-        $career = Career::where('slug', $slug)->firstOrFail();
-
-        $existingApply = Applicant::where('user_id', $user->id)
-                                ->where('career_id', $career->id)
-                                ->first();
-        
-        if ($existingApply) {
-            return back()->with('error', 'Anda sudah melamar di posisi ini.');
-        }
-
-        if (empty($user->phone) || empty($user->cv_file) || empty($user->address)) {
-            return back()->with('profile_incomplete', true);
-        }
+        $userId = Auth::id();
+        $career  = Career::where('slug', $slug)->firstOrFail();
 
         $apply = new Applicant;
-        $apply->user_id = $user->id;
+        $apply->user_id = $userId;
         $apply->career_id = $career->id;
         $apply->status_id = 0;
         $apply->save();

@@ -81,7 +81,7 @@
                                     <span class="d-inline-flex align-items-center">
                                         Tempat & Tanggal Lahir
                                     </span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->birth_place ?? '' }}, {{ $user->profile->birth_date ?? '' }}</h6>
+                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->birth_place ?? '' }} {{ $user->profile->birth_date ?? '' }}</h6>
                                 </div>
                                 <div class="col-md-3">
                                     <span class="d-inline-flex align-items-center">
