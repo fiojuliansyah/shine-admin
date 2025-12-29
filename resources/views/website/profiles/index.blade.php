@@ -268,7 +268,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Pas Foto<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Pas Foto (Pilih File / Ambil Foto)<span class="text-danger"> *</span></label>
                                     <input type="file" name="avatar" class="form-control">
                                 </div>
                             </div>
