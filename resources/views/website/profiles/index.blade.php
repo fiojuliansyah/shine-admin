@@ -44,7 +44,7 @@
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <span class="d-inline-flex align-items-center">
                                             <i class="ti ti-id me-2"></i>
-                                            NIK
+                                            NIK KTP
                                         </span>
                                         <p class="text-dark text-end">{{ $user->nik ?? '-' }}</p>
                                     </div>
