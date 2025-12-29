@@ -38,10 +38,10 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
             $user = $userAttendances->first()->user;
             
             $totals = $this->totalsByUser[$user_id] ?? [];
-            $totalHK = $totals['totalHK'] ?? 0;
-            $totalOvertime = $totals['totalOvertime'] ?? 0;
-            $totalBA = $totals['totalBA'] ?? 0;
-            $totalLeave = $totals['totalLeave'] ?? 0;
+            $totalHK = $totals['totalHK'] ?? '';
+            $totalOvertime = $totals['totalOvertime'] ?? '';
+            $totalBA = $totals['totalBA'] ?? '';
+            $totalLeave = $totals['totalLeave'] ?? '';
     
             $totalShiftOff = 0;
             $counterLateManual = 0; 
@@ -91,7 +91,10 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
                         $remainingMinutes = $totalOvertimeMinutes % 60;
                         $overtimeFormatted = $totalOvertimeMinutes > 0 ? sprintf('%02d:%02d', $overtimeHours, $remainingMinutes) : '-';
                         $row[] = $overtimeFormatted;
-                        $this->highlightCellsOvertime[] = [$rowIndex, count($row) - 1];
+                        
+                        if ($totalOvertimeMinutes > 0) {
+                            $this->highlightCellsOvertime[] = [$rowIndex, count($row) - 1];
+                        }
                     } else {
                         $row[] = $attendance->clock_in ? $attendance->clock_in->format('H:i') : '-';
                         $row[] = $attendance->clock_out ? $attendance->clock_out->format('H:i') : '-';
@@ -110,7 +113,10 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
                         $remainingMinutes = $totalOvertimeMinutes % 60;
                         $overtimeFormatted = $totalOvertimeMinutes > 0 ? sprintf('%02d:%02d', $overtimeHours, $remainingMinutes) : '-';
                         $row[] = $overtimeFormatted;
-                        $this->highlightCellsOvertime[] = [$rowIndex, count($row) - 1];
+
+                        if ($totalOvertimeMinutes > 0) {
+                            $this->highlightCellsOvertime[] = [$rowIndex, count($row) - 1];
+                        }
                     }
                 } else {
                     $row[] = '';
@@ -122,7 +128,7 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
     
             $row[] = $totalHK;
             $row[] = $totalOvertime;
-            $row[] = $totals['totalLate'] ?? $counterLateManual;
+            $row[] = ($totals['totalLate'] != 0 && $totals['totalLate'] != '') ? $totals['totalLate'] : $counterLateManual;
             $row[] = $totalBA;
             $row[] = $totalLeave;
             $row[] = $totalShiftOff; 
@@ -184,7 +190,8 @@ class SiteAttendanceExport implements FromCollection, WithHeadings, WithStyles
         }
         
         $lastColumn = $sheet->getHighestColumn(); 
-        $sheet->getStyle('A1:' . $lastColumn . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A1:' . $lastColumn . $sheet->getHighestRow())->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::CENTER);
+        $sheet->getStyle('A1:' . $lastColumn . $sheet->getHighestRow())->getAlignment()->setIndent(1);
         $sheet->getDefaultColumnDimension()->setWidth(15);
     
         foreach ($this->highlightCellsLeave as [$rowIndex, $columnIndex]) {
