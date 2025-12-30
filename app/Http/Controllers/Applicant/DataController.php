@@ -37,10 +37,12 @@ class DataController extends Controller
     public function history()
     {
         $user = Auth::user();
-        $applicants = Applicant::with('career', 'status')
+        
+        $applicants = Applicant::with(['career', 'status'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'DESC')
-            ->get();
+            ->get()
+            ->unique('career_id'); 
 
         return view('website.history', compact('applicants'));
     }
