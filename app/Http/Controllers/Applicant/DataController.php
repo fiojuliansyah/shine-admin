@@ -76,7 +76,7 @@ class DataController extends Controller
         $user = Auth::user();
 
         $requiredFields = [
-            'marrriage_status', 
+            'marriage_status', 
             
         ];
 
