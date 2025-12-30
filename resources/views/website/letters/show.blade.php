@@ -5,13 +5,6 @@
     <div class="content">
 
         @if(!$eletter->second_party_esign)
-            <div class="d-md-flex d-block align-items-center justify-content-between mb-3 d-print-none">
-                <div class="my-auto mb-2">
-                    <h3 class="fw-bold">Dokumen Selesai Ditandatangani</h3>
-                    <p>Terima kasih, Anda telah menandatangani dokumen PKWT digital.</p>
-                </div>
-            </div>
-        @else
             <div class="card mx-auto shadow-lg border-0" style="max-width: 850px;">
                 <div class="card-body p-0">
                     <div id="printableArea" style="
@@ -65,6 +58,13 @@
                             </div>
                         </form>
                     </div>
+                </div>
+            </div>
+        @else
+            <div class="d-md-flex d-block align-items-center justify-content-between mb-3 d-print-none">
+                <div class="my-auto mb-2">
+                    <h3 class="fw-bold">Dokumen Selesai Ditandatangani</h3>
+                    <p>Terima kasih, Anda telah menandatangani dokumen PKWT digital.</p>
                 </div>
             </div>
         @endif
