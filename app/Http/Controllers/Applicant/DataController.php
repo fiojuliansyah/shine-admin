@@ -85,42 +85,43 @@ class DataController extends Controller
         
         
         $payroll = $user->payroll;
+        $gaji_raw = 0;
+        $gaji_label = "";
 
         if ($payroll) {
-            if ($payroll->amount > 0) {
-                $gaji_raw = $payroll->amount;
-                $gaji_label = " (Per Bulan)";
-            } elseif ($payroll->daily_rate > 0) {
-                $gaji_raw = $payroll->daily_rate;
-                $gaji_label = " (Per Hari)";
-            } else {
-                $gaji_raw = 0;
-                $gaji_label = "";
-            }
-        } else {
-            $gaji_raw = 0;
-            $gaji_label = "";
+            $gaji_raw = $payroll->amount ?? 0;
+            $gaji_label = ($payroll->pay_type === 'monthly') ? " (Per Bulan)" : (($payroll->pay_type === 'daily') ? " (Per Hari)" : "");
         }
 
         $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
 
-        $tunjangan_calc = 0;
-        $komisi_calc = 0;
-        $potongan_calc = 0;
+        // Inisialisasi array untuk menampung nama dan nominal
+        $allowance_list = [];
+        $comission_list = [];
+        $deduction_list = [];
 
         if ($payroll && $payroll->payroll_components) {
             foreach ($payroll->payroll_components as $comp) {
+                // Hitung nominal
                 $amt = $comp->amount ?? (($gaji_raw * ($comp->percentage ?? 0)) / 100);
                 
-                if ($comp->component_type === 'allowance') $tunjangan_calc += $amt;
-                if ($comp->component_type === 'comission') $komisi_calc += $amt;
-                if ($comp->component_type === 'deduction') $potongan_calc += $amt;
+                // Format: "Nama Komponen (Rp 100.000)"
+                $formatText = $comp->name . ' (Rp ' . number_format($amt, 0, ',', '.') . ')';
+
+                if ($comp->component_type === 'allowance') {
+                    $allowance_list[] = $formatText;
+                } elseif ($comp->component_type === 'comission') {
+                    $comission_list[] = $formatText;
+                } elseif ($comp->component_type === 'deduction') {
+                    $deduction_list[] = $formatText;
+                }
             }
         }
 
-        $tunjangan = 'Rp ' . number_format($tunjangan_calc, 0, ',', '.');
-        $komisi = 'Rp ' . number_format($komisi_calc, 0, ',', '.');
-        $potongan = 'Rp ' . number_format($potongan_calc, 0, ',', '.');
+        // Gabungkan array menjadi string dipisahkan koma atau baris baru
+        $tunjangan = !empty($allowance_list) ? implode(', ', $allowance_list) : 'Tidak ada data';
+        $komisi    = !empty($comission_list) ? implode(', ', $comission_list) : 'Tidak ada data';
+        $potongan  = !empty($deduction_list) ? implode(', ', $deduction_list) : 'Tidak ada data';
 
         
         $mulai = Carbon::parse($eletter->join_date)->format('d-m-Y') ?? 'belum ada data';
