@@ -102,11 +102,11 @@ class DataController extends Controller
                 if ($component->component_type === 'allowance') {
                     if ($component->amount) {
                         $tunjangan_calculation += $component->amount;
-                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+                        $tunjangan = $component->component_type->name . ' = ' . $tunjangan_calculation;
 
                     } elseif ($component->percentage) {
                         $tunjangan_calculation += ($gaji * $component->percentage) / 100;
-                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+                        $tunjangan = $component->component_type->name . ' = ' . $tunjangan_calculation;
                     }
                 }
             }
