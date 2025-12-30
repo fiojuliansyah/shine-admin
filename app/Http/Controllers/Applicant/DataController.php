@@ -100,14 +100,7 @@ class DataController extends Controller
         if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
             foreach ($eletter->user->payroll->payroll_components as $component) {
                 if ($component->type === 'allowance') {
-                    if ($component->amount) {
-                        $tunjangan_calculation += $component->amount;
-                        $tunjangan = $component->component_type->name . ' = ' . $tunjangan_calculation;
-
-                    } elseif ($component->percentage) {
-                        $tunjangan_calculation += ($gaji * $component->percentage) / 100;
-                        $tunjangan = $component->component_type->name . ' = ' . $tunjangan_calculation;
-                    }
+                    $tunjangan = $component->component_type->name . ' = ' . $component->amount;
                 }
             }
         }
