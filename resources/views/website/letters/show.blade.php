@@ -75,7 +75,6 @@
         border-collapse: collapse;
     }
     .letter-content table td, .letter-content table th {
-        border: 1px solid #000;
         padding: 8px;
     }
 </style>
