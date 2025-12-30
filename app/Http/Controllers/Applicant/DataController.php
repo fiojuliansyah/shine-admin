@@ -84,64 +84,48 @@ class DataController extends Controller
         $hubungan = $eletter->relationship ?? 'belum ada hubungan';
         
         
-        $gaji_type = $eletter->gaji_type ?? 'monthly'; 
-        if ($gaji_type === 'monthly') {
-            $gaji = $eletter->user->payroll->salary_amount ?? 'belum ada gaji';
-        } elseif ($gaji_type === 'daily') {
-            $gaji = $eletter->user->payroll->daily_rate ?? 'belum ada gaji';
+        // Ambil data payroll user
+        $payroll = $user->payroll;
+
+        // Tentukan Gaji berdasarkan ketersediaan data di tabel payroll
+        if ($payroll) {
+            if ($payroll->salary_amount > 0) {
+                $gaji_raw = $payroll->salary_amount;
+                $gaji_label = " (Per Bulan)";
+            } elseif ($payroll->daily_rate > 0) {
+                $gaji_raw = $payroll->daily_rate;
+                $gaji_label = " (Per Hari)";
+            } else {
+                $gaji_raw = 0;
+                $gaji_label = "";
+            }
         } else {
-            $gaji = 'tipe gaji tidak valid';
+            $gaji_raw = 0;
+            $gaji_label = "";
         }
 
-        $tunjangan = 'Tidak ada data';
-        $tunjangan_calculation = 0;
-        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
-            foreach ($eletter->user->payroll->payroll_components as $component) {
-                if ($component->component_type === 'allowance') {
-                    if ($component->amount) {
-                        $tunjangan_calculation += $component->amount;
-                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+        $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
 
-                    } elseif ($component->percentage) {
-                        $tunjangan_calculation += ($gaji * $component->percentage) / 100;
-                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
-                    }
-                }
+        // Lanjutkan ke perhitungan komponen (Tunjangan, Komisi, Potongan)
+        $tunjangan_calc = 0;
+        $komisi_calc = 0;
+        $potongan_calc = 0;
+
+        if ($payroll && $payroll->payroll_components) {
+            foreach ($payroll->payroll_components as $comp) {
+                // Jika amount ada, pakai amount. Jika tidak, hitung dari persentase gaji_raw
+                $amt = $comp->amount ?? (($gaji_raw * ($comp->percentage ?? 0)) / 100);
+                
+                if ($comp->component_type === 'allowance') $tunjangan_calc += $amt;
+                if ($comp->component_type === 'comission') $komisi_calc += $amt;
+                if ($comp->component_type === 'deduction') $potongan_calc += $amt;
             }
         }
 
-        $komisi = 'Tidak ada data';
-        $komisi_calculation = 0;
-        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
-            foreach ($eletter->user->payroll->payroll_components as $component) {
-                if ($component->component_type === 'comission') {
-                    if ($component->amount) {
-                        $komisi_calculation += $component->amount;
-                        $komisi = $component->name . ' = ' . $komisi_calculation;
-
-                    } elseif ($component->percentage) {
-                        $komisi_calculation += ($gaji * $component->percentage) / 100;
-                        $komisi = $component->name . ' = ' . $komisi_calculation;
-                    }
-                }
-            }
-        }
-
-        $potongan = 'Tidak ada data';
-        $potongan_calculation = 0;
-        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
-            foreach ($eletter->user->payroll->payroll_components as $component) {
-                if ($component->component_type === 'deduction') {
-                    if ($component->amount) {
-                        $potongan_calculation += $component->amount;
-                        $potongan = $component->name . ' = ' . $potongan_calculation;
-                    } elseif ($component->percentage) {
-                        $potongan_calculation += ($gaji * $component->percentage) / 100;
-                        $potongan = $component->name . ' = ' . $potongan_calculation;
-                    }
-                }
-            }
-        }
+        $tunjangan = 'Rp ' . number_format($tunjangan_calc, 0, ',', '.');
+        $komisi = 'Rp ' . number_format($komisi_calc, 0, ',', '.');
+        $potongan = 'Rp ' . number_format($potongan_calc, 0, ',', '.');
+        
         
         $mulai = Carbon::parse($eletter->join_date)->format('d-m-Y') ?? 'belum ada data';
 

@@ -3,17 +3,6 @@
 @section('content')
 <div class="page-wrapper" style="background: #eceef4; min-height: 100vh; padding-bottom: 3rem;">
     <div class="content">
-        <div class="d-md-flex d-block align-items-center justify-content-between mb-4">
-            <div class="my-auto mb-2">
-                <h2 class="mb-1 text-dark">Surat Digital (PKWT)</h2>
-                <nav>
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('web.applicants.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Surat Digital</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
 
         <div class="card mx-auto shadow-lg border-0" style="max-width: 850px;">
             <div class="card-body p-0">
