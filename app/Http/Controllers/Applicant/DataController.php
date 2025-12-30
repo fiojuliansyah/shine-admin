@@ -96,7 +96,6 @@ class DataController extends Controller
         $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
 
         $tunjangan_items = [];
-        
         if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
             foreach ($eletter->user->payroll->payroll_components as $component) {
                 if ($component->type === 'allowance') {
@@ -161,8 +160,8 @@ class DataController extends Controller
                 $esign,
                 $gaji,
                 $tunjangan,
-                $komisi,
-                $potongan,
+                // $komisi,
+                // $potongan,
                 $nama_kontak,
                 $no_kontak,
                 $alamat_kontak,
