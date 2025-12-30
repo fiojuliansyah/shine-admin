@@ -57,6 +57,149 @@ class DataController extends Controller
             ->orderBy('created_at', 'DESC')
             ->first();
 
+        if (!$eletter) {
+            return redirect()->back()->with('error', 'Belum ada surat digital untuk Anda.');
+        }
+
+        $no_surat = $eletter->letter_number ?? 'belum ada no surat';
+        $romawi = $eletter->romawi ?? 'belum ada data';
+        $tahun = $eletter->year ?? 'belum ada tahun';
+        $hari = $eletter->day ?? 'belum ada hari';
+        $pihak_2 = $eletter->second_party ?? 'belum ada data';
+        $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
+        $nama_karyawan = $eletter->user->name ?? 'belum ada nama';
+        $ttl = $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y') ?? 'belum ada data';
+        $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
+        $handphone = $eletter->user->phone ?? 'belum ada no handphone';
+        $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
+        $area = $eletter->site->name ?? 'belum ada area';
+        $jabatan = $eletter->jabatan ?? 'belum ada jabatan';
+        $esign = $eletter->esign ?? 'belum ada tanda tangan';
+        $nama_kontak = $eletter->emergency_name ?? 'belum ada nama';
+        $no_kontak = $eletter->emergency_number ?? 'belum ada no hp';
+        $alamat_kontak = $eletter->emergency_address ?? 'belum ada alamat';
+        $hubungan = $eletter->relationship ?? 'belum ada hubungan';
+        
+        
+        $gaji_type = $eletter->gaji_type ?? 'monthly'; 
+        if ($gaji_type === 'monthly') {
+            $gaji = $eletter->user->payroll->salary_amount ?? 'belum ada gaji';
+        } elseif ($gaji_type === 'daily') {
+            $gaji = $eletter->user->payroll->daily_rate ?? 'belum ada gaji';
+        } else {
+            $gaji = 'tipe gaji tidak valid';
+        }
+
+        $tunjangan = 'Tidak ada data';
+        $tunjangan_calculation = 0;
+        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
+            foreach ($eletter->user->payroll->payroll_components as $component) {
+                if ($component->component_type === 'allowance') {
+                    if ($component->amount) {
+                        $tunjangan_calculation += $component->amount;
+                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+
+                    } elseif ($component->percentage) {
+                        $tunjangan_calculation += ($gaji * $component->percentage) / 100;
+                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+                    }
+                }
+            }
+        }
+
+        $komisi = 'Tidak ada data';
+        $komisi_calculation = 0;
+        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
+            foreach ($eletter->user->payroll->payroll_components as $component) {
+                if ($component->component_type === 'comission') {
+                    if ($component->amount) {
+                        $komisi_calculation += $component->amount;
+                        $komisi = $component->name . ' = ' . $komisi_calculation;
+
+                    } elseif ($component->percentage) {
+                        $komisi_calculation += ($gaji * $component->percentage) / 100;
+                        $komisi = $component->name . ' = ' . $komisi_calculation;
+                    }
+                }
+            }
+        }
+
+        $potongan = 'Tidak ada data';
+        $potongan_calculation = 0;
+        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
+            foreach ($eletter->user->payroll->payroll_components as $component) {
+                if ($component->component_type === 'deduction') {
+                    if ($component->amount) {
+                        $potongan_calculation += $component->amount;
+                        $potongan = $component->name . ' = ' . $potongan_calculation;
+                    } elseif ($component->percentage) {
+                        $potongan_calculation += ($gaji * $component->percentage) / 100;
+                        $potongan = $component->name . ' = ' . $potongan_calculation;
+                    }
+                }
+            }
+        }
+        
+        $mulai = Carbon::parse($eletter->join_date)->format('d-m-Y') ?? 'belum ada data';
+
+        $selesai = Carbon::parse($eletter->end_date)->format('d-m-Y') ?? 'belum ada data';
+    
+        $eletter->letter->description = str_replace(
+            [
+                '[no_surat]', 
+                '[romawi]', 
+                '[tahun]',
+                '[hari]',
+                '[mulai]',
+                '[selesai]',
+                '[pihak_2]',
+                '[sign_2]',
+                '[nama_karyawan]',
+                '[ttl]',
+                '[alamat]',
+                '[handphone]',
+                '[no_karyawan]',
+                '[area]',
+                '[jabatan]',
+                '[esign]',
+                '[gaji]',
+                '[tunjangan]',
+                '[komisi]',
+                '[potongan]',
+                '[nama_kontak]',
+                '[no_kontak]',
+                '[alamat_kontak]',
+                '[hubungan]'
+            ],
+            [
+                $no_surat, 
+                $romawi, 
+                $tahun,
+                $hari,
+                $mulai,
+                $selesai,
+                $pihak_2,
+                $sign_2,
+                $nama_karyawan,
+                $ttl,
+                $alamat,
+                $handphone,
+                $no_karyawan,
+                $area,
+                $jabatan,
+                $esign,
+                $gaji,
+                $tunjangan,
+                $komisi,
+                $potongan,
+                $nama_kontak,
+                $no_kontak,
+                $alamat_kontak,
+                $hubungan
+            ],
+            $eletter->letter->description
+        );
+
         return view('website.letters.show', compact('eletter'));
     }
 

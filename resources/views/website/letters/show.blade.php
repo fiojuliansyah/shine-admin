@@ -13,17 +13,6 @@
                     </ol>
                 </nav>
             </div>
-            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
-                <div class="mb-2">
-                    <button onclick="window.print()" class="btn btn-white border me-2">
-                        <i class="ti ti-printer me-2"></i>Cetak PDF
-                    </button>
-                    {{-- Tombol E-Sign bisa ditambahkan di sini nanti --}}
-                    <button class="btn btn-primary">
-                        <i class="ti ti-signature me-2"></i>Tanda Tangan Digital
-                    </button>
-                </div>
-            </div>
         </div>
 
         <div class="card mx-auto shadow-lg border-0" style="max-width: 850px;">
@@ -44,35 +33,8 @@
                             SIGNED
                         </div>
                     @endif
-
-                    <div class="text-center mb-5">
-                        <img src="/admin/assets/img/logo-dark.svg" alt="Logo" style="max-height: 60px; margin-bottom: 1rem;">
-                        <h4 class="mb-0 fw-bold" style="text-transform: uppercase;">SHINE Karir Official</h4>
-                        <p class="mb-0" style="font-size: 10pt;">Alamat Kantor Pusat, No. Telp, Website</p>
-                        <hr style="border: 1.5px solid #000; margin-top: 10px;">
-                    </div>
-
                     <div class="letter-content">
                         {!! $eletter->letter->description !!}
-                    </div>
-
-                    <div class="mt-5 pt-5">
-                        <div class="row">
-                            <div class="col-6 text-center">
-                                <p class="mb-5">Pihak Pertama,</p>
-                                <br><br>
-                                <p class="mb-0 fw-bold">( HRD MANAGER )</p>
-                            </div>
-                            <div class="col-6 text-center">
-                                <p class="mb-5">Pihak Kedua,</p>
-                                @if($eletter->second_party_esign)
-                                     <img src="{{ $eletter->second_party_esign }}" alt="E-Sign" style="max-height: 80px;">
-                                @else
-                                    <br><br>
-                                @endif
-                                <p class="mb-0 fw-bold">( {{ Auth::user()->name }} )</p>
-                            </div>
-                        </div>
                     </div>
 
                 </div>
