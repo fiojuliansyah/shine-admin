@@ -47,7 +47,7 @@ class DataController extends Controller
         return view('website.history', compact('applicants'));
     }
 
-    public function eletter()
+    public function letter()
     {
         $user = Auth::user();
 
