@@ -176,8 +176,22 @@ class DataController extends Controller
     public function sign(Request $request, $id)
     {
         $request->validate([
-            'second_party_esign' => 'required'
+            'second_party_esign' => 'required|string',
         ]);
+
+        $signatureData = $request->input('second_party_esign');
+
+        if (!$signatureData || strpos($signatureData, 'data:image/svg+xml;base64,') === false) {
+            return back()->with('error', 'Data tanda tangan tidak valid.');
+        }
+
+        $base64Data = substr($signatureData, strlen('data:image/svg+xml;base64,'));
+
+        $svgData = base64_decode($base64Data);
+
+        if ($svgData === false) {
+            return back()->with('error', 'Gagal mengonversi data tanda tangan.');
+        }
 
         $generate = Generate::where('id', $id)
                     ->where('user_id', Auth::id())
@@ -185,12 +199,12 @@ class DataController extends Controller
 
         try {
             $generate->update([
-                'second_party_esign' => $request->second_party_esign,
+                'second_party_esign' => $svgData,
             ]);
 
-            return redirect()->back()->with('success', 'Tanda tangan berhasil disimpan. Dokumen Anda telah resmi ditandatangani.');
+            return redirect()->back()->with('success', 'Tanda tangan berhasil disimpan!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan tanda tangan.');
+            return redirect()->back()->with('error', 'Gagal memperbarui data.');
         }
     }
 

@@ -133,7 +133,7 @@
         }
 
         // Convert ke base64 image
-        const signatureData = signaturePad.toDataURL('image/png');
+        const signatureData = signaturePad.toDataURL('image/svg+xml');
         document.getElementById('signatureInput').value = signatureData;
     });
 
