@@ -53,8 +53,7 @@ class DataController extends Controller
     {
         $user = Auth::user();
 
-        $eletter = Generate::with(['career'])
-            ->where('user_id', $user->id)
+        $eletter = Generate::where('user_id', $user->id)
             ->orderBy('created_at', 'DESC')
             ->first();
 
