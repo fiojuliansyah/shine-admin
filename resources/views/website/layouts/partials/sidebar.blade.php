@@ -27,11 +27,6 @@
                                 <i class="ti ti-briefcase"></i><span>Lowongan</span>
                             </a>
                         </li>
-                        <li class="#">
-                            <a href="#">
-                                <i class="ti ti-edit"></i><span>Dokumen Digital</span>
-                            </a>
-                        </li>
                         <li class="{{ Route::is('web.applicants.faq') ? 'active' : '' }}">
                             <a href="{{ route('web.applicants.faq') }}">
                                 <i class="ti ti-help-octagon"></i><span>Pertanyaan</span>
@@ -40,6 +35,16 @@
                         <li class="{{ Route::is('web.applicants.history') ? 'active' : '' }}">
                             <a href="{{ route('web.applicants.history') }}">
                                 <i class="ti ti-file-description"></i><span>Riwayat Lamaran</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-title"><span>DOKUMEN DIGITAL</span></li>
+                <li>
+                    <ul>
+                        <li class="#">
+                            <a href="#">
+                                <i class="ti ti-edit"></i><span>Tanda Tangan <span class="badge badge-xs rounded-pill bg-danger" style="color: white">Disini</span></span>
                             </a>
                         </li>
                     </ul>
