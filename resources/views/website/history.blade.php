@@ -63,7 +63,7 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="{{ route('web.applicants.careers.detail', $app->career->slug ?? '#') }}" class="btn btn-sm btn-outline-primary">
+                                                    <a href="{{ route('web.applicants.career.detail', $app->career->slug) }}" class="btn btn-sm btn-outline-primary">
                                                         <i class="ti ti-eye me-1"></i> Detail Job
                                                     </a>
                                                 </td>
