@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('site_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->string('shift_code')->unique();
+            $table->string('shift_code')->nullable();
             $table->time('clock_in')->nullable();
             $table->time('clock_out')->nullable();
             $table->enum('type', ['off', 'leave'])->nullable();
