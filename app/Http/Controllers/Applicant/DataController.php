@@ -84,13 +84,11 @@ class DataController extends Controller
         $hubungan = $eletter->relationship ?? 'belum ada hubungan';
         
         
-        // Ambil data payroll user
         $payroll = $user->payroll;
 
-        // Tentukan Gaji berdasarkan ketersediaan data di tabel payroll
         if ($payroll) {
-            if ($payroll->salary_amount > 0) {
-                $gaji_raw = $payroll->salary_amount;
+            if ($payroll->amount > 0) {
+                $gaji_raw = $payroll->amount;
                 $gaji_label = " (Per Bulan)";
             } elseif ($payroll->daily_rate > 0) {
                 $gaji_raw = $payroll->daily_rate;
@@ -106,14 +104,12 @@ class DataController extends Controller
 
         $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
 
-        // Lanjutkan ke perhitungan komponen (Tunjangan, Komisi, Potongan)
         $tunjangan_calc = 0;
         $komisi_calc = 0;
         $potongan_calc = 0;
 
         if ($payroll && $payroll->payroll_components) {
             foreach ($payroll->payroll_components as $comp) {
-                // Jika amount ada, pakai amount. Jika tidak, hitung dari persentase gaji_raw
                 $amt = $comp->amount ?? (($gaji_raw * ($comp->percentage ?? 0)) / 100);
                 
                 if ($comp->component_type === 'allowance') $tunjangan_calc += $amt;
@@ -125,7 +121,7 @@ class DataController extends Controller
         $tunjangan = 'Rp ' . number_format($tunjangan_calc, 0, ',', '.');
         $komisi = 'Rp ' . number_format($komisi_calc, 0, ',', '.');
         $potongan = 'Rp ' . number_format($potongan_calc, 0, ',', '.');
-        
+
         
         $mulai = Carbon::parse($eletter->join_date)->format('d-m-Y') ?? 'belum ada data';
 
