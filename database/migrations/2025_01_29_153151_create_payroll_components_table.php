@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('payroll_components', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payroll_id')->constrained()->onDelete('cascade');
-            $table->enum('pay_type', ['daily', 'monthly', 'yearly']);
+            $table->enum('type', ['allowance', 'comission', 'deduction'])->default('allowance');
             $table->string('component_type_id')->nullable();
             $table->integer('amount')->nullable();
             $table->float('percentage')->nullable();
