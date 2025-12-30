@@ -49,8 +49,7 @@
                                                 <td>{{ $app->created_at->format('d M Y, H:i') }}</td>
                                                 <td>
                                                     @php
-                                                        // Logika warna badge berdasarkan status (asumsi status_id atau status name)
-                                                        $badgeClass = 'bg-warning-transparent text-warning'; // Default Pending
+                                                        $badgeClass = 'bg-warning-transparent text-warning';
                                                         $statusName = $app->status->name ?? 'Review Berkas';
 
                                                         if(str_contains(strtolower($statusName), 'terima') || str_contains(strtolower($statusName), 'lolos')) {
@@ -72,7 +71,7 @@
                                         @empty
                                             <tr>
                                                 <td colspan="4" class="text-center py-5">
-                                                    <img src="/admin/assets/img/bg/empty-state.svg" alt="no-data" style="width: 150px;" class="mb-3">
+                                                    <img src="/admin/assets/img/favicon.png" alt="no-data" style="width: 150px;" class="mb-3">
                                                     <p class="text-muted">Anda belum melamar pekerjaan apapun.</p>
                                                     <a href="{{ route('web.applicants.career') }}" class="btn btn-primary btn-sm">Cari Lowongan</a>
                                                 </td>
