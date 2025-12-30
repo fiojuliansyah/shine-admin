@@ -69,6 +69,8 @@ class DataController extends Controller
         $pihak_2 = $eletter->second_party ?? 'belum ada data';
         $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
         $nama_karyawan = $eletter->user->name ?? 'belum ada nama';
+        $nik_ktp = $eletter->user->nik ?? 'belum ada NIK KTP';
+        $jenis_kelamin = $eletter->user->profile->gender ?? 'belum ada Jenis Kelamin';
         $ttl = $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y') ?? 'belum ada data';
         $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
@@ -156,6 +158,8 @@ class DataController extends Controller
                 '[pihak_2]',
                 '[sign_2]',
                 '[nama_karyawan]',
+                '[gender]',
+                '[nik_ktp]',
                 '[ttl]',
                 '[alamat]',
                 '[handphone]',
@@ -182,6 +186,8 @@ class DataController extends Controller
                 $pihak_2,
                 $sign_2,
                 $nama_karyawan,
+                $gender,
+                $nik_ktp,
                 $ttl,
                 $alamat,
                 $handphone,
