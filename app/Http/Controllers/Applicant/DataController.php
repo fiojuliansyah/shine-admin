@@ -90,24 +90,29 @@ class DataController extends Controller
 
         if ($payroll) {
             $gaji_raw = $payroll->amount ?? 0;
-            $gaji_label = ($payroll->pay_type === 'monthly') ? " (Per Bulan)" : (($payroll->pay_type === 'daily') ? " (Per Hari)" : "");
+            $gaji_label = ($payroll->pay_type === 'monthly') ? " / Bulan" : (($payroll->pay_type === 'daily') ? " / Hari" : "");
         }
 
         $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
 
-        // Inisialisasi array untuk menampung nama dan nominal
         $allowance_list = [];
         $comission_list = [];
         $deduction_list = [];
 
         if ($payroll && $payroll->payroll_components) {
             foreach ($payroll->payroll_components as $comp) {
-                // Hitung nominal
+                // Hitung nominal berdasarkan amount atau percentage
                 $amt = $comp->amount ?? (($gaji_raw * ($comp->percentage ?? 0)) / 100);
                 
-                // Format: "Nama Komponen (Rp 100.000)"
-                $formatText = $comp->name . ' (Rp ' . number_format($amt, 0, ',', '.') . ')';
+                // Ambil NAMA dari relasi componentType
+                // Jika relasi Anda bernama 'type' atau 'component_type', sesuaikan di bawah:
+                $nama_komponen = $comp->componentType->name ?? 'Komponen'; 
+                
+                $formatText = $nama_komponen . ': Rp ' . number_format($amt, 0, ',', '.');
 
+                // Kelompokkan berdasarkan ID atau slug tipe (sesuaikan dengan logic database Anda)
+                // Di sini saya asumsikan component_type_id 1=Allowance, 2=Commission, 3=Deduction
+                // Atau Anda bisa gunakan logic $comp->componentType->category/type
                 if ($comp->component_type === 'allowance') {
                     $allowance_list[] = $formatText;
                 } elseif ($comp->component_type === 'comission') {
@@ -118,11 +123,9 @@ class DataController extends Controller
             }
         }
 
-        // Gabungkan array menjadi string dipisahkan koma atau baris baru
-        $tunjangan = !empty($allowance_list) ? implode(', ', $allowance_list) : 'Tidak ada data';
-        $komisi    = !empty($comission_list) ? implode(', ', $comission_list) : 'Tidak ada data';
-        $potongan  = !empty($deduction_list) ? implode(', ', $deduction_list) : 'Tidak ada data';
-
+        $tunjangan = !empty($allowance_list) ? implode('<br>', $allowance_list) : 'Tidak ada tunjangan';
+        $komisi    = !empty($comission_list) ? implode('<br>', $comission_list) : 'Tidak ada komisi';
+        $potongan  = !empty($deduction_list) ? implode('<br>', $deduction_list) : 'Tidak ada potongan';
         
         $mulai = Carbon::parse($eletter->join_date)->format('d-m-Y') ?? 'belum ada data';
 
