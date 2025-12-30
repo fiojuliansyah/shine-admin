@@ -32,13 +32,13 @@
                                 <i class="ti ti-edit"></i><span>Dokumen Digital</span>
                             </a>
                         </li>
-                        <li class="#">
-                            <a href="#">
+                        <li class="{{ Route::is('web.applicants.faq') ? 'active' : '' }}">
+                            <a href="{{ route('web.applicants.faq') }}">
                                 <i class="ti ti-help-octagon"></i><span>Pertanyaan</span>
                             </a>
                         </li>
-                        <li class="#">
-                            <a href="#">
+                        <li class="{{ Route::is('web.applicants.hitory') ? 'active' : '' }}">
+                            <a href="{{ route('web.applicants.hitory') }}">
                                 <i class="ti ti-file-description"></i><span>Riwayat Lamaran</span>
                             </a>
                         </li>

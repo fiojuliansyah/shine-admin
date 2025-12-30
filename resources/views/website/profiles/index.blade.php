@@ -311,6 +311,12 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
+                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
+                                    <input type="text" name="mother_name" class="form-control" value="{{ $user->profile?->mother_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
                                     <label class="form-label">Tempat Lahir<span class="text-danger"> *</span></label>
                                     <input type="text" name="birth_place" class="form-control" value="{{ $user->profile?->birth_place }}">
                                 </div>
@@ -321,15 +327,9 @@
                                     <input type="date" name="birth_date" class="form-control" value="{{ $user->profile?->birth_date }}">
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
-                                    <input type="text" name="mother_name" class="form-control" value="{{ $user->profile?->mother_name }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">No NPWP<span class="text-danger"> *</span></label>
+                                    <label class="form-label">No NPWP</label>
                                     <input type="text" name="npwp_number" class="form-control" value="{{ $user->profile?->npwp_number }}">
                                 </div>
                             </div>
@@ -368,19 +368,19 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Nama BANK<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Nama BANK</label>
                                     <input type="text" name="bank_name" class="form-control" value="{{ $user->profile?->bank_name }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Nama rekening<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Nama rekening</label>
                                     <input type="text" name="account_name" class="form-control" value="{{ $user->profile?->account_name }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">No rekening<span class="text-danger"> *</span></label>
+                                    <label class="form-label">No rekening</label>
                                     <input type="text" name="account_number" class="form-control" value="{{ $user->profile?->account_number }}">
                                 </div>
                             </div>
@@ -419,13 +419,14 @@
                                     <label class="form-label">Tipe Dokumen<span class="text-danger"> *</span></label>
                                     <select class="form-select" name="name" required>
                                         <option value="">Pilih Tipe Dokumen</option>
-                                        <option value="KTP">KTP</option>
+                                        <option value="KTP">KTP (wajib)</option>
+                                        <option value="SKCK">SKCK (wajib)</option>
                                         <option value="SIM">SIM</option>
                                         <option value="NPWP">NPWP</option>
                                         <option value="IJAZAH">IJAZAH</option>
                                         <option value="KARTU KELUARGA">KARTU KELUARGA</option>
                                         <option value="PAKLARING">PAKLARING</option>
-                                        <option value="CERTIFICATE">CERTIFICATE</option>
+                                        <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN/PROFESI</option>
                                     </select>
                                 </div>
                             </div>
@@ -433,7 +434,7 @@
                             <!-- Deskripsi Dokumen -->
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Deskripsi Dokumen<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Deskripsi Dokumen</label>
                                     <input type="text" name="description" class="form-control" placeholder="Masukkan deskripsi dokumen" required>
                                 </div>
                             </div>
@@ -449,7 +450,7 @@
                             <!-- Tanggal Expired -->
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Tanggal Expired<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Tanggal Expired</label>
                                     <input type="date" name="validate" class="form-control">
                                 </div>
                             </div>

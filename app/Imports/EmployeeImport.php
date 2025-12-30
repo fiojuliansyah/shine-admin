@@ -63,7 +63,7 @@ class EmployeeImport implements ToModel, WithStartRow
                 'employee_nik' => $row[0],
                 'name' => $row[1],
                 'phone' => $row[2],
-                'email' => $row[3],
+                'email' => strtolower($row[3]),
                 'password' => bcrypt($row[4]),
                 'site_id' => $this->siteId,
                 'department_id' => 1,

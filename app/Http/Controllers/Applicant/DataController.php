@@ -29,6 +29,16 @@ class DataController extends Controller
         return view('website.dashboard', compact('timelines'));
     }
 
+    public function faq()
+    {
+        return view('website.faq');
+    }
+
+    public function history()
+    {
+        return view('website.history');
+    }
+
     public function index(Request $request)
     {
         $query = Career::query();
@@ -57,14 +67,34 @@ class DataController extends Controller
 
     public function apply($slug)
     {
-        $userId = Auth::id();
-        $career  = Career::where('slug', $slug)->firstOrFail();
+        $user = Auth::user();
 
-        $apply = new Applicant;
-        $apply->user_id = $userId;
-        $apply->career_id = $career->id;
-        $apply->status_id = 0;
-        $apply->save();
+        $requiredFields = [
+            'nik', 
+            'marrriage_status', 
+            
+        ];
+
+        $isComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
+            return !empty($user->profile->$field);
+        });
+
+        if (!$isComplete) {
+            return redirect()->back()
+                ->with('error', 'Profil tidak lengkap. Mohon isi NIK, Alamat, Tanggal Lahir, dan Data Bank Anda.');
+        }
+
+        $career = Career::where('slug', $slug)->firstOrFail();
+        
+        if (Applicant::where(['user_id' => $user->id, 'career_id' => $career->id])->exists()) {
+            return redirect()->back()->with('error', 'Anda sudah melamar posisi ini.');
+        }
+
+        Applicant::create([
+            'user_id' => $user->id,
+            'career_id' => $career->id,
+            'status_id' => 0,
+        ]);
 
         return redirect()->route('web.applicants.dashboard')
             ->with('success', 'Terimakasih telah melamar pekerjaan!');

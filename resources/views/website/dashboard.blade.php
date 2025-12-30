@@ -3,6 +3,7 @@
 @section('content')
     <div class="page-wrapper">
         <div class="content">
+
             <div class="alert bg-danger-transparent alert-dismissible fade show mb-4">
                 Lengkapi profil anda sebelum melamar!
                 <button type="button" class="btn-close fs-14" data-bs-dismiss="alert" aria-label="Close"><i
@@ -13,11 +14,9 @@
                 <div class=" d-flex align-items-center justify-content-between flex-wrap">
                     <div class="mb-3">
                         <h2 class="mb-1 text-white">Welcome Back, {{ Auth::user()->name ?? 'Pelamar' }}</h2>
-                        {{-- <p class="text-light">14 New Companies Subscribed Today !!!</p> --}}
                     </div>
                     <div class="d-flex align-items-center flex-wrap mb-1">
                         <a href="{{ route('applicants.profiles.index') }}" class="btn btn-dark btn-md me-2 mb-2">Kelola Profil</a>
-                        {{-- <a href="#" class="btn btn-light btn-md mb-2">Pengaturan Akun</a> --}}
                     </div>
                 </div>
                 <div class="welcome-bg">
@@ -88,155 +87,6 @@
                     </div>
                 </div>
                 <div class="col-xl-8">
-                    {{-- <div class="card border-0">
-                        <div class="card-header">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <h5>Notifikasi</h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <span class="badge badge-soft-purple d-inline-flex align-items-center mb-3">
-                                <i class="ti ti-calendar me-1"></i>
-                                15 Feb 2024
-                            </span>
-                            <div class="border rounded p-3 mb-3">
-                                <div class="d-flex align-items-start">
-                                    <span class="avatar avatar-md avatar-rounded flex-shrink-0 bg-skyblue me-2">
-                                        <i class="ti ti-bell fs-20"></i>
-                                        <span class="notification-status-dot"></span>
-                                    </span>
-                                    <div>
-                                        <h6 class="fw-medium mb-1">You sent 1 Message to the contact.</h6>
-                                        <span>10:25 pm</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="border rounded p-3">
-                                <div class="d-flex align-items-start mb-2">
-                                    <span class="avatar avatar-md avatar-rounded flex-shrink-0 bg-purple me-2"><i
-                                            class="ti ti-user-circle fs-20"></i></span>
-                                    <div>
-                                        <h6 class="fw-medium mb-1">
-                                            Product Meeting
-                                        </h6>
-                                        <p class="mb-1">A product team meeting is a gathering of the cross-functional
-                                            product team — ideally including
-                                            team members from product, engineering, marketing, and customer support.
-                                        </p>
-                                        <span>Schedueled on 05:00 pm</span>
-                                    </div>
-                                </div>
-                                <div class="bg-light-500 rounded p-3">
-                                    <div class="row">
-                                        <div class="col-md-4 col-sm-6">
-                                            <div>
-                                                <h6 class="fs-12 fw-medium mb-2">Reminder</h6>
-                                                <div class="dropdown">
-                                                    <a href="javascript:void(0);"
-                                                        class="dropdown-toggle btn btn-sm btn-white d-inline-flex align-items-center"
-                                                        data-bs-toggle="dropdown">
-                                                        <i class="clock-hour-3 me-1"></i>
-                                                        Reminder
-                                                    </a>
-                                                    <ul class="dropdown-menu  dropdown-menu-end p-3">
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1">Reminder</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1">1 Hr</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1">10 Hr</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 col-sm-6">
-                                            <div>
-                                                <h6 class="fs-12 fw-medium mb-2">Task Priority</h6>
-                                                <div class="dropdown">
-                                                    <a href="javascript:void(0);"
-                                                        class="dropdown-toggle btn-sm btn btn-white d-inline-flex align-items-center"
-                                                        data-bs-toggle="dropdown">
-                                                        <span
-                                                            class="border border-purple rounded-circle bg-soft-danger d-flex justify-content-center align-items-center me-1">
-                                                            <i class="ti ti-point-filled text-danger"></i>
-                                                        </span>
-                                                        High
-                                                    </a>
-                                                    <ul class="dropdown-menu  dropdown-menu-end p-3">
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1">High</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1">Medium</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1">Low</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 col-sm-6">
-                                            <div>
-                                                <h6 class="fs-12 fw-medium mb-2">Assigned to</h6>
-                                                <div class="dropdown">
-                                                    <a href="javascript:void(0);"
-                                                        class="dropdown-toggle btn btn-sm btn-white d-inline-flex align-items-center"
-                                                        data-bs-toggle="dropdown">
-                                                        <span class="avatar avatar-xs avatar-rounded me-1">
-                                                            <img src="assets/img/profiles/avatar-02.jpg" alt="Img">
-                                                        </span>
-                                                        John
-                                                    </a>
-                                                    <ul class="dropdown-menu  dropdown-menu-end p-3">
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1 d-flex align-items-center">
-                                                                <span class="avatar avatar-xs avatar-rounded me-1">
-                                                                    <img src="assets/img/profiles/avatar-02.jpg"
-                                                                        alt="Img">
-                                                                </span>
-                                                                John
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1 d-flex align-items-center">
-                                                                <span class="avatar avatar-xs avatar-rounded me-1">
-                                                                    <img src="assets/img/profiles/avatar-01.jpg"
-                                                                        alt="Img">
-                                                                </span>
-                                                                Sophie
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="javascript:void(0);"
-                                                                class="dropdown-item rounded-1 d-flex align-items-center">
-                                                                <span class="avatar avatar-xs avatar-rounded me-1">
-                                                                    <img src="assets/img/profiles/avatar-03.jpg"
-                                                                        alt="Img">
-                                                                </span>
-                                                                Estelle
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                     <div class="card border-0">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between">
