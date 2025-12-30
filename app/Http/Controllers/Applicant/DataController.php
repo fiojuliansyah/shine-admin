@@ -8,6 +8,7 @@ use App\Models\Floor;
 use App\Models\Career;
 use App\Models\Letter;
 use App\Models\Document;
+use App\Models\Generate;
 use App\Models\Applicant;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
