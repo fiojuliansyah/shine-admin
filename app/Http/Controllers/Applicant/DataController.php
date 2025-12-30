@@ -76,7 +76,6 @@ class DataController extends Controller
         $user = Auth::user();
 
         $requiredFields = [
-            'nik', 
             'marrriage_status', 
             
         ];
@@ -87,7 +86,7 @@ class DataController extends Controller
 
         if (!$isComplete) {
             return redirect()->back()
-                ->with('error', 'Profil tidak lengkap. Mohon isi NIK, Alamat, Tanggal Lahir, dan Data Bank Anda.');
+                ->with('error', 'Profil tidak lengkap. Mohon dilengkapi Data diri anda.');
         }
 
         $career = Career::where('slug', $slug)->firstOrFail();
