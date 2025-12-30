@@ -39,7 +39,7 @@ class ScheduleController extends Controller
         $request->validate([
             'site_id' => 'required|exists:sites,id',
             'name' => 'required|string|max:255',
-            'shift_code' => 'required|string|unique:shifts,shift_code|max:10',
+            'shift_code' => 'required|string|max:10',
             'clock_in' => 'nullable|date_format:H:i',
             'clock_out' => 'nullable|date_format:H:i',
             'type' => 'nullable|in:off,leave',
