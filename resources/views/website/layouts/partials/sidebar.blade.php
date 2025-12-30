@@ -37,8 +37,8 @@
                                 <i class="ti ti-help-octagon"></i><span>Pertanyaan</span>
                             </a>
                         </li>
-                        <li class="{{ Route::is('web.applicants.hitory') ? 'active' : '' }}">
-                            <a href="{{ route('web.applicants.hitory') }}">
+                        <li class="{{ Route::is('web.applicants.history') ? 'active' : '' }}">
+                            <a href="{{ route('web.applicants.history') }}">
                                 <i class="ti ti-file-description"></i><span>Riwayat Lamaran</span>
                             </a>
                         </li>
