@@ -35,6 +35,25 @@
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet" />
 
     @stack('css')
+	<style>
+		.notification-container {
+			position: fixed; 
+			top: 20px; 
+			right: 20px; 
+			z-index: 9999; 
+			width: 350px;
+			max-width: 90%;
+		}
+
+		@media (max-width: 576px) {
+			.notification-container {
+				top: 10px;
+				right: 5%;
+				left: 5%;
+				width: 90%;
+			}
+		}
+	</style>
 	<!-- Main CSS -->
 	<link rel="stylesheet" href="/admin/assets/css/style.css">
 
@@ -49,57 +68,71 @@
 	<!-- Main Wrapper -->
 	<div class="main-wrapper">
 
-		@if(session('success'))
-			<div id="successAlert" class="col-xl-3" style="position: fixed; top: 20px; left: 88%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 100%; display: block;">
-				<div class="card border-0">
+		<div class="notification-container">
+			@if(session('success'))
+				<div id="successAlert" class="card border-0 shadow-lg mb-2">
 					<div class="alert alert-primary border border-primary mb-0 p-3">
 						<div class="d-flex align-items-start">
-							<div class="me-2">
-								<i class="feather-info flex-shrink-0"></i>
-							</div>
+							<div class="me-2"><i class="feather-info flex-shrink-0"></i></div>
 							<div class="text-primary w-100">
 								<div class="fw-semibold d-flex justify-content-between">
-									Success<button type="button" class="btn-close p-0"
-										data-bs-dismiss="alert" aria-label="Close"><i
-											class="fas fa-xmark"></i></button></div>
-								<div class="fs-12 op-8 mb-1">{{ session('success') }}</div>
+									Success
+									<button type="button" class="btn-close p-0" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-xmark"></i></button>
+								</div>
+								<div class="fs-12 op-8">{{ session('success') }}</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<script>
-				setTimeout(function() {
-					document.getElementById('successAlert').style.display = 'none';
-				}, 3000);
-			</script>
-		@endif
+				<script>
+					setTimeout(() => { $('#successAlert').fadeOut(); }, 3000);
+				</script>
+			@endif
 
-		@if(session('failed'))
-			<div id="failedAlert" class="col-xl-3" style="position: fixed; top: 20px; left: 88%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 100%; display: block;">
-				<div class="card border-0">
+			@if(session('error'))
+				<div id="errorAlert" class="card border-0 shadow-lg mb-2">
 					<div class="alert alert-danger border border-danger mb-0 p-3">
 						<div class="d-flex align-items-start">
-							<div class="me-2">
-								<i class="feather-info flex-shrink-0"></i>
-							</div>
-							<div class="text-primary w-100">
+							<div class="me-2"><i class="feather-alert-circle flex-shrink-0"></i></div>
+							<div class="text-danger w-100">
 								<div class="fw-semibold d-flex justify-content-between">
-									Gagal<button type="button" class="btn-close p-0"
-										data-bs-dismiss="alert" aria-label="Close"><i
-											class="fas fa-xmark"></i></button></div>
-								<div class="fs-12 op-8 mb-1">{{ session('failed') }}</div>
+									Error
+									<button type="button" class="btn-close p-0" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-xmark"></i></button>
+								</div>
+								<div class="fs-12 op-8">{{ session('error') }}</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<script>
-				setTimeout(function() {
-					document.getElementById('failedAlert').style.display = 'none';
-				}, 3000);
-			</script>
-		@endif
+				<script>
+					setTimeout(() => { $('#errorAlert').fadeOut(); }, 5000);
+				</script>
+			@endif
+
+			@if ($errors->any())
+				<div id="validationAlert" class="card border-0 shadow-lg mb-2">
+					<div class="alert alert-danger border border-danger mb-0 p-3">
+						<div class="d-flex align-items-start">
+							<div class="me-2"><i class="feather-x-circle flex-shrink-0"></i></div>
+							<div class="text-danger w-100">
+								<div class="fw-semibold d-flex justify-content-between">
+									Validation Error
+									<button type="button" class="btn-close p-0" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-xmark"></i></button>
+								</div>
+								<ul class="fs-12 op-8 mb-0 ps-3 mt-1">
+									@foreach ($errors->all() as $error)
+										<li>{{ $error }}</li>
+									@endforeach
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<script>
+					setTimeout(() => { $('#validationAlert').fadeOut(); }, 6000);
+				</script>
+			@endif
+		</div>
 
 		<!-- Header -->
 		@include('layouts.partials.header')

@@ -28,10 +28,16 @@
                                     <p class="text-muted mb-0"><i class="ti ti-map-pin me-1"></i> {{ $career->location }}
                                     </p>
                                 </div>
-                                <div class="text-end d-none d-md-block">
-                                    <h4 class="text-primary fw-bold mb-0">Rp
-                                        {{ number_format($career->salary, 0, '.', ',') }}</h4>
-                                    <small class="text-muted">Per Bulan</small>
+                               <div class="text-end d-none d-md-block">
+                                    @if($career->salary > 0)
+                                        <h4 class="text-primary fw-bold mb-0">
+                                            Rp {{ number_format($career->salary, 0, '.', ',') }}
+                                        </h4>
+                                        <small class="text-muted">Per Bulan</small>
+                                    @else
+                                        <h4 class="text-primary fw-bold mb-0">Competitive</h4>
+                                        <small class="text-muted">Gaji Kompetitif</small>
+                                    @endif
                                 </div>
                             </div>
 
