@@ -142,29 +142,56 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Pilih Penempatan</h4>
+                <h4 class="modal-title">Konfigurasi Offering & PKWT</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
                     <i class="ti ti-x"></i>
                 </button>
             </div>
             <form id="bulk-offering-form" action="{{ route('bulk.update.offering') }}" method="POST">
                 @csrf
-                <div class="modal-body pb-0">
-                    <div class="mb-3">
-                        <label class="form-label">Pilih Penempatan</label>
-                        <select class="form-select" name="site_id" id="bulk-site-id">
-                            <option disabled selected>Pilih Penempatan</option>
-                            @foreach ($sites as $site)
-                                <option value="{{ $site->id }}">{{ $site->name }}</option>
-                            @endforeach
-                        </select>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Pilih Penempatan / Site</label>
+                            <select class="form-select" name="site_id" required>
+                                <option disabled selected>Pilih Penempatan</option>
+                                @foreach ($sites as $site)
+                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Template Surat (PKWT)</label>
+                            <select class="form-select" name="letter_id" required>
+                                <option disabled selected>Pilih Template</option>
+                                @foreach ($letters as $letter) <option value="{{ $letter->id }}">{{ $letter->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tanggal Mulai Kontrak</label>
+                            <input type="date" name="start_date" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tanggal Berakhir Kontrak</label>
+                            <input type="date" name="end_date" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Nomor Surat (Optional)</label>
+                            <input type="text" name="letter_number" class="form-control" placeholder="Contoh: 001/HRD/PKWT/2025">
+                            <small class="text-muted italic">*Kosongkan jika ingin generate otomatis</small>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="submit" class="btn btn-primary">Proses & Generate Letter</button>
                 </div>
-                <input type="hidden" name="applicant_ids[]" id="applicant-ids">
+                <div id="offering-applicant-container"></div>
             </form>
         </div>
     </div>
@@ -254,45 +281,24 @@ $(function () {
         }
     }
 
-    // Handle form submission for bulk update status
-    $('#bulk-update-form').submit(function(e) {
-        e.preventDefault();
-
-        if (selectedIds.length === 0) {
-            alert('Please select at least one applicant');
-            return;
-        }
-
-        $('#applicant-ids').empty();
-
-        $.each(selectedIds, function(index, id) {
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'applicant_ids[]',
-                value: id
-            }).appendTo('#bulk-update-form');
-        });
-
-        this.submit();
-    });
-
     // Handle form submission for bulk offering
     $('#bulk-offering-form').submit(function(e) {
         e.preventDefault();
 
         if (selectedIds.length === 0) {
-            alert('Please select at least one applicant');
+            alert('Mohon pilih setidaknya satu pelamar');
             return;
         }
 
-        $('#applicant-ids').empty();
+        // Bersihkan container hidden input sebelum append
+        $('#offering-applicant-container').empty();
 
         $.each(selectedIds, function(index, id) {
             $('<input>').attr({
                 type: 'hidden',
                 name: 'applicant_ids[]',
                 value: id
-            }).appendTo('#bulk-offering-form');
+            }).appendTo('#offering-applicant-container');
         });
 
         this.submit();

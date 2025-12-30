@@ -33,7 +33,6 @@ class CombinedImport implements ToCollection
                 continue;
             }
 
-            // Proses data untuk setiap baris
             $employeeNik = $row[5];
             $employee = User::where('employee_nik', $employeeNik)->first();
 
@@ -41,7 +40,6 @@ class CombinedImport implements ToCollection
                 continue;
             }
 
-            // Buat Generate dan Payroll
             $generate = Generate::create([
                 'letter_id' => $this->template,
                 'letter_number' => $row[0],
@@ -64,7 +62,6 @@ class CombinedImport implements ToCollection
                 'cutoff_day' => $row[9] ?? 20,
             ]);
 
-            // Proses payroll component
             $componentType = $row[10];
             $componentName = $row[11];
             $componentAmount = $row[12];

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use DataTables;
 use App\Models\Site;
+use App\Models\Letter;
 use App\Models\Status;
 use App\Models\Document;
+use App\Models\Generate;
 use App\Models\Applicant;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -39,6 +41,7 @@ class StatusController extends Controller
         $status = Status::where('slug', $slug)->first();
         $statuses = Status::all();
         $sites = Site::all();
+        $letters = Letter::all();
 
         if (request()->ajax()) {
 
@@ -91,7 +94,7 @@ class StatusController extends Controller
                 ->make(true);
         }
             
-        return view('statuses.show', compact('status','statuses','sites'));
+        return view('statuses.show', compact('status','statuses','sites','letters'));
     }
 
     public function update(Request $request, $id)
@@ -150,20 +153,21 @@ class StatusController extends Controller
         $site_id = $request->site_id;
         $applicant_ids = $request->applicant_ids;
         
+        $request->validate([
+            'letter_id' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+
         if (!$site_id || empty($applicant_ids)) {
             return redirect()->back()->with('error', 'Mohon pilih kandidat yang terpilih.');
-        }
-        
-        $site = Site::find($site_id);
-        if (!$site) {
-            return redirect()->back()->with('error', 'Site/Project tidak valid');
         }
 
         if (is_string($applicant_ids)) {
             $applicant_ids = explode(',', $applicant_ids);
         }
 
-        Applicant::whereIn('id', $applicant_ids)->each(function ($applicant) use ($site_id) {
+        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id) {
             $applicant->user->update([
                 'site_id' => $site_id,
                 'is_employee' => 1
@@ -172,9 +176,27 @@ class StatusController extends Controller
             $applicant->update([
                 'done' => 'done'
             ]);
+
+            Generate::create([
+                'letter_id'      => $request->letter_id,
+                'letter_number'  => $request->letter_number,
+                'romawi'         => $this->getRomawi(date('m')),
+                'year'           => date('Y'),
+                'start_date'     => $request->start_date,
+                'end_date'       => $request->end_date,
+                'user_id'        => $applicant->user_id,
+                'site_id'        => $site_id,
+                'second_party'   => $applicant->user->name,
+                'description'    => 'Auto generated from Bulk Offering',
+            ]);
         });
 
-        return redirect()->back()->with('success', 'Kandidat berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Kandidat berhasil dikonversi menjadi karyawan dan surat digital telah dibuat.');
+    }
+
+    private function getRomawi($month) {
+        $map = [1=>'I',2=>'II',3=>'III',4=>'IV',5=>'V',6=>'VI',7=>'VII',8=>'VIII',9=>'IX',10=>'X',11=>'XI',12=>'XII'];
+        return $map[(int)$month] ?? 'I';
     }
     
     public function destroy($id)
