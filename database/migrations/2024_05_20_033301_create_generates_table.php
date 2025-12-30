@@ -21,15 +21,15 @@ return new class extends Migration
             $table->string('start_date')->nullable();
             $table->string('end_date')->nullable();
             $table->string('second_party')->nullable();
-            $table->string('second_party_esign')->nullable();
+            $table->longText('second_party_esign')->nullable();
             $table->string('user_id')->nullable();
             $table->string('site_id')->nullable();
             $table->string('emergency_name')->nullable();
             $table->string('emergency_number')->nullable();
             $table->string('emergency_address')->nullable();
             $table->string('relationship')->nullable();
-            $table->string('description')->nullable();
-            $table->string('esign')->nullable();
+            $table->longText('description')->nullable();
+            $table->longText('esign')->nullable();
             $table->timestamps();
         });
     }
