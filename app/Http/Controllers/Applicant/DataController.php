@@ -101,7 +101,7 @@ class DataController extends Controller
                 if ($component->type === 'allowance') {
                     $nominal = $component->amount;
                     $nama_komponen = $component->component_type->name ?? 'Tunjangan';
-                    $tunjangan_items[] = $nama_komponen . ' = Rp ' . number_format($nominal, 0, ',', '.');
+                    $tunjangan_items[] = $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
                 }
             }
         }
