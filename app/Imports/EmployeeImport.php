@@ -33,16 +33,6 @@ class EmployeeImport implements ToModel, WithStartRow
                     ->orWhere('email', $row[3])
                     ->first();
 
-        $leaderName = $row[6] ?? null;
-        $leaderId = null;
-
-        if ($leaderName) {
-            $leader = User::where('name', $leaderName)->first();
-            if ($leader) {
-                $leaderId = $leader->id;
-            }
-        }
-
         if ($user) {
             
             $user->update([
@@ -50,30 +40,30 @@ class EmployeeImport implements ToModel, WithStartRow
                 'employee_nik' => $row[0],
                 'name' => $row[1],
                 'phone' => $row[2],
-                'password' => bcrypt($row[4]),
+                'password' => bcrypt('123456'),
                 'site_id' => $this->siteId,
                 'department_id' => 1,
                 'is_employee' => 1,
-                'leader_id' => $leaderId,
+                'leader_id' => null,
             ]);
         } else {
             
             $user = User::create([
-                'nik' => $row[7],
+                'nik' => $row[5],
                 'employee_nik' => $row[0],
                 'name' => $row[1],
                 'phone' => $row[2],
                 'email' => strtolower($row[3]),
-                'password' => bcrypt($row[4]),
+                'password' => bcrypt('123456'),
                 'site_id' => $this->siteId,
                 'department_id' => 1,
                 'is_employee' => 1,
-                'leader_id' => $leaderId,
+                'leader_id' => null,
             ]);
         }
 
         
-        $roleIdentifier = $row[5]; 
+        $roleIdentifier = $row[4]; 
 
         
         if (is_numeric($roleIdentifier)) {
@@ -95,18 +85,18 @@ class EmployeeImport implements ToModel, WithStartRow
         $profile = Profile::updateOrCreate(
             ['user_id' => $user->id],
             [
-                'address' => $row[8],
-                'birth_place' => $row[9],
-                'birth_date' => Date::excelToDateTimeObject($row[10])->format('Y-m-d'),
-                'marriage_status' => $row[11],
-                'mother_name' => $row[12],
-                'gender' => $row[13],
-                'weight' => $row[14],
-                'height' => $row[15],
-                'bank_name' => $row[16],
-                'account_name' => $row[17],
-                'account_number' => $row[18],
-                'npwp_number' => $row[19],
+                'address' => $row[6],
+                'birth_place' => $row[7],
+                'birth_date' => Date::excelToDateTimeObject($row[8])->format('Y-m-d'),
+                'marriage_status' => $row[9],
+                'mother_name' => $row[10],
+                'gender' => $row[11],
+                'weight' => $row[12],
+                'height' => $row[13],
+                'bank_name' => $row[14],
+                'account_name' => $row[15],
+                'account_number' => $row[16],
+                'npwp_number' => $row[17],
             ]
         );
 
