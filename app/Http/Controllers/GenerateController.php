@@ -78,8 +78,8 @@ class GenerateController extends Controller
                     return $row->user->name . '<br>' . $row->user->employee_nik;
                 })
                 ->addColumn('signature', function ($row) {
-                    $employeeStatus = $row->esign === null ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>' : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
-                    $hrdStatus = $row->second_party_esign === null ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>' : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
+                    $employeeStatus = $row->second_party_esign === null ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>' : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
+                    $hrdStatus = $row->esign === null ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>' : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
                     return '
                     <div class="row">
                         <div class="col-4">Employee</div>

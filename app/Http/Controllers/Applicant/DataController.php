@@ -202,7 +202,7 @@ class DataController extends Controller
                 'second_party_esign' => $svgData,
             ]);
 
-            return redirect()->back()->with('success', 'Tanda tangan berhasil disimpan!');
+            return redirect()->route('web.applicants.dashboard')->with('success', 'Tanda tangan berhasil disimpan!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal memperbarui data.');
         }
