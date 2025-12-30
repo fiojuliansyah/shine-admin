@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="letter-content">
-                        {!! $letter->description !!}
+                        {!! $eletter->letter->description !!}
                     </div>
 
                     <div class="mt-5 pt-5">
