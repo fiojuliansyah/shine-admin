@@ -39,7 +39,7 @@
                     position: relative;
                 ">
                     
-                    @if($letter->esign)
+                    @if($eletter->esign)
                         <div style="position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 5rem; color: rgba(40, 167, 69, 0.1); font-weight: bold; pointer-events: none; text-transform: uppercase; border: 10px solid rgba(40, 167, 69, 0.1); padding: 10px; z-index: 1;">
                             SIGNED
                         </div>
@@ -65,8 +65,8 @@
                             </div>
                             <div class="col-6 text-center">
                                 <p class="mb-5">Pihak Kedua,</p>
-                                @if($letter->second_party_esign)
-                                     <img src="{{ $letter->second_party_esign }}" alt="E-Sign" style="max-height: 80px;">
+                                @if($eletter->second_party_esign)
+                                     <img src="{{ $eletter->second_party_esign }}" alt="E-Sign" style="max-height: 80px;">
                                 @else
                                     <br><br>
                                 @endif

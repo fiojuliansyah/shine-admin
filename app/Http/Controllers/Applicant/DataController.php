@@ -57,7 +57,7 @@ class DataController extends Controller
             ->orderBy('created_at', 'DESC')
             ->first();
 
-        return view('website.letter.show', compact('letter'));
+        return view('website.letter.show', compact('eletter'));
     }
 
     public function index(Request $request)
