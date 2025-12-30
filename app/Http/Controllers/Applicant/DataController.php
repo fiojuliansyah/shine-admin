@@ -47,6 +47,18 @@ class DataController extends Controller
         return view('website.history', compact('applicants'));
     }
 
+    public function eletter()
+    {
+        $user = Auth::user();
+
+        $letter = Letter::with(['career'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'DESC')
+            ->first();
+
+        return view('website.letter.show', compact('letter'));
+    }
+
     public function index(Request $request)
     {
         $query = Career::query();

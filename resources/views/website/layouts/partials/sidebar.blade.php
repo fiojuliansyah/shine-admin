@@ -42,8 +42,8 @@
                 <li class="menu-title"><span>DOKUMEN DIGITAL</span></li>
                 <li>
                     <ul>
-                        <li class="#">
-                            <a href="#">
+                        <li class="{{ Route::is('web.applicants.letter') ? 'active' : '' }}">
+                            <a href="{{ route('web.applicants.letter') }}">
                                 <i class="ti ti-edit"></i><span>Tanda Tangan <span class="badge badge-xs text-xs rounded-pill bg-danger" style="color: white">Disini</span></span>
                             </a>
                         </li>
