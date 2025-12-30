@@ -24,4 +24,10 @@ class PayrollComponent extends Model
     {
         return $this->belongsTo(Payroll::class);
     }
+
+    public function component_type()
+    {
+        return $this->belongsTo(ComponentType::class);
+    }
+
 }

@@ -99,7 +99,7 @@ class DataController extends Controller
         $tunjangan_calculation = 0;
         if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
             foreach ($eletter->user->payroll->payroll_components as $component) {
-                if ($component->component_type === 'allowance') {
+                if ($component->type === 'allowance') {
                     if ($component->amount) {
                         $tunjangan_calculation += $component->amount;
                         $tunjangan = $component->component_type->name . ' = ' . $tunjangan_calculation;
@@ -116,7 +116,7 @@ class DataController extends Controller
         $komisi_calculation = 0;
         if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
             foreach ($eletter->user->payroll->payroll_components as $component) {
-                if ($component->component_type === 'comission') {
+                if ($component->type === 'comission') {
                     if ($component->amount) {
                         $komisi_calculation += $component->amount;
                         $komisi = $component->name . ' = ' . $komisi_calculation;
@@ -133,7 +133,7 @@ class DataController extends Controller
         $potongan_calculation = 0;
         if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
             foreach ($eletter->user->payroll->payroll_components as $component) {
-                if ($component->component_type === 'deduction') {
+                if ($component->type === 'deduction') {
                     if ($component->amount) {
                         $potongan_calculation += $component->amount;
                         $potongan = $component->name . ' = ' . $potongan_calculation;
