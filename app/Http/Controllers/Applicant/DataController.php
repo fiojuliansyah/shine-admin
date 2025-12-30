@@ -36,7 +36,14 @@ class DataController extends Controller
 
     public function history()
     {
-        return view('website.history');
+        $user = Auth::user();
+        // Mengambil data lamaran user beserta relasi career dan statusnya
+        $applicants = Applicant::with('career', 'status')
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return view('website.history', compact('applicants'));
     }
 
     public function index(Request $request)
