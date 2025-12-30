@@ -42,7 +42,7 @@
                         <h5 class="modal-title">Tanda Tangan Digital</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{ route('web.applicants.eletter.sign', $eletter->id) }}" method="POST">
+                    <form action="{{ route('web.applicants.letter.sign', $eletter->id) }}" method="POST">
                         @csrf
                         <div class="modal-body text-center">
                             <p class="text-muted fs-12">Gunakan mouse atau jari Anda untuk menandatangani dokumen ini.</p>

@@ -173,6 +173,27 @@ class DataController extends Controller
         return view('website.letters.show', compact('eletter'));
     }
 
+    public function sign(Request $request, $id)
+    {
+        $request->validate([
+            'second_party_esign' => 'required'
+        ]);
+
+        $generate = Generate::where('id', $id)
+                    ->where('user_id', Auth::id())
+                    ->firstOrFail();
+
+        try {
+            $generate->update([
+                'second_party_esign' => $request->second_party_esign,
+            ]);
+
+            return redirect()->back()->with('success', 'Tanda tangan berhasil disimpan. Dokumen Anda telah resmi ditandatangani.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan tanda tangan.');
+        }
+    }
+
     public function index(Request $request)
     {
         $query = Career::query();
