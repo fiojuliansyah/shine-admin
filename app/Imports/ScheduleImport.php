@@ -13,17 +13,14 @@ use Carbon\Carbon;
 class ScheduleImport implements ToCollection, WithStartRow
 {
     protected $month;
-    protected $late; // Tambahkan parameter late
+    protected $late;
 
     public function __construct($month, $late)
     {
         $this->month = $month;
-        $this->late = $late; // Simpan late
+        $this->late = $late;
     }
 
-    /**
-     * Tentukan baris awal yang akan diproses (mulai dari baris ke-3)
-     */
     public function startRow(): int
     {
         return 3; 
@@ -55,7 +52,9 @@ class ScheduleImport implements ToCollection, WithStartRow
     
                 $date = Carbon::createFromFormat('Y-m-d', "{$this->month}-" . ($key - 1)); 
     
-                $shift = Shift::where('shift_code', $shift_code)->first();
+                $shift = Shift::where('site_id', $user->site_id)
+                ->where('shift_code', $shift_code)
+                ->first();
     
                 if ($shift) {
                     $schedules[] = [
