@@ -165,7 +165,7 @@
                             <label class="form-label">Template Surat (PKWT)</label>
                             <select class="form-select" name="letter_id" required>
                                 <option disabled selected>Pilih Template</option>
-                                @foreach ($letters as $letter) <option value="{{ $letter->id }}">{{ $letter->name }}</option>
+                                @foreach ($letters as $letter) <option value="{{ $letter->id }}">{{ $letter->title }}</option>
                                 @endforeach
                             </select>
                         </div>
