@@ -71,7 +71,6 @@
                                         @empty
                                             <tr>
                                                 <td colspan="4" class="text-center py-5">
-                                                    <img src="/admin/assets/img/favicon.png" alt="no-data" style="width: 150px;" class="mb-3">
                                                     <p class="text-muted">Anda belum melamar pekerjaan apapun.</p>
                                                     <a href="{{ route('web.applicants.career') }}" class="btn btn-primary btn-sm">Cari Lowongan</a>
                                                 </td>

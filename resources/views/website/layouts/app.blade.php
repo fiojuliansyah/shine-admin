@@ -67,17 +67,71 @@
 				}, 3000);
 			</script>
 		@endif
+        @if(session('error'))
+            <div id="errorAlert" class="col-xl-3" style="position: fixed; top: 20px; left: 88%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 100%; display: block;">
+                <div class="card border-0">
+                    <div class="alert alert-danger border border-danger mb-0 p-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-2">
+                                <i class="feather-alert-circle flex-shrink-0"></i>
+                            </div>
+                            <div class="text-danger w-100">
+                                <div class="fw-semibold d-flex justify-content-between">
+                                    Error<button type="button" class="btn-close p-0"
+                                        data-bs-dismiss="alert" aria-label="Close"><i
+                                            class="fas fa-xmark"></i></button></div>
+                                <div class="fs-12 op-8 mb-1">{{ session('error') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                setTimeout(function() {
+                    let err = document.getElementById('errorAlert');
+                    if(err) err.style.display = 'none';
+                }, 5000); 
+            </script>
+        @endif
+
+        @if ($errors->any())
+            <div id="validationAlert" class="col-xl-3" style="position: fixed; top: 20px; left: 88%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 100%; display: block;">
+                <div class="card border-0">
+                    <div class="alert alert-danger border border-danger mb-0 p-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-2">
+                                <i class="feather-x-circle flex-shrink-0"></i>
+                            </div>
+                            <div class="text-danger w-100">
+                                <div class="fw-semibold d-flex justify-content-between">
+                                    Validation Error<button type="button" class="btn-close p-0"
+                                        data-bs-dismiss="alert" aria-label="Close"><i
+                                            class="fas fa-xmark"></i></button></div>
+                                <ul class="fs-12 op-8 mb-0 ps-3 mt-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                setTimeout(function() {
+                    let valErr = document.getElementById('validationAlert');
+                    if(valErr) valErr.style.display = 'none';
+                }, 6000);
+            </script>
+        @endif
 
 
-		<!-- Header -->
 		@include('website.layouts.partials.header')
-		<!-- /Header -->
-		<!-- Sidebar -->
+
 		@include('website.layouts.partials.sidebar')
-		<!-- /Sidebar -->
-		<!-- Page Wrapper -->
+
 		@yield('content')
-		<!-- /Page Wrapper -->
+
 
 	</div>
 	<!-- /Main Wrapper -->

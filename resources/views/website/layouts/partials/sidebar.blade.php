@@ -44,7 +44,7 @@
                     <ul>
                         <li class="#">
                             <a href="#">
-                                <i class="ti ti-edit"></i><span>Tanda Tangan <span class="badge badge-xs rounded-pill bg-danger" style="color: white">Disini</span></span>
+                                <i class="ti ti-edit"></i><span>Tanda Tangan <span class="badge badge-xs text-xs rounded-pill bg-danger" style="color: white">Disini</span></span>
                             </a>
                         </li>
                     </ul>
