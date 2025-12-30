@@ -6,6 +6,7 @@ use App\Models\Site;
 use App\Models\User;
 use App\Models\Floor;
 use App\Models\Career;
+use App\Models\Letter;
 use App\Models\Document;
 use App\Models\Applicant;
 use Illuminate\Http\Request;
