@@ -295,7 +295,7 @@
                                                 <img src="{{ $attendance->user->profile->avatar_url ?? '/assets/media/avatars/blank.png' }}" class="rounded-circle border border-2" alt="img">
                                             </a>
                                             <div class="ms-2">
-                                                <h6 class="fs-14 fw-medium text-truncate">{{ $attendance->user->name }}</h6>
+                                                <h6 class="fs-14 fw-medium text-truncate">{{ $attendance->user->name ?? '' }}</h6>
                                                 <p class="fs-13">
                                                     @foreach ($attendance->user->roles as $role)
                                                         {{ $role->name }}
