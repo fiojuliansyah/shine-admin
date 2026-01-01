@@ -14,79 +14,96 @@ use Yajra\DataTables\Services\DataTable;
 
 class AttendancesDataTable extends DataTable
 {
-    /**
-     * Build the DataTable class.
-     */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('date', function ($row) {
-                return $row->date->format('d M Y') ?? '';
+                return $row->date ? $row->date->format('d M Y') : '';
             })
+
             ->addColumn('user', function ($row) {
                 return $row->user->name ?? '';
             })
+
+            ->filterColumn('user', function ($query, $keyword) {
+                $query->whereHas('user', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
+
             ->addColumn('site', function ($row) {
                 return $row->site->name ?? '';
             })
-            ->addColumn('clock', function ($row) {
-                $clock_in = $row->clock_in ? $row->clock_in->format('H:i') : '';
-                $clock_out = $row->clock_out ? $row->clock_out->format('H:i') : '';
-                return $clock_in . ' - ' . $clock_out;
+
+            ->filterColumn('site', function ($query, $keyword) {
+                $query->whereHas('site', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
             })
+
+            ->addColumn('clock', function ($row) {
+                $clockIn = $row->clock_in ? $row->clock_in->format('H:i') : '';
+                $clockOut = $row->clock_out ? $row->clock_out->format('H:i') : '';
+                return trim($clockIn.' - '.$clockOut);
+            })
+
+            ->filterColumn('clock', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('clock_in', 'like', "%{$keyword}%")
+                      ->orWhere('clock_out', 'like', "%{$keyword}%");
+                });
+            })
+
             ->addColumn('image', function ($row) {
-                $imagein = $row->face_image_url_clockin ? $row->face_image_url_clockin : '';
-                $imageout = $row->face_image_url_clockout ? $row->face_image_url_clockout : '';
+                $imagein = $row->face_image_url_clockin ?? '';
+                $imageout = $row->face_image_url_clockout ?? '';
                 return view('attendances.partials.image', compact('imagein', 'imageout', 'row'))->render();
             })
+
             ->addColumn('action', function ($row) {
                 $users = User::all();
                 $sites = Site::all();
                 return view('attendances.partials.actions', compact('row', 'users', 'sites'))->render();
             })
+
             ->rawColumns(['image', 'action'])
             ->setRowId('id');
     }
 
-    /**
-     * Get the query source of dataTable.
-     */
     public function query(Attendance $model): QueryBuilder
     {
-        $query = $model->newQuery()->with('user', 'site');
-        
-        // Apply site filter
-        if ($this->site_id) {
-            $query->where('site_id', $this->site_id);
+        $query = $model->newQuery()
+            ->with(['user', 'site']);
+
+        if (request('site_id')) {
+            $query->where('site_id', request('site_id'));
         }
-        
-        // Apply attendance type filter
-        if ($this->type) {
-            $query->where('type', $this->type);
+
+        if (request('type')) {
+            $query->where('type', request('type'));
         }
-        
-        // Apply date range filter
-        if ($this->start_date && $this->end_date) {
-            $query->whereBetween('date', [$this->start_date, $this->end_date]);
-        } elseif ($this->start_date) {
-            $query->whereDate('date', '>=', $this->start_date);
-        } elseif ($this->end_date) {
-            $query->whereDate('date', '<=', $this->end_date);
+
+        if (request('start_date') && request('end_date')) {
+            $query->whereBetween('date', [
+                request('start_date'),
+                request('end_date')
+            ]);
+        } elseif (request('start_date')) {
+            $query->whereDate('date', '>=', request('start_date'));
+        } elseif (request('end_date')) {
+            $query->whereDate('date', '<=', request('end_date'));
         }
-        
+
         return $query;
     }
 
-    /**
-     * Optional method if you want to use the HTML builder.
-     */
     public function html(): HtmlBuilder
     {
         return $this->builder()
             ->setTableId('attendances-table')
             ->columns($this->getColumns())
-            ->minifiedAjax(route('attendances.index') . '?site_id=' . request('site_id', '') . '&type=' . request('type', '') . '&start_date=' . request('start_date', '') . '&end_date=' . request('end_date', ''))
-            ->orderBy(1)
+            ->minifiedAjax(route('attendances.index', request()->query()))
+            ->orderBy(0)
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),
@@ -94,13 +111,10 @@ class AttendancesDataTable extends DataTable
                 Button::make('pdf'),
                 Button::make('print'),
                 Button::make('reset'),
-                Button::make('reload')
+                Button::make('reload'),
             ]);
     }
 
-    /**
-     * Get the dataTable columns definition.
-     */
     public function getColumns(): array
     {
         return [
@@ -111,13 +125,14 @@ class AttendancesDataTable extends DataTable
             Column::make('clock')->title('Jam Kerja'),
             Column::make('type')->title('Tipe'),
             Column::computed('image')->title('Foto')->searchable(false),
-            Column::computed('action')->exportable(false)->printable(false)->orderable(false)->searchable(false),
+            Column::computed('action')
+                ->exportable(false)
+                ->printable(false)
+                ->orderable(false)
+                ->searchable(false),
         ];
     }
 
-    /**
-     * Get the filename for export.
-     */
     protected function filename(): string
     {
         return 'Attendances_' . date('YmdHis');
