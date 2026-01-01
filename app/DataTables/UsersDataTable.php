@@ -12,71 +12,113 @@ use Yajra\DataTables\Services\DataTable;
 
 class UsersDataTable extends DataTable
 {
-    /**
-     * Build the DataTable class.
-     */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('avatar', function ($row) {
-                return '<img class="rounded-circle" src="' . ($row->profile->avatar_url ?? '/assets/media/avatars/blank.png') . '" alt="' . ($row->name ?? 'User') . '" width="50px"/>';
+                $avatar = $row->profile->avatar_url ?? '/assets/media/avatars/blank.png';
+                return '<img src="'.$avatar.'" class="rounded-circle" width="45">';
             })
-            ->addColumn('employee', function ($row) {
-                return $row->name . '<br>' . $row->employee_nik;
-            })
-            ->addColumn('detail', function ($row) {
-                $colors = ['bg-warning', 'bg-primary', 'bg-success', 'bg-danger', 'bg-info', 'bg-secondary'];
-                $output = '';
 
-                if (!empty($row->getRoleNames())) {
-                    foreach ($row->getRoleNames() as $role) {
-                        $randomColor = $colors[array_rand($colors)];
-                        $output .= '<span class="badge ' . $randomColor . '">' . $role . '</span> ';
-                    }
+            ->addColumn('employee', function ($row) {
+                return '<strong>'.$row->name.'</strong><br>
+                        <small class="text-muted">'.$row->employee_nik.'</small>';
+            })
+
+            ->filterColumn('employee', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('users.name', 'like', "%{$keyword}%")
+                      ->orWhere('users.employee_nik', 'like', "%{$keyword}%");
+                });
+            })
+
+            ->addColumn('detail', function ($row) {
+                $colors = ['bg-primary','bg-success','bg-info','bg-warning','bg-danger','bg-secondary'];
+                $html = '';
+
+                foreach ($row->getRoleNames() as $role) {
+                    $html .= '<span class="badge '.$colors[array_rand($colors)].' me-1">'.$role.'</span>';
                 }
 
-                $output .= '<br>';
-                $output .= '<span>' . $row->email . '</span><br>';
-                $output .= '<span>Leader : <strong>' . ($row->leader['name'] ?? '') . '</strong></span>';
+                $html .= '<br><small>'.$row->email.'</small>';
+                $html .= '<br><small>Leader: <strong>'.($row->leader->name ?? '-').'</strong></small>';
 
-                return $output;
+                return $html;
             })
+
+            ->filterColumn('detail', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('users.email', 'like', "%{$keyword}%")
+                      ->orWhereHas('leader', fn($l) =>
+                            $l->where('name', 'like', "%{$keyword}%")
+                      )
+                      ->orWhereHas('roles', fn($r) =>
+                            $r->where('name', 'like', "%{$keyword}%")
+                      );
+                });
+            })
+
             ->addColumn('site', function ($row) {
-                $siteName = $row->site->name ?? '';
-                $companyName = $row->site->company->name ?? '';
-                return $siteName . '<br>' . $companyName;
+                return '<strong>'.$row->site->name.'</strong><br>
+                        <small>'.$row->site->company->name.'</small>';
             })
+
+            ->filterColumn('site', function ($query, $keyword) {
+                $query->whereHas('site', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%")
+                      ->orWhereHas('company', fn($c) =>
+                            $c->where('name', 'like', "%{$keyword}%")
+                      );
+                });
+            })
+
             ->addColumn('status', function ($row) {
-                return $row->profile && $row->profile->resign_date != null
+                return $row->profile && $row->profile->resign_date
                     ? '<span class="badge bg-danger">Resign</span>'
                     : '<span class="badge bg-success">Active</span>';
             })
+
+            ->filterColumn('status', function ($query, $keyword) {
+                if (strtolower($keyword) === 'active') {
+                    $query->whereDoesntHave('profile', fn($q) =>
+                        $q->whereNotNull('resign_date')
+                    );
+                }
+
+                if (strtolower($keyword) === 'resign') {
+                    $query->whereHas('profile', fn($q) =>
+                        $q->whereNotNull('resign_date')
+                    );
+                }
+            })
+
             ->addColumn('action', function ($row) {
                 return view('users.partials.actions', compact('row'))->render();
             })
-            ->rawColumns(['action', 'avatar', 'employee', 'detail', 'status', 'site'])
+
+            ->rawColumns(['avatar','employee','detail','site','status','action'])
             ->setRowId('id');
     }
 
-    /**
-     * Get the query source of dataTable.
-     */
     public function query(User $model): QueryBuilder
     {
         return $model->newQuery()
-            ->with('site', 'leader', 'profile')
+            ->with([
+                'profile',
+                'leader',
+                'roles',
+                'site.company'
+            ])
             ->where('is_employee', 1);
     }
 
-    /**
-     * Optional method if you want to use the HTML builder.
-     */
     public function html(): HtmlBuilder
     {
         return $this->builder()
             ->setTableId('users-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
+            ->responsive(true)
             ->orderBy(1)
             ->selectStyleSingle()
             ->buttons([
@@ -85,13 +127,10 @@ class UsersDataTable extends DataTable
                 Button::make('pdf'),
                 Button::make('print'),
                 Button::make('reset'),
-                Button::make('reload')
+                Button::make('reload'),
             ]);
     }
 
-    /**
-     * Get the dataTable columns definition.
-     */
     public function getColumns(): array
     {
         return [
@@ -100,16 +139,16 @@ class UsersDataTable extends DataTable
             Column::make('detail')->title('Detail'),
             Column::make('site')->title('Site'),
             Column::make('status')->title('Status'),
-            Column::computed('action')->exportable(false)->printable(false)->orderable(false)->searchable(false),
+            Column::computed('action')
+                ->exportable(false)
+                ->printable(false)
+                ->orderable(false)
+                ->searchable(false),
         ];
     }
 
-    /**
-     * Get the filename for export.
-     */
     protected function filename(): string
     {
         return 'Users_' . date('YmdHis');
     }
 }
-
