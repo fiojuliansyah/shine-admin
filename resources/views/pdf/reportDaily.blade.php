@@ -81,7 +81,7 @@
                     <td>
                         <img src="data:image/jpeg;base64,{{ $base64after }}" style="max-width:60px; max-height:60px;">
                     </td>
-                    <td>{{ $task->description ?? '-' }}</td>
+                    <td>{{ $task->progress_description ?? '-' }}</td>
                 </tr>
             @endforeach
             @if ($tasks->isEmpty())
