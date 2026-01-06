@@ -24,6 +24,8 @@ return new class extends Migration
             $table->time('end_time')->nullable();
             $table->string('image_before_url')->nullable();
             $table->string('image_before_path')->nullable();
+            $table->string('image_progress_url')->nullable();
+            $table->string('image_progress_path')->nullable();
             $table->string('image_after_url')->nullable();
             $table->string('image_after_path')->nullable();
             $table->timestamps();
