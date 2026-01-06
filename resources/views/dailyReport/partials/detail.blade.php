@@ -53,6 +53,10 @@
                         <img src="{{ $row->image_before_url ?? '' }}" class="img-fluid" style="max-height:150px;">
                     </div>
                     <div class="col">
+                        <h6>Foto Progress</h6>
+                        <img src="{{ $row->image_progress_url ?? '' }}" class="img-fluid" style="max-height:150px;">
+                    </div>
+                    <div class="col">
                         <h6>Foto Setelah Tugas</h6>
                         <img src="{{ $row->image_after_url ?? '' }}" class="img-fluid" style="max-height:150px;">
                     </div>

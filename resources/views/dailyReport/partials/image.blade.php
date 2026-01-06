@@ -18,6 +18,10 @@
                                 <img src="{{ $image_before_url }}" width="100" />
                             </div>
                             <div class="col text-center">
+                                <h6>Foto Progress</h6>
+                                <img src="{{ $image_progress_url }}" width="100" />
+                            </div>
+                            <div class="col text-center">
                                 <h6>Foto Setelah Tugas</h6>
                                 <img src="{{ $image_after_url }}" width="100" />
                             </div>

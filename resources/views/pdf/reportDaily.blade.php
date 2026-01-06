@@ -47,12 +47,11 @@
             <tr>
                 <th>No</th>
                 <th>Tanggal</th>
-                <th>Foto</th>
                 <th>Pegawai</th>
-                <th>Site</th>
-                <th>Status</th>
-                <th>Mulai - Selesai</th>
                 <th>Task Dibuat</th>
+                <th>Foto Sebelum</th>
+                <th>Foto Progress</th>
+                <th>Foto Sesudah</th>
                 <th>Keterangan</th>
             </tr>
         </thead>
@@ -61,22 +60,25 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $task->created_at->format('d/m/Y') }}</td>
-                    <td>
-                        @php
-                            $imageDataBefore = !empty($task->image_before_url) ? @file_get_contents($task->image_before_url) : null;
-                            $imageDataAfter = !empty($task->image_after_url) ? @file_get_contents($task->image_after_url) : null;
-                            $base64before = base64_encode($imageDataBefore) ?? '-';
-                            $base64after = base64_encode($imageDataAfter) ?? '-';
-                        @endphp
-                        <img src="data:image/jpeg;base64,{{ $base64before }}" style="max-width:60px; max-height:60px;">
-                        <img src="data:image/jpeg;base64,{{ $base64after }}" style="max-width:60px; max-height:60px;">
-
-                    </td>
                     <td>{{ $task->user->name ?? '-' }}</td>
-                    <td>{{ $task->site->name ?? '-' }}</td>
-                    <td>{{ $task->is_worked ? 'Worked' : 'Not Worked' }}</td>
                     <td>{{ $task->start_time }} - {{ $task->end_time }}</td>
-                    <td>{{ $task->created_at }}</td>
+                    @php
+                        $imageDataBefore = !empty($task->image_before_url) ? @file_get_contents($task->image_before_url) : null;
+                        $imageDataProgress = !empty($task->image_progress_url) ? @file_get_contents($task->image_progress_url) : null;
+                        $imageDataAfter = !empty($task->image_after_url) ? @file_get_contents($task->image_after_url) : null;
+                        $base64before = base64_encode($imageDataBefore) ?? '-';
+                        $base64progress = base64_encode($imageDataProgress) ?? '-';
+                        $base64after = base64_encode($imageDataAfter) ?? '-';
+                    @endphp
+                    <td>
+                        <img src="data:image/jpeg;base64,{{ $base64before }}" style="max-width:60px; max-height:60px;">
+                    </td>
+                    <td>
+                        <img src="data:image/jpeg;base64,{{ $base64progress }}" style="max-width:60px; max-height:60px;">
+                    </td>
+                    <td>
+                        <img src="data:image/jpeg;base64,{{ $base64after }}" style="max-width:60px; max-height:60px;">
+                    </td>
                     <td>{{ $task->progress_description ?? '-' }}</td>
                 </tr>
             @endforeach
