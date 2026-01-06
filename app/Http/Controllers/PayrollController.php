@@ -206,7 +206,6 @@ class PayrollController extends Controller
     
         $payroll->save();
     
-        // Menghapus komponen lama dan menambahkan yang baru
         PayrollComponent::where('payroll_id', $payroll->id)->delete();
         foreach ($request->input('selected_components', []) as $componentTypeId) {
             $amount = $request->input("component_amounts.{$componentTypeId}", 0);
@@ -218,7 +217,6 @@ class PayrollController extends Controller
             ]);
         }
     
-        // Menghapus deductions lama dan menambahkan yang baru
         PayrollDeduction::where('payroll_id', $payroll->id)->delete();
         foreach ($request->input('selected_deductions', []) as $deductionTypeId) {
             $amount = $request->input("deduction_amounts.{$deductionTypeId}", 0);
@@ -230,7 +228,6 @@ class PayrollController extends Controller
             ]);
         }
     
-        // **Menghapus Time Deduction lama dan menambahkan yang baru**
         PayrollTimeDeduction::where('payroll_id', $payroll->id)->delete();
         foreach ($request->input('time_deductions', []) as $timeDeductionType => $amount) {
             PayrollTimeDeduction::create([
