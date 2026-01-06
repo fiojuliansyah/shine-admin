@@ -152,10 +152,8 @@
                         Update komponen gaji untuk semua karyawan yang dipilih. Kosongkan field yang tidak ingin diubah.
                     </div>
                     
-                    <!-- Hidden input for selected payroll IDs -->
                     <div id="selected-payrolls-container"></div>
                     
-                    <!-- Basic Info -->
                     <div class="form-group mb-3">
                         <label for="bulk_pay_type">Tipe Payslip</label>
                         <select name="pay_type" id="bulk_pay_type" class="form-control">
