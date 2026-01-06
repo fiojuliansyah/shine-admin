@@ -48,6 +48,7 @@
                 <th>No</th>
                 <th>Tanggal</th>
                 <th>Pegawai</th>
+                <th>Tugas</th>
                 <th>Task Dibuat</th>
                 <th>Foto Sebelum</th>
                 <th>Foto Progress</th>
@@ -61,6 +62,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $task->created_at->format('d/m/Y') }}</td>
                     <td>{{ $task->user->name ?? '-' }}</td>
+                    <td>{{ $task->taskPlanner->name ?? '-' }}</td>
                     <td>{{ $task->start_time }} - {{ $task->end_time }}</td>
                     @php
                         $imageDataBefore = !empty($task->image_before_url) ? @file_get_contents($task->image_before_url) : null;
