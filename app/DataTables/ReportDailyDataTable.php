@@ -37,15 +37,17 @@ class ReportDailyDataTable extends DataTable
             })
             ->addColumn('image', function ($row) {
                 $image_before_url = $row->image_before_url ? $row->image_before_url : '';
+                $image_progress_url = $row->image_progress_url ? $row->image_progress_url : '';
                 $image_after_url = $row->image_after_url ? $row->image_after_url : '';
-                return view('dailyReport.partials.image', compact('image_before_url', 'image_after_url', 'row'))->render();
+                return view('dailyReport.partials.image', compact('image_before_url', 'image_progress_url', 'image_after_url', 'row'))->render();
             })
             ->addColumn('detail', function ($row) {
                 $image_before_url = $row->image_before_url ? $row->image_before_url : '';
+                $image_progress_url = $row->image_progress_url ? $row->image_progress_url : '';
                 $image_after_url = $row->image_after_url ? $row->image_after_url : '';
                 $start_time = !empty($row->start_time) ? Carbon::parse($row->start_time)->toTimeString() : '-';
                 $end_time = !empty($row->end_time) ? Carbon::parse($row->end_time)->toTimeString() : '-';
-                return view('dailyReport.partials.detail', compact('start_time', 'end_time', 'image_before_url', 'image_after_url', 'row'))->render();
+                return view('dailyReport.partials.detail', compact('start_time', 'end_time', 'image_before_url', 'image_progress_url', 'image_after_url', 'row'))->render();
             })
             ->editColumn('is_worked', function ($row) {
                 return $row->is_worked === 'worked'
