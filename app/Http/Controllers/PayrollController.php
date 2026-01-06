@@ -281,6 +281,7 @@ class PayrollController extends Controller
     
                 if ($request->filled('pay_type')) {
                     $payroll->pay_type = $request->pay_type;
+                    $payroll->amount = $request->amount;
                 }
     
                 if ($request->filled('pph21_method')) {
