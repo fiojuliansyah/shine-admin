@@ -166,7 +166,7 @@
                     </div>
                     <div class="form-group mb-3" id="update_amount_field">
                         <label for="amount">Amount</label>
-                        <input type="text" name="amount" id="amount" class="form-control" placeholder="Masukkan Gaji Bulanan" value="{{ $payroll->amount }}">
+                        <input type="text" name="amount" id="amount" class="form-control" placeholder="Masukkan Gaji Bulanan">
                     </div>
                     
                     <!-- BPJS Section -->
