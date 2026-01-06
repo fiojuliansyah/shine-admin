@@ -49,7 +49,7 @@
                 <th>Tanggal</th>
                 <th>Pegawai</th>
                 <th>Tugas</th>
-                <th>Task Dibuat</th>
+                <th>Waktu Pengerjaan</th>
                 <th>Foto Sebelum</th>
                 <th>Foto Progress</th>
                 <th>Foto Sesudah</th>
@@ -81,7 +81,7 @@
                     <td>
                         <img src="data:image/jpeg;base64,{{ $base64after }}" style="max-width:60px; max-height:60px;">
                     </td>
-                    <td>{{ $task->progress_description ?? '-' }}</td>
+                    <td>{{ $task->description ?? '-' }}</td>
                 </tr>
             @endforeach
             @if ($tasks->isEmpty())
