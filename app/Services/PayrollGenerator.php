@@ -33,13 +33,20 @@ class PayrollGenerator
     
             
             if ($payroll->pay_type === 'daily') {
+
                 $attendanceCount = $user->attendances()
                     ->whereBetween('date', [$start_date, $end_date])
                     ->count();
+
                 $salary = $payroll->amount * $attendanceCount;
+
             } else {
-                $salary = $payroll->amount;
+                $daysInMonth = $startDate->daysInMonth;
+                $workedDays = $startDate->diffInDays($endDate) + 1;
+                $dailyRate = $payroll->amount / $daysInMonth;
+                $salary = round($dailyRate * $workedDays);
             }
+
     
             
             $allowanceFix = $this->calculateAllowance($payroll, 'monthly');
@@ -51,7 +58,6 @@ class PayrollGenerator
             $bpjs = $this->calculateBPJS($payroll, $salary);
             $pph21Monthly = $this->calculatePPH21($user, $payroll, $salary, $allowanceFix, $allowanceNonFix);
     
-            // Calculate time deductions
             $lateTimeDeduction = $this->calculateLateTimeDeduction($user, $startDate, $endDate);
             $alphaTimeDeduction = $this->calculateAlphaTimeDeduction($user, $startDate, $endDate);
             $permitTimeDeduction = $this->calculatePermitTimeDeduction($user, $startDate, $endDate);
@@ -59,10 +65,8 @@ class PayrollGenerator
 
             $timeDeductionFix = $lateTimeDeduction + $alphaTimeDeduction + $permitTimeDeduction + $leaveTimeDeduction;
             
-            // Calculate overtime
             $overtime = $this->calculateOvertime($user, $startDate, $endDate);
     
-            // Calculate take home pay (now including permit, leave deductions and overtime)
             $takeHomePay = $salary + $allowanceFix + $allowanceNonFix + $overtime - $deductionFix - $deductionNonFix 
                            - $bpjs['jht_employee'] - $bpjs['jp_employee'] - $bpjs['kes_employee'] 
                            - $pph21Monthly - $timeDeductionFix;
@@ -229,16 +233,13 @@ class PayrollGenerator
         
         $totalOvertime = 0;
         
-        // Get all attendances within date range with overtime
         $attendances = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$startDate, $endDate])
             ->whereNotNull('has_overtime')
             ->get();
         
         if ($payrollOvertime->pay_type === 'hourly') {
-            // For hourly calculations, check the overtime records and calculate hours
             foreach ($attendances as $attendance) {
-                // Get the overtime record associated with this attendance
                 $overtime = Overtime::where('attendance_id', $attendance->id)
                     ->where('status', 'approved')
                     ->whereNotNull('clock_in')
@@ -249,15 +250,12 @@ class PayrollGenerator
                     $clockIn = Carbon::parse($overtime->clock_in);
                     $clockOut = Carbon::parse($overtime->clock_out);
                     
-                    // Calculate hours worked in overtime
                     $overtimeHours = $clockOut->diffInHours($clockIn);
                     
-                    // Add to total
                     $totalOvertime += $overtimeHours * $payrollOvertime->amount;
                 }
             }
         } else {
-            // For daily calculations, just count the number of days with overtime
             $totalOvertime = $attendances->count() * $payrollOvertime->amount;
         }
         

@@ -4,46 +4,72 @@ namespace App\Imports;
 
 use App\Models\TaskPlanner;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Concerns\ToModel;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 
-class TaskPlannerImport implements ToModel, WithHeadingRow
+class TaskPlannerImport implements ToCollection
 {
     protected $site_id, $month;
 
     public function __construct($site_id, $month)
     {
         $this->site_id = $site_id;
-        $this->month = $month; // format: YYYY-MM
+        $this->month   = $month;
     }
 
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        $tasks = [];
+        $startMonth = Carbon::createFromFormat('Y-m', $this->month)->startOfMonth();
+        $endMonth   = $startMonth->copy()->endOfMonth();
 
-        // Ambil tanggal awal dari Excel
-        $excelDay = Date::excelToDateTimeObject($row['date'])->format("d");
+        foreach ($rows as $index => $row) {
 
-        // Tentukan start dan end date menggunakan Carbon
-        $startDate = Carbon::createFromFormat('Y-m-d', $this->month . '-' . $excelDay);
-        $endDate   = Carbon::createFromFormat('Y-m-d', date("Y-m-t", strtotime($this->month)));
+            if ($index === 0) {
+                continue;
+            }
 
-        // Loop setiap hari dari startDate sampai endDate
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            $tasks[] = new TaskPlanner([
-                'service_type' => $row['service_type'] ?? null,
-                'work_type'    => $row['work_type'] ?? null,
-                'site_id'      => $this->site_id,
-                'date'         => $date->format('Y-m-d'),
-                'name'         => $row['name'] ?? null,
-                'floor'        => $row['floor'] ?? null,
-                'start_time'   => isset($row['start_time'])
-                                    ? Date::excelToDateTimeObject($row['start_time'])->format("H:i:s")
-                                    : null,
-            ]);
+            $program = trim($row[1] ?? null);
+            if (!$program) {
+                continue;
+            }
+
+            $tanggal = $row[3] ?? null;
+            $hari    = $row[4] ?? null;
+
+            if ($tanggal) {
+
+                $date = Carbon::parse($tanggal);
+
+                if ($date->format('Y-m') === $this->month) {
+                    $this->createTask($program, $date);
+                }
+
+            } elseif ($hari) {
+
+                $targetDay = strtolower(trim($hari));
+
+                for ($date = $startMonth->copy(); $date->lte($endMonth); $date->addDay()) {
+                    if (strtolower($date->locale('id')->dayName) === $targetDay) {
+                        $this->createTask($program, $date);
+                    }
+                }
+
+            } else {
+
+                for ($date = $startMonth->copy(); $date->lte($endMonth); $date->addDay()) {
+                    $this->createTask($program, $date);
+                }
+            }
         }
+    }
 
-        return $tasks; // kembalikan array
+    private function createTask(string $name, Carbon $date): void
+    {
+        TaskPlanner::create([
+            'site_id' => $this->site_id,
+            'name'    => $name,
+            'date'    => $date->format('Y-m-d'),
+            'status'  => 'pending',
+        ]);
     }
 }
