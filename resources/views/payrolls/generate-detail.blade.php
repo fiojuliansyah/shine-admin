@@ -60,7 +60,13 @@
                                         <td>{{ number_format($payroll->deduction_fix + $payroll->deduction_non_fix) }}</td>
                                         <td>{{ number_format($payroll->jht_employee + $payroll->jp_employee + $payroll->kes_employee) }}</td>
                                         <td>{{ number_format($payroll->jkk_company + $payroll->jkm_company + $payroll->jht_company + $payroll->jp_company + $payroll->kes_company) }}</td>
-                                        <td>{{ number_format($payroll->pph21) ?? '< ptkp' }}</td>
+                                        <td>
+                                            @if(($payroll->pph21 ?? 0) <= 0)
+                                                &lt; PTKP
+                                            @else
+                                                {{ number_format($payroll->pph21) }}
+                                            @endif
+                                        </td>
                                         <td>{{ number_format($payroll->late_time_deduction) }}</td>
                                         <td>{{ number_format($payroll->alpha_time_deduction) }}</td>
                                         <td>{{ number_format($payroll->take_home_pay) }}</td>
