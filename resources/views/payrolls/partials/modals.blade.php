@@ -76,18 +76,24 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-check mb-3">
-                                        <input class="form-check-input" type="radio" name="bpjs_type" value="normatif"
-                                            data-bpjs-type data-context="detail" data-payroll-id="{{ $payroll->id }}">
-                                        <label class="form-check-label" for="bpjs-normatif-{{ $payroll->id }}" {{ $payroll->bpjs_type == 'normatif' ? 'checked' : '' }}>
+                                        <input class="form-check-input" type="radio"
+                                            name="bpjs_type_{{ $payroll->id }}"
+                                            id="bpjs-normatif-{{ $payroll->id }}" value="normatif" data-bpjs-type
+                                            data-context="detail" data-payroll-id="{{ $payroll->id }}"
+                                            {{ $payroll->bpjs_type === 'normatif' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="bpjs-normatif-{{ $payroll->id }}">
                                             BPJS Normatif
                                         </label>
                                     </div>
                                 </div>
+
                                 <div class="col-md-6">
                                     <div class="form-check mb-3">
-                                        <input class="form-check-input" type="radio" name="bpjs_type"
-                                            value="unnormatif" data-bpjs-type data-context="detail"
-                                            data-payroll-id="{{ $payroll->id }}" {{ $payroll->bpjs_type == 'unnormatif' ? 'checked' : '' }}>
+                                        <input class="form-check-input" type="radio"
+                                            name="bpjs_type_{{ $payroll->id }}"
+                                            id="bpjs-unnormatif-{{ $payroll->id }}" value="unnormatif" data-bpjs-type
+                                            data-context="detail" data-payroll-id="{{ $payroll->id }}"
+                                            {{ $payroll->bpjs_type === 'unnormatif' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="bpjs-unnormatif-{{ $payroll->id }}">
                                             BPJS Unnormatif
                                         </label>
