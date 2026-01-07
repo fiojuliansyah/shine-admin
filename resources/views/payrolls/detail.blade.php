@@ -1,23 +1,6 @@
-@extends('layouts.main')
 
-@push('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<style>
-    .table-responsive {
-        overflow-x: auto;
-        width: 100%;
-    }
-    table.dataTable thead th {
-        white-space: nowrap;
-        text-align: center;
-        vertical-align: middle;
-        background-color: #f8f9fa;
-    }
-    .dataTables_wrapper .dataTables_filter {
-        margin-bottom: 15px;
-    }
-</style>
-@endpush
+You said:
+@extends('layouts.main')
 
 @section('content')
 <div class="page-wrapper">
@@ -27,95 +10,168 @@
                 <h2 class="mb-1">Payroll {{ $site->name }}</h2>
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="#"><i class="ti ti-smart-home"></i></a></li>
-                        <li class="breadcrumb-item">Finance</li>
-                        <li class="breadcrumb-item">Master Payroll</li>
-                        <li class="breadcrumb-item active">{{ $site->name }}</li>
+                        <li class="breadcrumb-item">
+                            <a href="index.html"><i class="ti ti-smart-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            Finance
+                        </li>
+                        <li class="breadcrumb-item">
+                            Master Payroll
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $site->name }}</li>
                     </ol>
                 </nav>
             </div>
-            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
                 @include('payrolls.partials.head-button')
             </div>
         </div>
-
         <div class="card">
+            
             <div class="card-body">
-                <div class="table-responsive">
-                    <table id="mainPayrollTable" class="table table-bordered" style="font-size: 12px; min-width: 1200px;">
+                <div style="overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; position: relative;">
+                    <table class="table table-bordered" style="font-size: 12px; min-width: 1200px; border-collapse: separate; border-spacing: 0;">
                         <thead>
-                            <tr>
-                                <th style="width: 40px;"><input class="form-check-input" type="checkbox" id="select-all-payrolls"></th>
-                                <th>NIK</th>
-                                <th>Nama</th>
-                                <th>Jabatan</th>
-                                <th>Tipe</th>
-                                <th>Gaji</th>
+                            <tr style="position: sticky; top: 0; background-color: #f8f9fa;">
+                                <th style="text-align: center; vertical-align: middle; width: 40px; white-space: nowrap;">
+                                    <input class="form-check-input" type="checkbox" id="select-all-payrolls">
+                                </th>
+                                <th style="text-align: center; vertical-align: middle; width: 80px; white-space: nowrap;">NIK</th>
+                                <th style="text-align: center; vertical-align: middle; width: 150px; white-space: nowrap;">Nama</th>
+                                <th style="text-align: center; vertical-align: middle; width: 100px; white-space: nowrap;">Jabatan</th>
+                                <th style="text-align: center; vertical-align: middle; width: 80px; white-space: nowrap;">Tipe</th>
+                                <th style="text-align: center; vertical-align: middle; width: 100px; white-space: nowrap;">Gaji</th>
                                 @foreach ($componentTypes as $componentType)   
-                                    <th>{{ $componentType->name }}</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 100px; white-space: nowrap;">{{ $componentType->name }}</th>
                                 @endforeach
                                 @foreach ($deductionTypes as $deductionType)   
-                                    <th>{{ $deductionType->name }}</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 100px; white-space: nowrap;">{{ $deductionType->name }}</th>
                                 @endforeach
-                                <th>Potongan Waktu</th>
-                                <th>Lembur</th>
-                                <th>BPJS</th>
-                                <th>Action</th>
+                                <th style="text-align: center; vertical-align: middle; width: 200px; white-space: nowrap;">Potongan Waktu <span style="color: red">*jika</span></th>
+                                <th style="text-align: center; vertical-align: middle; width: 100px; white-space: nowrap;">Lembur</th>
+                                <th style="text-align: center; vertical-align: middle; width: 120px; white-space: nowrap;">BPJS</th>
+                                <th style="text-align: center; vertical-align: middle; width: 80px; white-space: nowrap;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($payrolls as $payroll)
                                 <tr>
-                                    <td class="text-center">
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
                                         <input class="form-check-input payroll-checkbox" type="checkbox" value="{{ $payroll->id }}" name="selected_payrolls[]">
                                     </td>
-                                    <td>{{ $payroll->user->employee_nik }}</td>
-                                    <td>{{ $payroll->user->name }}</td>
-                                    <td>
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">{{ $payroll->user->employee_nik }}</td>
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">{{ $payroll->user->name }}</td>
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
                                         @foreach ($payroll->user->getRoleNames() as $role) 
-                                            <span class="badge bg-outline-primary">{{ $role }}</span>
+                                            {{ $role }}
                                         @endforeach
                                     </td>
-                                    <td>{{ $payroll->pay_type == 'monthly' ? 'Gaji Pokok' : 'Gaji Harian' }}</td>
-                                    <td data-order="{{ $payroll->amount }}">
-                                        {{ number_format($payroll->amount, 0, ',', '.') }}
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
+                                        @if ($payroll->pay_type == 'monthly')
+                                            Gaji Pokok   
+                                        @else
+                                            Gaji Harian
+                                        @endif
+                                    </td>
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
+                                            {{ number_format($payroll->amount, 0, ',', '.') }}
                                     </td>
                                     @foreach ($componentTypes as $componentType)
-                                        @php $cVal = $componentsData[$payroll->id][$componentType->id] ?? 0; @endphp
-                                        <td data-order="{{ $cVal }}">
-                                            {{ $cVal ? number_format($cVal, 0, ',', '.') : '-' }}
+                                        <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
+                                            @if(isset($componentsData[$payroll->id][$componentType->id]))
+                                                {{ number_format($componentsData[$payroll->id][$componentType->id], 0, ',', '.') }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                     @endforeach
                                     @foreach ($deductionTypes as $deductionType)
-                                        @php $dVal = $deductionsData[$payroll->id][$deductionType->id] ?? 0; @endphp
-                                        <td data-order="{{ $dVal }}">
-                                            {{ $dVal ? number_format($dVal, 0, ',', '.') : '-' }}
+                                        <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
+                                            @if(isset($deductionsData[$payroll->id][$deductionType->id]))
+                                                {{ number_format($deductionsData[$payroll->id][$deductionType->id], 0, ',', '.') }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                     @endforeach
-                                    <td>
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 10px;">
-                                            <span><b>Telat:</b> {{ number_format($timeDeductionsData[$payroll->id]['late'], 0, ',', '.') }}</span>
-                                            <span><b>Alpa:</b> {{ number_format($timeDeductionsData[$payroll->id]['alpha'], 0, ',', '.') }}</span>
-                                            <span><b>Ijin:</b> {{ number_format($timeDeductionsData[$payroll->id]['permit'], 0, ',', '.') }}</span>
-                                            <span><b>Cuti:</b> {{ number_format($timeDeductionsData[$payroll->id]['leave'], 0, ',', '.') }}</span>
+                                    <td style="vertical-align: middle;">
+                                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                            <div style="flex: 0 0 calc(50% - 5px);">
+                                                <span style="font-weight: bold; font-size: 11px;">Terlambat</span>
+                                                <br>
+                                                <span style="font-size: 11px;">{{ number_format($timeDeductionsData[$payroll->id]['late'], 0, ',', '.') }}</span>
+                                            </div>
+                                            <div style="flex: 0 0 calc(50% - 5px);">
+                                                <span style="font-weight: bold; font-size: 11px;">Alpha</span>
+                                                <br>
+                                                <span style="font-size: 11px;">{{ number_format($timeDeductionsData[$payroll->id]['alpha'], 0, ',', '.') }}</span>
+                                            </div>
+                                            <div style="flex: 0 0 calc(50% - 5px);">
+                                                <span style="font-weight: bold; font-size: 11px;">Izin</span>
+                                                <br>
+                                                <span style="font-size: 11px;">{{ number_format($timeDeductionsData[$payroll->id]['permit'], 0, ',', '.') }}</span>
+                                            </div>
+                                            <div style="flex: 0 0 calc(50% - 5px);">
+                                                <span style="font-weight: bold; font-size: 11px;">Cuti</span>
+                                                <br>
+                                                <span style="font-size: 11px;">{{ number_format($timeDeductionsData[$payroll->id]['leave'], 0, ',', '.') }}</span>
+                                            </div>
                                         </div>
                                     </td>
-                                    @php $oVal = $overtimeData[$payroll->id]['amount'] ?? 0; @endphp
-                                    <td data-order="{{ $oVal }}">
-                                        @if($oVal > 0)
-                                            <small>{{ $overtimeData[$payroll->id]['pay_type'] == 'hourly' ? 'Jam' : 'Hari' }}</small><br>
-                                            {{ number_format($oVal, 0, ',', '.') }}
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
+                                        @if(isset($overtimeData[$payroll->id]) && $overtimeData[$payroll->id]['amount'])
+                                            <span style="font-weight: bold; font-size: 11px;">{{ $overtimeData[$payroll->id]['pay_type'] == 'hourly' ? 'Per Jam' : 'Per Hari' }}</span>
+                                            <br>
+                                            <span style="font-size: 11px;">{{ number_format($overtimeData[$payroll->id]['amount'], 0, ',', '.') }}</span>
                                         @else
                                             -
                                         @endif
                                     </td>
-                                    <td>
-                                        <div style="font-size: 10px;">
-                                            <b>Pers:</b> {{ $payroll->jht_employee ?? 0 }}% | <b>Comp:</b> {{ $payroll->jht_company ?? 0 }}%
-                                        </div>
+                                    <td style="vertical-align: middle;">
+                                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                            <div style="flex: 0 0 calc(50% - 5px);">
+                                                <span style="font-weight: bold; font-size: 11px;">Perusahaan</span>
+                                                <br>
+                                                @if ($payroll->jkk_company)
+                                                    <span style="font-size: 11px;">JKK = {{ $payroll->jkk_company }}%</span>
+                                                    <br>
+                                                @endif
+                                                @if ($payroll->jkm_company)
+                                                    <span style="font-size: 11px;">JKM = {{ $payroll->jkm_company }}%</span>
+                                                    <br>
+                                                @endif
+                                                @if ($payroll->jht_company)
+                                                    <span style="font-size: 11px;">JHT = {{ $payroll->jht_company }}%</span>
+                                                    <br>
+                                                @endif
+                                                @if ($payroll->jp_company)
+                                                    <span style="font-size: 11px;">JP = {{ $payroll->jp_company }}%</span>
+                                                    <br>
+                                                @endif
+                                                @if ($payroll->kes_company)
+                                                    <span style="font-size: 11px;">KES = {{ $payroll->kes_company }}%</span>
+                                                @endif
+                                            </div>
+                                            <div style="flex: 0 0 calc(50% - 5px);">
+                                                <span style="font-weight: bold; font-size: 11px;">Pegawai</span>
+                                                <br>
+                                                @if ($payroll->jht_employee)
+                                                    <span style="font-size: 11px;">JHT = {{ $payroll->jht_employee }}%</span>
+                                                    <br>
+                                                @endif
+                                                @if ($payroll->jp_employee)
+                                                    <span style="font-size: 11px;">JP = {{ $payroll->jp_employee }}%</span>
+                                                    <br>
+                                                @endif
+                                                @if ($payroll->kes_employee)
+                                                    <span style="font-size: 11px;">KES = {{ $payroll->kes_employee }}%</span>
+                                                @endif
+                                            </div>
+                                        </div>                                    
                                     </td>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#componentModal-{{ $payroll->id }}">
+                                    <td style="text-align: center; vertical-align: middle; white-space: nowrap;">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#componentModal-{{ $payroll->id }}" style="font-size: 10px">
                                             Lihat
                                         </button>
                                     </td>
@@ -125,6 +181,19 @@
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Simple JavaScript to enhance the table responsiveness -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Handle select all checkboxes
+                        document.getElementById('select-all-payrolls').addEventListener('change', function() {
+                            var checkboxes = document.querySelectorAll('.payroll-checkbox');
+                            for (var i = 0; i < checkboxes.length; i++) {
+                                checkboxes[i].checked = this.checked;
+                            }
+                        });
+                    });
+                </script>
             </div>
         </div>
     </div>
@@ -132,153 +201,333 @@
 @endsection
 
 @push('js')
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
 <script>
-    $(document).ready(function() {
-        // Inisialisasi DataTable
-        const table = $('#mainPayrollTable').DataTable({
-            "paging": true,
-            "ordering": true,
-            "info": true,
-            "scrollX": true,
-            "columnDefs": [
-                { "orderable": false, "targets": [0, -1] } // Checkbox dan Action tidak bisa disortir
-            ],
-            "language": {
-                "search": "Cari Karyawan:",
-                "lengthMenu": "Tampilkan _MENU_ data"
-            }
-        });
+    function toggleBulkBPJSBudgetFields() {
+        const bpjsBase = document.getElementById("bulk_bpjs_base").value;
+        const bpjsBudgetFields = document.getElementById("bulk-bpjs-budget-fields");
 
-        // Handle Select All (DataTables compatible)
-        $('#select-all-payrolls').on('change', function() {
-            const rows = table.rows({ 'search': 'applied' }).nodes();
-            $('input.payroll-checkbox', rows).prop('checked', this.checked);
-            toggleBulkButtonState();
-        });
-
-        $('#mainPayrollTable tbody').on('change', 'input.payroll-checkbox', function() {
-            toggleBulkButtonState();
-        });
-
-        function toggleBulkButtonState() {
-            const selectedCount = $('.payroll-checkbox:checked').length;
-            const bulkBtn = $('[data-bs-target="#bulkUpdateModal"]');
-            if (bulkBtn.length) bulkBtn.prop('disabled', selectedCount === 0);
+        if (bpjsBase === "base_budget") {
+            bpjsBudgetFields.classList.remove("d-none");
+        } else {
+            bpjsBudgetFields.classList.add("d-none");
         }
+    }
 
-        // Logic Form Bulk Update
-        $('#bulkUpdateForm').on('submit', function(e) {
-            const container = $('#selected-payrolls-container');
-            container.empty();
-            $('.payroll-checkbox:checked').each(function() {
-                container.append(`<input type="hidden" name="selected_payrolls[]" value="${$(this).val()}">`);
+    document.addEventListener("DOMContentLoaded", function () {
+        const bpjsBaseSelect = document.getElementById("bulk_bpjs_base");
+        bpjsBaseSelect.addEventListener("change", toggleBulkBPJSBudgetFields);
+
+        // Jalankan fungsi untuk memeriksa nilai saat halaman pertama kali dimuat
+        toggleBulkBPJSBudgetFields();
+    });
+
+    function toggleBPJSBudgetFields(payrollId) {
+        const bpjsBase = document.getElementById(bpjs_base-${payrollId}).value;
+        const bpjsBudgetFields = document.getElementById(bpjs-budget-fields-${payrollId});
+
+        if (bpjsBase === 'base_budget') {
+            bpjsBudgetFields.classList.remove('d-none');
+        } else {
+            bpjsBudgetFields.classList.add('d-none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[id^="bpjs_base-"]').forEach(function(select) {
+            select.addEventListener('change', function() {
+                const payrollId = this.id.split('-')[1];
+                toggleBPJSBudgetFields(payrollId);
             });
-            
-            if (container.children().length === 0) {
-                alert('Pilih minimal satu karyawan!');
-                return false;
-            }
-            $('#bulkUpdateSubmit').html('<span class="spinner-border spinner-border-sm"></span> Processing...').prop('disabled', true);
-            return true;
+
+            // Jalankan fungsi untuk memeriksa nilai saat halaman dimuat
+            const payrollId = select.id.split('-')[1];
+            toggleBPJSBudgetFields(payrollId);
         });
     });
 
-    // Fungsi Global (Diluar document.ready agar bisa dipanggil onclick modal)
-    function toggleBulkBPJSBudgetFields() {
-        const bpjsBase = document.getElementById("bulk_bpjs_base").value;
-        const fields = document.getElementById("bulk-bpjs-budget-fields");
-        if(fields) bpjsBase === "base_budget" ? fields.classList.remove("d-none") : fields.classList.add("d-none");
-    }
-
-    function toggleBPJSBudgetFields(payrollId) {
-        const bpjsBase = document.getElementById(`bpjs_base-${payrollId}`).value;
-        const fields = document.getElementById(`bpjs-budget-fields-${payrollId}`);
-        if(fields) bpjsBase === 'base_budget' ? fields.classList.remove('d-none') : fields.classList.add('d-none');
-    }
-
     function toggleComponentInput(payrollId, componentTypeId) {
-        const chk = document.getElementById(`component-${payrollId}-${componentTypeId}`);
-        const inp = document.getElementById(`component-amount-${payrollId}-${componentTypeId}`);
-        if(inp) {
-            inp.disabled = !chk.checked;
-            if(!chk.checked) inp.value = '';
+        const checkbox = document.getElementById(component-${payrollId}-${componentTypeId});
+        const input = document.getElementById(component-amount-${payrollId}-${componentTypeId});
+        
+        input.disabled = !checkbox.checked;
+        
+        if (!checkbox.checked) {
+            input.value = '';
         }
     }
-
+    
+    // Select all components for individual payroll
     function toggleAllComponents(payrollId) {
-        const master = document.getElementById(`select-all-${payrollId}`);
-        const chks = document.querySelectorAll(`input[id^="component-${payrollId}-"]`);
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const id = c.id.split('-')[2];
-            const inp = document.getElementById(`component-amount-${payrollId}-${id}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
+        const selectAllCheckbox = document.getElementById(select-all-${payrollId});
+        const componentCheckboxes = document.querySelectorAll(input[id^="component-${payrollId}-"]);
+        
+        componentCheckboxes.forEach(function(checkbox) {
+            checkbox.checked = selectAllCheckbox.checked;
+            
+            // Extract component ID from the checkbox ID
+            const componentId = checkbox.id.split('-')[2];
+            const input = document.getElementById(component-amount-${payrollId}-${componentId});
+            
+            input.disabled = !selectAllCheckbox.checked;
+            
+            if (!selectAllCheckbox.checked) {
+                input.value = '';
             }
         });
     }
-
+    
+    // Toggle deduction input fields on individual payrolls
     function toggleDeductionInput(payrollId, deductionTypeId) {
-        const chk = document.getElementById(`deduction-${payrollId}-${deductionTypeId}`);
-        const inp = document.getElementById(`deduction-amount-${payrollId}-${deductionTypeId}`);
-        if(inp) {
-            inp.disabled = !chk.checked;
-            if(!chk.checked) inp.value = '';
+        const checkbox = document.getElementById(deduction-${payrollId}-${deductionTypeId});
+        const input = document.getElementById(deduction-amount-${payrollId}-${deductionTypeId});
+        
+        input.disabled = !checkbox.checked;
+        
+        if (!checkbox.checked) {
+            input.value = '';
         }
     }
-
+    
+    // Select all deductions for individual payroll
     function toggleAllDeductions(payrollId) {
-        const master = document.getElementById(`select-all-deductions-${payrollId}`);
-        const chks = document.querySelectorAll(`input[id^="deduction-${payrollId}-"]`);
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const id = c.id.split('-')[2];
-            const inp = document.getElementById(`deduction-amount-${payrollId}-${id}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
+        const selectAllCheckbox = document.getElementById(select-all-deductions-${payrollId});
+        const deductionCheckboxes = document.querySelectorAll(input[id^="deduction-${payrollId}-"]);
+        
+        deductionCheckboxes.forEach(function(checkbox) {
+            checkbox.checked = selectAllCheckbox.checked;
+            
+            // Extract deduction ID from the checkbox ID
+            const deductionId = checkbox.id.split('-')[2];
+            const input = document.getElementById(deduction-amount-${payrollId}-${deductionId});
+            
+            input.disabled = !selectAllCheckbox.checked;
+            
+            if (!selectAllCheckbox.checked) {
+                input.value = '';
             }
         });
     }
-
-    function toggleBulkComponentInput(id) {
-        const chk = document.getElementById(`bulk-component-${id}`);
-        const inp = document.getElementById(`bulk-component-amount-${id}`);
-        if(inp) {
-            inp.disabled = !chk.checked;
-            if(!chk.checked) inp.value = '';
+    
+    // Toggle BPJS fields on individual payroll modals
+    function toggleBPJSFields(payrollId, type) {
+        const normatifFields = document.getElementById(bpjs-normatif-fields-${payrollId});
+        const unnormatifFields = document.getElementById(bpjs-unnormatif-fields-${payrollId});
+        
+        if (type === 'normatif') {
+            normatifFields.classList.remove('d-none');
+            unnormatifFields.classList.add('d-none');
+        } else {
+            normatifFields.classList.add('d-none');
+            unnormatifFields.classList.remove('d-none');
         }
     }
-
+    
+    // Toggle component input field in bulk update
+    function toggleBulkComponentInput(componentTypeId) {
+        const checkbox = document.getElementById(bulk-component-${componentTypeId});
+        const input = document.getElementById(bulk-component-amount-${componentTypeId});
+        
+        input.disabled = !checkbox.checked;
+        
+        if (!checkbox.checked) {
+            input.value = '';
+        }
+    }
+    
+    // Toggle deduction input field in bulk update
+    function toggleBulkDeductionInput(deductionTypeId) {
+        const checkbox = document.getElementById(bulk-deduction-${deductionTypeId});
+        const input = document.getElementById(bulk-deduction-amount-${deductionTypeId});
+        
+        input.disabled = !checkbox.checked;
+        
+        if (!checkbox.checked) {
+            input.value = '';
+        }
+    }
+    
+    // Select all components in bulk update - FIXED VERSION
     function toggleAllBulkComponents() {
-        const master = document.getElementById('bulk-select-all-components');
-        const chks = document.querySelectorAll('input[name="bulk_component_checked[]"]');
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const inp = document.getElementById(`bulk-component-amount-${c.value}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
-            }
-        });
+        try {
+            const selectAllCheckbox = document.getElementById('bulk-select-all-components');
+            // Better selector targeting all bulk component checkboxes by name
+            const componentCheckboxes = document.querySelectorAll('input[name="bulk_component_checked[]"]');
+            
+            console.log("Toggling all bulk components. Found: " + componentCheckboxes.length + " checkboxes");
+            
+            componentCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = selectAllCheckbox.checked;
+                
+                // Get component ID from the value attribute
+                const componentId = checkbox.value;
+                const input = document.getElementById(bulk-component-amount-${componentId});
+                
+                if (input) {
+                    input.disabled = !selectAllCheckbox.checked;
+                    
+                    if (!selectAllCheckbox.checked) {
+                        input.value = '';
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error in toggleAllBulkComponents:", error);
+        }
     }
-
+    
+    // Select all deductions in bulk update
     function toggleAllBulkDeductions() {
-        const master = document.getElementById('bulk-select-all-deductions');
-        const chks = document.querySelectorAll('input[name="bulk_deduction_checked[]"]');
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const inp = document.getElementById(`bulk-deduction-amount-${c.value}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
-            }
-        });
+        try {
+            const selectAllCheckbox = document.getElementById('bulk-select-all-deductions');
+            const deductionCheckboxes = document.querySelectorAll('input[name="bulk_deduction_checked[]"]');
+            
+            console.log("Toggling all bulk deductions. Found: " + deductionCheckboxes.length + " checkboxes");
+            
+            deductionCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = selectAllCheckbox.checked;
+                
+                // Get deduction ID from the value attribute
+                const deductionId = checkbox.value;
+                const input = document.getElementById(bulk-deduction-amount-${deductionId});
+                
+                if (input) {
+                    input.disabled = !selectAllCheckbox.checked;
+                    
+                    if (!selectAllCheckbox.checked) {
+                        input.value = '';
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error in toggleAllBulkDeductions:", error);
+        }
     }
+    
+    // Document ready function to initialize all event handlers
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all checkbox for payrolls in table
+        const selectAllPayrolls = document.getElementById('select-all-payrolls');
+        if (selectAllPayrolls) {
+            selectAllPayrolls.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.payroll-checkbox');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = selectAllPayrolls.checked;
+                });
+            });
+        }
+        
+        // Toggle BPJS fields in bulk update modal
+        const bpjsTypeRadios = document.querySelectorAll('input[name="bpjs_type"]');
+        bpjsTypeRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const normatifFields = document.getElementById('bulk-bpjs-normatif-fields');
+                const unnormatifFields = document.getElementById('bulk-bpjs-unnormatif-fields');
+                
+                if (this.value === 'normatif') {
+                    normatifFields.classList.remove('d-none');
+                    unnormatifFields.classList.add('d-none');
+                } else if (this.value === 'unnormatif') {
+                    normatifFields.classList.add('d-none');
+                    unnormatifFields.classList.remove('d-none');
+                } else {
+                    normatifFields.classList.add('d-none');
+                    unnormatifFields.classList.add('d-none');
+                }
+            });
+        });
+        
+        // Bulk "Select All" checkbox in Components section
+        const bulkSelectAllComponents = document.getElementById('bulk-select-all-components');
+        if (bulkSelectAllComponents) {
+            bulkSelectAllComponents.addEventListener('change', function() {
+                // Call the function directly to avoid any issues with event binding
+                toggleAllBulkComponents();
+            });
+        }
+        
+        // Bulk "Select All" checkbox in Deductions section
+        const bulkSelectAllDeductions = document.getElementById('bulk-select-all-deductions');
+        if (bulkSelectAllDeductions) {
+            bulkSelectAllDeductions.addEventListener('change', function() {
+                // Call the function directly to avoid any issues with event binding
+                toggleAllBulkDeductions();
+            });
+        }
+        
+        // Form submission handler for bulk update
+        const bulkUpdateForm = document.getElementById('bulkUpdateForm');
+        if (bulkUpdateForm) {
+            bulkUpdateForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get all selected payroll IDs
+                const selectedPayrolls = [];
+                document.querySelectorAll('.payroll-checkbox:checked').forEach(function(checkbox) {
+                    selectedPayrolls.push(checkbox.value);
+                });
+                
+                if (selectedPayrolls.length === 0) {
+                    alert('Pilih minimal satu karyawan terlebih dahulu!');
+                    return;
+                }
+                
+                // Clear previous inputs
+                const container = document.getElementById('selected-payrolls-container');
+                container.innerHTML = '';
+                
+                // Add hidden inputs for selected payrolls
+                selectedPayrolls.forEach(function(id) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'selected_payrolls[]';
+                    input.value = id;
+                    container.appendChild(input);
+                });
+                
+                // Add loading state to submit button
+                const submitButton = document.getElementById('bulkUpdateSubmit');
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                submitButton.disabled = true;
+                
+                // Submit the form
+                this.submit();
+            });
+        }
+        
+        // Handle bulk update modal opening
+        const bulkUpdateModal = document.getElementById('bulkUpdateModal');
+        if (bulkUpdateModal) {
+            bulkUpdateModal.addEventListener('show.bs.modal', function(event) {
+                // Check if any payrolls are selected
+                const selectedCount = document.querySelectorAll('.payroll-checkbox:checked').length;
+                if (selectedCount === 0) {
+                    alert('Pilih minimal satu karyawan terlebih dahulu!');
+                    event.preventDefault();
+                }
+            });
+        }
+        
+        // Enable/disable the bulk update button based on selected checkboxes
+        const payrollCheckboxes = document.querySelectorAll('.payroll-checkbox');
+        if (payrollCheckboxes.length > 0) {
+            payrollCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const selectedCount = document.querySelectorAll('.payroll-checkbox:checked').length;
+                    const bulkUpdateButton = document.querySelector('[data-bs-target="#bulkUpdateModal"]');
+                    
+                    if (bulkUpdateButton) {
+                        bulkUpdateButton.disabled = selectedCount === 0;
+                    }
+                });
+            });
+            
+            // Initial state of bulk update button
+            const initialSelectedCount = document.querySelectorAll('.payroll-checkbox:checked').length;
+            const bulkUpdateButton = document.querySelector('[data-bs-target="#bulkUpdateModal"]');
+            if (bulkUpdateButton) {
+                bulkUpdateButton.disabled = initialSelectedCount === 0;
+            }
+        }
+    });
 </script>
 @endpush
