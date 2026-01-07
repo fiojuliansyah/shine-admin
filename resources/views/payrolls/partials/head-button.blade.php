@@ -174,7 +174,7 @@
                     <div class="form-group mb-3" id="update_amount_field">
                         <label for="amount">Amount</label>
                         <input type="text" name="amount" id="amount" class="form-control"
-                            placeholder="Masukkan Gaji Bulanan">
+                            placeholder="Masukkan Gaji">
                     </div>
 
                     <!-- BPJS Section -->
@@ -359,38 +359,37 @@
 
                     <!-- Components section -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <div class="card-header bg-light">
                             <h6 class="mb-0">Allowance</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="bulk-select-all-components"
-                                    onchange="toggleAllBulkComponents()">
-                                <label class="form-check-label" for="bulk-select-all-components">
-                                    Pilih Semua
-                                </label>
-                            </div>
                         </div>
+
                         <div class="card-body">
                             @foreach ($componentTypes as $componentType)
-                                <div class="form-group mb-3">
-                                    <div class="row">
+                                <div class="mb-3">
+                                    <div class="row align-items-center">
                                         <div class="col-md-6">
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input"
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
                                                     name="bulk_component_checked[]"
-                                                    id="bulk-component-{{ $componentType->id }}"
                                                     value="{{ $componentType->id }}"
-                                                    onchange="toggleBulkComponentInput({{ $componentType->id }})">
-                                                <label class="form-check-label"
-                                                    for="bulk-component-{{ $componentType->id }}">
+                                                    data-bulk-component-checkbox
+                                                >
+                                                <label class="form-check-label">
                                                     {{ $componentType->name }}
                                                 </label>
                                             </div>
                                         </div>
+
                                         <div class="col-md-6">
-                                            <input type="text"
+                                            <input
+                                                type="text"
                                                 name="bulk_component_amount[{{ $componentType->id }}]"
                                                 id="bulk-component-amount-{{ $componentType->id }}"
-                                                class="form-control" placeholder="Masukkan Jumlah" disabled>
+                                                class="form-control"
+                                                disabled
+                                            >
                                         </div>
                                     </div>
                                 </div>
@@ -400,45 +399,44 @@
 
                     <!-- Deductions section -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Deductions</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="bulk-select-all-deductions"
-                                    onchange="toggleAllBulkDeductions()">
-                                <label class="form-check-label" for="bulk-select-all-deductions">
-                                    Pilih Semua
-                                </label>
-                            </div>
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Deduction</h6>
                         </div>
+
                         <div class="card-body">
                             @foreach ($deductionTypes as $deductionType)
-                                <div class="form-group mb-3">
-                                    <div class="row">
+                                <div class="mb-3">
+                                    <div class="row align-items-center">
                                         <div class="col-md-6">
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input"
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
                                                     name="bulk_deduction_checked[]"
-                                                    id="bulk-deduction-{{ $deductionType->id }}"
                                                     value="{{ $deductionType->id }}"
-                                                    onchange="toggleBulkDeductionInput({{ $deductionType->id }})">
-                                                <label class="form-check-label"
-                                                    for="bulk-deduction-{{ $deductionType->id }}">
+                                                    data-bulk-deduction-checkbox
+                                                >
+                                                <label class="form-check-label">
                                                     {{ $deductionType->name }}
                                                 </label>
                                             </div>
                                         </div>
+
                                         <div class="col-md-6">
-                                            <input type="text"
+                                            <input
+                                                type="text"
                                                 name="bulk_deduction_amount[{{ $deductionType->id }}]"
                                                 id="bulk-deduction-amount-{{ $deductionType->id }}"
-                                                class="form-control" placeholder="Masukkan Jumlah" disabled>
+                                                class="form-control"
+                                                disabled
+                                            >
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     </div>
-
+                    
                     <!-- Time Deduction Section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light">

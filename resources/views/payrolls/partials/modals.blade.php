@@ -26,7 +26,7 @@
                     <div class="form-group mb-3" id="update_amount_field">
                         <label for="amount">Amount</label>
                         <input type="text" name="amount" id="amount" class="form-control"
-                            placeholder="Masukkan Gaji Bulanan" value="{{ $payroll->amount }}">
+                            placeholder="Masukkan Gaji" value="{{ $payroll->amount }}">
                     </div>
 
                     <!-- BPJS Section -->
@@ -227,46 +227,45 @@
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Allowance</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="select-all-{{ $payroll->id }}"
-                                    onclick="toggleAllComponents({{ $payroll->id }})">
-                                <label class="form-check-label" for="select-all-{{ $payroll->id }}">
-                                    Pilih Semua
-                                </label>
-                            </div>
                         </div>
+
                         <div class="card-body">
                             @foreach ($componentTypes as $componentType)
-                                <div class="form-group mb-3">
+                                @php
+                                    $isChecked = isset($componentsData[$payroll->id][$componentType->id]);
+                                    $value = $isChecked ? $componentsData[$payroll->id][$componentType->id] : '';
+                                @endphp
+
+                                <div class="mb-3">
                                     <div class="row align-items-center">
                                         <div class="col-md-6">
-                                            @php
-                                                $isChecked = isset($componentsData[$payroll->id][$componentType->id]);
-                                                $value = $isChecked
-                                                    ? $componentsData[$payroll->id][$componentType->id]
-                                                    : '';
-                                            @endphp
+                                            <input type="hidden" name="component_types[]" value="{{ $componentType->id }}">
+
                                             <div class="form-check">
-                                                <!-- This hidden field always sends the component_type_id -->
-                                                <input type="hidden" name="component_types[]"
-                                                    value="{{ $componentType->id }}">
-                                                <input class="form-check-input" type="checkbox"
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
                                                     name="selected_components[]"
-                                                    id="component-{{ $payroll->id }}-{{ $componentType->id }}"
                                                     value="{{ $componentType->id }}"
+                                                    data-component-checkbox
+                                                    data-id="{{ $payroll->id }}-{{ $componentType->id }}"
                                                     {{ $isChecked ? 'checked' : '' }}
-                                                    onchange="toggleComponentInput({{ $payroll->id }}, {{ $componentType->id }})">
-                                                <label class="form-check-label"
-                                                    for="component-{{ $payroll->id }}-{{ $componentType->id }}">
+                                                >
+                                                <label class="form-check-label">
                                                     {{ $componentType->name }}
                                                 </label>
                                             </div>
                                         </div>
+
                                         <div class="col-md-6">
-                                            <input type="text" name="component_amounts[{{ $componentType->id }}]"
+                                            <input
+                                                type="text"
+                                                name="component_amounts[{{ $componentType->id }}]"
                                                 id="component-amount-{{ $payroll->id }}-{{ $componentType->id }}"
-                                                class="form-control" placeholder="Masukkan Jumlah"
-                                                value="{{ $value }}" {{ $isChecked ? '' : 'disabled' }}>
+                                                class="form-control"
+                                                value="{{ $value }}"
+                                                {{ $isChecked ? '' : 'disabled' }}
+                                            >
                                         </div>
                                     </div>
                                 </div>
@@ -277,48 +276,46 @@
                     <!-- Deductions section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Deductions</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox"
-                                    id="select-all-deductions-{{ $payroll->id }}"
-                                    onclick="toggleAllDeductions({{ $payroll->id }})">
-                                <label class="form-check-label" for="select-all-deductions-{{ $payroll->id }}">
-                                    Pilih Semua
-                                </label>
-                            </div>
+                            <h6 class="mb-0">Deduction</h6>
                         </div>
+
                         <div class="card-body">
                             @foreach ($deductionTypes as $deductionType)
-                                <div class="form-group mb-3">
+                                @php
+                                    $isChecked = isset($deductionsData[$payroll->id][$deductionType->id]);
+                                    $value = $isChecked ? $deductionsData[$payroll->id][$deductionType->id] : '';
+                                @endphp
+
+                                <div class="mb-3">
                                     <div class="row align-items-center">
                                         <div class="col-md-6">
-                                            @php
-                                                $isChecked = isset($deductionsData[$payroll->id][$deductionType->id]);
-                                                $value = $isChecked
-                                                    ? $deductionsData[$payroll->id][$deductionType->id]
-                                                    : '';
-                                            @endphp
+                                            <input type="hidden" name="deduction_types[]" value="{{ $deductionType->id }}">
+
                                             <div class="form-check">
-                                                <!-- This hidden field always sends the deduction_type_id -->
-                                                <input type="hidden" name="deduction_types[]"
-                                                    value="{{ $deductionType->id }}">
-                                                <input class="form-check-input" type="checkbox"
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
                                                     name="selected_deductions[]"
-                                                    id="deduction-{{ $payroll->id }}-{{ $deductionType->id }}"
                                                     value="{{ $deductionType->id }}"
+                                                    data-deduction-checkbox
+                                                    data-id="{{ $payroll->id }}-{{ $deductionType->id }}"
                                                     {{ $isChecked ? 'checked' : '' }}
-                                                    onchange="toggleDeductionInput({{ $payroll->id }}, {{ $deductionType->id }})">
-                                                <label class="form-check-label"
-                                                    for="deduction-{{ $payroll->id }}-{{ $deductionType->id }}">
+                                                >
+                                                <label class="form-check-label">
                                                     {{ $deductionType->name }}
                                                 </label>
                                             </div>
                                         </div>
+
                                         <div class="col-md-6">
-                                            <input type="text" name="deduction_amounts[{{ $deductionType->id }}]"
+                                            <input
+                                                type="text"
+                                                name="deduction_amounts[{{ $deductionType->id }}]"
                                                 id="deduction-amount-{{ $payroll->id }}-{{ $deductionType->id }}"
-                                                class="form-control" placeholder="Masukkan Jumlah"
-                                                value="{{ $value }}" {{ $isChecked ? '' : 'disabled' }}>
+                                                class="form-control"
+                                                value="{{ $value }}"
+                                                {{ $isChecked ? '' : 'disabled' }}
+                                            >
                                         </div>
                                     </div>
                                 </div>
