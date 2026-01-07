@@ -88,6 +88,7 @@
 
         <div class="details">
             <p><strong>Nama Pegawai:</strong> {{ $payroll->user->name }}</p>
+            <p><strong>Status PTKP:</strong> {{ $payroll->user->profile->marriage_status }}</p>
             <p><strong>Jabatan:</strong> @foreach ($payroll->user->getRoleNames() as $role) 
                 {{ $role }}
             @endforeach</p>
