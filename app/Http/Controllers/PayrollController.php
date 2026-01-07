@@ -530,15 +530,22 @@ class PayrollController extends Controller
 
     public function viewPayslip($id)
     {
-        $payroll = GeneratePayroll::with('user', 'site')->findOrFail($id);
+        $payroll = GeneratePayroll::with([
+            'user',
+            'site',
+            'payroll.payroll_components'
+        ])->findOrFail($id);
 
         return view('payrolls.payslip', compact('payroll'));
     }
 
-
     public function downloadPayslip($id)
     {
-        $payroll = GeneratePayroll::with('user', 'site')->findOrFail($id);
+        $payroll = GeneratePayroll::with([
+            'user',
+            'site',
+            'payroll.payroll_components'
+        ])->findOrFail($id);
 
         $pdf = PDF::loadView('payrolls.payslip-pdf', compact('payroll'));
 

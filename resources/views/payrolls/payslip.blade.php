@@ -94,10 +94,14 @@
                                 <td>Gaji Pokok</td>
                                 <td>{{ number_format($payroll->salary, 2) }}</td>
                             </tr>
-                            <tr>
-                                <td>Tunjangan</td>
-                                <td>{{ number_format($payroll->allowance_fix, 2) }}</td>
-                            </tr>
+                            @foreach($payroll->payroll->payroll_components as $component)
+                                @if(($component->amount ?? 0) > 0)
+                                <tr>
+                                    <td>{{ $component->component_type->name }}</td>
+                                    <td>{{ number_format($component->amount, 2) }}</td>
+                                </tr>
+                                @endif
+                            @endforeach
                             <tr>
                                 <th colspan="2" style="background-color: #F1F1F1; color: #8687A7;">Potongan</th>
                             </tr>
