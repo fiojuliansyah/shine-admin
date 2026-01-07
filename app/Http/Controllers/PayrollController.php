@@ -442,8 +442,17 @@ class PayrollController extends Controller
         $sites = Site::all();
         $period = null;
 
-        $latestPayrolls = GeneratePayroll::select('site_id', DB::raw('MAX(created_at) as latest_created_at'))
-            ->groupBy('site_id')
+        $latestPayrolls = GeneratePayroll::select('generate_payrolls.*')
+            ->join(DB::raw('
+                (
+                    SELECT site_id, MAX(created_at) AS latest_created_at
+                    FROM generate_payrolls
+                    GROUP BY site_id
+                ) latest
+            '), function ($join) {
+                $join->on('generate_payrolls.site_id', '=', 'latest.site_id')
+                    ->on('generate_payrolls.created_at', '=', 'latest.latest_created_at');
+            })
             ->get();
 
         if ($latestPayrolls->isEmpty()) {
@@ -452,21 +461,32 @@ class PayrollController extends Controller
                 'BPJS Employee' => 0,
                 'THP' => 0
             ];
-            $latestCreatedAt = "No Data Available";
+            $latestCreatedAt = 'No Data Available';
         } else {
-            $latestCreatedAt = $latestPayrolls->max('latest_created_at');
-            $expenses = GeneratePayroll::whereIn('created_at', $latestPayrolls->pluck('latest_created_at'))->get();
-
-            $period = $expenses->max('end_date');
+            $latestCreatedAt = $latestPayrolls->max('created_at');
+            $period = $latestPayrolls->max('end_date');
 
             $totalExpenses = [
-                'BPJS Perusahaan' => $expenses->sum('jkk_company') + $expenses->sum('jkm_company') + $expenses->sum('jht_company') + $expenses->sum('jp_company') + $expenses->sum('kes_company'),
-                'BPJS Employee' => $expenses->sum('jht_employee') + $expenses->sum('jp_employee') + $expenses->sum('kes_employee'),
-                'THP' => $expenses->sum('take_home_pay')
+                'BPJS Perusahaan' =>
+                    $latestPayrolls->sum('jkk_company') +
+                    $latestPayrolls->sum('jkm_company') +
+                    $latestPayrolls->sum('jht_company') +
+                    $latestPayrolls->sum('jp_company') +
+                    $latestPayrolls->sum('kes_company'),
+
+                'BPJS Employee' =>
+                    $latestPayrolls->sum('jht_employee') +
+                    $latestPayrolls->sum('jp_employee') +
+                    $latestPayrolls->sum('kes_employee'),
+
+                'THP' => $latestPayrolls->sum('take_home_pay')
             ];
         }
 
-        return $dataTable->render('payrolls.generate', compact('sites', 'latestCreatedAt', 'totalExpenses', 'period'));
+        return $dataTable->render(
+            'payrolls.generate',
+            compact('sites', 'latestCreatedAt', 'totalExpenses', 'period')
+        );
     }
     
     public function generateDetail($id, $period)
