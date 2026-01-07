@@ -533,7 +533,8 @@ class PayrollController extends Controller
         $payroll = GeneratePayroll::with([
             'user',
             'site',
-            'payroll.payroll_components'
+            'payroll.payroll_components',
+            'payroll.payroll_deductions'
         ])->findOrFail($id);
 
         return view('payrolls.payslip', compact('payroll'));
@@ -544,7 +545,8 @@ class PayrollController extends Controller
         $payroll = GeneratePayroll::with([
             'user',
             'site',
-            'payroll.payroll_components'
+            'payroll.payroll_components',
+            'payroll.payroll_deductions'
         ])->findOrFail($id);
 
         $pdf = PDF::loadView('payrolls.payslip-pdf', compact('payroll'));

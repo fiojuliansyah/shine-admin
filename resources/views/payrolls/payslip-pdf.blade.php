@@ -118,7 +118,6 @@
                     'Iuran Hari Tua' => $payroll->jht_employee,
                     'Iuran Pensiun' => $payroll->jp_employee,
                     'Iuran Kesehatan' => $payroll->kes_employee,
-                    'Potongan Lain' => $payroll->deduction_fix,
                     'Potongan Telat' => $payroll->late_time_deduction,
                     'Potongan Alpha' => $payroll->alpha_time_deduction,
                     'pph21' => $payroll->pph21 ?? '< PTKP',
@@ -130,6 +129,14 @@
                     <tr>
                         <td>{{ $label }}</td>
                         <td>{{ number_format($value, 2) }}</td>
+                    </tr>
+                    @endif
+                @endforeach
+                @foreach($payroll->payroll->payroll_deductions as $deduction)
+                    @if(($deduction->amount ?? 0) > 0)
+                    <tr>
+                        <td>{{ $deduction->deduction_type->name }}</td>
+                        <td>{{ number_format($deduction->amount, 2) }}</td>
                     </tr>
                     @endif
                 @endforeach

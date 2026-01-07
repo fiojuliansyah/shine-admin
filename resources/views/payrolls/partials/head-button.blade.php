@@ -360,7 +360,7 @@
                     <!-- Components section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light">
-                            <h6 class="mb-0">Allowance</h6>
+                            <h6 class="mb-0">Tunjangan & Komisi</h6>
                         </div>
 
                         <div class="card-body">
@@ -400,7 +400,7 @@
                     <!-- Deductions section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light">
-                            <h6 class="mb-0">Deduction</h6>
+                            <h6 class="mb-0">Potongan</h6>
                         </div>
 
                         <div class="card-body">
