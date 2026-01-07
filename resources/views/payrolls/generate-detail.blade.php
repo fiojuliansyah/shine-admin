@@ -60,7 +60,7 @@
                                         <td>{{ number_format($payroll->deduction_fix + $payroll->deduction_non_fix) }}</td>
                                         <td>{{ number_format($payroll->jht_employee + $payroll->jp_employee + $payroll->kes_employee) }}</td>
                                         <td>{{ number_format($payroll->jkk_company + $payroll->jkm_company + $payroll->jht_company + $payroll->jp_company + $payroll->kes_company) }}</td>
-                                        <td>{{ number_format($payroll->pph21) }}</td>
+                                        <td>{{ number_format($payroll->pph21) ?? '< ptkp' }}</td>
                                         <td>{{ number_format($payroll->late_time_deduction) }}</td>
                                         <td>{{ number_format($payroll->alpha_time_deduction) }}</td>
                                         <td>{{ number_format($payroll->take_home_pay) }}</td>
@@ -68,9 +68,6 @@
                                             <a href="{{ route('payroll.viewPayslip', ['id' => $payroll->id]) }}" class="btn btn-xs rouded-pill btn-primary">
                                                 View Payslip
                                             </a>
-                                            <button type="button" class="btn btn-xs rouded-pill btn-primary" data-bs-toggle="modal" data-bs-target="#pph21Modal{{ $payroll->id }}">
-                                                View Detail PPh21
-                                            </button>
                                         </td>
                                     </tr>
                                     @empty
@@ -88,62 +85,4 @@
         </div>
     </div>
 </div>
-
-<!-- Modal for PPh21 Detail -->
-@foreach($generatedPayrolls as $payroll)
-<div class="modal fade" id="pph21Modal{{ $payroll->id }}" tabindex="-1" aria-labelledby="pph21ModalLabel{{ $payroll->id }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="pph21ModalLabel{{ $payroll->id }}">Detail PPh21 for {{ $payroll->user->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Form with disabled inputs -->
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label">Jenis Potongan</label>
-                        <input type="text" class="form-control" value="PPh21 Bulanan" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Skema Perhitungan</label>
-                        <input type="text" class="form-control" 
-                               value="{{ $payroll->payroll->pph21_method == 'ter_gross' ? 'GROSS' : 'GROSS UP' }}" disabled>
-                    </div>                    
-                    <div class="mb-3">
-                        <label class="form-label">Penghasilan Bruto</label>
-                        <input type="text" class="form-control" value="{{ number_format($payroll->salary + $payroll->allowance_fix + $payroll->allowance_non_fix) }}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">PTKP</label>
-                        <input type="text" class="form-control" value="{{ $payroll->user->profile->marriage_status }}" disabled>
-                    </div>
-                    <!-- DPP -->
-                    <div class="mb-3">
-                        <label class="form-label">DPP (Dasar Pengenaan Pajak)</label>
-                        <input type="text" class="form-control" 
-                               value="{{ number_format($payroll->salary + $payroll->allowance_fix + $payroll->allowance_non_fix - $payroll->deduction_fix) }}" disabled>
-                    </div>
-                    <!-- Tarif Pajak -->
-                    <div class="mb-3">
-                        <label class="form-label">Tarif Pajak</label>
-                        <input type="text" class="form-control" value="5%" disabled>
-                    </div>
-                    <!-- PPh21 -->
-                    <div class="mb-3">
-                        <label class="form-label">PPh21</label>
-                        <input type="text" class="form-control" 
-                               value="{{ number_format(($payroll->salary + $payroll->allowance_fix + $payroll->allowance_non_fix - $payroll->deduction_fix) * 0.05) }}" disabled>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endforeach
-
-
 @endsection
