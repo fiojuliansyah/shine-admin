@@ -137,148 +137,163 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        // Inisialisasi DataTable
-        const table = $('#mainPayrollTable').DataTable({
-            "paging": true,
-            "ordering": true,
-            "info": true,
-            "scrollX": true,
-            "columnDefs": [
-                { "orderable": false, "targets": [0, -1] } // Checkbox dan Action tidak bisa disortir
-            ],
-            "language": {
-                "search": "Cari Karyawan:",
-                "lengthMenu": "Tampilkan _MENU_ data"
-            }
-        });
+$(document).ready(function () {
 
-        // Handle Select All (DataTables compatible)
-        $('#select-all-payrolls').on('change', function() {
-            const rows = table.rows({ 'search': 'applied' }).nodes();
-            $('input.payroll-checkbox', rows).prop('checked', this.checked);
-            toggleBulkButtonState();
-        });
-
-        $('#mainPayrollTable tbody').on('change', 'input.payroll-checkbox', function() {
-            toggleBulkButtonState();
-        });
-
-        function toggleBulkButtonState() {
-            const selectedCount = $('.payroll-checkbox:checked').length;
-            const bulkBtn = $('[data-bs-target="#bulkUpdateModal"]');
-            if (bulkBtn.length) bulkBtn.prop('disabled', selectedCount === 0);
+    const table = $('#mainPayrollTable').DataTable({
+        paging: true,
+        ordering: true,
+        info: true,
+        scrollX: true,
+        columnDefs: [
+            { orderable: false, targets: [0, -1] }
+        ],
+        language: {
+            search: 'Cari Karyawan:',
+            lengthMenu: 'Tampilkan _MENU_ data'
         }
-
-        // Logic Form Bulk Update
-        $('#bulkUpdateForm').on('submit', function(e) {
-            const container = $('#selected-payrolls-container');
-            container.empty();
-            $('.payroll-checkbox:checked').each(function() {
-                container.append(`<input type="hidden" name="selected_payrolls[]" value="${$(this).val()}">`);
-            });
-            
-            if (container.children().length === 0) {
-                alert('Pilih minimal satu karyawan!');
-                return false;
-            }
-            $('#bulkUpdateSubmit').html('<span class="spinner-border spinner-border-sm"></span> Processing...').prop('disabled', true);
-            return true;
-        });
     });
 
-    // Fungsi Global (Diluar document.ready agar bisa dipanggil onclick modal)
-    function toggleBulkBPJSBudgetFields() {
-        const bpjsBase = document.getElementById("bulk_bpjs_base").value;
-        const fields = document.getElementById("bulk-bpjs-budget-fields");
-        if(fields) bpjsBase === "base_budget" ? fields.classList.remove("d-none") : fields.classList.add("d-none");
-    }
+    $('#select-all-payrolls').on('change', function () {
+        const rows = table.rows({ search: 'applied' }).nodes();
+        $('input.payroll-checkbox', rows).prop('checked', this.checked);
+        toggleBulkButtonState();
+    });
 
-    function toggleBPJSBudgetFields(payrollId) {
-        const bpjsBase = document.getElementById(`bpjs_base-${payrollId}`).value;
-        const fields = document.getElementById(`bpjs-budget-fields-${payrollId}`);
-        if(fields) bpjsBase === 'base_budget' ? fields.classList.remove('d-none') : fields.classList.add('d-none');
-    }
+    $('#mainPayrollTable tbody').on('change', 'input.payroll-checkbox', function () {
+        toggleBulkButtonState();
+    });
 
-    function toggleComponentInput(payrollId, componentTypeId) {
-        const chk = document.getElementById(`component-${payrollId}-${componentTypeId}`);
-        const inp = document.getElementById(`component-amount-${payrollId}-${componentTypeId}`);
-        if(inp) {
-            inp.disabled = !chk.checked;
-            if(!chk.checked) inp.value = '';
+    function toggleBulkButtonState() {
+        const selectedCount = $('.payroll-checkbox:checked').length;
+        const bulkBtn = $('[data-bs-target="#bulkUpdateModal"]');
+        if (bulkBtn.length) {
+            bulkBtn.prop('disabled', selectedCount === 0);
         }
     }
 
-    function toggleAllComponents(payrollId) {
-        const master = document.getElementById(`select-all-${payrollId}`);
-        const chks = document.querySelectorAll(`input[id^="component-${payrollId}-"]`);
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const id = c.id.split('-')[2];
-            const inp = document.getElementById(`component-amount-${payrollId}-${id}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
-            }
-        });
-    }
+    $('#bulkUpdateForm').on('submit', function () {
+        const container = $('#selected-payrolls-container');
+        container.empty();
 
-    function toggleDeductionInput(payrollId, deductionTypeId) {
-        const chk = document.getElementById(`deduction-${payrollId}-${deductionTypeId}`);
-        const inp = document.getElementById(`deduction-amount-${payrollId}-${deductionTypeId}`);
-        if(inp) {
-            inp.disabled = !chk.checked;
-            if(!chk.checked) inp.value = '';
+        $('.payroll-checkbox:checked').each(function () {
+            container.append(
+                `<input type="hidden" name="selected_payrolls[]" value="${this.value}">`
+            );
+        });
+
+        if (!container.children().length) {
+            alert('Pilih minimal satu karyawan!');
+            return false;
+        }
+
+        $('#bulkUpdateSubmit')
+            .html('<span class="spinner-border spinner-border-sm"></span> Processing...')
+            .prop('disabled', true);
+
+        return true;
+    });
+
+});
+</script>
+
+<script>
+document.addEventListener('change', function (e) {
+
+    if (e.target.matches('[data-bpjs-base]')) {
+        const context = e.target.dataset.context;
+        const value = e.target.value;
+
+        if (context === 'bulk') {
+            const fields = document.getElementById('bulk-bpjs-budget-fields');
+            if (fields) {
+                fields.classList.toggle('d-none', value !== 'base_budget');
+            }
+        }
+
+        if (context === 'detail') {
+            const payrollId = e.target.dataset.payrollId;
+            const fields = document.getElementById(`bpjs-budget-fields-${payrollId}`);
+            if (fields) {
+                fields.classList.toggle('d-none', value !== 'base_budget');
+            }
         }
     }
 
-    function toggleAllDeductions(payrollId) {
-        const master = document.getElementById(`select-all-deductions-${payrollId}`);
-        const chks = document.querySelectorAll(`input[id^="deduction-${payrollId}-"]`);
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const id = c.id.split('-')[2];
-            const inp = document.getElementById(`deduction-amount-${payrollId}-${id}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
-            }
-        });
-    }
+    if (e.target.matches('[data-bpjs-type]')) {
+        const context = e.target.dataset.context;
+        const type = e.target.value;
 
-    function toggleBulkComponentInput(id) {
-        const chk = document.getElementById(`bulk-component-${id}`);
-        const inp = document.getElementById(`bulk-component-amount-${id}`);
-        if(inp) {
-            inp.disabled = !chk.checked;
-            if(!chk.checked) inp.value = '';
+        if (context === 'bulk') {
+            toggleBPJSType(
+                'bulk-bpjs-normatif-fields',
+                'bulk-bpjs-unnormatif-fields',
+                type
+            );
+        }
+
+        if (context === 'detail') {
+            const payrollId = e.target.dataset.payrollId;
+            toggleBPJSType(
+                `bpjs-normatif-fields-${payrollId}`,
+                `bpjs-unnormatif-fields-${payrollId}`,
+                type
+            );
         }
     }
 
-    function toggleAllBulkComponents() {
-        const master = document.getElementById('bulk-select-all-components');
-        const chks = document.querySelectorAll('input[name="bulk_component_checked[]"]');
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const inp = document.getElementById(`bulk-component-amount-${c.value}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
-            }
-        });
+    if (e.target.matches('[data-component-checkbox]')) {
+        const id = e.target.dataset.id;
+        const input = document.getElementById(`component-amount-${id}`);
+        if (input) {
+            input.disabled = !e.target.checked;
+            if (!e.target.checked) input.value = '';
+        }
     }
 
-    function toggleAllBulkDeductions() {
-        const master = document.getElementById('bulk-select-all-deductions');
-        const chks = document.querySelectorAll('input[name="bulk_deduction_checked[]"]');
-        chks.forEach(c => {
-            c.checked = master.checked;
-            const inp = document.getElementById(`bulk-deduction-amount-${c.value}`);
-            if(inp) {
-                inp.disabled = !master.checked;
-                if(!master.checked) inp.value = '';
-            }
-        });
+    if (e.target.matches('[data-deduction-checkbox]')) {
+        const id = e.target.dataset.id;
+        const input = document.getElementById(`deduction-amount-${id}`);
+        if (input) {
+            input.disabled = !e.target.checked;
+            if (!e.target.checked) input.value = '';
+        }
     }
+
+    if (e.target.matches('[data-bulk-component-checkbox]')) {
+        const id = e.target.value;
+        const input = document.getElementById(`bulk-component-amount-${id}`);
+        if (input) {
+            input.disabled = !e.target.checked;
+            if (!e.target.checked) input.value = '';
+        }
+    }
+
+    if (e.target.matches('[data-bulk-deduction-checkbox]')) {
+        const id = e.target.value;
+        const input = document.getElementById(`bulk-deduction-amount-${id}`);
+        if (input) {
+            input.disabled = !e.target.checked;
+            if (!e.target.checked) input.value = '';
+        }
+    }
+
+});
+</script>
+
+<script>
+function toggleBPJSType(normatifId, unnormatifId, type) {
+    const normatif = document.getElementById(normatifId);
+    const unnormatif = document.getElementById(unnormatifId);
+
+    if (!normatif || !unnormatif) return;
+
+    if (type === 'normatif') {
+        normatif.classList.remove('d-none');
+        unnormatif.classList.add('d-none');
+    } else {
+        unnormatif.classList.remove('d-none');
+        normatif.classList.add('d-none');
+    }
+}
 </script>
 @endpush
