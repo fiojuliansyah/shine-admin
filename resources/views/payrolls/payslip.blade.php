@@ -72,29 +72,30 @@
                 <div class="row mt-4">
                     <div class="company-info">
                         <p>{{ $payroll->site->name }}</p>
-                        <p>Payroll Period: <strong>{{ \Carbon\Carbon::parse($payroll->end_date)->format('F Y') }}</strong></p>
+                        <p>Payroll Periode: <strong>{{ \Carbon\Carbon::parse($payroll->end_date)->format('F Y') }}</strong></p>
                     </div>
             
                     <div class="details">
-                        <p><strong>Employee Name:</strong> {{ $payroll->user->name }}</p>
-                        <p><strong>Position:</strong> @foreach ($payroll->user->getRoleNames() as $role) 
+                        <p><strong>Nama Pegawai:</strong> {{ $payroll->user->name }}</p>
+                        <p><strong>Nama Pegawai:</strong> {{ $payroll->user->profile->marriage_status }}</p>
+                        <p><strong>Jabatan:</strong> @foreach ($payroll->user->getRoleNames() as $role) 
                             {{ $role }}
                         @endforeach</p>
-                        <p><strong>Site:</strong> {{ $payroll->site->name }}</p>
+                        <p><strong>Lokasi Kerja:</strong> {{ $payroll->site->name }}</p>
                     </div>
             
                     <div class="table-container">
                         <table class="table">
                             <tr>
-                                <th>Description</th>
-                                <th>Amount</th>
+                                <th>Keterangan</th>
+                                <th>Jumlah</th>
                             </tr>
                             <tr>
-                                <td>Basic Salary</td>
+                                <td>Gaji Pokok</td>
                                 <td>{{ number_format($payroll->salary, 2) }}</td>
                             </tr>
                             <tr>
-                                <td>Allowances</td>
+                                <td>Tunjangan</td>
                                 <td>{{ number_format($payroll->allowance_fix, 2) }}</td>
                             </tr>
                             <tr>
@@ -121,7 +122,7 @@
                                 @endif
                             @endforeach
                             <tr>
-                                <th>Net Pay</th>
+                                <th>Take Home Pay</th>
                                 <th>{{ number_format($payroll->take_home_pay, 2) }}</th>
                             </tr>
                         </table>

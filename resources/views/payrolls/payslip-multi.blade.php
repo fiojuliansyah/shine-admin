@@ -83,62 +83,54 @@
         </div>
         <div class="company-info">
             <p>{{ $site->name }}</p>
-            <p>Payroll Period: <strong>{{ \Carbon\Carbon::parse($payroll->end_date)->format('F Y') }}</strong></p>
+            <p>Payroll Periode: <strong>{{ \Carbon\Carbon::parse($payroll->end_date)->format('F Y') }}</strong></p>
         </div>
 
         <div class="details">
-            <p><strong>Employee Name:</strong> {{ $payroll->user->name }}</p>
-            <p><strong>Position:</strong> @foreach ($payroll->user->getRoleNames() as $role) 
+            <p><strong>Nama Pegawai:</strong> {{ $payroll->user->name }}</p>
+            <p><strong>Jabatan:</strong> @foreach ($payroll->user->getRoleNames() as $role) 
                 {{ $role }}
             @endforeach</p>
-            <p><strong>Site:</strong> {{ $payroll->site->name }}</p>
+            <p><strong>Lokasi Kerja:</strong> {{ $payroll->site->name }}</p>
         </div>
 
         <div class="table-container">
             <table class="table">
                 <tr>
-                    <th>Description</th>
-                    <th>Amount</th>
+                    <th>Keterangan</th>
+                    <th>Jumlah</th>
                 </tr>
                 <tr>
-                    <td>Basic Salary</td>
+                    <td>Gaji Pokok</td>
                     <td>{{ number_format($payroll->salary, 2) }}</td>
                 </tr>
                 <tr>
-                    <td>Allowances</td>
+                    <td>Tunjangan</td>
                     <td>{{ number_format($payroll->allowance_fix, 2) }}</td>
                 </tr>
                 <tr>
                     <th colspan="2" style="background-color: #F1F1F1; color: #8687A7;">Potongan</th>
                 </tr>
-                <tr>
-                    <td>Iuran Hari Tua</td>
-                    <td>{{ number_format($payroll->jht_employee, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>Iuran Pensiun</td>
-                    <td>{{ number_format($payroll->jp_employee, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>Iuran Kesehatan</td>
-                    <td>{{ number_format($payroll->kes_employee, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>Potongan Lain</td>
-                    <td>{{ number_format($payroll->deduction_fix, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>Potongan Telat</td>
-                    <td>{{ number_format($payroll->late_time_deduction, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>Potongan Alpha</td>
-                    <td>{{ number_format($payroll->alpha_time_deduction, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>Pph21</td>
-                    <td>{{ number_format($payroll->pph21, 2) }}</td>
-                </tr>
+                @php
+                $deductions = [
+                    'Iuran Hari Tua' => $payroll->jht_employee,
+                    'Iuran Pensiun' => $payroll->jp_employee,
+                    'Iuran Kesehatan' => $payroll->kes_employee,
+                    'Potongan Lain' => $payroll->deduction_fix,
+                    'Potongan Telat' => $payroll->late_time_deduction,
+                    'Potongan Alpha' => $payroll->alpha_time_deduction,
+                    'pph21' => $payroll->pph21 ?? '< PTKP',
+                ];
+                @endphp
+
+                @foreach($deductions as $label => $value)
+                    @if(($value ?? 0) > 0)
+                    <tr>
+                        <td>{{ $label }}</td>
+                        <td>{{ number_format($value, 2) }}</td>
+                    </tr>
+                    @endif
+                @endforeach
                 <tr>
                     <th>Take Home Pay</th>
                     <th>{{ number_format($payroll->take_home_pay, 2) }}</th>

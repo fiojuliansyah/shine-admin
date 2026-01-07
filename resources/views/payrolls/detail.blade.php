@@ -94,10 +94,10 @@
                                     @endforeach
                                     <td>
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 10px;">
-                                            <span><b>L:</b> {{ number_format($timeDeductionsData[$payroll->id]['late'], 0, ',', '.') }}</span>
-                                            <span><b>A:</b> {{ number_format($timeDeductionsData[$payroll->id]['alpha'], 0, ',', '.') }}</span>
-                                            <span><b>P:</b> {{ number_format($timeDeductionsData[$payroll->id]['permit'], 0, ',', '.') }}</span>
-                                            <span><b>C:</b> {{ number_format($timeDeductionsData[$payroll->id]['leave'], 0, ',', '.') }}</span>
+                                            <span><b>Telat:</b> {{ number_format($timeDeductionsData[$payroll->id]['late'], 0, ',', '.') }}</span>
+                                            <span><b>Alpa:</b> {{ number_format($timeDeductionsData[$payroll->id]['alpha'], 0, ',', '.') }}</span>
+                                            <span><b>Ijin:</b> {{ number_format($timeDeductionsData[$payroll->id]['permit'], 0, ',', '.') }}</span>
+                                            <span><b>Cuti:</b> {{ number_format($timeDeductionsData[$payroll->id]['leave'], 0, ',', '.') }}</span>
                                         </div>
                                     </td>
                                     @php $oVal = $overtimeData[$payroll->id]['amount'] ?? 0; @endphp

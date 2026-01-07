@@ -34,8 +34,8 @@
                                         <th>Name</th>
                                         <th>Jabatan</th>
                                         <th>Salary</th>
-                                        <th>Allowances</th>
-                                        <th>Deductions</th>
+                                        <th>Tunjangan</th>
+                                        <th>Potongan</th>
                                         <th>BPJS Karyawan</th>
                                         <th>BPJS Company</th>
                                         <th>PPh21 (Bulan)</th>
