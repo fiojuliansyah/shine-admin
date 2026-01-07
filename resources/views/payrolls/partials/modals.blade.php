@@ -333,15 +333,15 @@
                                 <div class="col-md-4">
                                     <label for="overtime_pay_type-{{ $payroll->id }}">Tipe Pembayaran</label>
                                     <select name="overtime[pay_type]" id="overtime_pay_type-{{ $payroll->id }}" class="form-control">
-                                        <option value="hourly" {{ isset($payroll->overtime->pay_type) && $payroll->overtime->pay_type == 'hourly' ? 'selected' : '' }}>Per Jam</option>
-                                        <option value="daily" {{ isset($payroll->overtime->pay_type) && $payroll->overtime->pay_type == 'daily' ? 'selected' : '' }}>Per Hari</option>
+                                        <option value="hourly" {{ isset($payroll->payroll_overtime->pay_type) && $payroll->payroll_overtime->pay_type == 'hourly' ? 'selected' : '' }}>Per Jam</option>
+                                        <option value="daily" {{ isset($payroll->payroll_overtime->pay_type) && $payroll->payroll_overtime->pay_type == 'daily' ? 'selected' : '' }}>Per Hari</option>
                                     </select>
                                 </div>
                                 <div class="col-md-8">
                                     <label for="overtime_amount-{{ $payroll->id }}">Jumlah Lembur</label>
                                     <input type="text" name="overtime[amount]" id="overtime_amount-{{ $payroll->id }}" 
                                         class="form-control" placeholder="Masukkan jumlah lembur" 
-                                        value="{{ $payroll->overtime->amount ?? '' }}">
+                                        value="{{ $payroll->payroll_overtime->amount ?? '' }}">
                                 </div>
                             </div>
                         </div>
