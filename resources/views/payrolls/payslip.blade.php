@@ -100,30 +100,25 @@
                             <tr>
                                 <th colspan="2" style="background-color: #F1F1F1; color: #8687A7;">Potongan</th>
                             </tr>
-                            <tr>
-                                <td>Iuran Hari Tua</td>
-                                <td>{{ number_format($payroll->jht_employee, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Iuran Pensiun</td>
-                                <td>{{ number_format($payroll->jp_employee, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Iuran Kesehatan</td>
-                                <td>{{ number_format($payroll->kes_employee, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Potongan Lain</td>
-                                <td>{{ number_format($payroll->deduction_fix, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Potongan Telat</td>
-                                <td>{{ number_format($payroll->late_time_deduction, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Potongan Alpha</td>
-                                <td>{{ number_format($payroll->alpha_time_deduction, 2) }}</td>
-                            </tr>
+                                @php
+                                $deductions = [
+                                    'Iuran Hari Tua' => $payroll->jht_employee,
+                                    'Iuran Pensiun' => $payroll->jp_employee,
+                                    'Iuran Kesehatan' => $payroll->kes_employee,
+                                    'Potongan Lain' => $payroll->deduction_fix,
+                                    'Potongan Telat' => $payroll->late_time_deduction,
+                                    'Potongan Alpha' => $payroll->alpha_time_deduction,
+                                ];
+                                @endphp
+
+                                @foreach($deductions as $label => $value)
+                                    @if(($value ?? 0) > 0)
+                                    <tr>
+                                        <td>{{ $label }}</td>
+                                        <td>{{ number_format($value, 2) }}</td>
+                                    </tr>
+                                    @endif
+                                @endforeach
                             <tr>
                                 <td>Pph21</td>
                                 <td>{{ number_format($payroll->pph21, 2) }}</td>
