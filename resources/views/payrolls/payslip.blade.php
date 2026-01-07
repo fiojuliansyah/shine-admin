@@ -100,29 +100,26 @@
                             <tr>
                                 <th colspan="2" style="background-color: #F1F1F1; color: #8687A7;">Potongan</th>
                             </tr>
-                                @php
-                                $deductions = [
-                                    'Iuran Hari Tua' => $payroll->jht_employee,
-                                    'Iuran Pensiun' => $payroll->jp_employee,
-                                    'Iuran Kesehatan' => $payroll->kes_employee,
-                                    'Potongan Lain' => $payroll->deduction_fix,
-                                    'Potongan Telat' => $payroll->late_time_deduction,
-                                    'Potongan Alpha' => $payroll->alpha_time_deduction,
-                                ];
-                                @endphp
+                            @php
+                            $deductions = [
+                                'Iuran Hari Tua' => $payroll->jht_employee,
+                                'Iuran Pensiun' => $payroll->jp_employee,
+                                'Iuran Kesehatan' => $payroll->kes_employee,
+                                'Potongan Lain' => $payroll->deduction_fix,
+                                'Potongan Telat' => $payroll->late_time_deduction,
+                                'Potongan Alpha' => $payroll->alpha_time_deduction,
+                                'pph21' => $payroll->pph21 ?? '< PTKP',
+                            ];
+                            @endphp
 
-                                @foreach($deductions as $label => $value)
-                                    @if(($value ?? 0) > 0)
-                                    <tr>
-                                        <td>{{ $label }}</td>
-                                        <td>{{ number_format($value, 2) }}</td>
-                                    </tr>
-                                    @endif
-                                @endforeach
-                            <tr>
-                                <td>Pph21</td>
-                                <td>{{ number_format($payroll->pph21, 2) }}</td>
-                            </tr>
+                            @foreach($deductions as $label => $value)
+                                @if(($value ?? 0) > 0)
+                                <tr>
+                                    <td>{{ $label }}</td>
+                                    <td>{{ number_format($value, 2) }}</td>
+                                </tr>
+                                @endif
+                            @endforeach
                             <tr>
                                 <th>Net Pay</th>
                                 <th>{{ number_format($payroll->take_home_pay, 2) }}</th>
