@@ -3,159 +3,201 @@
 <head>
     <style>
         body { 
-            font-family: 'Arial', sans-serif; 
-            background-color: #f8f9fa; 
-            color: #333; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
+            color: #334155; 
             margin: 0; 
-            padding: 20px;
+            padding: 40px;
         }
         .payslip-container { 
-            max-width: 800px; 
+            max-width: 850px; 
             margin: auto; 
             background: #ffffff; 
-            padding: 20px; 
-            border-radius: 10px; 
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-top: 8px solid #1e40af;
         }
-        .header { 
-            text-align: center; 
-            padding-bottom: 10px; 
-            border-bottom: 2px solid #007bff;
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
-        .header h2 { 
+        .company-brand h2 { 
             margin: 0; 
-            color: #007bff; 
+            color: #1e40af; 
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .company-info { 
-            text-align: center; 
-            font-size: 14px; 
-            color: #777; 
-            margin-bottom: 20px; 
+        .period-badge {
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
         }
-        .details { 
-            margin-top: 20px; 
-            padding: 10px; 
-            background: #f1f1f1; 
-            border-radius: 5px; 
+        .employee-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
         }
-        .table-container { 
-            margin-top: 20px; 
+        .info-group p { margin: 5px 0; font-size: 13px; color: #64748b; }
+        .info-group strong { color: #1e293b; font-size: 14px; }
+
+        .salary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        .table { 
-            width: 100%; 
-            border-collapse: collapse; 
+        .salary-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 13px;
+            text-transform: uppercase;
         }
-        .table th, .table td { 
-            padding: 10px; 
-            border: 1px solid #ddd; 
-            text-align: left; 
+        .salary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
         }
-        .table th { 
-            background: #007bff; 
-            color: white; 
+        .amount { text-align: right; font-family: 'Courier New', Courier, monospace; font-weight: 600; }
+        
+        .summary-box {
+            background: #1e40af;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
         }
+        .summary-box h3 { margin: 0; font-size: 18px; opacity: 0.9; }
+        .summary-box .total-amount { font-size: 24px; font-weight: 800; }
+
         .footer { 
-            margin-top: 30px; 
-            text-align: center; 
-            font-size: 12px; 
-            color: #777; 
-        }
-        .signature { 
             margin-top: 40px; 
-            text-align: right; 
-        }
-        .signature p { 
-            margin: 0; 
-            font-weight: bold; 
-        }
-        .page-break { 
-            page-break-after: always; 
+            text-align: center; 
+            font-size: 11px; 
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="payslip-container">
-        <div class="header">
-            <h2>{{ $payroll->site->name }}</h2>
-        </div>
-        <div class="company-info">
-            <p>{{ $payroll->site->name }}</p>
-            <p>Payroll Periode: <strong>{{ \Carbon\Carbon::parse($payroll->end_date)->format('F Y') }}</strong></p>
-        </div>
-
-        <div class="details">
-            <p><strong>Nama Pegawai:</strong> {{ $payroll->user->name }}</p>
-            <p><strong>Status PTKP:</strong> {{ $payroll->user->profile->marriage_status }}</p>
-            <p><strong>Jabatan:</strong> @foreach ($payroll->user->getRoleNames() as $role) 
-                {{ $role }}
-            @endforeach</p>
-            <p><strong>Lokasi Kerja:</strong> {{ $payroll->site->name }}</p>
+        <div class="header-section">
+            <div class="company-brand">
+                <h2>{{ $payroll->site->name }}</h2>
+                <p style="margin:5px 0; font-size: 12px; color: #64748b;">Slip Gaji Karyawan Swasta</p>
+            </div>
+            <div class="period-badge">
+                {{ \Carbon\Carbon::parse($payroll->end_date)->format('F Y') }}
+            </div>
         </div>
 
-        <div class="table-container">
-            <table class="table">
-                <tr>
-                    <th>Keterangan</th>
-                    <th>Jumlah</th>
-                </tr>
-                <tr>
-                    <td>Gaji Pokok</td>
-                    <td>{{ number_format($payroll->salary, 2) }}</td>
-                </tr>
-                @foreach($payroll->payroll->payroll_components as $component)
-                    @if(($component->amount ?? 0) > 0)
-                    <tr>
-                        <td>{{ $component->component_type->name }}</td>
-                        <td>{{ number_format($component->amount, 2) }}</td>
-                    </tr>
-                    @endif
-                @endforeach
-                <tr>
-                    <th colspan="2" style="background-color: #F1F1F1; color: #8687A7;">Potongan</th>
-                </tr>
-                @php
-                $deductions = [
-                    'Iuran Hari Tua' => $payroll->jht_employee,
-                    'Iuran Pensiun' => $payroll->jp_employee,
-                    'Iuran Kesehatan' => $payroll->kes_employee,
-                    'Potongan Telat' => $payroll->late_time_deduction,
-                    'Potongan Alpha' => $payroll->alpha_time_deduction,
-                    'pph21' => $payroll->pph21 ?? '< PTKP',
-                ];
-                @endphp
-
-                @foreach($deductions as $label => $value)
-                    @if(($value ?? 0) > 0)
-                    <tr>
-                        <td>{{ $label }}</td>
-                        <td>{{ number_format($value, 2) }}</td>
-                    </tr>
-                    @endif
-                @endforeach
-                @foreach($payroll->payroll->payroll_deductions as $deduction)
-                    @if(($deduction->amount ?? 0) > 0)
-                    <tr>
-                        <td>{{ $deduction->deduction_type->name }}</td>
-                        <td>{{ number_format($deduction->amount, 2) }}</td>
-                    </tr>
-                    @endif
-                @endforeach
-                <tr>
-                    <th>Take Home Pay</th>
-                    <th>{{ number_format($payroll->take_home_pay, 2) }}</th>
-                </tr>
-            </table>
+        <div class="employee-grid">
+            <div class="info-group">
+                <p>Nama Pegawai</p>
+                <strong>{{ $payroll->user->name }}</strong>
+                <p style="margin-top:10px">Jabatan</p>
+                <strong>@foreach ($payroll->user->getRoleNames() as $role) {{ $role }} @endforeach</strong>
+            </div>
+            <div class="info-group">
+                <p>Status PTKP</p>
+                <strong>{{ $payroll->user->profile->marriage_status }}</strong>
+                <p style="margin-top:10px">Lokasi Kerja</p>
+                <strong>{{ $payroll->site->name }}</strong>
+            </div>
         </div>
 
-        <div class="signature">
-            <p>______________________</p>
-            <p>Authorized Signatory</p>
+        <div style="display: flex; gap: 30px;">
+            <div style="flex: 1;">
+                <table class="salary-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Pendapatan / Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gaji Pokok</td>
+                            <td class="amount">{{ number_format($payroll->salary, 0, ',', '.') }}</td>
+                        </tr>
+                        @foreach($payroll->payroll->payroll_components as $component)
+                            @if(($component->amount ?? 0) > 0)
+                            <tr>
+                                <td>{{ $component->component_type->name }}</td>
+                                <td class="amount">{{ number_format($component->amount, 0, ',', '.') }}</td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="flex: 1;">
+                <table class="salary-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2" style="background: #fff1f2; color: #be123c;">Potongan / Deductions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                        $deductions = [
+                            'Iuran Hari Tua' => $payroll->jht_employee,
+                            'Iuran Pensiun' => $payroll->jp_employee,
+                            'Iuran Kesehatan' => $payroll->kes_employee,
+                            'Potongan Telat' => $payroll->late_time_deduction,
+                            'Potongan Alpha' => $payroll->alpha_time_deduction,
+                            'PPH21' => $payroll->pph21,
+                        ];
+                        @endphp
+
+                        @foreach($deductions as $label => $value)
+                            @if($value > 0)
+                            <tr>
+                                <td>{{ $label }}</td>
+                                <td class="amount" style="color: #be123c;">({{ number_format($value, 0, ',', '.') }})</td>
+                            </tr>
+                            @endif
+                        @endforeach
+
+                        @foreach($payroll->payroll->payroll_deductions as $deduction)
+                            @if(($deduction->amount ?? 0) > 0)
+                            <tr>
+                                <td>{{ $deduction->deduction_type->name }}</td>
+                                <td class="amount" style="color: #be123c;">({{ number_format($deduction->amount, 0, ',', '.') }})</td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="summary-box">
+            <h3>TOTAL GAJI BERSIH (THP)</h3>
+            <div class="total-amount">IDR {{ number_format($payroll->take_home_pay, 0, ',', '.') }}</div>
         </div>
 
         <div class="footer">
-            <p>Generated by {{ $payroll->site->company->name }} Payroll System | {{ now()->format('d M Y, H:i') }}</p>
+            <p>Dokumen ini dihasilkan secara otomatis oleh sistem payroll <strong>{{ $payroll->site->company->name }}</strong>.</p>
+            <p>Dicetak pada: {{ now()->format('d M Y, H:i') }}</p>
         </div>
     </div>
-
 </body>
 </html>

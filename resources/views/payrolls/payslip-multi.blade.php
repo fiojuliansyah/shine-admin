@@ -82,7 +82,7 @@
             <h2>PAYSLIP</h2>
         </div>
         <div class="company-info">
-            <p>{{ $site->name }}</p>
+            <p>{{ $site->company->name ?? '' }}</p>
             <p>Payroll Periode: <strong>{{ \Carbon\Carbon::parse($payroll->end_date)->format('F Y') }}</strong></p>
         </div>
 
@@ -148,11 +148,6 @@
                     <th>{{ number_format($payroll->take_home_pay, 2) }}</th>
                 </tr>
             </table>
-        </div>
-
-        <div class="signature">
-            <p>______________________</p>
-            <p>Authorized Signatory</p>
         </div>
 
         <div class="footer">
