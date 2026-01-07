@@ -558,7 +558,11 @@ class PayrollController extends Controller
     public function generatePayslip($id, $period)
     {
         $site = Site::findOrFail($id);
-        $generatedPayrolls = GeneratePayroll::with('user')
+        $generatedPayrolls = GeneratePayroll::with([
+            'user',
+            'payroll.payroll_components',
+            'payroll.payroll_deductions'
+            ])
             ->where('site_id', $id)
             ->where('end_date', $period)
             ->get();
