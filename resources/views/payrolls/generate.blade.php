@@ -19,51 +19,6 @@
                 </nav>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4">Total Pengeluaran Perusahaan Periode <span id="payroll-period">{{ $period ? \Carbon\Carbon::parse($period)->format('F') : 'No Data Available' }} 2025</span></h4>
-                        <div class="row align-items-center">
-                            <div class="col-sm-6">
-                                <div id="donut-chart" class="apex-charts"></div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div id="payroll-details">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="py-3">
-                                                <p class="mb-1 text-truncate"><i
-                                                        class="mdi mdi-circle text-primary me-1"></i>
-                                                        BPJS Perusahaan
-                                                </p>
-                                                <h5>{{ number_format($totalExpenses['BPJS Perusahaan'], 2) }}</h5>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="py-3">
-                                                <p class="mb-1 text-truncate"><i
-                                                        class="mdi mdi-circle text-success me-1"></i>
-                                                        BPJS Employee</p>
-                                                <h5>{{ number_format($totalExpenses['BPJS Employee'], 2) }}</h5>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="py-3">
-                                                <p class="mb-1 text-truncate"><i
-                                                        class="mdi mdi-circle text-warning me-1"></i>
-                                                        THP</p>
-                                                <h5>{{ number_format($totalExpenses['THP'], 2) }}</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card">
@@ -154,30 +109,6 @@
 @push('js')
 <script src="/admin/assets/js/jquery.dataTables.min.js"></script>
 <script src="/admin/assets/js/dataTables.bootstrap5.min.js"></script>	
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        let options = {
-            series: [
-                parseFloat("{{ (float) $totalExpenses['BPJS Perusahaan'] }}"),
-                parseFloat("{{ (float) $totalExpenses['BPJS Employee'] }}"),
-                parseFloat("{{ (float) $totalExpenses['THP'] }}")
-            ],
-            chart: {
-                type: 'donut',
-                height: 250
-            },
-            labels: ["BPJS Perusahaan", "BPJS Employee", "THP"],
-            colors: ['#007bff', '#28a745', '#ffc107'],
-            legend: {
-                position: 'bottom'
-            }
-        };
-
-        let chart = new ApexCharts(document.querySelector("#donut-chart"), options);
-        chart.render();
-    });
-</script>
 {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 <script type="text/javascript">
     $(document).ready(function () {
