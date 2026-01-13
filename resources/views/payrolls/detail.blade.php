@@ -94,10 +94,10 @@
                                     @endforeach
                                     <td>
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; font-size: 10px;">
-                                            <span><b>L:</b> {{ number_format($timeDeductionsData[$payroll->id]['late'], 0, ',', '.') }}</span>
-                                            <span><b>A:</b> {{ number_format($timeDeductionsData[$payroll->id]['alpha'], 0, ',', '.') }}</span>
-                                            <span><b>P:</b> {{ number_format($timeDeductionsData[$payroll->id]['permit'], 0, ',', '.') }}</span>
-                                            <span><b>C:</b> {{ number_format($timeDeductionsData[$payroll->id]['leave'], 0, ',', '.') }}</span>
+                                            <span><b>Telat:</b> {{ number_format($timeDeductionsData[$payroll->id]['late'], 0, ',', '.') }}</span>
+                                            <span><b>Alpa:</b> {{ number_format($timeDeductionsData[$payroll->id]['alpha'], 0, ',', '.') }}</span>
+                                            <span><b>Ijin:</b> {{ number_format($timeDeductionsData[$payroll->id]['permit'], 0, ',', '.') }}</span>
+                                            <span><b>Cuti:</b> {{ number_format($timeDeductionsData[$payroll->id]['leave'], 0, ',', '.') }}</span>
                                         </div>
                                     </td>
                                     @php $oVal = $overtimeData[$payroll->id]['amount'] ?? 0; @endphp
@@ -110,8 +110,23 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div style="font-size: 10px;">
-                                            <b>Pers:</b> {{ $payroll->jht_employee ?? 0 }}% | <b>Comp:</b> {{ $payroll->jht_company ?? 0 }}%
+                                        <div style="font-size: 10px; line-height: 1.4;">
+                                            <div>
+                                                <strong>JHT:</strong> 
+                                                E: {{ number_format($payroll->jht_employee, 2) }}% | C: {{ number_format($payroll->jht_company, 2) }}%
+                                            </div>
+                                            <div>
+                                                <strong>JP:</strong> 
+                                                E: {{ number_format($payroll->jp_employee, 2) }}% | C: {{ number_format($payroll->jp_company, 2) }}%
+                                            </div>
+                                            <div>
+                                                <strong>KES:</strong> 
+                                                E: {{ number_format($payroll->kes_employee, 2) }}% | C: {{ number_format($payroll->kes_company, 2) }}%
+                                            </div>
+                                            <div>
+                                                <strong>JKK:</strong> {{ number_format($payroll->jkk_company, 2) }}% | 
+                                                <strong>JKM:</strong> {{ number_format($payroll->jkm_company, 2) }}%
+                                            </div>
                                         </div>
                                     </td>
                                     <td class="text-center">
