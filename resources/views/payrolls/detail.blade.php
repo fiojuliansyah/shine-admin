@@ -138,7 +138,6 @@
 
 <script>
 $(document).ready(function () {
-
     const table = $('#mainPayrollTable').DataTable({
         paging: true,
         ordering: true,
@@ -192,30 +191,24 @@ $(document).ready(function () {
 
         return true;
     });
-
 });
 </script>
 
 <script>
 document.addEventListener('change', function (e) {
-
     if (e.target.matches('[data-bpjs-base]')) {
         const context = e.target.dataset.context;
         const value = e.target.value;
 
         if (context === 'bulk') {
             const fields = document.getElementById('bulk-bpjs-budget-fields');
-            if (fields) {
-                fields.classList.toggle('d-none', value !== 'base_budget');
-            }
+            if (fields) fields.classList.toggle('d-none', value !== 'base_budget');
         }
 
         if (context === 'detail') {
             const payrollId = e.target.dataset.payrollId;
             const fields = document.getElementById(`bpjs-budget-fields-${payrollId}`);
-            if (fields) {
-                fields.classList.toggle('d-none', value !== 'base_budget');
-            }
+            if (fields) fields.classList.toggle('d-none', value !== 'base_budget');
         }
     }
 
@@ -224,59 +217,78 @@ document.addEventListener('change', function (e) {
         const type = e.target.value;
 
         if (context === 'bulk') {
-            toggleBPJSType(
-                'bulk-bpjs-normatif-fields',
-                'bulk-bpjs-unnormatif-fields',
-                type
-            );
+            toggleBPJSType('bulk-bpjs-normatif-fields', 'bulk-bpjs-unnormatif-fields', type);
         }
 
         if (context === 'detail') {
             const payrollId = e.target.dataset.payrollId;
-            toggleBPJSType(
-                `bpjs-normatif-fields-${payrollId}`,
-                `bpjs-unnormatif-fields-${payrollId}`,
-                type
-            );
+            toggleBPJSType(`bpjs-normatif-fields-${payrollId}`, `bpjs-unnormatif-fields-${payrollId}`, type);
         }
     }
 
     if (e.target.matches('[data-component-checkbox]')) {
         const id = e.target.dataset.id;
-        const input = document.getElementById(`component-amount-${id}`);
-        if (input) {
-            input.disabled = !e.target.checked;
-            if (!e.target.checked) input.value = '';
+        const amountInput = document.getElementById(`component-amount-${id}`);
+        const expiryInput = document.getElementById(`component-expiry-${id}`);
+        const isChecked = e.target.checked;
+
+        if (amountInput) {
+            amountInput.disabled = !isChecked;
+            if (!isChecked) amountInput.value = '';
+        }
+        if (expiryInput) {
+            expiryInput.disabled = !isChecked;
+            if (!isChecked) expiryInput.value = '';
         }
     }
 
     if (e.target.matches('[data-deduction-checkbox]')) {
         const id = e.target.dataset.id;
-        const input = document.getElementById(`deduction-amount-${id}`);
-        if (input) {
-            input.disabled = !e.target.checked;
-            if (!e.target.checked) input.value = '';
+        const amountInput = document.getElementById(`deduction-amount-${id}`);
+        const expiryInput = document.getElementById(`deduction-expiry-${id}`);
+        const isChecked = e.target.checked;
+
+        if (amountInput) {
+            amountInput.disabled = !isChecked;
+            if (!isChecked) amountInput.value = '';
+        }
+        if (expiryInput) {
+            expiryInput.disabled = !isChecked;
+            if (!isChecked) expiryInput.value = '';
         }
     }
 
     if (e.target.matches('[data-bulk-component-checkbox]')) {
         const id = e.target.value;
-        const input = document.getElementById(`bulk-component-amount-${id}`);
-        if (input) {
-            input.disabled = !e.target.checked;
-            if (!e.target.checked) input.value = '';
+        const amountInput = document.getElementById(`bulk-component-amount-${id}`);
+        const expiryInput = document.getElementById(`bulk-component-expiry-${id}`);
+        const isChecked = e.target.checked;
+
+        if (amountInput) {
+            amountInput.disabled = !isChecked;
+            if (!isChecked) amountInput.value = '';
+        }
+        if (expiryInput) {
+            expiryInput.disabled = !isChecked;
+            if (!isChecked) expiryInput.value = '';
         }
     }
 
     if (e.target.matches('[data-bulk-deduction-checkbox]')) {
         const id = e.target.value;
-        const input = document.getElementById(`bulk-deduction-amount-${id}`);
-        if (input) {
-            input.disabled = !e.target.checked;
-            if (!e.target.checked) input.value = '';
+        const amountInput = document.getElementById(`bulk-deduction-amount-${id}`);
+        const expiryInput = document.getElementById(`bulk-deduction-expiry-${id}`);
+        const isChecked = e.target.checked;
+
+        if (amountInput) {
+            amountInput.disabled = !isChecked;
+            if (!isChecked) amountInput.value = '';
+        }
+        if (expiryInput) {
+            expiryInput.disabled = !isChecked;
+            if (!isChecked) expiryInput.value = '';
         }
     }
-
 });
 </script>
 
@@ -290,9 +302,12 @@ function toggleBPJSType(normatifId, unnormatifId, type) {
     if (type === 'normatif') {
         normatif.classList.remove('d-none');
         unnormatif.classList.add('d-none');
-    } else {
+    } else if (type === 'unnormatif') {
         unnormatif.classList.remove('d-none');
         normatif.classList.add('d-none');
+    } else {
+        normatif.classList.add('d-none');
+        unnormatif.classList.add('d-none');
     }
 }
 </script>
