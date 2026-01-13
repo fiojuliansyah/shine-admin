@@ -216,10 +216,10 @@ class PayrollController extends Controller
                 'component_type_id' => $componentTypeId,
                 'pay_type' => $payroll->pay_type,
                 'amount' => $amount,
-                'expired_at' => $expiredAt, // Simpan ke DB
+                'expired_at' => $expiredAt,
             ]);
         }
-    
+
         PayrollDeduction::where('payroll_id', $payroll->id)->delete();
         foreach ($request->input('selected_deductions', []) as $deductionTypeId) {
             $amount = $request->input("deduction_amounts.{$deductionTypeId}", 0);
@@ -230,7 +230,7 @@ class PayrollController extends Controller
                 'deduction_type_id' => $deductionTypeId,
                 'pay_type' => $payroll->pay_type,
                 'amount' => $amount,
-                'expired_at' => $expiredAt, // Simpan ke DB
+                'expired_at' => $expiredAt,
             ]);
         }
     
@@ -355,13 +355,13 @@ class PayrollController extends Controller
                 $payroll->save();
                 $updateCount++;
     
-                // Update payroll components
-                if ($request->has('bulk_component_checked')) {
+               if ($request->has('bulk_component_checked')) {
                     $componentIds = $request->bulk_component_checked;
-    
+
                     foreach ($componentIds as $componentId) {
                         $amount = $request->input("bulk_component_amount.{$componentId}", 0);
-    
+                        $expiredAt = $request->input("bulk_component_expiry.{$componentId}");
+
                         PayrollComponent::updateOrCreate(
                             [
                                 'payroll_id' => $payrollId,
@@ -370,18 +370,19 @@ class PayrollController extends Controller
                             [
                                 'pay_type' => $payroll->pay_type,
                                 'amount' => $amount,
+                                'expired_at' => $expiredAt,
                             ]
                         );
                     }
                 }
-    
-                // Update payroll deductions
+
                 if ($request->has('bulk_deduction_checked')) {
                     $deductionIds = $request->bulk_deduction_checked;
-    
+
                     foreach ($deductionIds as $deductionId) {
                         $amount = $request->input("bulk_deduction_amount.{$deductionId}", 0);
-    
+                        $expiredAt = $request->input("bulk_deduction_expiry.{$deductionId}");
+
                         PayrollDeduction::updateOrCreate(
                             [
                                 'payroll_id' => $payrollId,
@@ -390,6 +391,7 @@ class PayrollController extends Controller
                             [
                                 'pay_type' => $payroll->pay_type,
                                 'amount' => $amount,
+                                'expired_at' => $expiredAt,
                             ]
                         );
                     }
