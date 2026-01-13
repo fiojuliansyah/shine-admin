@@ -357,39 +357,30 @@
                         </div>
                     </div>
 
-                    <!-- Components section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light">
-                            <h6 class="mb-0">Tunjangan & Komisi</h6>
+                            <h6 class="mb-0">Tunjangan & Komisi (Bulk)</h6>
                         </div>
-
                         <div class="card-body">
                             @foreach ($componentTypes as $componentType)
-                                <div class="mb-3">
+                                <div class="mb-3 border-bottom pb-2">
                                     <div class="row align-items-center">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-check">
-                                                <input
-                                                    class="form-check-input"
-                                                    type="checkbox"
-                                                    name="bulk_component_checked[]"
-                                                    value="{{ $componentType->id }}"
-                                                    data-bulk-component-checkbox
-                                                >
-                                                <label class="form-check-label">
-                                                    {{ $componentType->name }}
-                                                </label>
+                                                <input class="form-check-input" type="checkbox" name="bulk_component_checked[]"
+                                                    value="{{ $componentType->id }}" data-bulk-component-checkbox>
+                                                <label class="form-check-label"><strong>{{ $componentType->name }}</strong></label>
                                             </div>
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <input
-                                                type="text"
-                                                name="bulk_component_amount[{{ $componentType->id }}]"
-                                                id="bulk-component-amount-{{ $componentType->id }}"
-                                                class="form-control"
-                                                disabled
-                                            >
+                                        <div class="col-md-4">
+                                            <label class="small">Nominal</label>
+                                            <input type="text" name="bulk_component_amount[{{ $componentType->id }}]"
+                                                id="bulk-component-amount-{{ $componentType->id }}" class="form-control" disabled>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="small">Tanggal Berakhir</label>
+                                            <input type="date" name="bulk_component_expiry[{{ $componentType->id }}]"
+                                                id="bulk-component-expiry-{{ $componentType->id }}" class="form-control" disabled>
                                         </div>
                                     </div>
                                 </div>
@@ -397,39 +388,30 @@
                         </div>
                     </div>
 
-                    <!-- Deductions section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light">
-                            <h6 class="mb-0">Potongan</h6>
+                            <h6 class="mb-0">Potongan (Bulk)</h6>
                         </div>
-
                         <div class="card-body">
                             @foreach ($deductionTypes as $deductionType)
-                                <div class="mb-3">
+                                <div class="mb-3 border-bottom pb-2">
                                     <div class="row align-items-center">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-check">
-                                                <input
-                                                    class="form-check-input"
-                                                    type="checkbox"
-                                                    name="bulk_deduction_checked[]"
-                                                    value="{{ $deductionType->id }}"
-                                                    data-bulk-deduction-checkbox
-                                                >
-                                                <label class="form-check-label">
-                                                    {{ $deductionType->name }}
-                                                </label>
+                                                <input class="form-check-input" type="checkbox" name="bulk_deduction_checked[]"
+                                                    value="{{ $deductionType->id }}" data-bulk-deduction-checkbox>
+                                                <label class="form-check-label"><strong>{{ $deductionType->name }}</strong></label>
                                             </div>
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <input
-                                                type="text"
-                                                name="bulk_deduction_amount[{{ $deductionType->id }}]"
-                                                id="bulk-deduction-amount-{{ $deductionType->id }}"
-                                                class="form-control"
-                                                disabled
-                                            >
+                                        <div class="col-md-4">
+                                            <label class="small">Nominal</label>
+                                            <input type="text" name="bulk_deduction_amount[{{ $deductionType->id }}]"
+                                                id="bulk-deduction-amount-{{ $deductionType->id }}" class="form-control" disabled>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="small">Tanggal Berakhir</label>
+                                            <input type="date" name="bulk_deduction_expiry[{{ $deductionType->id }}]"
+                                                id="bulk-deduction-expiry-{{ $deductionType->id }}" class="form-control" disabled>
                                         </div>
                                     </div>
                                 </div>
