@@ -136,6 +136,8 @@ class PayrollController extends Controller
 
     public function update(Request $request, $id)
     {
+        dd($request->all());
+        
         $payroll = Payroll::findOrFail($id);
         
         $request->validate([
