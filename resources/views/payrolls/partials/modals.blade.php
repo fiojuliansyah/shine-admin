@@ -228,44 +228,30 @@
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Tunjangan & Komisi</h6>
                         </div>
-
                         <div class="card-body">
                             @foreach ($componentTypes as $componentType)
                                 @php
                                     $isChecked = isset($componentsData[$payroll->id][$componentType->id]);
                                     $value = $isChecked ? $componentsData[$payroll->id][$componentType->id] : '';
+                                    // Asumsi Anda mengirimkan data expired_at melalui controller
+                                    $expiredAt = $isChecked ? ($componentsExpiredData[$payroll->id][$componentType->id] ?? '') : '';
                                 @endphp
-
-                                <div class="mb-3">
+                                <div class="mb-3 border-bottom pb-2">
                                     <div class="row align-items-center">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <input type="hidden" name="component_types[]" value="{{ $componentType->id }}">
-
                                             <div class="form-check">
-                                                <input
-                                                    class="form-check-input"
-                                                    type="checkbox"
-                                                    name="selected_components[]"
-                                                    value="{{ $componentType->id }}"
-                                                    data-component-checkbox
-                                                    data-id="{{ $payroll->id }}-{{ $componentType->id }}"
-                                                    {{ $isChecked ? 'checked' : '' }}
-                                                >
-                                                <label class="form-check-label">
-                                                    {{ $componentType->name }}
-                                                </label>
+                                                <input class="form-check-input" type="checkbox" name="selected_components[]" value="{{ $componentType->id }}" data-component-checkbox data-id="{{ $payroll->id }}-{{ $componentType->id }}" {{ $isChecked ? 'checked' : '' }}>
+                                                <label class="form-check-label"><strong>{{ $componentType->name }}</strong></label>
                                             </div>
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <input
-                                                type="text"
-                                                name="component_amounts[{{ $componentType->id }}]"
-                                                id="component-amount-{{ $payroll->id }}-{{ $componentType->id }}"
-                                                class="form-control"
-                                                value="{{ $value }}"
-                                                {{ $isChecked ? '' : 'disabled' }}
-                                            >
+                                        <div class="col-md-4">
+                                            <label class="small">Nominal</label>
+                                            <input type="text" name="component_amounts[{{ $componentType->id }}]" class="form-control" value="{{ $value }}" {{ $isChecked ? '' : 'disabled' }}>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="small">Tanggal Berakhir (Optional)</label>
+                                            <input type="date" name="component_expires[{{ $componentType->id }}]" class="form-control" value="{{ $expiredAt }}" {{ $isChecked ? '' : 'disabled' }}>
                                         </div>
                                     </div>
                                 </div>
@@ -278,44 +264,29 @@
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Potongan</h6>
                         </div>
-
                         <div class="card-body">
                             @foreach ($deductionTypes as $deductionType)
                                 @php
                                     $isChecked = isset($deductionsData[$payroll->id][$deductionType->id]);
                                     $value = $isChecked ? $deductionsData[$payroll->id][$deductionType->id] : '';
+                                    $expiredAt = $isChecked ? ($deductionsExpiredData[$payroll->id][$deductionType->id] ?? '') : '';
                                 @endphp
-
-                                <div class="mb-3">
+                                <div class="mb-3 border-bottom pb-2">
                                     <div class="row align-items-center">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <input type="hidden" name="deduction_types[]" value="{{ $deductionType->id }}">
-
                                             <div class="form-check">
-                                                <input
-                                                    class="form-check-input"
-                                                    type="checkbox"
-                                                    name="selected_deductions[]"
-                                                    value="{{ $deductionType->id }}"
-                                                    data-deduction-checkbox
-                                                    data-id="{{ $payroll->id }}-{{ $deductionType->id }}"
-                                                    {{ $isChecked ? 'checked' : '' }}
-                                                >
-                                                <label class="form-check-label">
-                                                    {{ $deductionType->name }}
-                                                </label>
+                                                <input class="form-check-input" type="checkbox" name="selected_deductions[]" value="{{ $deductionType->id }}" data-deduction-checkbox data-id="{{ $payroll->id }}-{{ $deductionType->id }}" {{ $isChecked ? 'checked' : '' }}>
+                                                <label class="form-check-label"><strong>{{ $deductionType->name }}</strong></label>
                                             </div>
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <input
-                                                type="text"
-                                                name="deduction_amounts[{{ $deductionType->id }}]"
-                                                id="deduction-amount-{{ $payroll->id }}-{{ $deductionType->id }}"
-                                                class="form-control"
-                                                value="{{ $value }}"
-                                                {{ $isChecked ? '' : 'disabled' }}
-                                            >
+                                        <div class="col-md-4">
+                                            <label class="small">Nominal</label>
+                                            <input type="text" name="deduction_amounts[{{ $deductionType->id }}]" class="form-control" value="{{ $value }}" {{ $isChecked ? '' : 'disabled' }}>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="small">Tanggal Berakhir (Optional)</label>
+                                            <input type="date" name="deduction_expires[{{ $deductionType->id }}]" class="form-control" value="{{ $expiredAt }}" {{ $isChecked ? '' : 'disabled' }}>
                                         </div>
                                     </div>
                                 </div>

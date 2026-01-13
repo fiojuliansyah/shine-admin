@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('amount')->nullable();
             $table->float('percentage')->nullable();
             $table->string('is_prorate')->nullable();
+            $table->date('expired_at')->nullable();
             $table->timestamps();
         });
     }

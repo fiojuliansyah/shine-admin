@@ -209,22 +209,28 @@ class PayrollController extends Controller
         PayrollComponent::where('payroll_id', $payroll->id)->delete();
         foreach ($request->input('selected_components', []) as $componentTypeId) {
             $amount = $request->input("component_amounts.{$componentTypeId}", 0);
+            $expiredAt = $request->input("component_expires.{$componentTypeId}");
+
             PayrollComponent::create([
                 'payroll_id' => $payroll->id,
                 'component_type_id' => $componentTypeId,
                 'pay_type' => $payroll->pay_type,
                 'amount' => $amount,
+                'expired_at' => $expiredAt, // Simpan ke DB
             ]);
         }
     
         PayrollDeduction::where('payroll_id', $payroll->id)->delete();
         foreach ($request->input('selected_deductions', []) as $deductionTypeId) {
             $amount = $request->input("deduction_amounts.{$deductionTypeId}", 0);
+            $expiredAt = $request->input("deduction_expires.{$deductionTypeId}");
+
             PayrollDeduction::create([
                 'payroll_id' => $payroll->id,
                 'deduction_type_id' => $deductionTypeId,
                 'pay_type' => $payroll->pay_type,
                 'amount' => $amount,
+                'expired_at' => $expiredAt, // Simpan ke DB
             ]);
         }
     
