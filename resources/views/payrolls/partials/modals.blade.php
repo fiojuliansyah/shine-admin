@@ -232,7 +232,12 @@
                                 @php
                                     $isChecked = isset($componentsData[$payroll->id][$componentType->id]);
                                     $value = $isChecked ? $componentsData[$payroll->id][$componentType->id] : '';
-                                    $expiredAt = $isChecked ? ($componentsExpiredData[$payroll->id][$componentType->id] ?? '') : '';
+                                    
+                                    $rawDate = $isChecked ? ($componentsExpiredData[$payroll->id][$componentType->id] ?? '') : '';
+                                    $expiredAt = '';
+                                    if ($rawDate) {
+                                        $expiredAt = \Carbon\Carbon::parse($rawDate)->format('Y-m-d');
+                                    }
                                 @endphp
                                 <div class="mb-3 border-bottom pb-2">
                                     <div class="row align-items-center">
@@ -274,7 +279,12 @@
                                 @php
                                     $isChecked = isset($deductionsData[$payroll->id][$deductionType->id]);
                                     $value = $isChecked ? $deductionsData[$payroll->id][$deductionType->id] : '';
-                                    $expiredAt = $isChecked ? ($deductionsExpiredData[$payroll->id][$deductionType->id] ?? '') : '';
+                                    
+                                    $rawDateDeduction = $isChecked ? ($deductionsExpiredData[$payroll->id][$deductionType->id] ?? '') : '';
+                                    $expiredAtDeduction = '';
+                                    if ($rawDateDeduction) {
+                                        $expiredAtDeduction = \Carbon\Carbon::parse($rawDateDeduction)->format('Y-m-d');
+                                    }
                                 @endphp
                                 <div class="mb-3 border-bottom pb-2">
                                     <div class="row align-items-center">
@@ -299,7 +309,7 @@
                                             <label class="small">Tanggal Berakhir (Optional)</label>
                                             <input type="date" name="deduction_expires[{{ $deductionType->id }}]" 
                                                 id="deduction-expiry-{{ $payroll->id }}-{{ $deductionType->id }}" 
-                                                class="form-control" value="{{ $expiredAt }}" {{ $isChecked ? '' : 'disabled' }}>
+                                                class="form-control" value="{{ $expiredAtDeduction }}" {{ $isChecked ? '' : 'disabled' }}>
                                         </div>
                                     </div>
                                 </div>

@@ -36,64 +36,64 @@ class PayrollController extends Controller
             'payroll_components', 
             'payroll_deductions', 
             'payroll_time_deductions', 
-            'payroll_overtime', // Add this relation
+            'payroll_overtime',
             'user'
         ])
-            ->where('site_id', $siteId)
-            ->get();
-    
+        ->where('site_id', $siteId)
+        ->get();
+
         $componentsData = [];
+        $componentsExpiredData = [];
         $deductionsData = [];
+        $deductionsExpiredData = [];
         $timeDeductionsData = [];
-        $overtimeData = []; // Create a new array for overtime data
-    
+        $overtimeData = [];
+
         foreach ($payrolls as $payroll) {
             $componentsData[$payroll->id] = [];
+            $componentsExpiredData[$payroll->id] = [];
             $deductionsData[$payroll->id] = [];
+            $deductionsExpiredData[$payroll->id] = [];
             $timeDeductionsData[$payroll->id] = [
-                'late' => 0,
-                'alpha' => 0,
-                'permit' => 0, // Add default values for permit
-                'leave' => 0   // Add default values for leave
+                'late' => 0, 'alpha' => 0, 'permit' => 0, 'leave' => 0
             ];
             
-            // Load overtime data
             $overtime = $payroll->payroll_overtime;
             $overtimeData[$payroll->id] = [
                 'pay_type' => $overtime ? $overtime->pay_type : null,
                 'amount' => $overtime ? $overtime->amount : null
             ];
-    
-            // Load payroll components
+
             foreach ($componentTypes as $componentType) {
                 $component = $payroll->payroll_components->where('component_type_id', $componentType->id)->first();
                 $componentsData[$payroll->id][$componentType->id] = $component ? $component->amount : null;
+                $componentsExpiredData[$payroll->id][$componentType->id] = $component ? $component->expired_at : null;
             }
-    
-            // Load payroll deductions
+
             foreach ($deductionTypes as $deductionType) {
                 $deduction = $payroll->payroll_deductions->where('deduction_type_id', $deductionType->id)->first();
                 $deductionsData[$payroll->id][$deductionType->id] = $deduction ? $deduction->amount : null;
+                $deductionsExpiredData[$payroll->id][$deductionType->id] = $deduction ? $deduction->expired_at : null;
             }
-    
-            // Load payroll time deductions
+
             foreach ($payroll->payroll_time_deductions as $timeDeduction) {
                 $timeDeductionsData[$payroll->id][$timeDeduction->type] = $timeDeduction->amount;
             }
         }
-    
+
         return view('payrolls.detail', [
             'site' => $site,
             'payrolls' => $payrolls,
             'componentTypes' => $componentTypes,
             'deductionTypes' => $deductionTypes,
             'componentsData' => $componentsData,
+            'componentsExpiredData' => $componentsExpiredData,
             'deductionsData' => $deductionsData,
+            'deductionsExpiredData' => $deductionsExpiredData,
             'timeDeductionsData' => $timeDeductionsData,
-            'overtimeData' => $overtimeData, // Pass overtime data to the view
+            'overtimeData' => $overtimeData,
         ]);
     }
-    
 
     public function updatePayroll(Request $request)
     {
@@ -136,8 +136,6 @@ class PayrollController extends Controller
 
     public function update(Request $request, $id)
     {
-        dd($request->all());
-        
         $payroll = Payroll::findOrFail($id);
         
         $request->validate([
