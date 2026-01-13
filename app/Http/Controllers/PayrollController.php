@@ -264,78 +264,74 @@ class PayrollController extends Controller
             'selected_payrolls' => 'required|array',
             'selected_payrolls.*' => 'exists:payrolls,id',
             'pay_type' => 'nullable|in:monthly,daily',
+            'amount' => 'nullable|integer|min:0',
             'pph21_method' => 'nullable|in:ter_gross,ter_gross_up',
             'bpjs_type' => 'nullable|in:normatif,unnormatif',
             'bpjs_base_type' => 'nullable|in:amount_salary,salary_allowance,base_budget',
             'bulk_component_checked' => 'nullable|array',
             'bulk_component_amount' => 'nullable|array',
+            'bulk_component_expiry' => 'nullable|array',
+            'bulk_deduction_checked' => 'nullable|array',
+            'bulk_deduction_amount' => 'nullable|array',
+            'bulk_deduction_expiry' => 'nullable|array',
             'bulk_time_deductions' => 'nullable|array',
             'bulk_overtime' => 'nullable|array',
         ]);
-    
+
         $payrollIds = $request->selected_payrolls;
         $updateCount = 0;
-    
+
         DB::beginTransaction();
-    
+
         try {
             foreach ($payrollIds as $payrollId) {
                 $payroll = Payroll::findOrFail($payrollId);
-    
+
+                // Update Basic Info
                 if ($request->filled('pay_type')) {
                     $payroll->pay_type = $request->pay_type;
+                }
+                
+                if ($request->filled('amount')) {
                     $payroll->amount = $request->amount;
                 }
-    
+
                 if ($request->filled('pph21_method')) {
                     $payroll->pph21_method = $request->pph21_method;
                 }
-    
+
                 if ($request->filled('bpjs_base_type')) {
                     $payroll->bpjs_base_type = $request->bpjs_base_type;
                 }
-    
+
+                // Handle BPJS Budget logic
                 if ($payroll->bpjs_base_type === 'base_budget') {
-                    $payroll->bpjs_budget_tk = $request->bpjs_budget_tk ?? 0;
-                    $payroll->bpjs_budget_kes = $request->bpjs_budget_kes ?? 0;
-                } else {
-                    $payroll->bpjs_budget_tk = null;
-                    $payroll->bpjs_budget_kes = null;
+                    if ($request->filled('bpjs_budget_tk')) $payroll->bpjs_budget_tk = $request->bpjs_budget_tk;
+                    if ($request->filled('bpjs_budget_kes')) $payroll->bpjs_budget_kes = $request->bpjs_budget_kes;
                 }
-    
+
+                // Handle BPJS Type & Rates
                 if ($request->filled('bpjs_type')) {
                     $payroll->bpjs_type = $request->bpjs_type;
-    
-                    $payroll->jkk_company = 0;
-                    $payroll->jkm_company = 0;
-                    $payroll->jht_company = 0;
-                    $payroll->jht_employee = 0;
-                    $payroll->jp_company = 0;
-                    $payroll->jp_employee = 0;
-                    $payroll->kes_company = 0;
-                    $payroll->kes_employee = 0;
-    
+
+                    // Reset rates before re-applying
+                    $payroll->jkk_company = 0; $payroll->jkm_company = 0;
+                    $payroll->jht_company = 0; $payroll->jht_employee = 0;
+                    $payroll->jp_company = 0;  $payroll->jp_employee = 0;
+                    $payroll->kes_company = 0; $payroll->kes_employee = 0;
+
                     if ($request->bpjs_type === 'normatif') {
                         $selectedBPJS = $request->input('bpjs_normatif', []);
-    
-                        if (in_array('jkk', $selectedBPJS)) {
-                            $payroll->jkk_company = 0.24;
-                        }
-    
-                        if (in_array('jkm', $selectedBPJS)) {
-                            $payroll->jkm_company = 0.30;
-                        }
-    
+                        if (in_array('jkk', $selectedBPJS)) $payroll->jkk_company = 0.24;
+                        if (in_array('jkm', $selectedBPJS)) $payroll->jkm_company = 0.30;
                         if (in_array('jht', $selectedBPJS)) {
                             $payroll->jht_company = 3.70;
                             $payroll->jht_employee = 2.00;
                         }
-    
                         if (in_array('jp', $selectedBPJS)) {
                             $payroll->jp_company = 2.00;
                             $payroll->jp_employee = 1.00;
                         }
-    
                         if (in_array('kes', $selectedBPJS)) {
                             $payroll->kes_company = 4.00;
                             $payroll->kes_employee = 1.00;
@@ -351,14 +347,13 @@ class PayrollController extends Controller
                         $payroll->kes_employee = $request->input('kes_employee', 0);
                     }
                 }
-    
+
                 $payroll->save();
                 $updateCount++;
-    
-               if ($request->has('bulk_component_checked')) {
-                    $componentIds = $request->bulk_component_checked;
 
-                    foreach ($componentIds as $componentId) {
+                // Bulk Components (Tunjangan)
+                if ($request->has('bulk_component_checked')) {
+                    foreach ($request->bulk_component_checked as $componentId) {
                         $amount = $request->input("bulk_component_amount.{$componentId}", 0);
                         $expiredAt = $request->input("bulk_component_expiry.{$componentId}");
 
@@ -376,10 +371,9 @@ class PayrollController extends Controller
                     }
                 }
 
+                // Bulk Deductions (Potongan)
                 if ($request->has('bulk_deduction_checked')) {
-                    $deductionIds = $request->bulk_deduction_checked;
-
-                    foreach ($deductionIds as $deductionId) {
+                    foreach ($request->bulk_deduction_checked as $deductionId) {
                         $amount = $request->input("bulk_deduction_amount.{$deductionId}", 0);
                         $expiredAt = $request->input("bulk_deduction_expiry.{$deductionId}");
 
@@ -396,54 +390,41 @@ class PayrollController extends Controller
                         );
                     }
                 }
-    
-                // Update payroll time deductions ONLY if time deductions data is present
+
+                // Bulk Time Deductions
                 if ($request->has('bulk_time_deductions') && !empty($request->bulk_time_deductions)) {
-                    $timeDeductions = $request->bulk_time_deductions;
-    
-                    foreach ($timeDeductions as $type => $amount) {
+                    foreach ($request->bulk_time_deductions as $type => $amount) {
                         if (!empty($amount)) {
                             PayrollTimeDeduction::updateOrCreate(
                                 [
                                     'payroll_id' => $payrollId,
-                                    'user_id' => $payroll->user->id,
+                                    'user_id' => $payroll->user_id,
                                     'type' => $type,
                                 ],
-                                [
-                                    'amount' => $amount,
-                                ]
+                                ['amount' => $amount]
                             );
                         }
                     }
                 }
-    
-                // Update payroll overtime ONLY if overtime data is present
+
+                // Bulk Overtime
                 $bulkOvertimeData = $request->input('bulk_overtime');
                 if ($bulkOvertimeData && (!empty($bulkOvertimeData['pay_type']) || !empty($bulkOvertimeData['amount']))) {
                     $updateData = [];
-                    if (!empty($bulkOvertimeData['pay_type'])) {
-                        $updateData['pay_type'] = $bulkOvertimeData['pay_type'];
-                    }
-                    if (!empty($bulkOvertimeData['amount'])) {
-                        $updateData['amount'] = $bulkOvertimeData['amount'];
-                    }
+                    if (!empty($bulkOvertimeData['pay_type'])) $updateData['pay_type'] = $bulkOvertimeData['pay_type'];
+                    if (!empty($bulkOvertimeData['amount'])) $updateData['amount'] = $bulkOvertimeData['amount'];
                     
-                    if (!empty($updateData)) {
-                        PayrollOvertime::updateOrCreate(
-                            ['payroll_id' => $payrollId],
-                            $updateData
-                        );
-                    }
+                    PayrollOvertime::updateOrCreate(['payroll_id' => $payrollId], $updateData);
                 }
             }
-    
+
             DB::commit();
             return redirect()->back()->with('success', "{$updateCount} karyawan berhasil diperbarui secara massal.");
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', "Terjadi kesalahan: {$e->getMessage()}");
         }
-    }  
+    }
 
     public function generateIndex(PayrollGenerateDataTable $dataTable)
     {
