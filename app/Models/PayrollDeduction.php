@@ -16,7 +16,8 @@ class PayrollDeduction extends Model
         'name',
         'amount',
         'percentage',
-        'is_prorate'
+        'is_prorate',
+        'expired_at'
     ];
 
     public function payroll()

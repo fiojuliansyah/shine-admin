@@ -16,7 +16,8 @@ class PayrollComponent extends Model
         'name',
         'amount',
         'percentage',
-        'is_prorate'
+        'is_prorate',
+        'expired_at'
     ];
 
     // Relasi ke Payroll
