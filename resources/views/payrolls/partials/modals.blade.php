@@ -77,7 +77,7 @@
                                 <div class="col-md-6">
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio"
-                                            name="bpjs_type_{{ $payroll->id }}"
+                                            name="bpjs_type"
                                             id="bpjs-normatif-{{ $payroll->id }}" value="normatif" data-bpjs-type
                                             data-context="detail" data-payroll-id="{{ $payroll->id }}"
                                             {{ $payroll->bpjs_type === 'normatif' ? 'checked' : '' }}>
@@ -90,7 +90,7 @@
                                 <div class="col-md-6">
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio"
-                                            name="bpjs_type_{{ $payroll->id }}"
+                                            name="bpjs_type"
                                             id="bpjs-unnormatif-{{ $payroll->id }}" value="unnormatif" data-bpjs-type
                                             data-context="detail" data-payroll-id="{{ $payroll->id }}"
                                             {{ $payroll->bpjs_type === 'unnormatif' ? 'checked' : '' }}>
