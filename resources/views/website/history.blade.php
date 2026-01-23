@@ -42,7 +42,7 @@
                                                     <div class="d-flex align-items-center">
                                                         <div class="ms-2">
                                                             <h6 class="fw-medium mb-0">{{ $app->career->name ?? 'Posisi Tidak Diketahui' }}</h6>
-                                                            <span class="fs-12 text-muted">SHINE Karir Official</span>
+                                                            <span class="fs-12 text-muted">KARYAX Karir Official</span>
                                                         </div>
                                                     </div>
                                                 </td>

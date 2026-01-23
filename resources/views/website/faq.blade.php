@@ -8,7 +8,7 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap">
                     <div class="mb-3">
                         <h2 class="mb-1 text-white">Pusat Bantuan & FAQ</h2>
-                        <p class="text-white">Temukan jawaban atas pertanyaan umum seputar SHINE Karir</p>
+                        <p class="text-white">Temukan jawaban atas pertanyaan umum seputar KARYAX Karir</p>
                     </div>
                 </div>
                 <div class="welcome-bg">
@@ -52,7 +52,7 @@
                                 <div class="accordion-item mb-3 border rounded">
                                     <h2 class="accordion-header" id="headingOne">
                                         <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true">
-                                            Bagaimana cara melamar pekerjaan di SHINE Karir?
+                                            Bagaimana cara melamar pekerjaan di KARYAX Karir?
                                         </button>
                                     </h2>
                                     <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">

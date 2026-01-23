@@ -92,7 +92,7 @@
                                         </div>
                                     </div>
                                     <div class="mt-5 pb-4 text-center">
-                                        <p class="mb-0 text-gray-9">Copyright &copy; 2025 - SHINE</p>
+                                        <p class="mb-0 text-gray-9">Copyright &copy; 2025 - KARYAX</p>
                                     </div>
                                 </div>
                             </form>
