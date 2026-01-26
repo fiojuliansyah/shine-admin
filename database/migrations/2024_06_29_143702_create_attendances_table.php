@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('face_image_url_clockout')->nullable();
             $table->string('face_image_public_id_clockout')->nullable();
             $table->time('clock_out')->nullable();
-            $table->enum('type', ['off', 'late', 'alpha', 'regular', 'leave', 'permit'])->nullable();
+            $table->enum('type', ['off', 'late', 'alpha', 'regular', 'leave', 'permit', 'minute'])->default('regular');
             $table->string('has_overtime')->nullable();
             $table->integer('late_duration')->nullable();
             $table->boolean('is_reliver')->nullable();

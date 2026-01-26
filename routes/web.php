@@ -106,6 +106,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
 
     Route::resource('attendances', AttendanceController::class);
     Route::get('/attendances/filter', [AttendanceController::class, 'filter'])->name('attendances.filter');
+    Route::post('/attendances/update-alpha', [AttendanceController::class, 'updateAlphaStatus'])->name('attendances.get-alpha');
     Route::resource('overtimes', OvertimeController::class);
     Route::resource('minutes', MinuteController::class);
 

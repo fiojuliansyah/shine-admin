@@ -156,7 +156,6 @@ class PayrollGenerator
         
         $total = 0;
         foreach ($entries as $entry) {
-            // Jika kolom late_duration berisi waktu (00:10:00) dan bukan null
             if ($entry->late_duration && $entry->late_duration !== '00:00:00') {
                 $total += $config->amount;
             }

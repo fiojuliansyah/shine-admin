@@ -6,6 +6,8 @@ use DataTables;
 use Carbon\Carbon;
 use App\Models\Site;
 use App\Models\User;
+use App\Models\Schedule;
+use Carbon\CarbonPeriod;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -229,5 +231,48 @@ class AttendanceController extends Controller
         return redirect()->route('attendances.index')
                          ->with('success', 'Attendance deleted successfully.');
     }
-    
+
+    public function updateAlphaStatus(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+        $count = 0;
+
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        foreach ($period as $date) {
+            $dateString = $date->toDateString();
+
+            $schedules = Schedule::where('date', $dateString)->get();
+
+            foreach ($schedules as $schedule) {
+                $attendance = Attendance::where('user_id', $schedule->user_id)
+                    ->where('date', $dateString)
+                    ->first();
+
+                if (!$attendance || is_null($attendance->clock_in)) {
+                    Attendance::updateOrCreate(
+                        [
+                            'user_id' => $schedule->user_id,
+                            'date'    => $dateString,
+                        ],
+                        [
+                            'site_id' => $schedule->site_id,
+                            'type'    => 'alpha',
+                            'clock_in' => null,
+                            'clock_out' => null,
+                        ]
+                    );
+                    $count++;
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', "$count status Alpha berhasil diperbarui berdasarkan jadwal.");
+    } 
 }
