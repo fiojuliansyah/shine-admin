@@ -119,41 +119,28 @@ class PayrollGenerator
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
             ->get();
 
-        $groupedAttendances = $attendances->groupBy('type');
-
-        // --- DEBUG 1: CEK DATA ABSENSI ---
-        // Hapus komentar dd di bawah ini untuk cek apakah data absen ditemukan
-        dd([
-            'info' => 'Mengecek data absen di database',
-            'user' => $user->name,
-            'total_absen' => $attendances->count(),
-            'tipe_yang_ada_di_db' => $groupedAttendances->keys()->toArray(), // Pastikan tidak ada perbedaan huruf besar/kecil (contoh: 'alpha' vs 'Alpha')
-            'data_mentah' => $attendances->toArray()
-        ]);
+        // Perbaikan: Paksa semua tipe menjadi huruf kecil untuk menghindari error Case Sensitive
+        $groupedAttendances = $attendances->groupBy(function($item) {
+            return strtolower($item->type ?? ''); 
+        });
 
         $configs = PayrollTimeDeduction::where('user_id', $user->id)->get()->keyBy('type');
 
-        // --- DEBUG 2: CEK CONFIG POTONGAN ---
-        // Hapus komentar dd di bawah ini untuk cek apakah nominal potongan sudah diatur
-        // dd([
-        //     'info' => 'Mengecek konfigurasi nominal potongan',
-        //     'config_per_tipe' => $configs->toArray(),
-        //     'nominal_alpha' => $configs->get('alpha')?->amount ?? 'KOSONG',
-        //     'nominal_late' => $configs->get('late')?->amount ?? 'KOSONG'
-        // ]);
-
+        // Hitung Late
         $late = $this->calculateLateSum($groupedAttendances->get('late'), $configs->get('late'));
         
+        // Hitung Alpha
         $alphaCount = $groupedAttendances->get('alpha')?->count() ?? 0;
         $alpha = $alphaCount * ($configs->get('alpha')?->amount ?? 0);
 
+        // Hitung Izin & Cuti
         $permitCount = $groupedAttendances->get('permit')?->count() ?? 0;
         $permit = $permitCount * ($configs->get('permit')?->amount ?? 0);
 
         $leaveCount = $groupedAttendances->get('leave')?->count() ?? 0;
         $leave = $leaveCount * ($configs->get('leave')?->amount ?? 0);
 
-        $result = [
+        return [
             'details' => [
                 'late_time_deduction' => $late,
                 'alpha_time_deduction' => $alpha,
@@ -162,21 +149,19 @@ class PayrollGenerator
             ],
             'total' => $late + $alpha + $permit + $leave
         ];
-
-        // --- DEBUG 3: CEK HASIL AKHIR ---
-        // Hapus komentar dd di bawah ini untuk melihat kalkulasi final
-        // dd($result);
-
-        return $result;
     }
 
     private function calculateLateSum($entries, $config)
     {
+        // Jika tidak ada data terlambat atau nominal config 0, return 0
         if (!$entries || !$config || $config->amount <= 0) return 0;
         
         $total = 0;
         foreach ($entries as $entry) {
-            if ($entry->late_duration && $entry->late_duration !== '00:00:00') {
+            // Perbaikan: Kita cek string duration. 
+            // Jika isinya bukan null, bukan "0", dan bukan string kosong, maka dianggap potong.
+            // Kita gunakan abs() jika ingin memastikan angka negatif tetap terhitung sebagai terlambat.
+            if ($entry->late_duration && $entry->late_duration != 0 && $entry->late_duration != '00:00:00') {
                 $total += $config->amount;
             }
         }
