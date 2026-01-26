@@ -10,26 +10,39 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
-                    <!-- Employee and payroll basic info -->
                     <div class="form-group mb-3">
                         <label for="pay_type">Karyawan</label>
                         <input type="text" id="user_id" class="form-control" value="{{ $payroll->user->name }}"
                             disabled>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="pay_type">Tipe Payslip</label>
-                        <select name="pay_type" id="pay_type_update" class="form-control">
-                            <option value="monthly" @if ($payroll->pay_type == 'monthly') selected @endif>Bulan</option>
-                            <option value="daily" @if ($payroll->pay_type == 'daily') selected @endif>Harian</option>
-                        </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="pay_type_update">Tipe Penggajian</label>
+                                    <select name="pay_type" id="pay_type_update" class="form-control">
+                                        <option value="monthly" @if ($payroll->pay_type == 'monthly') selected @endif>Bulan</option>
+                                        <option value="daily" @if ($payroll->pay_type == 'daily') selected @endif>Harian</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="cutoff_day-{{ $payroll->id }}">Tanggal Cutoff (1 - 31)</label>
+                                    <input type="number" name="cutoff_day" id="cutoff_day-{{ $payroll->id }}" 
+                                        class="form-control" 
+                                        placeholder="Misal: 25" 
+                                        value="{{ $payroll->cutoff_day ?? '' }}" 
+                                        min="1" max="31">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group mb-3" id="update_amount_field">
                         <label for="amount">Amount</label>
                         <input type="text" name="amount" id="amount" class="form-control"
                             placeholder="Masukkan Gaji" value="{{ $payroll->amount }}">
                     </div>
-
-                    <!-- BPJS Section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light">
                             <h6 class="mb-0">BPJS Settings</h6>
@@ -358,7 +371,6 @@
                         </div>
                     </div>
 
-                    <!-- Overtime Section -->
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Overtime (Lembur)</h6>

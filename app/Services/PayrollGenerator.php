@@ -77,14 +77,46 @@ class PayrollGenerator
             return $payroll->amount * $attendanceCount;
         }
 
-        $daysInMonth = $startDate->daysInMonth;
-        $workedDays = $startDate->diffInDays($endDate) + 1;
-        return round(($payroll->amount / $daysInMonth) * $workedDays);
+        $daysInCycle = $startDate->diffInDays($endDate) + 1;
+        
+        $denominator = $payroll->cutoff_day ? $daysInCycle : $startDate->daysInMonth;
+        
+        return round(($payroll->amount / $denominator) * $daysInCycle);
     }
 
-    private function getComponentSum($payroll, $relation, $payType)
+    private function getComponentSum($payroll, $relation, $payType, Carbon $startDate, Carbon $endDate)
     {
-        return $payroll->$relation()->where('pay_type', $payType)->sum('amount');
+        $components = $payroll->$relation()->where('pay_type', $payType)->get();
+        $total = 0;
+
+        $daysInCycle = $startDate->diffInDays($endDate) + 1;
+
+        foreach ($components as $component) {
+
+            if ($component->expired_at) {
+                $expiredDate = Carbon::parse($component->expired_at);
+                
+                if ($expiredDate->isBefore($startDate)) {
+                    continue;
+                }
+
+                if ($expiredDate->isBetween($startDate, $endDate)) {
+                    $activeDays = $startDate->diffInDays($expiredDate) + 1;
+                    $amount = ($component->amount / $daysInCycle) * $activeDays;
+                    $total += $amount;
+                    continue;
+                }
+            }
+            $amount = $component->amount;
+
+            if ($payType === 'monthly') {
+                $amount = ($amount / $daysInCycle) * $daysInCycle; 
+            }
+
+            $total += $amount;
+        }
+        
+        return round($total);
     }
 
     private function processTimeDeductions(User $user, Carbon $startDate, Carbon $endDate)

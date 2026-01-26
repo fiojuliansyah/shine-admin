@@ -164,12 +164,26 @@
                     <div id="selected-payrolls-container"></div>
 
                     <div class="form-group mb-3">
-                        <label for="bulk_pay_type">Tipe Payslip</label>
-                        <select name="pay_type" id="bulk_pay_type" class="form-control">
-                            <option value="">- Tidak Diubah -</option>
-                            <option value="monthly">Bulan</option>
-                            <option value="daily">Harian</option>
-                        </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="bulk_pay_type">Tipe Penggajian</label>
+                                    <select name="pay_type" id="bulk_pay_type" class="form-control">
+                                        <option value="monthly">Bulan</option>
+                                        <option value="daily">Harian</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="bulk_cutoff_day">Tanggal Cutoff (1 - 31)</label>
+                                    <input type="number" name="cutoff_day" id="bulk_cutoff_day" 
+                                        class="form-control" 
+                                        placeholder="Misal: 25" 
+                                        min="1" max="31">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group mb-3" id="update_amount_field">
                         <label for="amount">Amount</label>

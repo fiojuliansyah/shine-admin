@@ -50,6 +50,7 @@
                                 <th>Nama</th>
                                 <th>Jabatan</th>
                                 <th>Tipe</th>
+                                <th>Cutoff Day</th>
                                 <th>Gaji</th>
                                 @foreach ($componentTypes as $componentType)   
                                     <th>{{ $componentType->name }}</th>
@@ -77,6 +78,7 @@
                                         @endforeach
                                     </td>
                                     <td>{{ $payroll->pay_type == 'monthly' ? 'Gaji Pokok' : 'Gaji Harian' }}</td>
+                                    <td>{{ $payroll->cutoff_day }}</td>
                                     <td data-order="{{ $payroll->amount }}">
                                         {{ number_format($payroll->amount, 0, ',', '.') }}
                                     </td>

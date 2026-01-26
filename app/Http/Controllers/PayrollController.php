@@ -145,6 +145,7 @@ class PayrollController extends Controller
         ]);
         
         $payroll->pay_type = $request->pay_type;
+        $payroll->cutoff_day = $request->cutoff_day;
         $payroll->amount = $request->amount;
         $payroll->bpjs_type = $request->bpjs_type;
         $payroll->bpjs_base_type = $request->bpjs_base_type;
@@ -290,6 +291,10 @@ class PayrollController extends Controller
                 // Update Basic Info
                 if ($request->filled('pay_type')) {
                     $payroll->pay_type = $request->pay_type;
+                }
+
+                if ($request->filled('cutoff_day')) {
+                    $payroll->cutoff_day = $request->cutoff_day;
                 }
                 
                 if ($request->filled('amount')) {
@@ -471,51 +476,54 @@ class PayrollController extends Controller
 
     public function generate(Request $request)
     {
+        // Sekarang kita cukup minta "Bulan" dan "Tahun" penggajian
         $request->validate([
             'site_id' => 'nullable|exists:sites,id', 
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer',
         ]);
-    
-        $start_date = Carbon::createFromFormat('Y-m-d', $request->start_date);
-        $end_date = Carbon::createFromFormat('Y-m-d', $request->end_date);
-    
+
+        $month = $request->month;
+        $year = $request->year;
         $payrollGenerator = app('payroll.generator');
-        $generatedPayrolls = [];
-    
+        $generatedCount = 0;
+
+        $query = User::with(['payroll', 'site']);
         if ($request->site_id) {
-            
-            $sites = Site::where('id', $request->site_id)->get();
-        } else {
-            
-            $sites = Site::all();
+            $query->whereHas('payroll', fn($q) => $q->where('site_id', $request->site_id));
         }
-    
-        foreach ($sites as $site) {
+
+        $users = $query->get();
+
+        foreach ($users as $user) {
+            $payroll = $user->payroll;
+            if (!$payroll) continue;
+
+            // Tentukan periode berdasarkan cutoff_day
+            // Jika cutoff 25, maka periode: 26 bulan lalu s/d 25 bulan terpilih
+            $cutoffDay = $payroll->cutoff_day ?? 25; // Default 25 jika tidak diisi
             
-            $existingPayroll = GeneratePayroll::where('site_id', $site->id)
-                ->whereDate('start_date', $start_date)
-                ->whereDate('end_date', $end_date)
-                ->exists(); 
-    
-            if ($existingPayroll) {
-                continue; 
+            $endDate = Carbon::create($year, $month, $cutoffDay);
+            $startDate = $endDate->copy()->subMonth()->addDay();
+
+            // Cek apakah sudah pernah digenerate untuk user ini di periode ini
+            $exists = GeneratePayroll::where('user_id', $user->id)
+                ->whereDate('start_date', $startDate)
+                ->whereDate('end_date', $endDate)
+                ->exists();
+
+            if (!$exists) {
+                $payrollGenerator->generate($user, $startDate, $endDate);
+                $generatedCount++;
             }
-                 
-            $users = $site->users;
-            foreach ($users as $user) {
-                $generatedPayroll = $payrollGenerator->generate($user, $start_date, $end_date);
-                $generatedPayrolls[] = $generatedPayroll;
-            }
         }
-    
-        
-        if (empty($generatedPayrolls)) {
-            return redirect()->back()->with('warning', 'No new payroll generated. Payroll for the same period already exists.');
+
+        if ($generatedCount === 0) {
+            return redirect()->back()->with('warning', 'Tidak ada data payroll baru yang dibuat.');
         }
-    
-        return redirect()->back()->with('success', 'Payroll generated successfully.');
-    }    
+
+        return redirect()->back()->with('success', "$generatedCount data payroll berhasil dibuat.");
+    }
 
     public function viewPayslip($id)
     {
