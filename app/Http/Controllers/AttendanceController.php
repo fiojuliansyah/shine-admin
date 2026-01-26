@@ -232,7 +232,7 @@ class AttendanceController extends Controller
                          ->with('success', 'Attendance deleted successfully.');
     }
 
-    public function updateAlphaStatus(Request $request)
+    public function updateAttendanceStatus(Request $request)
     {
         $request->validate([
             'start_date' => 'required|date',
@@ -255,15 +255,27 @@ class AttendanceController extends Controller
                     ->where('date', $dateString)
                     ->first();
 
-                if (!$attendance || is_null($attendance->clock_in)) {
+                if ($schedule->type === 'off') {
                     Attendance::updateOrCreate(
-                        [
-                            'user_id' => $schedule->user_id,
-                            'date'    => $dateString,
-                        ],
+                        ['user_id' => $schedule->user_id, 'date' => $dateString],
                         [
                             'site_id' => $schedule->site_id,
-                            'type'    => 'alpha',
+                            'type' => 'off',
+                            'status' => 'approved',
+                            'clock_in' => null,
+                            'clock_out' => null,
+                        ]
+                    );
+                    $count++;
+                    continue;
+                }
+
+                if (!$attendance || is_null($attendance->clock_in)) {
+                    Attendance::updateOrCreate(
+                        ['user_id' => $schedule->user_id, 'date' => $dateString],
+                        [
+                            'site_id' => $schedule->site_id,
+                            'type' => 'alpha',
                             'clock_in' => null,
                             'clock_out' => null,
                         ]
@@ -273,6 +285,6 @@ class AttendanceController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', "$count status Alpha berhasil diperbarui berdasarkan jadwal.");
-    } 
+        return redirect()->back()->with('success', "$count status kehadiran (Alpha/Off) berhasil diperbarui.");
+    }
 }

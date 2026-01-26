@@ -23,7 +23,7 @@
                 </div>
                 <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
                     <div class="card-body p-0">
-                        <form action="{{ route('attendances.get-alpha') }}" method="POST"
+                        <form action="{{ route('attendances.update.status') }}" method="POST"
                             class="d-flex align-items-center">
                             @csrf
                             <div class="me-2">
@@ -39,7 +39,7 @@
                             <div class="ms-1">
                                 <label class="small mb-1 d-block">&nbsp;</label>
                                 <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="ti ti-user-x me-1"></i>Update Alpha Status
+                                    <i class="ti ti-user-x me-1"></i>Update Status Absensi
                                 </button>
                             </div>
                         </form>
