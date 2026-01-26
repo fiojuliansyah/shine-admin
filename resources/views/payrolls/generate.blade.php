@@ -38,28 +38,18 @@
                                         </select>
                                     </div>
                                 </div>
-
                                 <div class="col-md-3">
                                     <div class="mb-3">
-                                        <label for="month" class="form-label">Bulan</label>
-                                        <select class="form-select" id="month" name="month" required>
-                                            @foreach(range(1, 12) as $m)
-                                                <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
-                                                    {{ \Carbon\Carbon::create()->month($m)->format('F') }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <label for="start_date" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" required>
                                     </div>
                                 </div>
-
                                 <div class="col-md-3">
                                     <div class="mb-3">
-                                        <label for="year" class="form-label">Tahun</label>
-                                        <input type="number" class="form-control" id="year" name="year" 
-                                            value="{{ date('Y') }}" min="2020" max="2099" required>
+                                        <label for="end_date" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="end_date" name="end_date" required>
                                     </div>
                                 </div>
-
                                 <div class="col-md-3">
                                     <div class="mb-3">
                                         <label class="form-label">&nbsp;</label>
