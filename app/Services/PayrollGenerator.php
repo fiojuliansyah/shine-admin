@@ -119,53 +119,53 @@ class PayrollGenerator
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
             ->get();
 
-        // Normalisasi: Ubah semua tipe ke huruf kecil dan hapus spasi kosong
         $groupedAttendances = $attendances->groupBy(function($item) {
-            return trim(strtolower($item->type));
+            return trim(strtolower($item->type ?? ''));
         });
 
-        // Ambil config dan pastikan key-nya juga huruf kecil
         $configs = PayrollTimeDeduction::where('user_id', $user->id)
             ->get()
             ->keyBy(function($item) {
-                return trim(strtolower($item->type));
+                return trim(strtolower($item->type ?? ''));
             });
 
-        // Hitung Late (Terlambat)
         $lateAmount = $configs->get('late')?->amount ?? 0;
         $late = $this->calculateLateSum($groupedAttendances->get('late'), $lateAmount);
         
-        // Hitung Alpha
         $alphaAmount = $configs->get('alpha')?->amount ?? 0;
         $alphaCount = $groupedAttendances->get('alpha')?->count() ?? 0;
         $alpha = $alphaCount * $alphaAmount;
 
-        // Hitung Izin (Permit)
         $permitAmount = $configs->get('permit')?->amount ?? 0;
         $permitCount = $groupedAttendances->get('permit')?->count() ?? 0;
         $permit = $permitCount * $permitAmount;
 
-        // Hitung Cuti (Leave)
         $leaveAmount = $configs->get('leave')?->amount ?? 0;
         $leaveCount = $groupedAttendances->get('leave')?->count() ?? 0;
         $leave = $leaveCount * $leaveAmount;
 
-        return [
+        $finalDetails = [
             'details' => [
-                'late_time_deduction' => $late,
-                'alpha_time_deduction' => $alpha,
-                'permit_time_deduction' => $permit,
-                'leave_time_deduction' => $leave,
+                'late_time_deduction' => (float)$late,
+                'alpha_time_deduction' => (float)$alpha,
+                'permit_time_deduction' => (float)$permit,
+                'leave_time_deduction' => (float)$leave,
             ],
-            'total' => $late + $alpha + $permit + $leave
+            'total' => (float)($late + $alpha + $permit + $leave)
         ];
 
-        \Log::info("Debug Payroll User: " . $user->id, [
+        // PINDAHKAN LOG KE SINI (Sebelum return)
+        \Log::info("Debug Payroll User: " . $user->id . " (" . $user->name . ")", [
+            'periode' => $startDate->toDateString() . ' - ' . $endDate->toDateString(),
+            'attendances_found' => $attendances->count(),
+            'found_types' => $groupedAttendances->keys()->toArray(),
             'alpha_count' => $alphaCount,
-            'alpha_config_amount' => $configs->get('alpha')?->amount,
-            'late_total' => $late,
-            'final_total' => ($late + $alpha + $permit + $leave)
+            'alpha_amount_config' => $alphaAmount,
+            'late_deduction_total' => $late,
+            'final_total_deduction' => $finalDetails['total']
         ]);
+
+        return $finalDetails;
     }
 
     private function calculateLateSum($entries, $amount)
