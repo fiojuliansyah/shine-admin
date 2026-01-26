@@ -115,6 +115,8 @@ class PayrollGenerator
 
     private function processTimeDeductions(User $user, Carbon $startDate, Carbon $endDate)
     {
+        $payroll = $user->payroll; // Ambil data payroll user
+        
         $attendances = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
             ->get();
@@ -123,10 +125,11 @@ class PayrollGenerator
             return trim(strtolower($item->type ?? ''));
         });
 
-        $configs = PayrollTimeDeduction::where('user_id', $user->id)
+        // PERBAIKAN DI SINI: Cari berdasarkan payroll_id, bukan user_id
+        $configs = PayrollTimeDeduction::where('payroll_id', $payroll->id)
             ->get()
             ->keyBy(function($item) {
-                return trim(strtolower($item->type ?? ''));
+                return trim(strtolower($item->type));
             });
 
         $lateAmount = $configs->get('late')?->amount ?? 0;
@@ -154,15 +157,11 @@ class PayrollGenerator
             'total' => (float)($late + $alpha + $permit + $leave)
         ];
 
-        // PINDAHKAN LOG KE SINI (Sebelum return)
-        \Log::info("Debug Payroll User: " . $user->id . " (" . $user->name . ")", [
-            'periode' => $startDate->toDateString() . ' - ' . $endDate->toDateString(),
-            'attendances_found' => $attendances->count(),
-            'found_types' => $groupedAttendances->keys()->toArray(),
+        \Log::info("Debug Payroll User: " . $user->id, [
+            'using_payroll_id' => $payroll->id,
+            'alpha_amount_from_db' => $alphaAmount,
             'alpha_count' => $alphaCount,
-            'alpha_amount_config' => $alphaAmount,
-            'late_deduction_total' => $late,
-            'final_total_deduction' => $finalDetails['total']
+            'total_deduction' => $finalDetails['total']
         ]);
 
         return $finalDetails;
