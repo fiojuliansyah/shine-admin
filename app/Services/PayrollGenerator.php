@@ -68,20 +68,41 @@ class PayrollGenerator
 
     private function calculateSalary($user, $payroll, $startDate, $endDate)
     {
+        // =====================
+        // PAY TYPE: DAILY
+        // =====================
         if ($payroll->pay_type === 'daily') {
             $attendanceCount = Attendance::where('user_id', $user->id)
-                ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+                ->whereBetween('date', [
+                    $startDate->toDateString(),
+                    $endDate->toDateString()
+                ])
+                ->where('attendance_type', 'regular')
                 ->count();
+
             return $payroll->amount * $attendanceCount;
         }
 
+        // =====================
+        // PAY TYPE: NON DAILY
+        // =====================
         $divider = (int) ($payroll->cutoff_day ?: 25);
-        $workedDays = $startDate->diffInDays($endDate) + 1;
 
+        // Hitung hari kerja dari attendance
+        $workedDays = Attendance::where('user_id', $user->id)
+            ->whereBetween('date', [
+                $startDate->toDateString(),
+                $endDate->toDateString()
+            ])
+            ->where('attendance_type', 'regular')
+            ->count();
+
+        // Jika kerja >= cutoff → gaji penuh
         if ($workedDays >= $divider) {
             return $payroll->amount;
         }
 
+        // Jika kurang → prorata
         return round(($payroll->amount / $divider) * $workedDays);
     }
 
