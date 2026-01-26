@@ -115,17 +115,29 @@ class PayrollGenerator
 
     private function processTimeDeductions(User $user, Carbon $startDate, Carbon $endDate)
     {
+        // Ambil semua absen dalam range tanggal
         $attendances = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->get()
-            ->groupBy('type');
+            ->get();
 
+        // Kelompokkan berdasarkan kolom 'type'
+        $groupedAttendances = $attendances->groupBy('type');
+
+        // Ambil konfigurasi nominal potongan user tersebut
         $configs = PayrollTimeDeduction::where('user_id', $user->id)->get()->keyBy('type');
 
-        $late = $this->calculateLateSum($attendances->get('late'), $configs->get('late'));
-        $alpha = ($attendances->get('alpha')?->count() ?? 0) * ($configs->get('alpha')?->amount ?? 0);
-        $permit = ($attendances->get('permit')?->count() ?? 0) * ($configs->get('permit')?->amount ?? 0);
-        $leave = ($attendances->get('leave')?->count() ?? 0) * ($configs->get('leave')?->amount ?? 0);
+        // Hitung masing-masing tipe
+        // Perhatikan: string 'late', 'alpha' dsb harus sama persis dengan isi kolom 'type' di DB
+        $late = $this->calculateLateSum($groupedAttendances->get('late'), $configs->get('late'));
+        
+        $alphaCount = $groupedAttendances->get('alpha')?->count() ?? 0;
+        $alpha = $alphaCount * ($configs->get('alpha')?->amount ?? 0);
+
+        $permitCount = $groupedAttendances->get('permit')?->count() ?? 0;
+        $permit = $permitCount * ($configs->get('permit')?->amount ?? 0);
+
+        $leaveCount = $groupedAttendances->get('leave')?->count() ?? 0;
+        $leave = $leaveCount * ($configs->get('leave')?->amount ?? 0);
 
         return [
             'details' => [
@@ -140,14 +152,13 @@ class PayrollGenerator
 
     private function calculateLateSum($entries, $config)
     {
-        if (!$entries || !$config) return 0;
+        if (!$entries || !$config || $config->amount <= 0) return 0;
+        
         $total = 0;
         foreach ($entries as $entry) {
-            if ($entry->late_duration) {
-                $time = Carbon::createFromFormat('H:i:s', $entry->late_duration);
-                if (($time->hour + ($time->minute / 60)) >= 1) {
-                    $total += $config->amount;
-                }
+            // Jika kolom late_duration berisi waktu (00:10:00) dan bukan null
+            if ($entry->late_duration && $entry->late_duration !== '00:00:00') {
+                $total += $config->amount;
             }
         }
         return $total;
