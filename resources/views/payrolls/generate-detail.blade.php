@@ -34,11 +34,14 @@
                                         <th>Name</th>
                                         <th>Jabatan</th>
                                         <th>Salary</th>
+                                        <th>Lembur</th>
                                         <th>Tunjangan</th>
                                         <th>Potongan</th>
                                         <th>BPJS Karyawan</th>
                                         <th>BPJS Company</th>
                                         <th>PPh21 (Bulan)</th>
+                                        <th>Cuti</th>
+                                        <th>Ijin</th>
                                         <th>Telat</th>
                                         <th>Alpha</th>
                                         <th>Take Home Pay</th>
@@ -56,6 +59,7 @@
                                             @endforeach
                                         </td>
                                         <td>{{ number_format($payroll->salary) }}</td>
+                                        <td>{{ number_format($payroll->overtime_amount) }}</td>
                                         <td>{{ number_format($payroll->allowance_fix + $payroll->allowance_non_fix) }}</td>
                                         <td>{{ number_format($payroll->deduction_fix + $payroll->deduction_non_fix) }}</td>
                                         <td>{{ number_format($payroll->jht_employee + $payroll->jp_employee + $payroll->kes_employee) }}</td>
@@ -67,6 +71,8 @@
                                                 {{ number_format($payroll->pph21) }}
                                             @endif
                                         </td>
+                                        <td>{{ number_format($payroll->leave_time_deduction) }}</td>
+                                        <td>{{ number_format($payroll->permit_time_deduction) }}</td>
                                         <td>{{ number_format($payroll->late_time_deduction) }}</td>
                                         <td>{{ number_format($payroll->alpha_time_deduction) }}</td>
                                         <td>{{ number_format($payroll->take_home_pay) }}</td>
