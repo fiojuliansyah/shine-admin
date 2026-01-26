@@ -247,6 +247,7 @@ document.addEventListener('change', function (e) {
         const id = e.target.dataset.id;
         const amountInput = document.getElementById(`component-amount-${id}`);
         const expiryInput = document.getElementById(`component-expiry-${id}`);
+        const typeInput = document.getElementById(`component-type-${id}`);
         const isChecked = e.target.checked;
 
         if (amountInput) {
@@ -256,6 +257,10 @@ document.addEventListener('change', function (e) {
         if (expiryInput) {
             expiryInput.disabled = !isChecked;
             if (!isChecked) expiryInput.value = '';
+        }
+        if (typeInput) {
+            typeInput.disabled = !isChecked;
+            if (!isChecked) typeInput.value = '';
         }
     }
 
@@ -279,6 +284,7 @@ document.addEventListener('change', function (e) {
         const id = e.target.value;
         const amountInput = document.getElementById(`bulk-component-amount-${id}`);
         const expiryInput = document.getElementById(`bulk-component-expiry-${id}`);
+        const typeInput = document.getElementById(`bulk-component-type-${id}`);
         const isChecked = e.target.checked;
 
         if (amountInput) {
@@ -288,6 +294,10 @@ document.addEventListener('change', function (e) {
         if (expiryInput) {
             expiryInput.disabled = !isChecked;
             if (!isChecked) expiryInput.value = '';
+        }
+        if (typeInput) {
+            typeInput.disabled = !isChecked;
+            if (!isChecked) typeInput.value = '';
         }
     }
 

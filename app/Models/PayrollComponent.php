@@ -12,6 +12,7 @@ class PayrollComponent extends Model
     protected $fillable = [
         'payroll_id',
         'pay_type',
+        'type',
         'component_type_id',
         'name',
         'amount',

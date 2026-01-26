@@ -65,10 +65,15 @@ class PayrollController extends Controller
             ];
 
             foreach ($componentTypes as $componentType) {
-                $component = $payroll->payroll_components->where('component_type_id', $componentType->id)->first();
+                $component = $payroll->payroll_components
+                    ->where('component_type_id', $componentType->id)
+                    ->first();
+
                 $componentsData[$payroll->id][$componentType->id] = $component ? $component->amount : null;
                 $componentsExpiredData[$payroll->id][$componentType->id] = $component ? $component->expired_at : null;
+                $componentsTypeData[$payroll->id][$componentType->id] = $component ? $component->type : 'fix';
             }
+
 
             foreach ($deductionTypes as $deductionType) {
                 $deduction = $payroll->payroll_deductions->where('deduction_type_id', $deductionType->id)->first();
@@ -88,11 +93,13 @@ class PayrollController extends Controller
             'deductionTypes' => $deductionTypes,
             'componentsData' => $componentsData,
             'componentsExpiredData' => $componentsExpiredData,
+            'componentsTypeData' => $componentsTypeData,
             'deductionsData' => $deductionsData,
             'deductionsExpiredData' => $deductionsExpiredData,
             'timeDeductionsData' => $timeDeductionsData,
             'overtimeData' => $overtimeData,
         ]);
+
     }
 
     public function updatePayroll(Request $request)
@@ -211,11 +218,13 @@ class PayrollController extends Controller
         foreach ($request->input('selected_components', []) as $componentTypeId) {
             $amount = $request->input("component_amounts.{$componentTypeId}", 0);
             $expiredAt = $request->input("component_expires.{$componentTypeId}");
+            $payrollType = $request->input("component_types.{$componentTypeId}");
 
             PayrollComponent::create([
                 'payroll_id' => $payroll->id,
                 'component_type_id' => $componentTypeId,
                 'pay_type' => $payroll->pay_type,
+                'type' => $payrollType,
                 'amount' => $amount,
                 'expired_at' => $expiredAt,
             ]);
@@ -356,11 +365,11 @@ class PayrollController extends Controller
                 $payroll->save();
                 $updateCount++;
 
-                // Bulk Components (Tunjangan)
                 if ($request->has('bulk_component_checked')) {
                     foreach ($request->bulk_component_checked as $componentId) {
                         $amount = $request->input("bulk_component_amount.{$componentId}", 0);
                         $expiredAt = $request->input("bulk_component_expiry.{$componentId}");
+                        $payrollType = $request->input("bulk_component_type.{$componentId}");
 
                         PayrollComponent::updateOrCreate(
                             [
@@ -369,6 +378,7 @@ class PayrollController extends Controller
                             ],
                             [
                                 'pay_type' => $payroll->pay_type,
+                                'type' => $payrollType,
                                 'amount' => $amount,
                                 'expired_at' => $expiredAt,
                             ]

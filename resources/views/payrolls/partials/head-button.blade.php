@@ -379,22 +379,30 @@
                             @foreach ($componentTypes as $componentType)
                                 <div class="mb-3 border-bottom pb-2">
                                     <div class="row align-items-center">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" name="bulk_component_checked[]"
                                                     value="{{ $componentType->id }}" data-bulk-component-checkbox>
                                                 <label class="form-check-label"><strong>{{ $componentType->name }}</strong></label>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="small">Nominal</label>
                                             <input type="text" name="bulk_component_amount[{{ $componentType->id }}]"
                                                 id="bulk-component-amount-{{ $componentType->id }}" class="form-control" disabled>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="small">Tanggal Berakhir</label>
                                             <input type="date" name="bulk_component_expiry[{{ $componentType->id }}]"
                                                 id="bulk-component-expiry-{{ $componentType->id }}" class="form-control" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="small">Tipe</label>
+                                            <select name="bulk_component_type[{{ $componentType->id }}]" id="bulk-component-type-{{ $componentType->id }}" class="form-control" disabled>
+                                                <option value="prorate">prorate</option>
+                                                <option value="fix">fix</option>
+                                                <option value="attendance_guard">Protect Kehadiran</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
