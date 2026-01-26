@@ -181,25 +181,25 @@ class PayrollGenerator
         $configs = PayrollTimeDeduction::where('payroll_id', $payroll->id)
             ->get()
             ->keyBy(function($item) {
-                return trim(strtolower($item->type));
+                return trim(strtolower($item->type ?? ''));
             });
 
         $lateAmount = $configs->get('late')?->amount ?? 0;
         $late = $this->calculateLateSum($groupedAttendances->get('late'), $lateAmount);
         
-        $alphaAmount = $configs->get('alpha')?->amount ?? 0;
+        $alphaAmount = (float) ($configs->get('alpha')?->amount ?? 0);
         $alphaCount = $groupedAttendances->get('alpha')?->count() ?? 0;
         $alpha = $alphaCount * $alphaAmount;
 
-        $permitAmount = $configs->get('permit')?->amount ?? 0;
+        $permitAmount = (float) ($configs->get('permit')?->amount ?? 0);
         $permitCount = $groupedAttendances->get('permit')?->count() ?? 0;
         $permit = $permitCount * $permitAmount;
 
-        $leaveAmount = $configs->get('leave')?->amount ?? 0;
+        $leaveAmount = (float) ($configs->get('leave')?->amount ?? 0);
         $leaveCount = $groupedAttendances->get('leave')?->count() ?? 0;
         $leave = $leaveCount * $leaveAmount;
 
-        $finalDetails = [
+        return [
             'details' => [
                 'late_time_deduction' => (float)$late,
                 'alpha_time_deduction' => (float)$alpha,
@@ -208,8 +208,6 @@ class PayrollGenerator
             ],
             'total' => (float)($late + $alpha + $permit + $leave)
         ];
-
-        return $finalDetails;
     }
 
     private function calculateLateSum($entries, $amount)
