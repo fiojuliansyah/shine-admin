@@ -75,8 +75,12 @@ class PayrollGenerator
             return $payroll->amount * $attendanceCount;
         }
 
-        $divider = $payroll->cutoff_day ?: 25;
+        $divider = (int) ($payroll->cutoff_day ?: 25);
         $workedDays = $startDate->diffInDays($endDate) + 1;
+
+        if ($workedDays >= $divider) {
+            return $payroll->amount;
+        }
 
         return round(($payroll->amount / $divider) * $workedDays);
     }
@@ -86,10 +90,11 @@ class PayrollGenerator
         $components = $payroll->$relation()->where('pay_type', $payType)->get();
         $total = 0;
         
-        $divider = $payroll->cutoff_day ?: 25;
+        $divider = (int) ($payroll->cutoff_day ?: 25);
         $workedDays = $startDate->diffInDays($endDate) + 1;
 
         foreach ($components as $component) {
+            // Cek jika komponen sudah expired
             if ($component->expired_at) {
                 $expiredDate = Carbon::parse($component->expired_at);
                 if ($expiredDate->isBefore($startDate)) {
@@ -100,11 +105,18 @@ class PayrollGenerator
             $amount = $component->amount;
 
             if ($payType === 'monthly') {
-                if (isset($expiredDate) && $expiredDate->isBetween($startDate, $endDate)) {
-                    $activeDays = $startDate->diffInDays($expiredDate) + 1;
-                    $amount = ($amount / $divider) * $activeDays;
+                // JIKA masuk full atau melebihi standar, gunakan nominal utuh
+                if ($workedDays >= $divider) {
+                    $amount = $component->amount;
                 } else {
-                    $amount = ($amount / $divider) * $workedDays;
+                    // JIKA prorate (masuk kurang dari standar hari kerja)
+                    // Cek apakah expired di tengah periode prorate tersebut
+                    if (isset($expiredDate) && $expiredDate->isBetween($startDate, $endDate)) {
+                        $activeDays = $startDate->diffInDays($expiredDate) + 1;
+                        $amount = ($component->amount / $divider) * $activeDays;
+                    } else {
+                        $amount = ($component->amount / $divider) * $workedDays;
+                    }
                 }
             }
 
@@ -115,7 +127,7 @@ class PayrollGenerator
 
     private function processTimeDeductions(User $user, Carbon $startDate, Carbon $endDate)
     {
-        $payroll = $user->payroll; // Ambil data payroll user
+        $payroll = $user->payroll;
         
         $attendances = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
@@ -125,7 +137,6 @@ class PayrollGenerator
             return trim(strtolower($item->type ?? ''));
         });
 
-        // PERBAIKAN DI SINI: Cari berdasarkan payroll_id, bukan user_id
         $configs = PayrollTimeDeduction::where('payroll_id', $payroll->id)
             ->get()
             ->keyBy(function($item) {
@@ -156,13 +167,6 @@ class PayrollGenerator
             ],
             'total' => (float)($late + $alpha + $permit + $leave)
         ];
-
-        \Log::info("Debug Payroll User: " . $user->id, [
-            'using_payroll_id' => $payroll->id,
-            'alpha_amount_from_db' => $alphaAmount,
-            'alpha_count' => $alphaCount,
-            'total_deduction' => $finalDetails['total']
-        ]);
 
         return $finalDetails;
     }
