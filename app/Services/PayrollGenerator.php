@@ -100,9 +100,11 @@ class PayrollGenerator
         
         $divider = (int) ($payroll->cutoff_day ?: 25);
         
+        $validAttendanceTypes = ['regular', 'late', 'permit', 'leave', '', null];
+
         $workedDays = Attendance::where('user_id', $payroll->user_id)
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->whereIn('type', ['regular', 'late', ''])
+            ->whereIn('type', $validAttendanceTypes)
             ->count();
 
         foreach ($components as $component) {
@@ -125,6 +127,7 @@ class PayrollGenerator
                     }
                 }
             }
+            
             $total += $amount;
         }
         return round($total);
