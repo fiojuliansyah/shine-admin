@@ -123,13 +123,13 @@ class PayrollGenerator
 
         // --- DEBUG 1: CEK DATA ABSENSI ---
         // Hapus komentar dd di bawah ini untuk cek apakah data absen ditemukan
-        // dd([
-        //     'info' => 'Mengecek data absen di database',
-        //     'user' => $user->name,
-        //     'total_absen' => $attendances->count(),
-        //     'tipe_yang_ada_di_db' => $groupedAttendances->keys()->toArray(), // Pastikan tidak ada perbedaan huruf besar/kecil (contoh: 'alpha' vs 'Alpha')
-        //     'data_mentah' => $attendances->toArray()
-        // ]);
+        dd([
+            'info' => 'Mengecek data absen di database',
+            'user' => $user->name,
+            'total_absen' => $attendances->count(),
+            'tipe_yang_ada_di_db' => $groupedAttendances->keys()->toArray(), // Pastikan tidak ada perbedaan huruf besar/kecil (contoh: 'alpha' vs 'Alpha')
+            'data_mentah' => $attendances->toArray()
+        ]);
 
         $configs = PayrollTimeDeduction::where('user_id', $user->id)->get()->keyBy('type');
 
@@ -165,7 +165,7 @@ class PayrollGenerator
 
         // --- DEBUG 3: CEK HASIL AKHIR ---
         // Hapus komentar dd di bawah ini untuk melihat kalkulasi final
-        dd($result);
+        // dd($result);
 
         return $result;
     }
