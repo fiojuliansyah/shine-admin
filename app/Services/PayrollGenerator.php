@@ -68,41 +68,28 @@ class PayrollGenerator
 
     private function calculateSalary($user, $payroll, $startDate, $endDate)
     {
-        // =====================
-        // PAY TYPE: DAILY
-        // =====================
+        $validAttendanceTypes = ['regular', 'late', 'permit', 'leave', '', null];
+
         if ($payroll->pay_type === 'daily') {
             $attendanceCount = Attendance::where('user_id', $user->id)
-                ->whereBetween('date', [
-                    $startDate->toDateString(),
-                    $endDate->toDateString()
-                ])
-                ->where('type', 'regular')
+                ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+                ->whereIn('type', $validAttendanceTypes)
                 ->count();
 
             return $payroll->amount * $attendanceCount;
         }
 
-        // =====================
-        // PAY TYPE: NON DAILY
-        // =====================
         $divider = (int) ($payroll->cutoff_day ?: 25);
 
-        // Hitung hari kerja dari attendance
         $workedDays = Attendance::where('user_id', $user->id)
-            ->whereBetween('date', [
-                $startDate->toDateString(),
-                $endDate->toDateString()
-            ])
-            ->where('type', 'regular')
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->whereIn('type', $validAttendanceTypes)
             ->count();
 
-        // Jika kerja >= cutoff → gaji penuh
         if ($workedDays >= $divider) {
             return $payroll->amount;
         }
 
-        // Jika kurang → prorata
         return round(($payroll->amount / $divider) * $workedDays);
     }
 
@@ -112,26 +99,24 @@ class PayrollGenerator
         $total = 0;
         
         $divider = (int) ($payroll->cutoff_day ?: 25);
-        $workedDays = $startDate->diffInDays($endDate) + 1;
+        
+        $workedDays = Attendance::where('user_id', $payroll->user_id)
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->whereIn('type', ['regular', 'late', ''])
+            ->count();
 
         foreach ($components as $component) {
-            // Cek jika komponen sudah expired
             if ($component->expired_at) {
                 $expiredDate = Carbon::parse($component->expired_at);
-                if ($expiredDate->isBefore($startDate)) {
-                    continue;
-                }
+                if ($expiredDate->isBefore($startDate)) continue;
             }
 
             $amount = $component->amount;
 
             if ($payType === 'monthly') {
-                // JIKA masuk full atau melebihi standar, gunakan nominal utuh
                 if ($workedDays >= $divider) {
                     $amount = $component->amount;
                 } else {
-                    // JIKA prorate (masuk kurang dari standar hari kerja)
-                    // Cek apakah expired di tengah periode prorate tersebut
                     if (isset($expiredDate) && $expiredDate->isBetween($startDate, $endDate)) {
                         $activeDays = $startDate->diffInDays($expiredDate) + 1;
                         $amount = ($component->amount / $divider) * $activeDays;
@@ -140,7 +125,6 @@ class PayrollGenerator
                     }
                 }
             }
-
             $total += $amount;
         }
         return round($total);
