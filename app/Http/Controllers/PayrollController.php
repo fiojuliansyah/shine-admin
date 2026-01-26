@@ -476,19 +476,18 @@ class PayrollController extends Controller
 
     public function generate(Request $request)
     {
-        // Sekarang kita cukup minta "Bulan" dan "Tahun" penggajian
         $request->validate([
             'site_id' => 'nullable|exists:sites,id', 
-            'month' => 'required|integer|between:1,12',
-            'year' => 'required|integer',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
-        $month = $request->month;
-        $year = $request->year;
+        $start_date = Carbon::parse($request->start_date);
+        $end_date = Carbon::parse($request->end_date);
         $payrollGenerator = app('payroll.generator');
-        $generatedCount = 0;
+        $generatedPayrolls = [];
 
-        $query = User::with(['payroll', 'site']);
+        $query = User::with(['payroll', 'site'])->whereHas('payroll');
         if ($request->site_id) {
             $query->whereHas('payroll', fn($q) => $q->where('site_id', $request->site_id));
         }
@@ -496,34 +495,25 @@ class PayrollController extends Controller
         $users = $query->get();
 
         foreach ($users as $user) {
-            $payroll = $user->payroll;
-            if (!$payroll) continue;
+            $existingPayroll = GeneratePayroll::where('user_id', $user->id)
+                ->whereDate('start_date', $start_date)
+                ->whereDate('end_date', $end_date)
+                ->exists(); 
 
-            // Tentukan periode berdasarkan cutoff_day
-            // Jika cutoff 25, maka periode: 26 bulan lalu s/d 25 bulan terpilih
-            $cutoffDay = $payroll->cutoff_day ?? 25; // Default 25 jika tidak diisi
-            
-            $endDate = Carbon::create($year, $month, $cutoffDay);
-            $startDate = $endDate->copy()->subMonth()->addDay();
-
-            // Cek apakah sudah pernah digenerate untuk user ini di periode ini
-            $exists = GeneratePayroll::where('user_id', $user->id)
-                ->whereDate('start_date', $startDate)
-                ->whereDate('end_date', $endDate)
-                ->exists();
-
-            if (!$exists) {
-                $payrollGenerator->generate($user, $startDate, $endDate);
-                $generatedCount++;
+            if ($existingPayroll) {
+                continue; 
             }
+                
+            $generatedPayroll = $payrollGenerator->generate($user, $start_date, $end_date);
+            $generatedPayrolls[] = $generatedPayroll;
         }
 
-        if ($generatedCount === 0) {
-            return redirect()->back()->with('warning', 'Tidak ada data payroll baru yang dibuat.');
+        if (empty($generatedPayrolls)) {
+            return redirect()->back()->with('warning', 'No new payroll generated.');
         }
 
-        return redirect()->back()->with('success', "$generatedCount data payroll berhasil dibuat.");
-    }
+        return redirect()->back()->with('success', 'Payroll generated successfully.');
+    } 
 
     public function viewPayslip($id)
     {

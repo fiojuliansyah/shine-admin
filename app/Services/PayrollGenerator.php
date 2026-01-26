@@ -4,8 +4,6 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\Payroll;
-use App\Models\Overtime;
 use App\Models\Attendance;
 use App\Models\EffectiveRate;
 use App\Models\GeneratePayroll;
@@ -28,10 +26,10 @@ class PayrollGenerator
 
             $salary = $this->calculateSalary($user, $payroll, $startDate, $endDate);
 
-            $allowanceFix = $this->getComponentSum($payroll, 'payroll_components', 'monthly');
-            $allowanceNonFix = $this->getComponentSum($payroll, 'payroll_components', 'daily');
-            $deductionFix = $this->getComponentSum($payroll, 'payroll_deductions', 'monthly');
-            $deductionNonFix = $this->getComponentSum($payroll, 'payroll_deductions', 'daily');
+            $allowanceFix = $this->getComponentSum($payroll, 'payroll_components', 'monthly', $startDate, $endDate);
+            $allowanceNonFix = $this->getComponentSum($payroll, 'payroll_components', 'daily', $startDate, $endDate);
+            $deductionFix = $this->getComponentSum($payroll, 'payroll_deductions', 'monthly', $startDate, $endDate);
+            $deductionNonFix = $this->getComponentSum($payroll, 'payroll_deductions', 'daily', $startDate, $endDate);
 
             $timeDeductions = $this->processTimeDeductions($user, $startDate, $endDate);
             $overtimeAmount = $this->processOvertime($user, $startDate, $endDate);
@@ -77,45 +75,41 @@ class PayrollGenerator
             return $payroll->amount * $attendanceCount;
         }
 
-        $daysInCycle = $startDate->diffInDays($endDate) + 1;
-        
-        $denominator = $payroll->cutoff_day ? $daysInCycle : $startDate->daysInMonth;
-        
-        return round(($payroll->amount / $denominator) * $daysInCycle);
+        $divider = $payroll->cutoff_day ?: 25;
+        $workedDays = $startDate->diffInDays($endDate) + 1;
+
+        return round(($payroll->amount / $divider) * $workedDays);
     }
 
-    private function getComponentSum($payroll, $relation, $payType, Carbon $startDate, Carbon $endDate)
+    private function getComponentSum($payroll, $relation, $payType, $startDate, $endDate)
     {
         $components = $payroll->$relation()->where('pay_type', $payType)->get();
         $total = 0;
-
-        $daysInCycle = $startDate->diffInDays($endDate) + 1;
+        
+        $divider = $payroll->cutoff_day ?: 25;
+        $workedDays = $startDate->diffInDays($endDate) + 1;
 
         foreach ($components as $component) {
-
             if ($component->expired_at) {
                 $expiredDate = Carbon::parse($component->expired_at);
-                
                 if ($expiredDate->isBefore($startDate)) {
                     continue;
                 }
-
-                if ($expiredDate->isBetween($startDate, $endDate)) {
-                    $activeDays = $startDate->diffInDays($expiredDate) + 1;
-                    $amount = ($component->amount / $daysInCycle) * $activeDays;
-                    $total += $amount;
-                    continue;
-                }
             }
+
             $amount = $component->amount;
 
             if ($payType === 'monthly') {
-                $amount = ($amount / $daysInCycle) * $daysInCycle; 
+                if (isset($expiredDate) && $expiredDate->isBetween($startDate, $endDate)) {
+                    $activeDays = $startDate->diffInDays($expiredDate) + 1;
+                    $amount = ($amount / $divider) * $activeDays;
+                } else {
+                    $amount = ($amount / $divider) * $workedDays;
+                }
             }
 
             $total += $amount;
         }
-        
         return round($total);
     }
 
@@ -186,7 +180,7 @@ class PayrollGenerator
     {
         $base = $payroll->amount;
         if ($payroll->bpjs_base_type === 'salary_allowance') {
-            $base += $this->getComponentSum($payroll, 'payroll_components', 'monthly');
+            $base += $this->getComponentSum($payroll, 'payroll_components', 'monthly', Carbon::now(), Carbon::now());
         }
 
         $isBudget = $payroll->bpjs_base_type === 'base_budget';
