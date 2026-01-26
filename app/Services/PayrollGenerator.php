@@ -170,25 +170,19 @@ class PayrollGenerator
     {
         $payroll = $user->payroll;
         
-        // 1. Cek Data Absen
         $attendances = Attendance::where('user_id', $user->id)
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
             ->get();
 
-        $groupedAttendances = $attendances->groupBy(function($item) {
-            return trim(strtolower($item->type ?? ''));
-        });
+        $groupedAttendances = $attendances->groupBy(fn($item) => trim(strtolower($item->type ?? '')));
 
-        // 2. Cek Data Config (Time Deductions)
-        // Kita tarik dulu semua tanpa keyBy untuk melihat isi aslinya di Log
-        $rawConfigs = PayrollTimeDeduction::where('payroll_id', $payroll->id)->get();
-        
-        $configs = $rawConfigs->keyBy(function($item) {
-            return trim(strtolower($item->type ?? ''));
-        });
+        // Ambil yang terbaru jika ada duplikat di DB
+        $configs = PayrollTimeDeduction::where('payroll_id', $payroll->id)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->keyBy(fn($item) => trim(strtolower($item->type ?? '')));
 
-        // 3. Kalkulasi
-        $lateAmount = $configs->get('late')?->amount ?? 0;
+        $lateAmount = (float) ($configs->get('late')?->amount ?? 0);
         $late = $this->calculateLateSum($groupedAttendances->get('late'), $lateAmount);
         
         $alphaAmount = (float) ($configs->get('alpha')?->amount ?? 0);
@@ -203,38 +197,14 @@ class PayrollGenerator
         $leaveCount = $groupedAttendances->get('leave')?->count() ?? 0;
         $leave = $leaveCount * $leaveAmount;
 
-        // ==========================================
-        // LOGGING DEBUGGING (CEK DI LARAVEL.LOG)
-        // ==========================================
-        \Log::info("=== DEBUG TIME DEDUCTION [{$user->name}] ===");
-        \Log::info("Payroll ID: " . $payroll->id);
-        \Log::info("Data Absen Ditemukan: " . $attendances->count());
-        \Log::info("Tipe Absen di DB: " . implode(', ', $groupedAttendances->keys()->toArray()));
-        
-        \Log::info("Data Config di DB (Raw): ", $rawConfigs->toArray());
-        
-        \Log::info("Hasil Mapping Config:", [
-            'alpha' => [
-                'count_absen' => $alphaCount,
-                'config_amount' => $alphaAmount,
-                'total_potongan' => $alpha
-            ],
-            'late' => [
-                'count_absen' => $groupedAttendances->get('late')?->count() ?? 0,
-                'config_amount' => $lateAmount,
-                'total_potongan' => $late
-            ]
-        ]);
-        \Log::info("=== END DEBUG ===");
-
         return [
             'details' => [
-                'late_time_deduction' => (float)$late,
-                'alpha_time_deduction' => (float)$alpha,
-                'permit_time_deduction' => (float)$permit,
-                'leave_time_deduction' => (float)$leave,
+                'late_time_deduction' => $late,
+                'alpha_time_deduction' => $alpha,
+                'permit_time_deduction' => $permit,
+                'leave_time_deduction' => $leave,
             ],
-            'total' => (float)($late + $alpha + $permit + $leave)
+            'total' => $late + $alpha + $permit + $leave
         ];
     }
 
