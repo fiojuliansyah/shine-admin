@@ -77,7 +77,7 @@ class PayrollGenerator
                     $startDate->toDateString(),
                     $endDate->toDateString()
                 ])
-                ->where('attendance_type', 'regular')
+                ->where('type', 'regular')
                 ->count();
 
             return $payroll->amount * $attendanceCount;
@@ -94,7 +94,7 @@ class PayrollGenerator
                 $startDate->toDateString(),
                 $endDate->toDateString()
             ])
-            ->where('attendance_type', 'regular')
+            ->where('type', 'regular')
             ->count();
 
         // Jika kerja >= cutoff → gaji penuh
