@@ -99,13 +99,8 @@ class PayrollGenerator
         $total = 0;
         
         $divider = (int) ($payroll->cutoff_day ?: 25);
-        
-        $validAttendanceTypes = ['regular', 'late', 'permit', 'leave', '', null];
-
-        $workedDays = Attendance::where('user_id', $payroll->user_id)
-            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->whereIn('type', $validAttendanceTypes)
-            ->count();
+        $startDateStr = $startDate->toDateString();
+        $endDateStr = $endDate->toDateString();
 
         foreach ($components as $component) {
             if ($component->expired_at) {
@@ -116,15 +111,53 @@ class PayrollGenerator
             $amount = $component->amount;
 
             if ($payType === 'monthly') {
-                if ($workedDays >= $divider) {
+                // 1. LOGIKA: FIX
+                if ($component->type === 'fix') {
                     $amount = $component->amount;
-                } else {
-                    if (isset($expiredDate) && $expiredDate->isBetween($startDate, $endDate)) {
-                        $activeDays = $startDate->diffInDays($expiredDate) + 1;
-                        $amount = ($component->amount / $divider) * $activeDays;
+                } 
+                
+                // 2. LOGIKA: ATTENDANCE GUARD (Hangus jika ada 1 pelanggaran)
+                elseif ($component->type === 'attendance_guard') {
+                    $hasViolation = Attendance::where('user_id', $payroll->user_id)
+                        ->whereBetween('date', [$startDateStr, $endDateStr])
+                        ->whereIn('type', ['late', 'permit', 'leave', 'alpha'])
+                        ->exists();
+
+                    if ($hasViolation) {
+                        $amount = 0; // Ada salah satu pelanggaran, tunjangan hangus
+                    } else {
+                        // Jika bersih, tetap hitung prorata berdasarkan hari kerja regular
+                        $workedDays = Attendance::where('user_id', $payroll->user_id)
+                            ->whereBetween('date', [$startDateStr, $endDateStr])
+                            ->whereIn('type', ['regular', '', null])
+                            ->count();
+                        
+                        if ($workedDays >= $divider) {
+                            $amount = $component->amount;
+                        } else {
+                            $amount = ($component->amount / $divider) * $workedDays;
+                        }
+                    }
+                } 
+                
+                // 3. LOGIKA: PRORATE (Default)
+                else {
+                    $workedDays = Attendance::where('user_id', $payroll->user_id)
+                        ->whereBetween('date', [$startDateStr, $endDateStr])
+                        ->whereIn('type', ['regular', 'late', 'permit', 'leave', '', null])
+                        ->count();
+
+                    if ($workedDays >= $divider) {
+                        $amount = $component->amount;
                     } else {
                         $amount = ($component->amount / $divider) * $workedDays;
                     }
+                }
+
+                // PENGECEKAN EXPIRED (Kecuali jika amount sudah 0 dari guard)
+                if ($amount > 0 && isset($expiredDate) && $expiredDate->isBetween($startDate, $endDate)) {
+                    $activeDays = $startDate->diffInDays($expiredDate) + 1;
+                    $amount = ($amount / $divider) * $activeDays;
                 }
             }
             

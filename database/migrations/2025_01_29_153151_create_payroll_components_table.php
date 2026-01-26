@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('payroll_id')->constrained()->onDelete('cascade');
             $table->string('pay_type')->nullable();
-            $table->enum('type', ['allowance', 'comission', 'deduction'])->default('allowance');
+            $table->enum('type', ['prorate', 'fix', 'attendance_guard'])->default('prorate');
             $table->string('component_type_id')->nullable();
             $table->integer('amount')->nullable();
             $table->float('percentage')->nullable();
