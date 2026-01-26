@@ -111,50 +111,49 @@ class PayrollGenerator
             $amount = $component->amount;
 
             if ($payType === 'monthly') {
-                // 1. LOGIKA: FIX
-                if ($component->type === 'fix') {
+                // Jika yang diproses adalah tabel potongan, langsung ambil nominal utuh
+                if ($relation === 'payroll_deductions') {
                     $amount = $component->amount;
-                } 
-                
-                // 2. LOGIKA: ATTENDANCE GUARD (Hangus jika ada 1 pelanggaran)
-                elseif ($component->type === 'attendance_guard') {
-                    $hasViolation = Attendance::where('user_id', $payroll->user_id)
-                        ->whereBetween('date', [$startDateStr, $endDateStr])
-                        ->whereIn('type', ['late', 'permit', 'leave', 'alpha'])
-                        ->exists();
+                } else {
+                    // Logika untuk payroll_components (Tunjangan)
+                    if ($component->type === 'fix') {
+                        $amount = $component->amount;
+                    } 
+                    elseif ($component->type === 'attendance_guard') {
+                        $hasViolation = Attendance::where('user_id', $payroll->user_id)
+                            ->whereBetween('date', [$startDateStr, $endDateStr])
+                            ->whereIn('type', ['late', 'permit', 'leave', 'alpha'])
+                            ->exists();
 
-                    if ($hasViolation) {
-                        $amount = 0; // Ada salah satu pelanggaran, tunjangan hangus
-                    } else {
-                        // Jika bersih, tetap hitung prorata berdasarkan hari kerja regular
+                        if ($hasViolation) {
+                            $amount = 0;
+                        } else {
+                            $workedDays = Attendance::where('user_id', $payroll->user_id)
+                                ->whereBetween('date', [$startDateStr, $endDateStr])
+                                ->whereIn('type', ['regular', '', null])
+                                ->count();
+                            
+                            if ($workedDays >= $divider) {
+                                $amount = $component->amount;
+                            } else {
+                                $amount = ($component->amount / $divider) * $workedDays;
+                            }
+                        }
+                    } 
+                    else {
                         $workedDays = Attendance::where('user_id', $payroll->user_id)
                             ->whereBetween('date', [$startDateStr, $endDateStr])
-                            ->whereIn('type', ['regular', '', null])
+                            ->whereIn('type', ['regular', 'late', 'permit', 'leave', '', null])
                             ->count();
-                        
+
                         if ($workedDays >= $divider) {
                             $amount = $component->amount;
                         } else {
                             $amount = ($component->amount / $divider) * $workedDays;
                         }
                     }
-                } 
-                
-                // 3. LOGIKA: PRORATE (Default)
-                else {
-                    $workedDays = Attendance::where('user_id', $payroll->user_id)
-                        ->whereBetween('date', [$startDateStr, $endDateStr])
-                        ->whereIn('type', ['regular', 'late', 'permit', 'leave', '', null])
-                        ->count();
-
-                    if ($workedDays >= $divider) {
-                        $amount = $component->amount;
-                    } else {
-                        $amount = ($component->amount / $divider) * $workedDays;
-                    }
                 }
 
-                // PENGECEKAN EXPIRED (Kecuali jika amount sudah 0 dari guard)
                 if ($amount > 0 && isset($expiredDate) && $expiredDate->isBetween($startDate, $endDate)) {
                     $activeDays = $startDate->diffInDays($expiredDate) + 1;
                     $amount = ($amount / $divider) * $activeDays;
