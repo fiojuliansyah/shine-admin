@@ -20,6 +20,13 @@
                 </nav>
             </div>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+                @if($status->is_applicant_document == 'yes')
+                    <div class="mb-2 me-2">
+                        <button type="button" class="btn btn-white d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#applicantDocument">
+                            <i class="ti ti-circle-plus me-2"></i>Update Dokumen Pelamar
+                        </button>
+                    </div>
+                @endif
                 @if($status->process_to_offering == 'yes')
                     <div class="mb-2 me-2">
                         <button type="button" class="btn btn-white d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#confirmation">
@@ -91,6 +98,53 @@
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
                 <input type="hidden" name="applicant_ids[]" id="applicant-ids">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="applicantDocument" tabindex="-1" aria-labelledby="applicantDocumentLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Konfigurasi Dokumen Digital</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+            <form id="bulk-offering-form" action="{{ route('bulk.update.applicant-document') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Pilih Penempatan / Site</label>
+                            <select class="form-select select2" name="site_id" required>
+                                <option disabled selected>Pilih Penempatan</option>
+                                @foreach ($sites as $site)
+                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Template Surat</label>
+                            <select class="form-select select2" name="letter_id" required>
+                                <option disabled selected>Pilih Template</option>
+                                @foreach ($letters as $letter) <option value="{{ $letter->id }}">{{ $letter->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Nomor Surat (Optional)</label>
+                            <input type="text" name="letter_number" class="form-control" placeholder="Contoh: 001/HRD/PKWT/2025">
+                            <small class="text-muted italic">*Kosongkan jika ingin generate otomatis</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Proses & Generate Letter</button>
+                </div>
+                <div id="offering-applicant-container"></div>
             </form>
         </div>
     </div>
@@ -305,5 +359,13 @@ $(function () {
     });
 });
 </script>
+<script>
+    $(document).ready(function() {
+        $('#applicantDocument').on('shown.bs.modal', function() {
+            $(this).find('.select2').select2({
+                dropdownParent: $('#applicantDocument')
+            });
+        });
+    });
+</script>
 @endpush
-

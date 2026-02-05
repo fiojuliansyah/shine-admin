@@ -54,6 +54,10 @@
                     </button>
                 </div>
                 <div class="modal-body pb-0">
+                    <div class="mb-3">
+                        <label class="form-label">Nama</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Pilih Warna</label>
@@ -67,8 +71,11 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Nama</label>
-                            <input type="text" class="form-control" name="name" required>
+                            <label class="form-label">Apakah ini Dokumen Pelamar ?</label>
+                            <select name="is_applicant_document" class="form-select">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
                         </div>
                     </div>
                     <div class="row">

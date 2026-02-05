@@ -29,6 +29,7 @@ class StatusController extends Controller
         $status->name = $request->name;
         $status->slug = Str::slug($request->name);
         $status->is_approve = $request->is_approve;
+        $status->is_applicant_document = $request->is_applicant_document;
         $status->process_to_offering = $request->process_to_offering;
         $status->save();
     
@@ -77,10 +78,16 @@ class StatusController extends Controller
                     return $roles->isNotEmpty() ? $roles->implode(', ') : 'Jabatan belum diupdate';
                 })
                 ->addColumn('progress', function ($row) {
-                    return $row->done === 'done'
-                        ? '<span class="badge bg-success">Selesai</span>'
-                        : '<span class="badge bg-warning">Menunggu</span>';
+                    if ($row->done === 'done') {
+                        return '<span class="badge bg-success">Selesai</span>';
+                    }
+
+                    if ($row->done === 'document-digital') {
+                        return '<span class="badge bg-info text-dark">Terlampir Dokumen Digital</span>';
+                    }
+                    return '<span class="badge bg-warning">Menunggu</span>';
                 })
+
                 ->addColumn('resume', function ($row) {
                     $statuses = Status::all();
                     $documents = Document::where('user_id', $row->user->id)->get();
@@ -104,6 +111,7 @@ class StatusController extends Controller
         $status->name = $request->name;
         $status->slug = Str::slug($request->name);
         $status->is_approve = $request->is_approve;
+        $status->is_applicant_document = $request->is_applicant_document;
         $status->process_to_offering = $request->process_to_offering;
 
         $status->update();
@@ -146,6 +154,52 @@ class StatusController extends Controller
 
         // Redirect with a success message
         return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui dan data baru berhasil dibuat.');
+    }
+
+    public function bulkUpdateApplicantDocument(Request $request)
+    {
+        $site_id = $request->site_id;
+        $applicant_ids = $request->applicant_ids;
+        
+        $request->validate([
+            'letter_id' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+
+        if (!$site_id || empty($applicant_ids)) {
+            return redirect()->back()->with('error', 'Mohon pilih kandidat yang terpilih.');
+        }
+
+        if (is_string($applicant_ids)) {
+            $applicant_ids = explode(',', $applicant_ids);
+        }
+
+        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id) {
+            $applicant->user->update([
+                'site_id' => $site_id,
+            ]);
+
+            $applicant->update([
+                'done' => 'document-digital'
+            ]);
+
+            Generate::create([
+                'letter_id'      => $request->letter_id,
+                'letter_number'  => $request->letter_number,
+                'romawi'         => $this->getRomawi(date('m')),
+                'year'           => date('Y'),
+                'start_date'     => $request->start_date,
+                'end_date'       => $request->end_date,
+                'user_id'        => $applicant->user_id,
+                'site_id'        => $site_id,
+                'second_party'   => $applicant->user->name,
+                'esign'         => 'no-need',
+                'description'    => 'Auto generated from Bulk Offering',
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Kandidat berhasil dibuatkan dokumen digital.');
     }
 
     public function bulkUpdateOffering(Request $request)

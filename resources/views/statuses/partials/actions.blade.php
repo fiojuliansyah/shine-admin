@@ -26,6 +26,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="col-form-label">Nama</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ $row->name }}" required>
+                    </div>
                     <div class="row">
                         <!-- Pilih Warna -->
                         <div class="col">
@@ -44,8 +48,11 @@
                         <!-- Nama -->
                         <div class="col">
                             <div class="mb-3">
-                                <label for="name" class="col-form-label">Nama</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ $row->name }}" required>
+                                <label for="is_applicant_document" class="col-form-label">Apakah ini Dokumen Pelamar ?</label>
+                                <select name="is_applicant_document" class="form-control" id="is_applicant_document">
+                                    <option value="no" {{ $row->is_applicant_document == 'no' ? 'selected' : '' }}>No</option>
+                                    <option value="yes" {{ $row->is_applicant_document == 'yes' ? 'selected' : '' }}>Yes</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -67,8 +74,8 @@
                             <div class="mb-3">
                                 <label for="process_to_offering" class="col-form-label">Apakah ini PKWT ?</label>
                                 <select name="process_to_offering" class="form-control" id="process_to_offering">
-                                    <option value="no" {{ $row->is_bulk_letter == 'no' ? 'selected' : '' }}>No</option>
-                                    <option value="yes" {{ $row->is_bulk_letter == 'yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="no" {{ $row->process_to_offering == 'no' ? 'selected' : '' }}>No</option>
+                                    <option value="yes" {{ $row->process_to_offering == 'yes' ? 'selected' : '' }}>Yes</option>
                                 </select>
                             </div>
                         </div>

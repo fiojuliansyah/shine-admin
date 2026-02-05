@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('is_approve')->default('no');
             $table->string('process_to_offering')->default('no');
+            $table->string('is_applicant_document')->default('no');
             $table->string('slug')->nullable();
             $table->timestamps();
         });

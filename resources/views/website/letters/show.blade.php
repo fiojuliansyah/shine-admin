@@ -30,11 +30,13 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary btn-lg rounded-circle shadow-lg" 
-                style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; z-index: 1050;"
-                data-bs-toggle="modal" data-bs-target="#modalSignature">
-                <i class="ti ti-signature fs-24"></i>
-            </button>
+            @if ($eletter->esign != 'no-need') 
+                <button type="button" class="btn btn-primary btn-lg rounded-circle shadow-lg" 
+                    style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; z-index: 1050;"
+                    data-bs-toggle="modal" data-bs-target="#modalSignature">
+                    <i class="ti ti-signature fs-24"></i>
+                </button>
+            @endif
 
             <div class="modal fade" id="modalSignature" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">

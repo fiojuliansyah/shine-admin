@@ -176,6 +176,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::put('/applicants/{id}/update-status', [ApplicantController::class, 'updateStatus'])->name('update-status');
     Route::put('/applicants/{id}/update-approve', [ApplicantController::class, 'updateApprove'])->name('update-approve');
     Route::post('/statuses/bulk-update', [StatusController::class, 'bulkUpdateStatus'])->name('bulk.update.status');
+    Route::post('/statuses/bulk-applicant-document', [StatusController::class, 'bulkUpdateApplicantDocument'])->name('bulk.update.applicant-document');
     Route::post('/statuses/bulk-offering', [StatusController::class, 'bulkUpdateOffering'])->name('bulk.update.offering');
     Route::delete('/applicants/{id}', [ApplicantController::class, 'destroy'])->name('applicants.destroy');
 
