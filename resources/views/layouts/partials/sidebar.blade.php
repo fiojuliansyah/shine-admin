@@ -111,7 +111,7 @@
                         </li> --}}
                     </ul>
                 </li>
-                {{-- <li class="menu-title"><span>FINANCE & ACCOUNTS</span></li>
+                <li class="menu-title"><span>FINANCE & ACCOUNTS</span></li>
                 <li>
                     <ul>
                         <li class="submenu">
@@ -123,16 +123,16 @@
                             <ul>
                                 <li><a href="{{ route('payrolls.main') }}"
                                         class="{{ Route::is('payrolls.main') ? 'active' : '' }}">Master</a></li>
-                                <li><a href="{{ route('payrolls.generate') }}"
+                                {{-- <li><a href="{{ route('payrolls.generate') }}"
                                         class="{{ Route::is(['payrolls.generate', 'payroll.generateDetail']) ? 'active' : '' }}">Generate
                                         Payroll</a></li>
                                 <li><a href="{{ route('payrolls.overtime') }}"
                                         class="{{ Route::is('payrolls.overtime') ? 'active' : '' }}">Pengajuan
-                                        Lembur</a></li>
+                                        Lembur</a></li> --}}
                             </ul>
                         </li>
                     </ul>
-                </li> --}}
+                </li>
                 <li class="menu-title"><span>RECRUITMENT</span></li>
                 <li>
                     <ul>
