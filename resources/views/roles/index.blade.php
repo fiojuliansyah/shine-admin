@@ -83,6 +83,10 @@
                             <input type="text" class="form-control" name="name" value="{{ $role->name }}" required>
                         </div>
                         <div class="mb-3">
+                            <label class="col-form-label">Kode Jabatan</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
                             <label class="col-form-label">Hak & Akses</label>
                             @foreach ($permissions->groupBy('category') as $category => $permissionGroup)
                                 <div class="mb-2">
@@ -147,6 +151,10 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="col-form-label">Nama Jabatan</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="col-form-label">Kode Jabatan</label>
                         <input type="text" class="form-control" name="name" required>
                     </div>
                     <div class="mb-3">
