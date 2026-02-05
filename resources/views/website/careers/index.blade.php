@@ -61,7 +61,7 @@
                                 <div class="card-body p-3">
                                     <div class="d-flex align-items-center">
                                         <a href="#" class="me-2">
-                                            <span class="avatar avatar-lg bg-gray"><img src="/admin/assets/img/favicon.png" class="w-auto h-auto" alt="icon"></span>
+                                            <span class="avatar avatar-lg bg-gray"><img src="{{ $career->site->company->logo_url }}" class="w-auto h-auto" alt="icon"></span>
                                         </a>
                                         <div>
                                             <h6 class="fw-medium mb-1 text-truncate"><a href="#">{{ $career->name }}</a></h6>
