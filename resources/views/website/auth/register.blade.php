@@ -21,7 +21,8 @@
                                 @csrf
                                 <div class="vh-100 d-flex flex-column justify-content-between p-4 pb-0">
                                     <div class=" mx-auto mb-5 text-center">
-                                        <img src="/admin/assets/img/logo-dark.svg" class="img-fluid" alt="Logo">
+                                        <img src="/admin/assets/img/logo-dark.svg"
+                                            class="img-fluid" alt="Logo" width="150">
                                     </div>
                                     <div class="">
                                         <div class="text-center mb-3">
