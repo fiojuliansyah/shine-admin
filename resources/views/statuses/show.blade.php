@@ -133,6 +133,10 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tanggal Kontrak</label>
+                            <input type="date" name="start_date" class="form-control" required>
+                        </div>
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Nomor Surat (Optional)</label>
                             <input type="text" name="letter_number" class="form-control" placeholder="Contoh: 001/HRD/PKWT/2025">

@@ -164,7 +164,6 @@ class StatusController extends Controller
         $request->validate([
             'letter_id' => 'required',
             'start_date' => 'required|date',
-            'end_date' => 'required|date',
         ]);
 
         if (!$site_id || empty($applicant_ids)) {
@@ -190,7 +189,7 @@ class StatusController extends Controller
                 'romawi'         => $this->getRomawi(date('m')),
                 'year'           => date('Y'),
                 'start_date'     => $request->start_date,
-                'end_date'       => $request->end_date,
+                'end_date'     => $request->start_date,
                 'user_id'        => $applicant->user_id,
                 'site_id'        => $site_id,
                 'second_party'   => $applicant->user->name,
