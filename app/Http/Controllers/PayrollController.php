@@ -93,7 +93,7 @@ class PayrollController extends Controller
             'deductionTypes' => $deductionTypes,
             'componentsData' => $componentsData,
             'componentsExpiredData' => $componentsExpiredData,
-            'componentsTypeData' => $componentsTypeData,
+            // 'componentsTypeData' => $componentsTypeData,
             'deductionsData' => $deductionsData,
             'deductionsExpiredData' => $deductionsExpiredData,
             'timeDeductionsData' => $timeDeductionsData,
