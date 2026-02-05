@@ -37,11 +37,11 @@
                                 <i class="ti ti-box"></i><span>Site Project</span>
                             </a>
                         </li>
-                        <li class="{{ Route::is('floors.*') ? 'active' : '' }}">
+                        {{-- <li class="{{ Route::is('floors.*') ? 'active' : '' }}">
                             <a href="{{ route('floors.index') }}">
                                 <i class="ti ti-stairs"></i><span>Lantai</span>
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
                 <li class="menu-title"><span>HRM</span></li>
@@ -71,7 +71,7 @@
                                         Template</a></li>
                             </ul>
                         </li>
-                        <li class="{{ Route::is(['schedules.index', 'schedules.show']) ? 'active' : '' }}">
+                        {{-- <li class="{{ Route::is(['schedules.index', 'schedules.show']) ? 'active' : '' }}">
                             <a href="{{ route('schedules.index') }}">
                                 <i class="ti ti-ticket"></i><span>Jadwal</span>
                             </a>
@@ -108,10 +108,10 @@
                             <a href="{{ route('permits.index') }}">
                                 <i class="ti ti-file-description"></i><span>Data Izin</span>
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
-                <li class="menu-title"><span>FINANCE & ACCOUNTS</span></li>
+                {{-- <li class="menu-title"><span>FINANCE & ACCOUNTS</span></li>
                 <li>
                     <ul>
                         <li class="submenu">
@@ -191,11 +191,6 @@
                                 <i class="ti ti-briefcase"></i><span>Jobdesk Patroll</span>
                             </a>
                         </li>
-                        {{-- <li class="{{ Route::is(['valets.index']) ? 'active' : '' }}">
-                            <a href="{{ route('valets.index') }}">
-                                <i class="ti ti-car"></i><span>Valet Parking</span>
-                            </a>
-                        </li> --}}
                     </ul>
                 </li>
                 <li class="menu-title"><span>REPORTS</span></li>
@@ -222,7 +217,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
             </ul>
         </div>
     </div>
