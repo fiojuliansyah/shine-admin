@@ -132,7 +132,7 @@
                             </ul>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
                 <li class="menu-title"><span>RECRUITMENT</span></li>
                 <li>
                     <ul>
@@ -172,7 +172,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu-title"><span>PRODUCTIVITY</span>
+                {{-- <li class="menu-title"><span>PRODUCTIVITY</span>
                 </li>
                 <li>
                     <ul>
