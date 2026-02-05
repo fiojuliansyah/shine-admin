@@ -46,19 +46,20 @@ class StatusController extends Controller
 
         if (request()->ajax()) {
 
-            $applicants = Applicant::with('user','career')
-                    ->where('status_id', $status->id)
-                    ->whereNull('done')
-                    ->when(request('search')['value'], function ($query) {
-                        $search = request('search')['value'];
-        
-                        return $query->whereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%$search%");
-                        })
-                        ->orWhereHas('career', function ($q) use ($search) {
-                            $q->where('name', 'like', "%$search%");
-                        });
+            $applicants = Applicant::with(['user','career'])
+                ->where('status_id', $status->id)
+                ->where(function($q) {
+                    $q->where('done', 'document-digital')
+                    ->orWhereNull('done');
+                })
+                ->when(request('search')['value'], function ($query) {
+                    $search = request('search')['value'];
+
+                    return $query->where(function ($q) use ($search) {
+                        $q->whereHas('user', fn($x) => $x->where('name', 'like', "%$search%"))
+                        ->orWhereHas('career', fn($x) => $x->where('name', 'like', "%$search%"));
                     });
+                });
 
             return DataTables::of($applicants)
                 ->addColumn('checkbox', function ($row) {
