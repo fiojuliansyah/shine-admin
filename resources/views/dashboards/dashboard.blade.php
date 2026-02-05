@@ -30,7 +30,7 @@
                         <img src="{{ Auth::user()->profile['avatar_url'] ?? '/assets/media/avatars/blank.png' }}" class="rounded-circle" alt="img">
                     </span>
                     <div class="ms-3">
-                        <h3 class="mb-2">Welcome Back to KARYAX, {{ Auth::user()->name }}</h3>
+                        <h3 class="mb-2">Welcome Back to Ciptakarir, {{ Auth::user()->name }}</h3>
                         {{-- <p>You have <span class="text-primary text-decoration-underline">21</span> Pending Approvals & <span class="text-primary text-decoration-underline">14</span> Leave Requests</p> --}}
                     </div>
                 </div>
@@ -47,7 +47,7 @@
             <!-- Widget Info -->
             <div class="col-xxl-8 d-flex">
                 <div class="row flex-fill">
-                    <div class="col-md-3 d-flex">
+                    {{-- <div class="col-md-3 d-flex">
                         <div class="card flex-fill">
                             <div class="card-body">
                                 <span class="avatar rounded-circle bg-primary mb-2">
@@ -58,7 +58,7 @@
                                 <a href="{{ route('attendances.index') }}" class="link-default">View Details</a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="col-md-3 d-flex">
                         <div class="card flex-fill">
                             <div class="card-body">
@@ -107,7 +107,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 d-flex">
+                    {{-- <div class="col-md-4 d-flex">
                         <div class="card flex-fill">
                             <div class="card-body">
                                 <span class="avatar rounded-circle bg-danger mb-2">
@@ -118,7 +118,7 @@
                                 <a href="{{ route('payroll.generate') }}" class="link-default">Lihat semua</a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="col-md-4 d-flex">
                         <div class="card flex-fill">
                             <div class="card-body">
@@ -226,7 +226,7 @@
             <!-- /Total Employee -->
 
             <!-- Attendance Overview -->
-            <div class="col-xxl-4 col-xl-6 d-flex">
+            {{-- <div class="col-xxl-4 col-xl-6 d-flex">
                 <div class="card flex-fill">
                     <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
                         <h5 class="mb-2">Tinjau Absensi Hari ini</h5>
@@ -278,9 +278,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <!-- /Attendance Overview -->
-            <div class="col-xxl-4 col-xl-6 d-flex">
+            {{-- <div class="col-xxl-4 col-xl-6 d-flex">
                 <div class="card flex-fill">
                     <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
                         <h5 class="mb-2">Clock-In/Out</h5>
@@ -378,7 +378,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
         </div>
 
