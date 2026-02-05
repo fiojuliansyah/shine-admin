@@ -84,7 +84,7 @@ class StatusController extends Controller
                     }
 
                     if ($row->done === 'document-digital') {
-                        return '<span class="badge bg-info text-dark">Terlampir Dokumen Digital</span>';
+                        return '<span class="badge bg-info text-white">Terlampir E-Dokumen</span>';
                     }
                     return '<span class="badge bg-warning">Menunggu</span>';
                 })
