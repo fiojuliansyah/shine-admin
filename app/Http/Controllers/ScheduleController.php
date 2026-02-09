@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Site;
 use App\Models\Shift;
 use App\Models\Schedule;
@@ -83,13 +84,26 @@ class ScheduleController extends Controller
         return back()->with('success', 'Schedule imported successfully.');
     }
 
-    public function clean($siteId)
+    public function clean(Request $request, $siteId)
     {
         $site = Site::findOrFail($siteId);
-        Schedule::where('site_id', $siteId)->delete();
+        $query = Schedule::where('site_id', $siteId);
 
-        return redirect()->back()->with('success', 'Semua jadwal untuk project ' . $site->name . ' telah dibersihkan.');
-    }
-    
+        if ($request->filled('filter_month')) {
+            $month = Carbon::parse($request->filter_month)->month;
+            $year = Carbon::parse($request->filter_month)->year;
+
+            $query->whereMonth('date', $month)
+                ->whereYear('date', $year);
+            
+            $message = "Jadwal project {$site->name} bulan {$request->filter_month} berhasil dibersihkan.";
+        } else {
+            $message = "Seluruh jadwal project {$site->name} berhasil dibersihkan.";
+        }
+
+        $query->delete();
+
+        return redirect()->back()->with('success', $message);
+    } 
 }
 
