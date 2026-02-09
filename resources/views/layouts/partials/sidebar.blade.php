@@ -37,11 +37,11 @@
                                 <i class="ti ti-box"></i><span>Site Project</span>
                             </a>
                         </li>
-                        {{-- <li class="{{ Route::is('floors.*') ? 'active' : '' }}">
+                        <li class="{{ Route::is('floors.*') ? 'active' : '' }}">
                             <a href="{{ route('floors.index') }}">
                                 <i class="ti ti-stairs"></i><span>Lantai</span>
                             </a>
-                        </li> --}}
+                        </li>
                     </ul>
                 </li>
                 <li class="menu-title"><span>HRM</span></li>
@@ -71,7 +71,7 @@
                                         Template</a></li>
                             </ul>
                         </li>
-                        {{-- <li class="{{ Route::is(['schedules.index', 'schedules.show']) ? 'active' : '' }}">
+                        <li class="{{ Route::is(['schedules.index', 'schedules.show']) ? 'active' : '' }}">
                             <a href="{{ route('schedules.index') }}">
                                 <i class="ti ti-ticket"></i><span>Jadwal</span>
                             </a>
@@ -108,7 +108,7 @@
                             <a href="{{ route('permits.index') }}">
                                 <i class="ti ti-file-description"></i><span>Data Izin</span>
                             </a>
-                        </li> --}}
+                        </li>
                     </ul>
                 </li>
                 <li class="menu-title"><span>FINANCE & ACCOUNTS</span></li>
@@ -123,12 +123,12 @@
                             <ul>
                                 <li><a href="{{ route('payrolls.main') }}"
                                         class="{{ Route::is('payrolls.main') ? 'active' : '' }}">Master</a></li>
-                                {{-- <li><a href="{{ route('payrolls.generate') }}"
+                                <li><a href="{{ route('payrolls.generate') }}"
                                         class="{{ Route::is(['payrolls.generate', 'payroll.generateDetail']) ? 'active' : '' }}">Generate
                                         Payroll</a></li>
                                 <li><a href="{{ route('payrolls.overtime') }}"
                                         class="{{ Route::is('payrolls.overtime') ? 'active' : '' }}">Pengajuan
-                                        Lembur</a></li> --}}
+                                        Lembur</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -172,7 +172,7 @@
                         </li>
                     </ul>
                 </li>
-                {{-- <li class="menu-title"><span>PRODUCTIVITY</span>
+                <li class="menu-title"><span>PRODUCTIVITY</span>
                 </li>
                 <li>
                     <ul>
@@ -217,7 +217,7 @@
                             </a>
                         </li>
                     </ul>
-                </li> --}}
+                </li>
             </ul>
         </div>
     </div>
