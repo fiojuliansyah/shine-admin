@@ -57,7 +57,7 @@
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="ti ti-filter me-1"></i> Filter
                             </button>
-                            <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary">
                                 <i class="ti ti-refresh me-1"></i> Reset
                             </a>
                         </div>
