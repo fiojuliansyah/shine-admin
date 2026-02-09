@@ -24,7 +24,8 @@ class UserController extends Controller
 {
     public function index(UsersDataTable $dataTable)
     {
-        $sites = Site::all();
+        $sites = Site::orderBy('name', 'asc')->get();
+
         return $dataTable->render('users.index', compact('sites'));
     }
 

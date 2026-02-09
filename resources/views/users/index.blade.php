@@ -163,6 +163,7 @@
 
         $('#filter-form').on('submit', function(e) {
             e.preventDefault();
+            
             window.LaravelDataTables["users-table"].draw();
         });
     });
