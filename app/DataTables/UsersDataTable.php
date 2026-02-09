@@ -59,8 +59,8 @@ class UsersDataTable extends DataTable
             })
 
             ->addColumn('site', function ($row) {
-                return '<strong>'.$row->site->name.'</strong><br>
-                        <small>'.$row->site->company->name.'</small>';
+                return '<strong>'.($row->site->name ?? '-').'</strong><br>
+                        <small>'.($row->site->company->name ?? '-').'</small>';
             })
 
             ->filterColumn('site', function ($query, $keyword) {
@@ -102,7 +102,7 @@ class UsersDataTable extends DataTable
 
     public function query(User $model): QueryBuilder
     {
-        return $model->newQuery()
+        $query = $model->newQuery()
             ->with([
                 'profile',
                 'leader',
@@ -110,6 +110,21 @@ class UsersDataTable extends DataTable
                 'site.company'
             ])
             ->where('is_employee', 1);
+
+        if ($siteId = request()->get('site_id')) {
+            $query->where('site_id', $siteId);
+        }
+
+        if (request()->filled('status')) {
+            $status = request()->get('status');
+            if ($status == '1') {
+                $query->whereDoesntHave('profile', fn($q) => $q->whereNotNull('resign_date'));
+            } elseif ($status == '0') {
+                $query->whereHas('profile', fn($q) => $q->whereNotNull('resign_date'));
+            }
+        }
+
+        return $query;
     }
 
     public function html(): HtmlBuilder
@@ -117,7 +132,10 @@ class UsersDataTable extends DataTable
         return $this->builder()
             ->setTableId('users-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->minifiedAjax('', null, [
+                'site_id' => 'function() { return $("#filter_site").val(); }',
+                'status'  => 'function() { return $("#filter_status").val(); }',
+            ])
             ->responsive(true)
             ->orderBy(1)
             ->selectStyleSingle()

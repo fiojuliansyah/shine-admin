@@ -4,7 +4,6 @@
 <div class="page-wrapper">
     <div class="content">
 
-        <!-- Breadcrumb -->
         <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
             <div class="my-auto mb-2">
                 <h2 class="mb-1">Pegawai</h2>
@@ -31,37 +30,64 @@
                 </div>
             </div>
         </div>
-        <!-- /Breadcrumb -->
 
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
                 <h5>List Users</h5>
                 <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                    <form id="filter-form" class="d-flex flex-wrap row-gap-3">
+                        <div class="me-3">
+                            <select name="site_id" id="filter_site" class="form-select select2">
+                                <option value="">Semua Site</option>
+                                @foreach ($sites as $site)
+                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="me-3">
+                            <select name="status" id="filter_status" class="form-select">
+                                <option value="">Semua Status</option>
+                                <option value="1">Aktif</option>
+                                <option value="0">Tidak Aktif</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="ti ti-filter me-1"></i> Filter
+                            </button>
+                            <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
+                                <i class="ti ti-refresh me-1"></i> Reset
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="card-body p-0">
                 <div class="custom-datatable-filter table-responsive">
-                    {{ $dataTable->table() }}
+                    {{ $dataTable->table(['id' => 'users-table']) }}
                 </div>
             </div>
         </div>
 
     </div>
+
     <div class="modal fade" id="importModal">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Import Pegawai</h4>
-                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
                 <form action="{{ route('users.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="modal-body pb-0">	
+                    <div class="modal-body pb-0">   
                         <div class="mb-3">
                             <label class="form-label">Site</label>
-                            <select class="form-select select2" name="site_id" required>
+                            <select class="form-select select2-modal" name="site_id" required>
                                 <option value="">-- Pilih Site --</option>
                                 @foreach ($sites as $site)
                                     <option value="{{ $site->id }}">{{ $site->name }}</option>
@@ -82,21 +108,22 @@
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="exportModal">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Export Pegawai</h4>
-                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
-                <form action="{{ route('users.export') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('users.export') }}" method="POST">
                     @csrf
-                    <div class="modal-body pb-0">	
+                    <div class="modal-body pb-0">   
                         <div class="mb-3">
                             <label class="form-label">Pilih Project <span class="text-danger">*</span></label>
-                            <select name="site_id" class="select2 form-control" required>
+                            <select name="site_id" class="select2-modal form-control" required>
                                 <option value="">-- Pilih --</option>
                                 @foreach($sites as $site)
                                     <option value="{{ $site->id }}">{{ $site->name }}</option>
@@ -121,17 +148,23 @@
 
 @push('js')
 <script src="/admin/assets/js/jquery.dataTables.min.js"></script>
-<script src="/admin/assets/js/dataTables.bootstrap5.min.js"></script>	
+<script src="/admin/assets/js/dataTables.bootstrap5.min.js"></script>   
 {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 
 <script>
     $(document).ready(function() {
-        $('#exportModal').on('shown.bs.modal', function () {
-            $(this).find('.select2').select2({
-                dropdownParent: $('#exportModal')
+        $('.select2').select2();
+
+        $('.modal').on('shown.bs.modal', function () {
+            $(this).find('.select2-modal').select2({
+                dropdownParent: $(this)
             });
+        });
+
+        $('#filter-form').on('submit', function(e) {
+            e.preventDefault();
+            window.LaravelDataTables["users-table"].draw();
         });
     });
 </script>
-
 @endpush
