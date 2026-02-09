@@ -23,6 +23,15 @@
             </div>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
                 <div class="mb-2">
+                    <form action="{{ route('schedules.clean', $site->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua jadwal di project ini? Tindakan ini tidak dapat dibatalkan.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-white d-flex align-items-center me-2 text-danger">
+                            <i class="ti ti-trash me-1"></i> Clean Schedule
+                        </button>
+                    </form>
+                </div>
+                <div class="mb-2">
                     <a href="#" data-bs-toggle="modal" data-bs-target="#importModal" class="btn btn-white d-flex align-items-center me-2">
                         <i class="ti ti-file-upload me-1"></i> Import Jadwal
                     </a>

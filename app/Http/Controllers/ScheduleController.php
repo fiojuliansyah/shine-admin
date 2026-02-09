@@ -82,6 +82,14 @@ class ScheduleController extends Controller
     
         return back()->with('success', 'Schedule imported successfully.');
     }
+
+    public function clean($siteId)
+    {
+        $site = Site::findOrFail($siteId);
+        Schedule::where('site_id', $siteId)->delete();
+
+        return redirect()->back()->with('success', 'Semua jadwal untuk project ' . $site->name . ' telah dibersihkan.');
+    }
     
 }
 
