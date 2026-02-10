@@ -104,6 +104,48 @@ class ScheduleController extends Controller
         $query->delete();
 
         return redirect()->back()->with('success', $message);
-    } 
+    }
+
+    public function shiftUpdate(Request $request, $id)
+    {
+        $shift = Shift::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'shift_code' => 'required|string|max:10',
+            'clock_in' => 'nullable',
+            'clock_out' => 'nullable',
+            'type' => 'nullable|in:off,leave',
+        ]);
+
+        $clockIn = $request->clock_in;
+        $clockOut = $request->clock_out;
+
+        if ($clockIn && $clockOut) {
+            $cIn = Carbon::createFromFormat('H:i', $clockIn);
+            $cOut = Carbon::createFromFormat('H:i', $clockOut);
+
+            if ($cOut->lessThan($cIn)) {
+            }
+        }
+
+        $shift->update([
+            'name' => $request->name,
+            'shift_code' => $request->shift_code,
+            'clock_in' => $clockIn,
+            'clock_out' => $clockOut,
+            'type' => $request->type ?? null,
+        ]);
+
+        return redirect()->back()->with('success', 'Shift berhasil diubah.');
+    }
+
+    public function shiftDestroy($id)
+    {
+        $shift = Shift::findOrFail($id);
+        $shift->delete();
+
+        return redirect()->back()->with('success', 'Shift berhasi dihapus.');
+    }
 }
 

@@ -117,6 +117,8 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::get('/schedules/{id}/show', [ScheduleController::class, 'show'])->name('schedules.show');
     Route::post('/schedules/import', [ScheduleController::class, 'import'])->name('schedules.import');
     Route::post('/schedules/shift/store', [ScheduleController::class, 'shiftStore'])->name('schedules.shift.store');
+    Route::put('/schedules/shift/{id}', [ScheduleController::class, 'shiftUpdate'])->name('schedules.shift.update');
+    Route::delete('/schedules/shift/{id}', [ScheduleController::class, 'shiftDestroy'])->name('schedules.shift.destroy');
     Route::delete('/schedules/clean/{siteId}', [ScheduleController::class, 'clean'])->name('schedules.clean');
 
     // task palnner
