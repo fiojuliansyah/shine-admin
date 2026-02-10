@@ -197,21 +197,11 @@ class AttendanceController extends Controller
         $attendance = Attendance::findOrFail($id);
         
         
-        if ($attendance->imagein_public_id) {
-            Cloudinary::destroy($attendance->imagein_public_id);
-        }
-    
-        
-        if ($attendance->imageout_public_id) {
-            Cloudinary::destroy($attendance->imageout_public_id);
-        }
-    
-        
         $attendance->delete();
     
         
         return redirect()->route('attendances.index')
-                         ->with('success', 'Attendance deleted successfully.');
+                         ->with('success', 'Absensi berhasil dihapus.');
     }
 
     public function updateAttendanceStatus(Request $request)
