@@ -22,7 +22,7 @@ class FloorController extends Controller
         $filter = [
             'site_id' => $request->site_id
         ];
-        return $dataTable->render('floors.index', compact('sites', 'filter'));
+        return $dataTable->render('admin.floors.index', compact('sites', 'filter'));
     }
 
     public function addFloor(Request $request)

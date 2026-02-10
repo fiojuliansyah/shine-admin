@@ -32,7 +32,7 @@ class FindingReportController extends Controller
         $solvedCount = FindingsReport::where('status', 'solved')->count();
         $pendingCount = FindingsReport::where('status', 'pending')->count();
 
-        return $dataTable->render('findingsreport.index', compact(
+        return $dataTable->render('admin.findings-report.index', compact(
             'users',
             'sites',
             'pendingCount',
@@ -56,7 +56,6 @@ class FindingReportController extends Controller
 
         $report = FindingsReport::findOrFail($id);
 
-        // update
         $report->update([
             'status' => $request->status,
             'type' => $request->type,

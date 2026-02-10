@@ -177,7 +177,7 @@ class DashboardController extends Controller
                       ->get();
         
     
-        return view('dashboards.dashboard', compact(
+        return view('admin.dashboards.dashboard', compact(
             'siteCount', 
             'careerCount', 
             'userCount', 
@@ -219,22 +219,22 @@ class DashboardController extends Controller
                                         ->count();
         }
 
-        return view('dashboards.recruit', compact('statuses', 'applicant', 'applicantCounts', 'career'));
+        return view('admin.dashboards.recruit', compact('statuses', 'applicant', 'applicantCounts', 'career'));
     }
 
     public function comingsoon()
     {
-        return view('dashboards.soon');
+        return view('admin.dashboards.soon');
     } 
     
     public function activities()
     {
-        return view('dashboards.activities');
+        return view('admin.dashboards.activities');
     } 
 
     public function welcome()
     {
-        return view('landing');
+        return view('admin.landing');
     }
 
     public function career()

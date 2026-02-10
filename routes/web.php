@@ -1,11 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ReportDaily;
 use Cloudinary\Transformation\Rotate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SecurtyPatroll;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FloorController;
@@ -34,6 +32,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\TypeLetterController;
+use App\Http\Controllers\ReportDailyController;
 use App\Http\Controllers\TaskPlannerController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ComponentTypeController;
@@ -43,6 +42,7 @@ use App\Http\Controllers\ReportPatrollController;
 use App\Http\Controllers\FaceAttendanceController;
 use App\Http\Controllers\JobdeskPatrollsController;
 use App\Http\Controllers\OvertimeRequestController;
+use App\Http\Controllers\SecurityPatrollController;
 use App\Http\Controllers\PayrollComponentController;
 use App\Http\Controllers\TimeDeductionTypeController;
 use App\Http\Controllers\Applicant\SiteController as ApplicantSiteController;
@@ -213,10 +213,10 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::get('/finding-Report/export', [FindingReportController::class, 'export'])->name('findingReport.export');
 
     // daily report
-    Route::get('/daily-report', [ReportDaily::class, 'index'])->name('dailyReport.index');
-    Route::put('/daily-report/{id}', [ReportDaily::class, 'update'])->name('dailyReport.update');
-    Route::delete('/daily-report/{id}', [ReportDaily::class, 'destroy'])->name('dailyReport.destroy');
-    Route::get('/daily-report/export', [ReportDaily::class, 'export'])->name('dailyReport.export');
+    Route::get('/daily-report', [ReportDailyController::class, 'index'])->name('dailyReport.index');
+    Route::put('/daily-report/{id}', [ReportDailyController::class, 'update'])->name('dailyReport.update');
+    Route::delete('/daily-report/{id}', [ReportDailyController::class, 'destroy'])->name('dailyReport.destroy');
+    Route::get('/daily-report/export', [ReportDailyController::class, 'export'])->name('dailyReport.export');
 
     // floor
     Route::get('/floors', [FloorController::class, 'index'])->name('floors.index');
@@ -226,11 +226,11 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::get('/floors/export', [FloorController::class, 'export'])->name('floors.export');
     Route::post('/floors/import', [FloorController::class, 'import'])->name('floors.import');
 
-    // securty-patroll
-    Route::get('/securty-patroll', [SecurtyPatroll::class, 'index'])->name('securty-patroll.index');
-    Route::get('/securty-patroll/{id}/showFloor', [SecurtyPatroll::class, 'showFloor'])->name('securty-patroll.showFloor');
-    Route::get('/securty-patroll/{id}/showTask', [SecurtyPatroll::class, 'showTask'])->name('securty-patroll.showTask');
-    Route::get('/securty-patroll/{id}/print', [SecurtyPatroll::class, 'exportAll'])->name('securty-patroll.print');
+    // security-patroll
+    Route::get('/security-patroll', [SecurityPatrollController::class, 'index'])->name('security-patroll.index');
+    Route::get('/security-patroll/{id}/showFloor', [SecurityPatrollController::class, 'showFloor'])->name('security-patroll.showFloor');
+    Route::get('/security-patroll/{id}/showTask', [SecurityPatrollController::class, 'showTask'])->name('security-patroll.showTask');
+    Route::get('/security-patroll/{id}/print', [SecurityPatrollController::class, 'exportAll'])->name('security-patroll.print');
 
     // report patroll
     Route::get('/patroll-report', [ReportPatrollController::class, 'index'])->name('patrollReport.index');

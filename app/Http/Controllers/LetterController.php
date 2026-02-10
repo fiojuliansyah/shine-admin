@@ -19,7 +19,7 @@ class LetterController extends Controller
         $sites = Site::all();
         $types = TypeLetter::all();
 
-        return $dataTable->render('letters.index', compact('sites', 'types'));
+        return $dataTable->render('admin.letters.index', compact('sites', 'types'));
     }
 
     /**
@@ -30,7 +30,7 @@ class LetterController extends Controller
         $sites = Site::all();
         $types = TypeLetter::all();
 
-        return view('letters.create',compact('sites','types'));
+        return view('admin.letters.create',compact('sites','types'));
     }
 
     /**
@@ -53,11 +53,11 @@ class LetterController extends Controller
     {
         $sites = Site::all();
         $types = TypeLetter::all();
-        return view('letters.edit',compact('letter','sites','types'));
+        return view('admin.letters.edit',compact('letter','sites','types'));
     }
     public function show(Letter $letter)
     {
-        return view('letters.show',compact('letter'));
+        return view('admin.letters.show',compact('letter'));
     }
 
 

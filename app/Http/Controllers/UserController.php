@@ -26,13 +26,13 @@ class UserController extends Controller
     {
         $sites = Site::orderBy('name', 'asc')->get();
 
-        return $dataTable->render('users.index', compact('sites'));
+        return $dataTable->render('admin.users.index', compact('sites'));
     }
 
     public function indexResume($id)
     {
         $user = User::findOrFail($id);
-        return view('users.profiles.resume', compact('user'));
+        return view('admin.users.profiles.resume', compact('user'));
     }
 
     public function indexAccount($id)
@@ -54,7 +54,7 @@ class UserController extends Controller
         $userSites = User::with('sites_leader')->find($id);
         $userHasSignLeader = User::where('id', $id)->first();
 
-        return view('users.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader'));
+        return view('admin.users.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader'));
     }
 
 

@@ -19,7 +19,7 @@ class StatusesDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($row) {
-                return view('statuses.partials.actions', compact('row'))->render();
+                return view('admin.statuses.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

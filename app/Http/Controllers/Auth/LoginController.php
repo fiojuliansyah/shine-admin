@@ -25,12 +25,12 @@ class LoginController extends Controller
         $agent = new Agent;
         
         if ($agent->isMobile() || $agent->isTablet()) {
-            return view('mobiles.auth.login');
+            return view('admin.mobiles.auth.login');
         } else {
             if (Auth::check()) {
                 return redirect()->intended($this->redirectTo);
             }
-            return view('auth.login');
+            return view('admin.auth.login');
         }
 
     }

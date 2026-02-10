@@ -83,7 +83,7 @@ class AttendanceController extends Controller
             'end_date' => $endDate,
         ];
         
-        return $dataTable->render('attendances.index', compact(
+        return $dataTable->render('admin.attendances.index', compact(
             'users', 
             'sites', 
             'attendanceStats', 
@@ -122,7 +122,7 @@ class AttendanceController extends Controller
 
     public function create()
     {
-        return view('attendances.create');
+        return view('admin.attendances.create');
     }
 
     public function store(Request $request)
@@ -164,12 +164,12 @@ class AttendanceController extends Controller
 
     public function show(Attendance $attendance)
     {
-        return view('attendances.show', compact('attendance'));
+        return view('admin.attendances.show', compact('attendance'));
     }
 
     public function edit(Attendance $attendance)
     {
-        return view('attendances.edit', compact('attendance'));
+        return view('admin.attendances.edit', compact('attendance'));
     }
 
     public function update(Request $request, Attendance $attendance)

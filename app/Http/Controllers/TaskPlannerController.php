@@ -17,7 +17,7 @@ class TaskPlannerController extends Controller
 {
     public function index(TaskPlannerDataTable $dataTable)
     {
-        return $dataTable->render('tasks.index');
+        return $dataTable->render('admin.tasks.index');
     }
 
     public function show($siteId)
@@ -37,7 +37,7 @@ class TaskPlannerController extends Controller
             ->orderBy('date', 'asc')
             ->paginate(7);
 
-        return view('tasks.show', compact('site', 'jobdesks', 'tasksTodays', 'tasksNextDays', 'floors'));
+        return view('admin.tasks.show', compact('site', 'jobdesks', 'tasksTodays', 'tasksNextDays', 'floors'));
     }
 
     public function store(Request $request)

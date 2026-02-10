@@ -16,7 +16,7 @@ class TypeLetterController extends Controller
      */
     public function index(TypeLettersDataTable $dataTable)
     {
-        return $dataTable->render('type_letters.index');
+        return $dataTable->render('admin.type_letters.index');
     }
 
     /**
@@ -53,7 +53,7 @@ class TypeLetterController extends Controller
     {
         $typeLetter = TypeLetter::findOrFail($id);
 
-        return view('type_letters.show', compact('typeLetter'));
+        return view('admin.type_letters.show', compact('typeLetter'));
     }
 
     /**
@@ -66,7 +66,7 @@ class TypeLetterController extends Controller
     {
         $typeLetter = TypeLetter::findOrFail($id);
 
-        return view('type_letters.edit', compact('typeLetter'));
+        return view('admin.type_letters.edit', compact('typeLetter'));
     }
 
     /**

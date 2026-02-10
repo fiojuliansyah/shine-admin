@@ -24,7 +24,7 @@ class PayrollController extends Controller
 {
     public function main(PayrollsDataTable $dataTable)
     {
-        return $dataTable->render('payrolls.main');
+        return $dataTable->render('admin.payrolls.main');
     }
 
     public function detailPayroll($siteId)
@@ -86,7 +86,7 @@ class PayrollController extends Controller
             }
         }
 
-        return view('payrolls.detail', [
+        return view('admin.payrolls.detail', [
             'site' => $site,
             'payrolls' => $payrolls,
             'componentTypes' => $componentTypes,
@@ -470,7 +470,7 @@ class PayrollController extends Controller
             ];
         }
 
-        return $dataTable->render('payrolls.generate', compact('sites', 'latestCreatedAt', 'totalExpenses', 'period'));
+        return $dataTable->render('admin.payrolls.generate', compact('sites', 'latestCreatedAt', 'totalExpenses', 'period'));
     }
     
     public function generateDetail($id, $period)
@@ -481,7 +481,7 @@ class PayrollController extends Controller
             ->where('end_date', $period)
             ->get();
 
-        return view('payrolls.generate-detail', compact('site', 'generatedPayrolls', 'period'));
+        return view('admin.payrolls.generate-detail', compact('site', 'generatedPayrolls', 'period'));
     }  
 
     public function generate(Request $request)
@@ -534,7 +534,7 @@ class PayrollController extends Controller
             'payroll.payroll_deductions'
         ])->findOrFail($id);
 
-        return view('payrolls.payslip', compact('payroll'));
+        return view('admin.payrolls.payslip', compact('payroll'));
     }
 
     public function downloadPayslip($id)

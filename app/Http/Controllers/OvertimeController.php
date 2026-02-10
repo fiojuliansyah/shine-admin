@@ -38,7 +38,7 @@ class OvertimeController extends Controller
         $pendingCount = Overtime::where('status', 'pending')->count();
         $overtimeCount = Overtime::count();
     
-        return $dataTable->render('attendances.overtimes.index', compact(
+        return $dataTable->render('admin.attendances.overtimes.index', compact(
             'users',
             'sites',
             'overtimeStatuses',

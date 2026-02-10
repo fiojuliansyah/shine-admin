@@ -36,7 +36,7 @@ class ValetDataTable extends DataTable
             })
             ->addColumn('action', function ($row) {
                 $users = User::all();
-                return view('valets.partials.actions', compact('row','users'))->render();
+                return view('admin.valets.partials.actions', compact('row','users'))->render();
             })
             ->rawColumns(['status', 'action'])  // Membuat status dan action bisa dieksekusi sebagai HTML
             ->setRowId('id');  // Menggunakan ID sebagai row ID

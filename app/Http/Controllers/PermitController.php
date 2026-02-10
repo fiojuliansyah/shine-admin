@@ -35,7 +35,7 @@ class PermitController extends Controller
         $rejectedCount = Permit::where('status', 'rejected')->count();
         $permitCount = Permit::count();
         
-        return $dataTable->render('attendances.permits.index', compact(
+        return $dataTable->render('admin.attendances.permits.index', compact(
             'users', 
             'sites',
             'pendingCount',

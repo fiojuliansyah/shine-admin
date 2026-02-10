@@ -39,7 +39,7 @@ class PatrollReportDataTable extends DataTable
             })
             ->addColumn('image', function ($row) {
                 $image = $row->image_url ?? '';
-                return $image ? "<a href='" . $image . "' data-lightbox='securty-image'>
+                return $image ? "<a href='" . $image . "' data-lightbox='security-image'>
                     <img src='" . $image . "' width='300px' style='border-radius:6px'
                 </a>" : '';
             })
@@ -55,7 +55,7 @@ class PatrollReportDataTable extends DataTable
                 $users = User::all();
                 $sites = Site::all();
                 $floors = Floor::all();
-                return view('patroll_report.partials.actions', compact('row', 'users', 'sites', 'floors'))->render();
+                return view('admin.patroll_report.partials.actions', compact('row', 'users', 'sites', 'floors'))->render();
             })
             ->rawColumns(['image', 'status', 'action'])
             ->setRowId('id');

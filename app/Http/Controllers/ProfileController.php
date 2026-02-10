@@ -36,7 +36,7 @@ class ProfileController extends Controller
         $userSites = User::with('sites_leader')->find($user->id);
         $userHasSignLeader = User::where('id', $user->id)->first();
 
-        return view('profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader'));
+        return view('admin.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader'));
     }
 
     public function updateAccount(Request $request)

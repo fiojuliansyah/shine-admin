@@ -9,7 +9,7 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        return view('permissions.index');
+        return view('admin.permissions.index');
     }
 
     /**
@@ -19,7 +19,7 @@ class PermissionController extends Controller
      */
     public function create()
     {
-        return view('permissions.create');
+        return view('admin.permissions.create');
     }
 
     /**

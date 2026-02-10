@@ -58,7 +58,7 @@ class OvertimeRequestDataTable extends DataTable
                 return '<span class="badge ' . $badgeClass . '">' . ucfirst($status) . '</span>';
             })
             ->addColumn('action', function ($row) {
-                return view('overtime-request.partials.actions', compact('row'))->render();
+                return view('admin.overtime-request.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['action', 'status'])
             ->setRowId('id');

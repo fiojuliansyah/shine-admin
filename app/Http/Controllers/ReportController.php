@@ -19,7 +19,7 @@ class ReportController extends Controller
     {
         $employees = User::all();
         $sites = Site::all();
-        return view('reports.attendances', compact('employees', 'sites'));
+        return view('admin.reports.attendances', compact('employees', 'sites'));
     }
 
     public function employeeExport(Request $request)
@@ -110,7 +110,7 @@ class ReportController extends Controller
             $currentDate->addDay();
         }
         
-        return view('reports.site', compact('users', 'attendancesByUser', 'site_id', 'start_date', 'end_date', 'dates', 'totalsByUser'));
+        return view('admin.reports.site', compact('users', 'attendancesByUser', 'site_id', 'start_date', 'end_date', 'dates', 'totalsByUser'));
     }
     
     public function exportToExcel(Request $request)

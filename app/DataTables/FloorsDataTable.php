@@ -33,11 +33,11 @@ class FloorsDataTable extends DataTable
                 return Str::words($row->description, 5, '...');
             })
             ->addColumn('floor_qr', function($row){
-                return view('floors.partials.qr_code', compact('row'))->render();
+                return view('admin.floors.partials.qr_code', compact('row'))->render();
             })
             ->addColumn('action', function ($row) {
                 $sites = Site::all();
-                return view('floors.partials.action', compact('row', 'sites'))->render();
+                return view('admin.floors.partials.action', compact('row', 'sites'))->render();
             })
             ->rawColumns(['action', 'floor_qr'])
             ->setRowId('id');

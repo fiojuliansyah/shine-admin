@@ -92,14 +92,14 @@ class GenerateController extends Controller
                     </div>';
                 })
                 ->addColumn('action', function ($row) {
-                    return view('generates.partials.actions', compact('row'))->render();
+                    return view('admin.generates.partials.actions', compact('row'))->render();
                 })
                 ->rawColumns(['action', 'checkbox', 'signature', 'template', 'name'])
                 ->make(true);
         }
     
         // Pass filters to the view
-        return view('generates.index', compact('letters', 'sites', 'types', 'filters'));
+        return view('admin.generates.index', compact('letters', 'sites', 'types', 'filters'));
     }
     
 
@@ -286,6 +286,6 @@ class GenerateController extends Controller
             $generate->letter->description
         );
     
-        return view('generates.show', compact('generate'));
+        return view('admin.generates.show', compact('generate'));
     }
 }

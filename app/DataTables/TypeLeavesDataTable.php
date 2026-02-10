@@ -27,7 +27,7 @@ class TypeLeavesDataTable extends DataTable
             })
             ->addColumn('action', function ($row) {
                 $sites = Site::all();
-                return view('types.partials.actions', compact('row','sites'))->render();
+                return view('admin.types.partials.actions', compact('row','sites'))->render();
             })
             ->rawColumns(['is_paid', 'action'])
             ->setRowId('id');

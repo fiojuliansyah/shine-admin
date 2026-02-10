@@ -19,7 +19,7 @@ class PayrollsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($row) {
-                return view('payrolls.partials.actions', compact('row'))->render();
+                return view('admin.payrolls.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

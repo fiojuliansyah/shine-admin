@@ -20,7 +20,7 @@ class MinuteController extends Controller
      */
     public function index(MinutesDataTable $dataTable)
     {
-        return $dataTable->render('attendances.minutes.index');
+        return $dataTable->render('admin.attendances.minutes.index');
     }
 
     /**

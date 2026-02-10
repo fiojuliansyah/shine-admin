@@ -17,7 +17,7 @@ class SiteController extends Controller
     {
         $companies = Company::all();
         $title = 'Manage Company';
-        return $dataTable->render('sites.index', compact('title','companies'));
+        return $dataTable->render('admin.sites.index', compact('title','companies'));
     }
 
     public function store(Request $request)
@@ -42,7 +42,7 @@ class SiteController extends Controller
     {
         $companies = Company::all();
         $site = Site::findOrFail($id);
-        return view('sites.edit', compact('site', 'companies'));
+        return view('admin.sites.edit', compact('site', 'companies'));
     }
 
     public function update(Request $request, $id)
@@ -84,7 +84,7 @@ class SiteController extends Controller
     public function addCheckpoint($id)
     {
         $site = Site::find($id);
-        return view('checkpoints.checkpoint',compact('site'));
+        return view('admin.checkpoints.checkpoint',compact('site'));
 
     }
 

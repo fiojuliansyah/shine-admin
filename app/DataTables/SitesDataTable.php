@@ -29,7 +29,7 @@ class SitesDataTable extends DataTable
             })
             ->addColumn('action', function ($row) {
                 $companies = Company::all();
-                return view('sites.partials.actions', compact('row', 'companies'))->render();
+                return view('admin.sites.partials.actions', compact('row', 'companies'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

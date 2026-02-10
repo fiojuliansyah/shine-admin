@@ -14,7 +14,7 @@ class CompanyController extends Controller
     public function index(CompaniesDataTable $dataTable)
     {
         $title = 'Manage Company';
-        return $dataTable->render('companies.index', compact('title'));
+        return $dataTable->render('admin.companies.index', compact('title'));
     }
 
     public function store(Request $request)

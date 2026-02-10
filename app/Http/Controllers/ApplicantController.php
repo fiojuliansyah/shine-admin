@@ -20,7 +20,7 @@ class ApplicantController extends Controller
     {
         $careers = Career::all();
         $title = 'Manage Applicant';
-        return $dataTable->render('applicants.index', compact('careers','title'));
+        return $dataTable->render('admin.applicants.index', compact('careers','title'));
     }
 
     /**

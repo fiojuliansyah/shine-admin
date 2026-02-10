@@ -23,7 +23,7 @@ class JobdeskPatrollsSitesDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($row) {
-                return view('jobdesk-patroll.partials.actionSites', compact('row'))->render();
+                return view('admin.jobdesk-patroll.partials.actionSites', compact('row'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

@@ -40,7 +40,7 @@ class LeaveController extends Controller
         $rejectedCount = Leave::where('status', 'rejected')->count();
         $leaveCount = Leave::count();
         
-        return $dataTable->render('attendances.leaves.index', compact(
+        return $dataTable->render('admin.attendances.leaves.index', compact(
             'types', 
             'users', 
             'sites',

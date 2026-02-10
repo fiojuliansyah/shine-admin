@@ -60,7 +60,7 @@ class ReportPatrollController extends Controller
             ->groupBy('turn')
             ->paginate(10);
 
-        return $dataTable->render('patroll_report.index', compact(
+        return $dataTable->render('admin.patroll_report.index', compact(
             'dataTable',
             'users',
             'sites',

@@ -10,7 +10,7 @@ class OvertimeRequestController extends Controller
 {
     public function index(OvertimeRequestDataTable $dataTable)
     {
-        return $dataTable->render('overtime-request.index');
+        return $dataTable->render('admin.overtime-request.index');
     }
 
     public function updateStatus(Request $request, Overtime $overtime)

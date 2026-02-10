@@ -51,7 +51,7 @@ class PermitsDataTable extends DataTable
                 return '<span class="badge '.$class.'">'.ucfirst($row->status).'</span>';
             })
             ->addColumn('action', function ($row) {
-                return view('attendances.permits.partials.actions', compact('row'))->render();
+                return view('admin.attendances.permits.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['image', 'is_paid', 'action', 'status'])
             ->setRowId('id');

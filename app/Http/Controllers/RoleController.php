@@ -13,7 +13,7 @@ class RoleController extends Controller
     {
         $permissions = Permission::get();
         $roles = Role::orderBy('id','DESC')->get();
-        return view('roles.index',compact('roles','permissions'))
+        return view('admin.roles.index',compact('roles','permissions'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

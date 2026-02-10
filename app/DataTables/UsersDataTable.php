@@ -59,8 +59,8 @@ class UsersDataTable extends DataTable
             })
 
             ->addColumn('site', function ($row) {
-                return '<strong>'.($row->site->name ?? '-').'</strong><br>
-                        <small>'.($row->site->company->name ?? '-').'</small>';
+                return '<strong>'.$row->site->name.'</strong><br>
+                        <small>'.$row->site->company->name.'</small>';
             })
 
             ->filterColumn('site', function ($query, $keyword) {
@@ -93,7 +93,7 @@ class UsersDataTable extends DataTable
             })
 
             ->addColumn('action', function ($row) {
-                return view('users.partials.actions', compact('row'))->render();
+                return view('admin.users.partials.actions', compact('row'))->render();
             })
 
             ->rawColumns(['avatar','employee','detail','site','status','action'])
@@ -111,17 +111,8 @@ class UsersDataTable extends DataTable
             ])
             ->where('is_employee', 1);
 
-        if ($siteId = request()->get('site_id')) {
-            $query->where('site_id', $siteId);
-        }
-
-        if (request()->filled('status')) {
-            $status = request()->get('status');
-            if ($status == '1') {
-                $query->whereDoesntHave('profile', fn($q) => $q->whereNotNull('resign_date'));
-            } elseif ($status == '0') {
-                $query->whereHas('profile', fn($q) => $q->whereNotNull('resign_date'));
-            }
+        if (request()->has('site_id') && request('site_id') != '') {
+            $query->where('site_id', request('site_id'));
         }
 
         return $query;
@@ -132,10 +123,7 @@ class UsersDataTable extends DataTable
         return $this->builder()
             ->setTableId('users-table')
             ->columns($this->getColumns())
-            ->minifiedAjax('', null, [
-                'site_id' => 'function() { return $("#filter_site").val(); }',
-                'status'  => 'function() { return $("#filter_status").val(); }',
-            ])
+            ->minifiedAjax()
             ->responsive(true)
             ->orderBy(1)
             ->selectStyleSingle()

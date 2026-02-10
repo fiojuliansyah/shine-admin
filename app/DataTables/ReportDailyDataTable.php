@@ -39,7 +39,7 @@ class ReportDailyDataTable extends DataTable
                 $image_before_url = $row->image_before_url ? $row->image_before_url : '';
                 $image_progress_url = $row->image_progress_url ? $row->image_progress_url : '';
                 $image_after_url = $row->image_after_url ? $row->image_after_url : '';
-                return view('dailyReport.partials.image', compact('image_before_url', 'image_progress_url', 'image_after_url', 'row'))->render();
+                return view('admin.dailyReport.partials.image', compact('image_before_url', 'image_progress_url', 'image_after_url', 'row'))->render();
             })
             ->addColumn('detail', function ($row) {
                 $image_before_url = $row->image_before_url ? $row->image_before_url : '';
@@ -47,7 +47,7 @@ class ReportDailyDataTable extends DataTable
                 $image_after_url = $row->image_after_url ? $row->image_after_url : '';
                 $start_time = !empty($row->start_time) ? Carbon::parse($row->start_time)->toTimeString() : '-';
                 $end_time = !empty($row->end_time) ? Carbon::parse($row->end_time)->toTimeString() : '-';
-                return view('dailyReport.partials.detail', compact('start_time', 'end_time', 'image_before_url', 'image_progress_url', 'image_after_url', 'row'))->render();
+                return view('admin.dailyReport.partials.detail', compact('start_time', 'end_time', 'image_before_url', 'image_progress_url', 'image_after_url', 'row'))->render();
             })
             ->editColumn('is_worked', function ($row) {
                 return $row->is_worked === 'worked'
@@ -60,7 +60,7 @@ class ReportDailyDataTable extends DataTable
             ->addColumn('action', function ($row) {
                 $users = User::all();
                 $sites = Site::all();
-                return view('dailyReport.partials.actions', compact('row', 'users', 'sites'))->render();
+                return view('admin.dailyReport.partials.actions', compact('row', 'users', 'sites'))->render();
             })
             ->rawColumns(['image', 'is_worked', 'action', 'detail']) // biar HTML badge & img tampil
             ->setRowId('id');
@@ -73,7 +73,6 @@ class ReportDailyDataTable extends DataTable
     {
         $query = $model->newQuery()->with(['user', 'site']);
 
-        // filters
         if ($this->request()->filled('date')) {
             $query->whereDate('date', $this->request()->get('date'));
         }

@@ -16,7 +16,7 @@ class ValetController extends Controller
     public function index(ValetDataTable $dataTable)
     {   
         $users = User::all();
-        return $dataTable->render('valets.index',compact('users'));
+        return $dataTable->render('admin.valets.index',compact('users'));
     }
 
     /**

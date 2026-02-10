@@ -15,7 +15,7 @@ class ScheduleController extends Controller
 {
     public function index(SchedulesDataTable $dataTable)
     {
-        return $dataTable->render('schedules.index');
+        return $dataTable->render('admin.schedules.index');
     }
 
     public function show($siteId)
@@ -31,7 +31,7 @@ class ScheduleController extends Controller
     
         $groupedSchedules = $schedules->groupBy('user_id');
     
-        return view('schedules.show', compact('site', 'dates', 'groupedSchedules', 'sites', 'shifts'));
+        return view('admin.schedules.show', compact('site', 'dates', 'groupedSchedules', 'sites', 'shifts'));
     }
     
 

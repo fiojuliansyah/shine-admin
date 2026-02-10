@@ -57,13 +57,13 @@ class AttendancesDataTable extends DataTable
             ->addColumn('image', function ($row) {
                 $imagein = $row->face_image_url_clockin ?? '';
                 $imageout = $row->face_image_url_clockout ?? '';
-                return view('attendances.partials.image', compact('imagein', 'imageout', 'row'))->render();
+                return view('admin.attendances.partials.image', compact('imagein', 'imageout', 'row'))->render();
             })
 
             ->addColumn('action', function ($row) {
                 $users = User::all();
                 $sites = Site::all();
-                return view('attendances.partials.actions', compact('row', 'users', 'sites'))->render();
+                return view('admin.attendances.partials.actions', compact('row', 'users', 'sites'))->render();
             })
 
             ->rawColumns(['image', 'action'])

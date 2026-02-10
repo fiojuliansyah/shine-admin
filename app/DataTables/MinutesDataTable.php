@@ -35,13 +35,13 @@ class MinutesDataTable extends DataTable
             ->addColumn('image', function ($row) {
                 $imagein = $row->imagein_url ?? '';
                 $imageout = $row->imageout_url ?? '';
-                return view('attendances.minutes.partials.image', compact('imagein', 'imageout', 'row'))->render();
+                return view('admin.attendances.minutes.partials.image', compact('imagein', 'imageout', 'row'))->render();
             })
             ->addColumn('remark', function ($row) {
                 return $row->remark ?? '';
             })
             ->addColumn('action', function ($row) {
-                return view('attendances.minutes.partials.actions', compact('row'))->render();
+                return view('admin.attendances.minutes.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['image', 'action'])
             ->setRowId('id');

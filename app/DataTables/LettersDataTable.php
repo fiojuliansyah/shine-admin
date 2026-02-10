@@ -21,7 +21,7 @@ class LettersDataTable extends DataTable
             })
             ->addColumn('action', function ($row) {
                 $sites = Site::all();
-                return view('letters.partials.actions', compact('row', 'sites'))->render();
+                return view('admin.letters.partials.actions', compact('row', 'sites'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

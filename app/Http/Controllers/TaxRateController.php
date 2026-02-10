@@ -13,7 +13,7 @@ class TaxRateController extends Controller
     public function index()
     {
         $taxRates = TaxRate::all();
-        return view('tax_rates.index',compact('taxRates'));
+        return view('admin.tax_rates.index',compact('taxRates'));
     }
 
     // Menyimpan tax rate baru

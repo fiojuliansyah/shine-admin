@@ -36,10 +36,10 @@ class ApplicantsDataTable extends DataTable
             ->addColumn('resume', function ($row) {
                 $statuses = Status::all();
                 $documents = Document::where('user_id', $row->user->id)->get();
-                return view('applicants.partials.resume', compact('row', 'statuses', 'documents'))->render();
+                return view('admin.applicants.partials.resume', compact('row', 'statuses', 'documents'))->render();
             })
             ->addColumn('action', function ($row) {
-                return view('applicants.partials.actions', compact('row'))->render();
+                return view('admin.applicants.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['action', 'progress', 'resume'])
             ->setRowId('id');

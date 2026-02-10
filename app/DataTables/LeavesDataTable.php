@@ -44,7 +44,7 @@ class LeavesDataTable extends DataTable
                 $users = \App\Models\User::all();
                 $sites = \App\Models\Site::all();
 
-                return view('attendances.leaves.partials.actions', compact('row', 'types', 'users', 'sites'))->render();
+                return view('admin.attendances.leaves.partials.actions', compact('row', 'types', 'users', 'sites'))->render();
             })
             ->rawColumns(['image', 'is_paid', 'action'])
             ->setRowId('id');

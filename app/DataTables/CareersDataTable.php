@@ -24,7 +24,7 @@ class CareersDataTable extends DataTable
             })
             ->addColumn('action', function ($row) {
                 $companies = Company::all();
-                return view('careers.partials.actions', compact('row', 'companies'))->render();
+                return view('admin.careers.partials.actions', compact('row', 'companies'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

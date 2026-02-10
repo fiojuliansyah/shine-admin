@@ -16,13 +16,13 @@ class JobdeskPatrollsController extends Controller
 {
     public function index(JobdeskPatrollsSitesDataTable $dataTable)
     {
-        return $dataTable->render('jobdesk-patroll.index');
+        return $dataTable->render('admin.jobdesk-patroll.index');
     }
 
     public function show(JobdeskPatrollsDataTable $dataTable, $id)
     {
         $floors = Floor::where('site_id', $id)->get();
-        return $dataTable->render('jobdesk-patroll.show', compact('floors', 'id'));
+        return $dataTable->render('admin.jobdesk-patroll.show', compact('floors', 'id'));
     }
 
     public function addJob(Request $request)

@@ -25,7 +25,7 @@ class MobileLoginController extends Controller
             return redirect()->route('mobile.home');
         }
 
-        return view('mobiles.auth.login');
+        return view('admin.mobiles.auth.login');
     }
 
     protected function validateLogin(Request $request)

@@ -34,7 +34,7 @@ class JobdeskPatrollsDataTable extends DataTable
             ->addColumn('action', function ($row) {
                 $id = $row->site_id;
                 $floors = Floor::all();
-                return view('jobdesk-patroll.partials.actions', compact('row', 'floors', 'id'))->render();
+                return view('admin.jobdesk-patroll.partials.actions', compact('row', 'floors', 'id'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

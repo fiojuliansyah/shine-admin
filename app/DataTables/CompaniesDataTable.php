@@ -26,7 +26,7 @@ class CompaniesDataTable extends DataTable
             return '<img src="' . $row->logo_url . '" width="50" />';
         })
         ->addColumn('action', function ($row) {
-            return view('companies.partials.actions', compact('row'))->render();
+            return view('admin.companies.partials.actions', compact('row'))->render();
         })
         ->addColumn('is_default', function ($row) {
             return $row->is_default

@@ -17,12 +17,12 @@ class CareerController extends Controller
     public function index(CareersDataTable $dataTable)
     {
         $companies = Company::all();
-        return $dataTable->render('careers.index',compact('companies'));
+        return $dataTable->render('admin.careers.index',compact('companies'));
     }
 
     public function show()
     {
-        return view('careers.index');
+        return view('admin.careers.index');
     }
 
     public function store(Request $request)
@@ -107,6 +107,6 @@ class CareerController extends Controller
         $ID = decrypt($id);
         $career = Career::findOrFail($ID);
 
-        return view('careers.banner',compact('career'));;
+        return view('admin.careers.banner',compact('career'));;
     }
 }

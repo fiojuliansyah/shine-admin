@@ -39,7 +39,7 @@ class OvertimesDataTable extends DataTable
                 return $row->demand ?? ''; 
             })
             ->addColumn('action', function ($row) {
-                return view('attendances.overtimes.partials.actions', compact('row'))->render();
+                return view('admin.attendances.overtimes.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

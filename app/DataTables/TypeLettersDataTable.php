@@ -19,7 +19,7 @@ class TypeLettersDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($row) {
-                return view('type_letters.partials.actions', compact('row'))->render();
+                return view('admin.type_letters.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

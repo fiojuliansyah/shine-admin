@@ -19,7 +19,7 @@ class SchedulesDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function ($row) {
-                return view('schedules.partials.actions', compact('row'))->render();
+                return view('admin.schedules.partials.actions', compact('row'))->render();
             })
             ->rawColumns(['action'])
             ->setRowId('id');

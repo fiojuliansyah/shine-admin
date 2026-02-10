@@ -14,7 +14,7 @@ class TypeLeaveController extends Controller
     public function index(TypeLeavesDataTable $dataTable)
     {
         $sites = Site::all();
-        return $dataTable->render('types.index', compact('sites'));
+        return $dataTable->render('admin.types.index', compact('sites'));
     }
 
 

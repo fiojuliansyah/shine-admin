@@ -19,7 +19,7 @@ class StatusController extends Controller
     public function index(StatusesDataTable $dataTable)
     {
         $title = 'Manage Statuses';
-        return $dataTable->render('statuses.index', compact('title'));
+        return $dataTable->render('admin.statuses.index', compact('title'));
     }
 
     public function store(Request $request)
@@ -92,17 +92,17 @@ class StatusController extends Controller
                 ->addColumn('resume', function ($row) {
                     $statuses = Status::all();
                     $documents = Document::where('user_id', $row->user->id)->get();
-                    return view('statuses.partials.resume', compact('row','statuses','documents'))->render();
+                    return view('admin.statuses.partials.resume', compact('row','statuses','documents'))->render();
                 })
                 ->addColumn('action', function ($row) {
-                    return view('statuses.partials.show-actions', compact('row'))->render();
+                    return view('admin.statuses.partials.show-actions', compact('row'))->render();
                 })
                 ->rawColumns(['action','progress','resume','checkbox','role'])
                 
                 ->make(true);
         }
             
-        return view('statuses.show', compact('status','statuses','sites','letters'));
+        return view('admin.statuses.show', compact('status','statuses','sites','letters'));
     }
 
     public function update(Request $request, $id)

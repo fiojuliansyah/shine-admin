@@ -130,8 +130,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Security Patroll
     Route::prefix('security-patroll')->group(function () {
         Route::get('/', [SecurityPatrollController::class, 'index']);
-        Route::post('/startPatroll', [SecurityPatrollController::class, 'startPatroll'])->name('securty-patroll.startPatroll');
-        Route::post('/endPatroll', [SecurityPatrollController::class, 'endPatroll'])->name('securty-patroll.endPatroll');
+        Route::post('/startPatroll', [SecurityPatrollController::class, 'startPatroll'])->name('security-patroll.startPatroll');
+        Route::post('/endPatroll', [SecurityPatrollController::class, 'endPatroll'])->name('security-patroll.endPatroll');
         Route::get('/{id}', [SecurityPatrollController::class, 'listTask']);
         Route::get('/{id}/show', [SecurityPatrollController::class, 'show']);
         Route::get('/{id}/edit_create', [SecurityPatrollController::class, 'edit_create']);

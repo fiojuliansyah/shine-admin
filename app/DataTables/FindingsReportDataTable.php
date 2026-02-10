@@ -44,7 +44,7 @@ class FindingsReportDataTable extends DataTable
                 $users = \App\Models\User::all();
                 $sites = \App\Models\Site::all();
 
-                return view('findingsreport.partials.actions', compact('row', 'users', 'sites'))->render();
+                return view('admin.findingsreport.partials.actions', compact('row', 'users', 'sites'))->render();
             })
             ->rawColumns(['image', 'action'])
             ->setRowId('id');
