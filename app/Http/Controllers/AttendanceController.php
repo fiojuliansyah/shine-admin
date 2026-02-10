@@ -175,39 +175,21 @@ class AttendanceController extends Controller
     public function update(Request $request, Attendance $attendance)
     {
         $request->validate([
-            'date' => 'required',
-            'latlong' => 'required',
-            'user_id' => 'required',
-            'site_id' => 'required',
-            'imagein' => 'nullable|image|max:3000',
-            'imageout' => 'nullable|image|max:3000',
+            'date'      => 'sometimes|required|date',
+            'latlong'   => 'sometimes|required',
+            'site_id'   => 'sometimes|required',
+            'type'      => 'nullable',
+            'clock_in'  => 'nullable',
+            'clock_out' => 'nullable',
         ]);
 
-        $attendance->date = $request->date;
-        $attendance->latlong = $request->latlong;
-        $attendance->user_id = $request->user_id;
-        $attendance->site_id = $request->site_id;
-        $attendance->clock_in = $request->clock_in;
-        $attendance->clock_out = $request->clock_out;
-
-        if ($request->hasFile('imagein')) {
-            Cloudinary::destroy($attendance->imagein_public_id);
-            $cloudinaryImageIn = $request->file('imagein')->storeOnCloudinary('attendances_images');
-            $attendance->imagein_url = $cloudinaryImageIn->getSecurePath();
-            $attendance->imagein_public_id = $cloudinaryImageIn->getPublicId();
-        }
-
-        if ($request->hasFile('imageout')) {
-            Cloudinary::destroy($attendance->imageout_public_id);
-            $cloudinaryImageOut = $request->file('imageout')->storeOnCloudinary('attendances_images');
-            $attendance->imageout_url = $cloudinaryImageOut->getSecurePath();
-            $attendance->imageout_public_id = $cloudinaryImageOut->getPublicId();
-        }
+        $attendance->fill($request->only([
+            'date', 'latlong', 'site_id', 'type', 'clock_in', 'clock_out'
+        ]));
 
         $attendance->save();
 
-        return redirect()->route('attendances.index')
-                         ->with('success', 'Attendance updated successfully.');
+        return redirect()->back()->with('success', 'Absensi berhasil diperbarui.');
     }
 
     public function destroy($id)

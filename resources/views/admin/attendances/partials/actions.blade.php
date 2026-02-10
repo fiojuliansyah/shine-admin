@@ -1,5 +1,5 @@
 <div class="dropdown">
-    <button class="btn btn-primary btn-sm rounded-pill" type="button" id="dropdownMenuButton-{{ $row->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+    <button class="btn btn-primary btn-sm rounded-pill" type="button" id="dropdownMenuButton-{{ $row->id }}" data-bs-toggle="dropdown">
         Actions
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $row->id }}">
@@ -58,7 +58,6 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Clock IN</label>
-                            {{-- Format time harus H:i agar muncul di input time --}}
                             <input type="time" class="form-control" name="clock_in" value="{{ $row->clock_in ? $row->clock_in->format('H:i') : '' }}">
                         </div>
                         <div class="col-md-6 mb-3">
@@ -68,7 +67,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                 </div>
             </form>
