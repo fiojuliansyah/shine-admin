@@ -241,7 +241,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
                                 <button type="submit" class="btn btn-danger">Hapus Sekarang</button>
                             </div>
                         </form>
@@ -258,7 +258,7 @@
                     <form action="{{ route('schedules.shift.update', $shift->id) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <div class="modal-header bg-primary text-white">
+                        <div class="modal-header">
                             <h5 class="modal-title">Edit Shift: {{ $shift->name }}</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -291,7 +291,7 @@
                             </div>
                         </div>
                         <div class="modal-footer bg-light">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                         </div>
                     </form>
