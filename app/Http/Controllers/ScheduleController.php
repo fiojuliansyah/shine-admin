@@ -121,14 +121,6 @@ class ScheduleController extends Controller
         $clockIn = $request->clock_in;
         $clockOut = $request->clock_out;
 
-        if ($clockIn && $clockOut) {
-            $cIn = Carbon::createFromFormat('H:i', $clockIn);
-            $cOut = Carbon::createFromFormat('H:i', $clockOut);
-
-            if ($cOut->lessThan($cIn)) {
-            }
-        }
-
         $shift->update([
             'name' => $request->name,
             'shift_code' => $request->shift_code,

@@ -190,15 +190,12 @@
                                                         data-bs-target="#editShiftModal-{{ $shift->id }}">
                                                         <i class="ti ti-edit"></i>
                                                     </button>
-                                                    <form action="{{ route('schedules.shift.destroy', $shift->id) }}"
-                                                        method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                            onclick="return confirm('Hapus shift ini?')">
-                                                            <i class="ti ti-trash"></i>
-                                                        </button>
-                                                    </form>
+
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteShiftModal-{{ $shift->id }}">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -229,7 +226,8 @@
                                 <div class="text-center mb-4">
                                     <i class="ti ti-alert-triangle text-danger" style="font-size: 3rem;"></i>
                                     <p class="mt-2">Anda akan menghapus data jadwal pada project:
-                                        <br><strong>{{ $site->name }}</strong></p>
+                                        <br><strong>{{ $site->name }}</strong>
+                                    </p>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Hapus Bulan Tertentu (Opsional)</label>
@@ -251,7 +249,7 @@
 
         </div>
     </div>
-    @foreach($shifts as $shift)
+    @foreach ($shifts as $shift)
         <div class="modal fade" id="editShiftModal-{{ $shift->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content shadow-lg">
@@ -260,25 +258,30 @@
                         @method('PUT')
                         <div class="modal-header">
                             <h5 class="modal-title">Edit Shift: {{ $shift->name }}</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="form-group mb-3">
                                 <label class="form-label">Shift Name</label>
-                                <input type="text" name="name" class="form-control" value="{{ $shift->name }}" required>
+                                <input type="text" name="name" class="form-control" value="{{ $shift->name }}"
+                                    required>
                             </div>
                             <div class="form-group mb-3">
                                 <label class="form-label">Shift Code</label>
-                                <input type="text" name="shift_code" class="form-control" value="{{ $shift->shift_code }}" required>
+                                <input type="text" name="shift_code" class="form-control"
+                                    value="{{ $shift->shift_code }}" required>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label font-bold text-success">Clock In</label>
-                                    <input type="time" name="clock_in" class="form-control" value="{{ $shift->clock_in }}">
+                                    <input type="time" name="clock_in" class="form-control"
+                                        value="{{ $shift->clock_in }}">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label font-bold text-danger">Clock Out</label>
-                                    <input type="time" name="clock_out" class="form-control" value="{{ $shift->clock_out }}">
+                                    <input type="time" name="clock_out" class="form-control"
+                                        value="{{ $shift->clock_out }}">
                                 </div>
                             </div>
                             <div class="form-group mb-3">
@@ -299,4 +302,31 @@
             </div>
         </div>
     @endforeach
+@foreach ($shifts as $shift)
+    <div class="modal fade" id="deleteShiftModal-{{ $shift->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="{{ route('schedules.shift.destroy', $shift->id) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Hapus Shift</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-3">
+                            <i class="ti ti-alert-circle text-danger" style="font-size: 3rem;"></i>
+                        </div>
+                        <p>Apakah Anda yakin ingin menghapus shift <strong>{{ $shift->name }}</strong> ({{ $shift->shift_code }})?</p>
+                        <p class="text-muted small">Tindakan ini tidak dapat dibatalkan.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection
