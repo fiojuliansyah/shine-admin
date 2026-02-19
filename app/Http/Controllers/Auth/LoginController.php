@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -22,16 +21,7 @@ class LoginController extends Controller
 
     public function showLoginForm()
     {
-        $agent = new Agent;
-        
-        if ($agent->isMobile() || $agent->isTablet()) {
-            return view('admin.mobiles.auth.login');
-        } else {
-            if (Auth::check()) {
-                return redirect()->intended($this->redirectTo);
-            }
-            return view('admin.auth.login');
-        }
+        return view('admin.auth.login');
 
     }
 
