@@ -176,7 +176,7 @@ class AttendanceController extends Controller
     {
         $request->validate([
             'date'      => 'sometimes|required|date',
-            'latlong'   => 'sometimes|required',
+            'latlong'   => 'sometimes',
             'site_id'   => 'sometimes|required',
             'type'      => 'nullable',
             'clock_in'  => 'nullable',

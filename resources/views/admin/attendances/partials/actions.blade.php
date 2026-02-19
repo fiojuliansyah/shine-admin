@@ -34,7 +34,7 @@
                     
                     <div class="mb-3">
                         <label class="form-label">Latlong</label>
-                        <input type="text" class="form-control" name="latlong" value="{{ $row->latlong }}" required>
+                        <input type="text" class="form-control" name="latlong" value="{{ $row->latlong }}">
                     </div>
 
                     <div class="mb-3">
