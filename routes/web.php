@@ -85,9 +85,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/overtimes/export', [OvertimeController::class, 'export'])->name('overtimes.export');
 });
 
-Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function () {
+Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // Route::get('/dashboard', [DashboardController::class, 'recruit'])->name('dashboard');
     Route::get('/comingsoon', [DashboardController::class, 'comingsoon'])->name('comingsoon');
     Route::get('/recuit', [DashboardController::class, 'recruit'])->name('recruit');
     Route::get('/activities', [DashboardController::class, 'activities'])->name('activities');
