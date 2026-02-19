@@ -177,7 +177,7 @@ class DashboardController extends Controller
                       ->get();
         
     
-        return view('admin.dashboards.dashboard', compact(
+        return view('admin.dashboards.dashboard-gic', compact(
             'siteCount', 
             'careerCount', 
             'userCount', 
