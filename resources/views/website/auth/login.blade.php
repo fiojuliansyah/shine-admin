@@ -76,6 +76,10 @@
                                         <div class="mb-3">
                                             <button type="submit" class="btn btn-primary w-100">Masuk</button>
                                         </div>
+                                        <div class="text-center">
+                                            <h6 class="fw-normal text-dark mb-0">Belum punya akun?
+                                                <a href="{{ route('applicant-register') }}" class="hover-a">Daftar Pelamar</a>
+                                            </h6>
                                         </div>
                                     <div class="mt-5 pb-4 text-center">
                                         <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Cipta Karir</p>
