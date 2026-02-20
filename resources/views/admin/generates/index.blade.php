@@ -17,7 +17,7 @@
                         </ol>
                     </nav>
                 </div>
-                @include('generates.partials.toolbar-mains')
+                @include('admin.generates.partials.toolbar-mains')
             </div>
             <!-- /Breadcrumb -->
             
@@ -93,7 +93,7 @@
                 </div>
             </div>
             
-            @include('generates.partials.toolbar-modals')
+            @include('admin.generates.partials.toolbar-modals')
         </div>
     </div>
 @endsection
