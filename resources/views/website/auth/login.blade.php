@@ -25,75 +25,73 @@
                                             <img src="/admin/assets/img/logo-dark-ciptakarir.svg" class="img-fluid"
                                                 alt="Logo" width="150">
                                         </div>
-                                        <div class="">
-                                            <div class="text-center mb-3">
-                                                <h2 class="mb-2">Masuk Pelamar</h2>
-                                                <p class="mb-0">Sebelum melamar silahkan login terlebih dahulu!</p>
+                                        <div class="text-center mb-3">
+                                            <h2 class="mb-2">Masuk Pelamar</h2>
+                                            <p class="mb-0">Sebelum melamar silahkan login terlebih dahulu!</p>
+                                        </div>
+
+                                        @if (session('error'))
+                                            <div class="alert alert-danger alert-dismissible fade show mb-3"
+                                                role="alert">
+                                                <p class="mb-0 fs-12">{{ session('error') }}</p>
+                                                <button type="button" class="btn-close custom-btn-close"
+                                                    data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>
+                                        @endif
 
-                                            @if (session('error'))
-                                                <div class="alert alert-danger alert-dismissible fade show mb-3"
-                                                    role="alert">
-                                                    <p class="mb-0 fs-12">{{ session('error') }}</p>
-                                                    <button type="button" class="btn-close custom-btn-close"
-                                                        data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                            @endif
-
-                                            <div class="mb-3">
-                                                <label class="form-label">Email atau No Whatsapp</label>
-                                                @error('login')
-                                                    <div class="text-danger fs-12 mb-1">{{ $message }}</div>
-                                                @enderror
-                                                <div class="input-group">
-                                                    <input type="text" name="login"
-                                                        class="form-control border-end-0 @error('login') is-invalid @enderror"
-                                                        value="{{ old('login') }}">
-                                                    <span
-                                                        class="input-group-text border-start-0 @error('login') border-danger @enderror">
-                                                        <i class="ti ti-user"></i>
-                                                    </span>
-                                                </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Email atau No Whatsapp</label>
+                                            @error('login')
+                                                <div class="text-danger fs-12 mb-1">{{ $message }}</div>
+                                            @enderror
+                                            <div class="input-group">
+                                                <input type="text" name="login"
+                                                    class="form-control border-end-0 @error('login') is-invalid @enderror"
+                                                    value="{{ old('login') }}">
+                                                <span
+                                                    class="input-group-text border-start-0 @error('login') border-danger @enderror">
+                                                    <i class="ti ti-user"></i>
+                                                </span>
                                             </div>
+                                        </div>
 
-                                            <div class="mb-3">
-                                                <label class="form-label">Password</label>
-                                                @error('password')
-                                                    <div class="text-danger fs-12 mb-1">{{ $message }}</div>
-                                                @enderror
-                                                <div class="pass-group">
-                                                    <input type="password" name="password"
-                                                        class="pass-input form-control @error('password') is-invalid @enderror">
-                                                    <span class="ti toggle-password ti-eye-off"></span>
-                                                </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Password</label>
+                                            @error('password')
+                                                <div class="text-danger fs-12 mb-1">{{ $message }}</div>
+                                            @enderror
+                                            <div class="pass-group">
+                                                <input type="password" name="password"
+                                                    class="pass-input form-control @error('password') is-invalid @enderror">
+                                                <span class="ti toggle-password ti-eye-off"></span>
                                             </div>
+                                        </div>
 
-                                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="form-check form-check-md mb-0">
-                                                        <input class="form-check-input" name="remember" id="remember_me"
-                                                            type="checkbox">
-                                                        <label for="remember_me" class="form-check-label mt-0">Ingat
-                                                            saya</label>
-                                                    </div>
-                                                </div>
-                                                <div class="text-end">
-                                                    <a href="forgot-password-2.html" class="link-danger">Lupa Password?</a>
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check form-check-md mb-0">
+                                                    <input class="form-check-input" name="remember" id="remember_me"
+                                                        type="checkbox">
+                                                    <label for="remember_me" class="form-check-label mt-0">Ingat
+                                                        saya</label>
                                                 </div>
                                             </div>
+                                            <div class="text-end">
+                                                {{-- <a href="forgot-password-2.html" class="link-danger">Lupa Password?</a> --}}
+                                            </div>
+                                        </div>
 
-                                            <div class="mb-3">
-                                                <button type="submit" class="btn btn-primary w-100">Masuk</button>
-                                            </div>
-                                            <div class="text-center">
-                                                <h6 class="fw-normal text-dark mb-0">Belum punya akun?
-                                                    <a href="{{ route('applicant-register') }}" class="hover-a">Daftar
-                                                        Pelamar</a>
-                                                </h6>
-                                            </div>
-                                            <div class="mt-5 pb-4 text-center">
-                                                <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Cipta Karir</p>
-                                            </div>
+                                        <div class="mb-3">
+                                            <button type="submit" class="btn btn-primary w-100">Masuk</button>
+                                        </div>
+                                        <div class="text-center">
+                                            <h6 class="fw-normal text-dark mb-0">Belum punya akun?
+                                                <a href="{{ route('applicant-register') }}" class="hover-a">Daftar
+                                                    Pelamar</a>
+                                            </h6>
+                                        </div>
+                                        <div class="mt-5 pb-4 text-center">
+                                            <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Cipta Karir</p>
                                         </div>
                                     </div>
                                 </form>
