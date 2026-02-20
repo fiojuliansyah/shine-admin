@@ -81,7 +81,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                @include('admin.letters.partials.variable-list')
+                @include('letters.partials.variable-list')
             </div>
         </div>
     </div>
@@ -94,7 +94,8 @@
     tinymce.init({
         selector: "#description",
         plugins: "anchor autolink autosave charmap codesample directionality emoticons help image insertdatetime link lists media nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
-        toolbar: "undo redo spellcheckdialog | aidialog aishortcuts | blocks fontfamily fontsizeinput | bold italic underline forecolor backcolor | link image addcomment showcomments  | align lineheight checklist bullist numlist | indent outdent | inserttemplate | removeformat typography math",
+        toolbar: "undo redo | blocks fontfamily fontsizeinput | bold italic underline forecolor backcolor | link image | align lineheight bullist numlist | indent outdent | removeformat nonbreaking",
+        nonbreaking_force_tab: true,
         editable_root: false,
         height: '700px',
         toolbar_sticky: true,
