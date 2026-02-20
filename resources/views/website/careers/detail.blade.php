@@ -78,7 +78,7 @@
                                             <i class="ti ti-school fs-4 text-primary"></i>
                                         </div>
                                         <div>
-                                            <small class="text-muted d-block">Jurusan</small>
+                                            <small class="text-muted d-block">Status GP</small>
                                             <span class="fw-medium">{{ $career->major }}</span>
                                         </div>
                                     </div>

@@ -75,7 +75,7 @@
                             <input type="text" class="form-control" id="graduate-{{ $row->id }}" name="graduate" value="{{ $row->graduate }}">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="major-{{ $row->id }}" class="col-form-label">Jurusan</label>
+                            <label for="major-{{ $row->id }}" class="col-form-label">Status GP</label>
                             <input type="text" class="form-control" id="major-{{ $row->id }}" name="major" value="{{ $row->major }}">
                         </div>
                     </div>
