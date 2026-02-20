@@ -18,6 +18,11 @@
                     </ol>
                 </nav>
             </div>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+                <div class="mb-2">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#lihatVariable">List Variable</button>
+                </div>
+            </div>
         </div>
         <!-- /Breadcrumb -->
 
