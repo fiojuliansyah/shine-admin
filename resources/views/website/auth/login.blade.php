@@ -21,7 +21,7 @@
                                 @csrf
                                 <div class="vh-100 d-flex flex-column justify-content-between p-4 pb-0">
                                     <div class=" mx-auto mb-5 text-center">
-                                        <img src="/admin/assets/img/logo-dark.svg"
+                                        <img src="/admin/assets/img/logo-dark-ciptakarir.svg"
                                             class="img-fluid" alt="Logo" width="150">
                                     </div>
                                     <div class="">
@@ -78,7 +78,7 @@
                                         </div>
                                         </div>
                                     <div class="mt-5 pb-4 text-center">
-                                        <p class="mb-0 text-gray-9">Copyright &copy; 2025 - KARYAX</p>
+                                        <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Cipta Karir</p>
                                     </div>
                                 </div>
                             </form>

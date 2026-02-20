@@ -2,7 +2,7 @@
     <!-- Logo -->
     <div class="sidebar-logo">
         <a href="{{ route('dashboard') }}" class="logo logo-normal">
-            <img src="/admin/assets/img/logo-dark.svg" alt="Logo" width="150">
+            <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Logo" width="150">
         </a>
         <a href="{{ route('dashboard') }}" class="logo-small">
             <img src="/admin/assets/img/logo-small.svg" alt="Logo">

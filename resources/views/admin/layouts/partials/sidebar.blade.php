@@ -2,10 +2,10 @@
     <!-- Logo -->
     <div class="sidebar-logo">
         <a href="{{ route('dashboard') }}" class="logo logo-normal">
-            <img src="/admin/assets/img/logo-dark.svg" alt="Logo" width="50">
+            <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Logo" width="50">
         </a>
         <a href="{{ route('dashboard') }}" class="logo-small">
-            <img src="/admin/assets/img/logo-dark.svg" alt="Logo" width="50">
+            <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Logo" width="50">
         </a>
         <a href="{{ route('dashboard') }}" class="dark-logo">
             <img src="/admin/assets/img/logo-white.svg" alt="Logo">

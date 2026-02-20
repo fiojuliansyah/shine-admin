@@ -18,7 +18,7 @@ $font-family-primary: "Roboto", sans-serif;
 $font-awesome: "Fontawesome";
 	
 // Theme Colors Variables
-$primary: #FE5B24;
+$primary: #3E6CFF;
 $primary-hover: darken($primary, 10%);
 $secondary: #3B7080;
 $secondary-hover: darken($secondary, 10%);
@@ -73,7 +73,7 @@ $primary-500: #F9B291;
 $primary-600: #F7A37A;
 $primary-700: #F69364;
 $primary-800: #F5844E;
-$primary-900: #FE5B24;
+$primary-900: #3E6CFF;
 
 // Secondary
 $secondary-100: #DCE5E8;
@@ -270,7 +270,7 @@ $email: #6567A5;
 $appstore: #000;
 
 // Gradient Variables
-$primary-transparent: #FEF1EB;
+$primary-transparent: #EBEFFE;
 $secondary-transparent: #EDF2F4;
 $success-transparent: #E8FAF0;
 $warning-transparent: #FFF9E9;
@@ -282,7 +282,7 @@ $dark-transparent: #E8E9EA;
 $teal-transparent: #E6F9FF;
 $purple-transparent: #F7EEF9;
 $skyblue-transparent: #E9FAFE;
-$primary-gradient: linear-gradient(90deg, #FE5B24 0%, #FF5325 100%);
+$primary-gradient: linear-gradient(90deg, #3E6CFF 0%, #FF5325 100%);
 $secondary-gradient: linear-gradient(180deg, #3B7080 0%, #3D90A9 100%);
 $success-gradient: linear-gradient(180deg, #2DCB73 0%, #0DA952 100%);
 $warning-gradient: linear-gradient(180deg, #FFC107 0%, #FFE8A5 100%);

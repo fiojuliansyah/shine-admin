@@ -100,7 +100,7 @@ $(function() {
 })
 
 $(".ticket-chart-1").peity("bar", {
-    fill: ["#FE5B24"],
+    fill: ["#3E6CFF"],
     width: '100%',
     height: '70'
 })
@@ -160,7 +160,7 @@ $(".country-chart-2").peity("line",{
 })
 
 $(".company-bar1").peity("bar", {
-    fill: ["#FE5B24"],
+    fill: ["#3E6CFF"],
     width: '52',
     height: '40'
 })

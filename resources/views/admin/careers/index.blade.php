@@ -111,7 +111,7 @@
                             <input type="text" class="form-control" name="graduate">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Status GP</label>
+                            <label class="form-label">Status KTA</label>
                             <input type="text" class="form-control" name="major">
                         </div>
                     </div>

@@ -158,7 +158,7 @@ $(document).ready(function () {
           show: false,
         }
       },
-      colors: ['#FE5B24'],
+      colors: ['#3E6CFF'],
       dataLabels: {
         enabled: false
       },
@@ -203,7 +203,7 @@ $(document).ready(function () {
           show: false,
         }
       },
-      colors: ['#FE5B24', '#888ea8'],
+      colors: ['#3E6CFF', '#888ea8'],
       dataLabels: {
         enabled: false
       },
@@ -254,7 +254,7 @@ $(document).ready(function () {
           endingShape: 'rounded'
         },
       },
-      colors: ['#FE5B24', '#4361ee'],
+      colors: ['#3E6CFF', '#4361ee'],
       dataLabels: {
         enabled: false
       },
@@ -326,7 +326,7 @@ $(document).ready(function () {
           horizontal: false,
         },
       },
-      colors: ['#FE5B24', '#E70D0D', '#03C95A', '#1B84FF'],
+      colors: ['#3E6CFF', '#E70D0D', '#03C95A', '#1B84FF'],
       series: [{
         name: 'PRODUCT A',
         data: [44, 55, 41, 67, 22, 43]
@@ -371,7 +371,7 @@ $(document).ready(function () {
           show: false,
         }
       },
-      colors: ['#FE5B24'],
+      colors: ['#3E6CFF'],
       plotOptions: {
         bar: {
           horizontal: true,
@@ -406,7 +406,7 @@ $(document).ready(function () {
           show: false,
         }
       },
-      colors: ['#FE5B24', '#888ea8'],
+      colors: ['#3E6CFF', '#888ea8'],
       series: [{
         name: 'Website Blog',
         type: 'column',
@@ -780,7 +780,7 @@ $(document).ready(function () {
       },
 
       series: [15, 10, 5, 10, 60],
-      colors: ['#FE5B24', '#FFC107', '#E70D0D', '#03C95A', '#0C4B5E'],
+      colors: ['#3E6CFF', '#FFC107', '#E70D0D', '#03C95A', '#0C4B5E'],
       responsive: [{
         breakpoint: 480,
         options: {
@@ -1402,7 +1402,7 @@ if ($('#total-chart').length > 0) {
     },
     markers: {
       size: 0,
-      colors: ["#FE5B24"],
+      colors: ["#3E6CFF"],
       strokeColors: "#fff",
       strokeWidth: 2,
       hover: {
@@ -1424,7 +1424,7 @@ if ($('#total-chart').length > 0) {
       width: 2.5,
       curve: "smooth"
     },
-    colors: ["#FE5B24"],
+    colors: ["#3E6CFF"],
     xaxis: {
       categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]
     },
@@ -1493,7 +1493,7 @@ if ($('#active-chart').length > 0) {
     },
     markers: {
       size: 0,
-      colors: ["#FE5B24"],
+      colors: ["#3E6CFF"],
       strokeColors: "#fff",
       strokeWidth: 2,
       hover: {
@@ -1515,7 +1515,7 @@ if ($('#active-chart').length > 0) {
       width: 2.5,
       curve: "smooth"
     },
-    colors: ["#FE5B24"],
+    colors: ["#3E6CFF"],
     xaxis: {
       categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]
     },
@@ -1584,7 +1584,7 @@ if ($('#inactive-chart').length > 0) {
     },
     markers: {
       size: 0,
-      colors: ["#FE5B24"],
+      colors: ["#3E6CFF"],
       strokeColors: "#fff",
       strokeWidth: 2,
       hover: {
@@ -1606,7 +1606,7 @@ if ($('#inactive-chart').length > 0) {
       width: 2.5,
       curve: "smooth"
     },
-    colors: ["#FE5B24"],
+    colors: ["#3E6CFF"],
     xaxis: {
       categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]
     },
@@ -1675,7 +1675,7 @@ if ($('#location-chart').length > 0) {
     },
     markers: {
       size: 0,
-      colors: ["#FE5B24"],
+      colors: ["#3E6CFF"],
       strokeColors: "#fff",
       strokeWidth: 2,
       hover: {
@@ -1697,7 +1697,7 @@ if ($('#location-chart').length > 0) {
       width: 2.5,
       curve: "smooth"
     },
-    colors: ["#FE5B24"],
+    colors: ["#3E6CFF"],
     xaxis: {
       categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]
     },
@@ -2154,7 +2154,7 @@ if ($('#leave-report').length > 0) {
     legend: {
      show: false
     },
-    colors: ['#03C95A', '#FFC107', '#0C4B5E', '#FE5B24'], // Set your colors here
+    colors: ['#03C95A', '#FFC107', '#0C4B5E', '#3E6CFF'], // Set your colors here
     dataLabels: {
       enabled: false // Disable data labels
     }
@@ -2276,7 +2276,7 @@ if ($('#emp-department').length > 0) {
         show: false,
       }
     },
-    colors: ['#FE5B24'],
+    colors: ['#3E6CFF'],
     grid: {
       borderColor: '#E5E7EB',
       strokeDashArray: 5,
@@ -2354,7 +2354,7 @@ if ($('#company-chart').length > 0) {
           backgroundBarOpacity: 0.5,
           hover: {
             enabled: true,
-            borderColor: '#FE5B24', // Color when hovering over the bar
+            borderColor: '#3E6CFF', // Color when hovering over the bar
           }
         }
       },
@@ -2415,7 +2415,7 @@ if ($('#plan-overview').length > 0) {
         show: false,
       }
     },
-    colors: ['#FFC107', '#1B84FF', '#FE5B24'],
+    colors: ['#FFC107', '#1B84FF', '#3E6CFF'],
     series: [20, 60, 20],
     labels: ['Enterprise', 'Premium', 'Basic'],
     plotOptions: {
@@ -2472,7 +2472,7 @@ if ($('#plan-overview').length > 0) {
           show: false,
         }
       },
-      colors: ['#FE5B24', '#F8F9FA'],
+      colors: ['#3E6CFF', '#F8F9FA'],
       responsive: [{
         breakpoint: 480,
         options: {
@@ -2608,7 +2608,7 @@ if ($('#plan-overview').length > 0) {
           show: false,
         }
       },
-      colors: ['#FE5B24', '#F8F9FA'],
+      colors: ['#3E6CFF', '#F8F9FA'],
       responsive: [{
         breakpoint: 480,
         options: {
@@ -2678,7 +2678,7 @@ if ($('#plan-overview').length > 0) {
     series: [{
     name: 'Series 1',
     data: [80, 50, 30, 40, 100, 20],
-    color: '#FE5B24',
+    color: '#3E6CFF',
     
   }, {
     name: 'Series 2',
@@ -2752,8 +2752,8 @@ if ($('#plan-overview').length > 0) {
     },
   },
   colors: [
-    '#FE5B24',
-    '#FE5B24',
+    '#3E6CFF',
+    '#3E6CFF',
     '#F5844E',
     '#F69364',
     '#F7A37A',
@@ -2795,7 +2795,7 @@ if ($('#plan-overview').length > 0) {
           show: false,
         }
       },
-      colors: ['#FE5B24', '#F8F9FA'],
+      colors: ['#3E6CFF', '#F8F9FA'],
       responsive: [{
         breakpoint: 480,
         options: {
@@ -2918,7 +2918,7 @@ chart.render();
         height: 290,
     },
     labels: ['Paid', 'Google', 'Referals', 'Campaigns' , 'Campaigns'], // Labels for the data
-    colors: ['#FE5B24', '#FFC107', '#E70D0D', '#1B84FF' , '#0C4B5E'], // Colors from the image
+    colors: ['#3E6CFF', '#FFC107', '#E70D0D', '#1B84FF' , '#0C4B5E'], // Colors from the image
     plotOptions: {
         pie: {
             donut: {
@@ -2963,7 +2963,7 @@ chart.render();
         show: false,
       }
     },
-    colors: ['#FE5B24', '#F8F9FA'],
+    colors: ['#3E6CFF', '#F8F9FA'],
     responsive: [{
       breakpoint: 480,
       options: {
@@ -3054,11 +3054,11 @@ chart.render();
   },
   colors: [
     "#9CA3AF",
-    "#FE5B24",
+    "#3E6CFF",
     "#9CA3AF",
-    "#FE5B24",
+    "#3E6CFF",
     "#9CA3AF",
-    "#FE5B24",
+    "#3E6CFF",
   ],
     series: [
       {

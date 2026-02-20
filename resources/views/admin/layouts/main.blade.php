@@ -11,10 +11,10 @@
 	<title>Karyax Integrated System</title>
 
 	<!-- Favicon -->
-	<link rel="shortcut icon" type="image/x-icon" href="/admin/assets/img/favicon.png">
+	<link rel="shortcut icon" type="image/x-icon" href="/admin/assets/img/favicon-ciptakarir.png">
 
 	<!-- Apple Touch Icon -->
-	<link rel="apple-touch-icon" sizes="180x180" href="/admin/assets/img/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/admin/assets/img/apple-touch-icon-ciptakarir.png">
 
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="/admin/assets/css/bootstrap.min.css">

@@ -62,7 +62,7 @@
     @foreach ($floors as $floor)
         @php
             $patrols = $reports->where('floor_id', $floor->id);
-            $floorBgColor = $patrols->isEmpty() ? '#FF4D4F' : '#FE5B24';
+            $floorBgColor = $patrols->isEmpty() ? '#FF4D4F' : '#3E6CFF';
             $floorTextColor = '#ffffff';
         @endphp
 
