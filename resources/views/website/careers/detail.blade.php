@@ -28,8 +28,8 @@
                                     <p class="text-muted mb-0"><i class="ti ti-map-pin me-1"></i> {{ $career->location }}
                                     </p>
                                 </div>
-                               <div class="text-end d-none d-md-block">
-                                    @if($career->salary > 0)
+                                <div class="text-end d-none d-md-block">
+                                    @if ($career->salary > 0)
                                         <h4 class="text-primary fw-bold mb-0">
                                             Rp {{ number_format($career->salary, 0, '.', ',') }}
                                         </h4>
@@ -72,28 +72,33 @@
 
                             <h5 class="fw-bold mt-4 mb-3 border-bottom pb-2">Kualifikasi & Detail</h5>
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light p-2 rounded me-3">
-                                            <i class="ti ti-school fs-4 text-primary"></i>
-                                        </div>
-                                        <div>
-                                            <small class="text-muted d-block">Status KTA</small>
-                                            <span class="fw-medium">{{ $career->major }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light p-2 rounded me-3">
-                                            <i class="ti ti-briefcase fs-4 text-primary"></i>
-                                        </div>
-                                        <div>
-                                            <small class="text-muted d-block">Fungsi Pekerjaan</small>
-                                            <span class="fw-medium">{{ $career->workfunction }}</span>
+                                @if ($career->major)
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light p-2 rounded me-3">
+                                                <i class="ti ti-school fs-4 text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">Status KTA</small>
+                                                <span class="fw-medium">{{ $career->major }}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
+
+                                @if ($career->workfunction)
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light p-2 rounded me-3">
+                                                <i class="ti ti-briefcase fs-4 text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">Fungsi Pekerjaan</small>
+                                                <span class="fw-medium">{{ $career->workfunction }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -97,8 +97,8 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Fungsi Pekerjaan</label>
-                            <input type="text" class="form-control" name="workfunction">
+                            <label class="form-label">Lulusan</label>
+                            <input type="text" class="form-control" name="graduate">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Pengalaman</label>
@@ -107,8 +107,8 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Lulusan</label>
-                            <input type="text" class="form-control" name="graduate">
+                            <label class="form-label">Fungsi Pekerjaan</label>
+                            <input type="text" class="form-control" name="workfunction">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Status KTA</label>
