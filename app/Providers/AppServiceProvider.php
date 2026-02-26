@@ -49,6 +49,12 @@ class AppServiceProvider extends ServiceProvider
                 ->count();
             view()->share('countPending', $countPending);
 
+            $pendingApplicants = Applicant::where('approve_id', null)
+                ->where('status_id', '=', 0)
+                ->whereNull('done')
+                ->get();
+            view()->share('pendingApplicants', $pendingApplicants);
+
             $general = Company::where('is_default', 1)
                 ->first();
             view()->share('general', $general);

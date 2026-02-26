@@ -144,21 +144,27 @@
                         <li class="submenu">
                             <a href="javascript:void(0);"
                                 class="{{ Route::is(['applicants.index', 'statuses.show']) ? 'active subdrop' : '' }}"">
-                                <i class="ti ti-box"></i><span>Kandidat</span>
+                                <i class="ti ti-box"></i><span>Pelamar</span>
                                 <span class="menu-arrow"></span>
                             </a>
                             <ul>
-                                <li><a href="{{ route('applicants.index') }}"
-                                        class="{{ Route::is('applicants.index') ? 'active' : '' }}">Pemberkasan</a>
+                                <li>
+                                    <a href="{{ route('applicants.index') }}"
+                                        class="{{ Route::is('applicants.index') ? 'active' : '' }}">Pemberkasan
+                                        @if ($pendingApplicants && $pendingApplicants->count() > 0)
+                                            <span class="badge badge-xs rounded-pill bg-danger"
+                                                style="color: white">{{ $pendingApplicants->count() }}</span>
+                                        @endif
+                                    </a>
                                 </li>
                                 @foreach ($statuses as $status)
                                     <li>
                                         <a href="{{ route('statuses.show', $status->slug) }}"
                                             class="{{ Request::is('manage/statuses/' . $status->slug) ? 'active' : '' }}">
                                             {{ $status->name }}
-                                            @if ($status->unapprovedApplicants() && $status->unapprovedApplicants()->count() > 0)
+                                            @if ($status->applicants() && $status->applicants()->count() > 0)
                                                 <span class="badge badge-xs rounded-pill bg-danger"
-                                                    style="color: white">{{ $status->unapprovedApplicants()->count() }}</span>
+                                                    style="color: white">{{ $status->applicants()->count() }}</span>
                                             @endif
                                         </a>
                                     </li>
