@@ -1,51 +1,52 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
-use Cloudinary\Transformation\Rotate;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SiteController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\FloorController;
-use App\Http\Controllers\LeaveController;
-use App\Http\Controllers\ValetController;
-use App\Http\Controllers\CareerController;
-use App\Http\Controllers\ImportController;
-use App\Http\Controllers\LetterController;
-use App\Http\Controllers\MinuteController;
-use App\Http\Controllers\PermitController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\StatusController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\JobdeskController;
-use App\Http\Controllers\PayrollController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TaxRateController;
-use App\Http\Controllers\GenerateController;
-use App\Http\Controllers\OvertimeController;
-use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\Applicant\SiteController as ApplicantSiteController;
 use App\Http\Controllers\ApplicantController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\SignatureController;
-use App\Http\Controllers\TypeLeaveController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\TypeLetterController;
-use App\Http\Controllers\ReportDailyController;
-use App\Http\Controllers\TaskPlannerController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CareerController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ComponentTypeController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeductionTypeController;
-use App\Http\Controllers\FindingReportController;
-use App\Http\Controllers\ReportPatrollController;
 use App\Http\Controllers\FaceAttendanceController;
+use App\Http\Controllers\FindingReportController;
+use App\Http\Controllers\FloorController;
+use App\Http\Controllers\GenerateController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\JobdeskController;
 use App\Http\Controllers\JobdeskPatrollsController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LetterController;
+use App\Http\Controllers\LoanController;
+use App\Http\Controllers\MinuteController;
+use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\OvertimeRequestController;
-use App\Http\Controllers\SecurityPatrollController;
 use App\Http\Controllers\PayrollComponentController;
+use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PermitController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportDailyController;
+use App\Http\Controllers\ReportPatrollController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SecurityPatrollController;
+use App\Http\Controllers\SignatureController;
+use App\Http\Controllers\SiteController;
+use App\Http\Controllers\StatusController;
+use App\Http\Controllers\TaskPlannerController;
+use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\TimeDeductionTypeController;
-use App\Http\Controllers\Applicant\SiteController as ApplicantSiteController;
+use App\Http\Controllers\TypeLeaveController;
+use App\Http\Controllers\TypeLetterController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ValetController;
+use Cloudinary\Transformation\Rotate;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('manage')->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -110,6 +111,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::resource('minutes', MinuteController::class);
 
     Route::resource('leaves', LeaveController::class);
+    Route::resource('loans', LoanController::class);
+
 
     Route::resource('permits', PermitController::class);
     Route::get('/schedules', [ScheduleController::class, 'index'])->name('schedules.index');

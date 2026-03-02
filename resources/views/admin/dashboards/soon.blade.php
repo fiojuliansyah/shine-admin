@@ -10,7 +10,7 @@
                     <div class="col-lg-12">
                         <div class="text-center">
                             <a href="index.html">
-                                <img src="/dashboard/assets/images/logo-dark-ciptakarir.png" alt="logo" height="24" />
+                                <img src="/dashboard/assets/images/logo-dark.png" alt="logo" height="24" />
                             </a>
                             <div class="row justify-content-center mt-5">
                                 <div class="col-sm-4">
