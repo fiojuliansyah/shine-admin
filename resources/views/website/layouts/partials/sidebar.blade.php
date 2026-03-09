@@ -2,13 +2,13 @@
     <!-- Logo -->
     <div class="sidebar-logo">
         <a href="{{ route('dashboard') }}" class="logo logo-normal">
-            <img src="/admin/assets/img/logo-dark.svg" alt="Logo" width="150">
+            <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Logo" width="150">
         </a>
         <a href="{{ route('dashboard') }}" class="logo-small">
             <img src="/admin/assets/img/logo-small.svg" alt="Logo">
         </a>
         <a href="{{ route('dashboard') }}" class="dark-logo">
-            <img src="/admin/assets/img/logo-white.svg" alt="Logo">
+            <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Logo">
         </a>
     </div>
     <div class="sidebar-inner slimscroll">

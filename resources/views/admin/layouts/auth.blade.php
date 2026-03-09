@@ -4,11 +4,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-	<meta name="description" content="Karyax Integrated System">
+	<meta name="description" content="Cipta Karir">
 	<meta name="keywords" content="admin, estimates, bootstrap, business, html5, responsive, Projects">
 	<meta name="author" content="Dreams technologies - Bootstrap Admin Template">
 	<meta name="robots" content="noindex, nofollow">
-	<title>Shine - HRIS & Productivity Management</title>
+	<title>Cipta Karir - HRIS & Productivity Management</title>
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" type="image/x-icon" href="/admin/assets/img/favicon-ciptakarir.png">

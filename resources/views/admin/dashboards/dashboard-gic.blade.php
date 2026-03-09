@@ -31,7 +31,6 @@
                     </span>
                     <div class="ms-3">
                         <h3 class="mb-2">Welcome Back to Ciptakarir, {{ Auth::user()->name }}</h3>
-                        {{-- <p>You have <span class="text-primary text-decoration-underline">21</span> Pending Approvals & <span class="text-primary text-decoration-underline">14</span> Leave Requests</p> --}}
                     </div>
                 </div>
                 <div class="d-flex align-items-center flex-wrap mb-1">
@@ -40,121 +39,74 @@
                 </div>
             </div>
         </div>
-        <!-- /Welcome Wrap -->
 
         <div class="row">
 
-            <!-- Widget Info -->
-            <div class="col-xxl-8 d-flex">
-                <div class="row flex-fill">
-                    {{-- <div class="col-md-3 d-flex">
-                        <div class="card flex-fill">
-                            <div class="card-body">
-                                <span class="avatar rounded-circle bg-primary mb-2">
-                                    <i class="ti ti-calendar-share fs-16"></i>
-                                </span>
-                                <h6 class="fs-13 fw-medium text-default mb-1">Ikhtisar Kehadiran</h6>
-                                <h3 class="mb-3">{{ $attendanceCount }}</h3>
-                                <a href="{{ route('attendances.index') }}" class="link-default">View Details</a>
-                            </div>
-                        </div>
-                    </div> --}}
-                    <div class="col-md-3 d-flex">
-                        <div class="card flex-fill">
-                            <div class="card-body">
-                                <span class="avatar rounded-circle bg-secondary mb-2">
-                                    <i class="ti ti-browser fs-16"></i>
-                                </span>
-                                <h6 class="fs-13 fw-medium text-default mb-1">Total Area Project</h6>
-                                <h3 class="mb-3">{{ $siteCount }}</h3>
-                                <a href="{{ route('sites.index') }}" class="link-default">Lihat semua</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 d-flex">
-                        <div class="card flex-fill">
-                            <div class="card-body">
-                                <span class="avatar rounded-circle bg-info mb-2">
-                                    <i class="ti ti-building fs-16"></i>
-                                </span>
-                                <h6 class="fs-13 fw-medium text-default mb-1">Total perusahaan</h6>
-                                <h3 class="mb-3">{{ $companyCount }}</h3>
-                                <a href="{{ route('companies.index') }}" class="link-default">Lihat semua</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 d-flex">
-                        <div class="card flex-fill">
-                            <div class="card-body">
-                                <span class="avatar rounded-circle bg-pink mb-2">
-                                    <i class="ti ti-checklist fs-16"></i>
-                                </span>
-                                <h6 class="fs-13 fw-medium text-default mb-1">Total Lowongan</h6>
-                                <h3 class="mb-3">{{ $careerCount }}</h3>
-                                <a href="{{ route('careers.index') }}" class="link-default">Lihat semua</a>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- <div class="col-md-4 d-flex">
-                        <div class="card flex-fill">
-                            <div class="card-body">
-                                <span class="avatar rounded-circle bg-purple mb-2">
-                                    <i class="ti ti-users-group  fs-16"></i>
-                                </span>
-                                <h6 class="fs-13 fw-medium text-default mb-1">Pegawai</h6>
-                                <h3 class="mb-3">{{ $userCount }}</h3>
-                                <a href="{{ route('employees.index') }}" class="link-default">Lihat semua</a>
-                            </div>
-                        </div>
-                    </div> --}}
-                    {{-- <div class="col-md-4 d-flex">
-                        <div class="card flex-fill">
-                            <div class="card-body">
-                                <span class="avatar rounded-circle bg-danger mb-2">
-                                    <i class="ti ti-browser fs-16"></i>
-                                </span>
-                                <h6 class="fs-13 fw-medium text-default mb-1">Budget Payroll Bulan Lalu</h6>
-                                <h3 class="mb-3">Rp. {{ number_format($totalCompanyExpense) }}</h3>
-                                <a href="{{ route('payroll.generate') }}" class="link-default">Lihat semua</a>
-                            </div>
-                        </div>
-                    </div> --}}
-                    <div class="col-md-4 d-flex">
-                        <div class="card flex-fill">
-                            <div class="card-body">
-                                <span class="avatar rounded-circle bg-success mb-2">
-                                    <i class="ti ti-users-group fs-16"></i>
-                                </span>
-                                <h6 class="fs-13 fw-medium text-default mb-1">Pelamar</h6>
-                                <h3 class="mb-3">{{ $applicantCount }} </h3>
-                                <a href="{{ route('applicants.index') }}" class="link-default">Lihat semua</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- /Widget Info -->
-
-            <!-- Employees By Department -->
-            <div class="col-xxl-4 d-flex">
+            <div class="col-md-2 d-flex">
                 <div class="card flex-fill">
-                    <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
-                        <h5 class="mb-2">Users By Role</h5>
-                    </div>
                     <div class="card-body">
-                        <div id="roles-chart"></div>
-                        <p class="fs-13"><i class="ti ti-circle-filled me-2 fs-8 text-primary"></i>Pegawai berdasarkan Jabatan updated on <span class="text-success fw-bold">{{ date('d M Y') }}</span>
-                        </p>
+                        <span class="avatar rounded-circle bg-secondary mb-2">
+                            <i class="ti ti-browser fs-16"></i>
+                        </span>
+                        <h6 class="fs-13 fw-medium text-default mb-1">Total Area Project</h6>
+                        <h3 class="mb-3">{{ $siteCount }}</h3>
+                        <a href="{{ route('sites.index') }}" class="link-default">Lihat semua</a>
                     </div>
                 </div>
             </div>
-            <!-- /Employees By Department -->
+            <div class="col-md-2 d-flex">
+                <div class="card flex-fill">
+                    <div class="card-body">
+                        <span class="avatar rounded-circle bg-info mb-2">
+                            <i class="ti ti-building fs-16"></i>
+                        </span>
+                        <h6 class="fs-13 fw-medium text-default mb-1">Total perusahaan</h6>
+                        <h3 class="mb-3">{{ $companyCount }}</h3>
+                        <a href="{{ route('companies.index') }}" class="link-default">Lihat semua</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex">
+                <div class="card flex-fill">
+                    <div class="card-body">
+                        <span class="avatar rounded-circle bg-pink mb-2">
+                            <i class="ti ti-checklist fs-16"></i>
+                        </span>
+                        <h6 class="fs-13 fw-medium text-default mb-1">Total Lowongan</h6>
+                        <h3 class="mb-3">{{ $careerCount }}</h3>
+                        <a href="{{ route('careers.index') }}" class="link-default">Lihat semua</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex">
+                <div class="card flex-fill">
+                    <div class="card-body">
+                        <span class="avatar rounded-circle bg-success mb-2">
+                            <i class="ti ti-users-group fs-16"></i>
+                        </span>
+                        <h6 class="fs-13 fw-medium text-default mb-1">Pelamar</h6>
+                        <h3 class="mb-3">{{ $applicantCount }} </h3>
+                        <a href="{{ route('applicants.index') }}" class="link-default">Lihat semua</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex">
+                <div class="card flex-fill">
+                    <div class="card-body">
+                        <span class="avatar rounded-circle bg-purple mb-2">
+                            <i class="ti ti-users-group  fs-16"></i>
+                        </span>
+                        <h6 class="fs-13 fw-medium text-default mb-1">Pegawai</h6>
+                        <h3 class="mb-3">{{ $userCount }}</h3>
+                        <a href="{{ route('employees.index') }}" class="link-default">Lihat semua</a>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
         <div class="row">
-
-            <!-- Total Employee -->
+            
             <div class="col-xxl-4 d-flex">
                 <div class="card flex-fill">
                     <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
@@ -223,169 +175,54 @@
                     </div>
                 </div>
             </div>
-            <!-- /Total Employee -->
-
-            <!-- Attendance Overview -->
-            {{-- <div class="col-xxl-4 col-xl-6 d-flex">
+            
+            <div class="col-xxl-4 col-xl-6 d-flex">
                 <div class="card flex-fill">
                     <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
-                        <h5 class="mb-2">Tinjau Absensi Hari ini</h5>
+                        <h5 class="mb-2">Employees</h5>
+                        <a href="{{ route('employees.index') }}" class="btn btn-light btn-md mb-2">Lihat semua</a>
                     </div>
-                    <div class="card-body">
-                        <div class="chartjs-wrapper-demo position-relative mb-4">
-                            <canvas id="attendance" height="200"></canvas>
-                            <div class="position-absolute text-center attendance-canvas">
-                                <p class="fs-13 mb-1">Total Absensi</p>
-                                <h3>{{ $attendanceCount }}</h3>
-                            </div>
-                        </div>
-                        <h6 class="mb-3">Status</h6>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <p class="f-13 mb-2"><i class="ti ti-circle-filled text-success me-1"></i>Regular</p>
-                            <p class="f-13 fw-medium text-gray-9 mb-2">{{ $attendanceStats['present_percentage'] }}%</p>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <p class="f-13 mb-2"><i class="ti ti-circle-filled text-secondary me-1"></i>Telat</p>
-                            <p class="f-13 fw-medium text-gray-9 mb-2">{{ $attendanceStats['late_percentage'] }}%</p>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <p class="f-13 mb-2"><i class="ti ti-circle-filled text-warning me-1"></i>Izin</p>
-                            <p class="f-13 fw-medium text-gray-9 mb-2">{{ $attendanceStats['permission_percentage'] }}%</p>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <p class="f-13 mb-2"><i class="ti ti-circle-filled text-danger me-1"></i>Alpha</p>
-                            <p class="f-13 fw-medium text-gray-9 mb-2">{{ $attendanceStats['absent_percentage'] }}%</p>
-                        </div>
-                        <div class="bg-light br-5 box-shadow-xs p-2 pb-0 d-flex align-items-center justify-content-between flex-wrap">
-                            <div class="d-flex align-items-center">
-                                <p class="mb-2 me-2">Total Absensi</p>
-                                <div class="avatar-list-stacked avatar-group-sm mb-2">
-                                    @foreach($absentees as $index => $absentee)
-                                        @if($index < 4)
-                                            <span class="avatar avatar-rounded">
-                                                <img class="border border-white" src="{{ $absentee->user->profile->avatar_url ?? 'assets/img/profiles/avatar-' . rand(10, 30) . '.jpg' }}" alt="img">
-                                            </span>
-                                        @endif
-                                    @endforeach
-                                    @if(count($absentees) > 4)
-                                        <a class="avatar bg-primary avatar-rounded text-fixed-white fs-10" href="javascript:void(0);">
-                                            +{{ count($absentees) - 4 }}
-                                        </a>
-                                    @endif
-                                </div>
-                            </div>
-                            <a href="{{ route('attendances.index') }}" class="fs-13 link-primary text-decoration-underline mb-2">View Details</a>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">	
+                            <table class="table table-nowrap mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Jabatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recentEmployees as $employee)
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <a href="{{ route('employees.show', $employee->id) }}" class="avatar">
+                                                        <img src="{{ $employee->profile->avatar_url ?? '/assets/media/avatars/blank.png' }}" class="img-fluid rounded-circle" alt="img">
+                                                    </a>
+                                                    <div class="ms-2">
+                                                        <h6 class="fw-medium"><a href="{{ route('employees.show', $employee->id) }}">{{ $employee->name }}</a></h6>
+                                                        <span class="fs-12">{{ $employee->employee_nik ?? 'Employee' }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-primary badge-xs">
+                                                    {{ $employee->roles->first()->name ?? 'Employee' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="2" class="text-center">No employees found</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </div> --}}
-            <!-- /Attendance Overview -->
-            {{-- <div class="col-xxl-4 col-xl-6 d-flex">
-                <div class="card flex-fill">
-                    <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
-                        <h5 class="mb-2">Clock-In/Out</h5>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            @forelse($latestAttendances as $index => $attendance)
-                                <div class="{{ $index < 2 ? 'mb-3 p-2 border' : 'mb-3 p-2 border' }} {{ $attendance->status == 'late' ? 'border-dashed' : '' }} br-5">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <a href="javascript:void(0);" class="avatar flex-shrink-0">
-                                                <img src="{{ $attendance->user->profile->avatar_url ?? '/assets/media/avatars/blank.png' }}" class="rounded-circle border border-2" alt="img">
-                                            </a>
-                                            <div class="ms-2">
-                                                <h6 class="fs-14 fw-medium text-truncate">{{ $attendance->user->name ?? '' }}</h6>
-                                                <p class="fs-13">
-                                                    @foreach ($attendance->user->roles as $role)
-                                                        {{ $role->name }}
-                                                    @endforeach
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a href="javascript:void(0);" class="link-default me-2"><i class="ti ti-clock-share"></i></a>
-                                            <span class="fs-10 fw-medium d-inline-flex align-items-center badge badge-{{ $attendance->status == 'regular' ? 'success' : ($attendance->status == 'late' ? 'danger' : 'warning') }}">
-                                                <i class="ti ti-circle-filled fs-5 me-1"></i>{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    @if($attendance->clock_in && $attendance->clock_out)
-                                        <div class="d-flex align-items-center justify-content-between flex-wrap mt-2 border br-5 p-2 pb-0">
-                                            <div>
-                                                <p class="mb-1 d-inline-flex align-items-center"><i class="ti ti-circle-filled text-success fs-5 me-1"></i>Clock In</p>
-                                                <h6 class="fs-13 fw-normal mb-2">{{ \Carbon\Carbon::parse($attendance->clock_in)->format('h:i A') }}</h6>
-                                            </div>
-                                            <div>
-                                                <p class="mb-1 d-inline-flex align-items-center"><i class="ti ti-circle-filled text-danger fs-5 me-1"></i>Clock Out</p>
-                                                <h6 class="fs-13 fw-normal mb-2">{{ \Carbon\Carbon::parse($attendance->clock_out)->format('h:i A') }}</h6>
-                                            </div>
-                                            <div>
-                                                <p class="mb-1 d-inline-flex align-items-center"><i class="ti ti-circle-filled text-warning fs-5 me-1"></i>Duration</p>
-                                                @php
-                                                    $duration = \Carbon\Carbon::parse($attendance->clock_in)->diffInHours(\Carbon\Carbon::parse($attendance->clock_out));
-                                                    $minutes = \Carbon\Carbon::parse($attendance->clock_in)->diffInMinutes(\Carbon\Carbon::parse($attendance->clock_out)) % 60;
-                                                @endphp
-                                                <h6 class="fs-13 fw-normal mb-2">{{ $duration }}:{{ str_pad($minutes, 2, '0', STR_PAD_LEFT) }} Hrs</h6>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            @empty
-                                <div class="p-3 text-center">
-                                    <p>Absensi tidak ditemukan</p>
-                                </div>
-                            @endforelse
-                            
-                            <!-- Late Employees Section -->
-                            @if(count($lateAttendances) > 0)
-                                <h6 class="mb-2">Telat</h6>
-                                @foreach($lateAttendances as $lateAttendance)
-                                    <div class="d-flex align-items-center justify-content-between mb-3 p-2 border border-dashed br-5">
-                                        <div class="d-flex align-items-center">
-                                            <span class="avatar flex-shrink-0">
-                                                <img src="{{ $lateAttendance->user->profile->avatar_url ?? '/assets/media/avatars/blank.png' }}" class="rounded-circle border border-2" alt="img">
-                                            </span>
-                                            <div class="ms-2">
-                                                <h6 class="fs-14 fw-medium text-truncate">
-                                                    {{ $lateAttendance->user->name }}
-                                                    @php
-                                                        $lateMinutes = \Carbon\Carbon::parse($lateAttendance->clock_in)->diffInMinutes(\Carbon\Carbon::parse($lateAttendance->expected_clock_in));
-                                                    @endphp
-                                                    <span class="fs-10 fw-medium d-inline-flex align-items-center badge badge-success">
-                                                        <i class="ti ti-clock-hour-11 me-1"></i>{{ $lateMinutes }} Min
-                                                    </span>
-                                                </h6>
-                                                <p class="fs-13">
-                                                    @foreach ($lateAttendance->user->roles as $role)
-                                                        {{ $role->name }}
-                                                    @endforeach
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a href="javascript:void(0);" class="link-default me-2"><i class="ti ti-clock-share"></i></a>
-                                            <span class="fs-10 fw-medium d-inline-flex align-items-center badge badge-danger">
-                                                <i class="ti ti-circle-filled fs-5 me-1"></i>{{ \Carbon\Carbon::parse($lateAttendance->clock_in)->format('H:i') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                            
-                            <a href="{{ route('attendances.index') }}" class="btn btn-light btn-md w-100">Lihat absensi selengkapnya</a>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
-
-        </div>
-
-        <div class="row">
-
-            <!-- Jobs Applicants -->
-            <div class="col-xxl-6 d-flex">
+            </div>
+            <div class="col-xxl-4 col-xl-6 d-flex">
                 <div class="card flex-fill">
                     <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
                         <h5 class="mb-2">Pelamar Pekerjaan</h5>
@@ -442,235 +279,9 @@
                     </div>
                 </div>
             </div>
-            <!-- /Jobs Applicants -->
-            
-            <!-- Employees -->
-            <div class="col-xxl-6 col-xl-6 d-flex">
-                <div class="card flex-fill">
-                    <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
-                        <h5 class="mb-2">Employees</h5>
-                        <a href="{{ route('employees.index') }}" class="btn btn-light btn-md mb-2">Lihat semua</a>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">	
-                            <table class="table table-nowrap mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Nama</th>
-                                        <th>Jabatan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($recentEmployees as $employee)
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <a href="{{ route('employees.show', $employee->id) }}" class="avatar">
-                                                        <img src="{{ $employee->profile->avatar_url ?? '/assets/media/avatars/blank.png' }}" class="img-fluid rounded-circle" alt="img">
-                                                    </a>
-                                                    <div class="ms-2">
-                                                        <h6 class="fw-medium"><a href="{{ route('employees.show', $employee->id) }}">{{ $employee->name }}</a></h6>
-                                                        <span class="fs-12">{{ $employee->employee_nik ?? 'Employee' }}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge badge-primary badge-xs">
-                                                    {{ $employee->roles->first()->name ?? 'Employee' }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="2" class="text-center">No employees found</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
-
-
     </div>
 
 
 </div>
 @endsection
-
-@push('js')
-<script>
-    $(document).ready(function() {
-        // Get roles data from the PHP variable passed to the view
-        var rolesData = @json($rolesData);
-        
-        renderRolesChart(rolesData);
-        
-        function renderRolesChart(data) {
-            if (!data || !data.length) {
-                $("#roles-chart").html("<p class='text-center'>No data available</p>");
-                return;
-            }
-            
-            // Sort data by count for better visualization
-            data.sort((a, b) => b.count - a.count);
-            
-            var options = {
-                series: [{
-                    name: 'Users',
-                    data: data.map(item => item.count)
-                }],
-                chart: {
-                    type: 'bar',
-                    height: 250,
-                    toolbar: {
-                        show: false
-                    }
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: true,  // Changed to horizontal bar chart
-                        borderRadius: 4,
-                        distributed: false,
-                        dataLabels: {
-                            position: 'bottom'
-                        },
-                    }
-                },
-                dataLabels: {
-                    enabled: true,
-                    textAnchor: 'start',
-                    style: {
-                        colors: ['#333']
-                    },
-                    formatter: function(val) {
-                        return val;
-                    },
-                    offsetX: 0
-                },
-                stroke: {
-                    width: 1,
-                    colors: ['transparent']
-                },
-                xaxis: {
-                    categories: data.map(item => item.name),
-                    labels: {
-                        style: {
-                            fontSize: '12px'
-                        }
-                    }
-                },
-                yaxis: {
-                    
-                },
-                fill: {
-                    opacity: 1,
-                    colors: ['#3E6CFF']
-                },
-                tooltip: {
-                    y: {
-                        formatter: function (val) {
-                            return val + " users"
-                        }
-                    }
-                },
-                responsive: [{
-                    breakpoint: 480,
-                    options: {
-                        chart: {
-                            height: 350
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }]
-            };
-    
-            var chart = new ApexCharts(document.querySelector("#roles-chart"), options);
-            chart.render();
-        }
-    });
-</script>
-
-<script>
-    $(document).ready(function() {
-        var canvas = document.getElementById('attendance');
-        canvas.style.maxWidth = '200px'; 
-        canvas.style.maxHeight = '200px';
-        canvas.style.margin = '0 auto'; 
-
-        var attendanceData = {
-            datasets: [{
-                data: [
-                    {{ $attendanceStats['present_count'] }}, 
-                    {{ $attendanceStats['late_count'] }}, 
-                    {{ $attendanceStats['permission_count'] }}, 
-                    {{ $attendanceStats['absent_count'] }}
-                ],
-                backgroundColor: [
-                    '#28a745', // Success/Present
-                    '#6c757d', // Secondary/Late
-                    '#ffc107', // Warning/Permission
-                    '#dc3545'  // Danger/Absent
-                ],
-                borderWidth: 0,
-                cutout: '70%'
-            }]
-        };
-
-        var attendanceConfig = {
-            type: 'doughnut',
-            data: attendanceData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                var labels = ['Absen', 'Telat', 'Izin', 'Alpha'];
-                                var percentages = [
-                                    {{ $attendanceStats['present_percentage'] }},
-                                    {{ $attendanceStats['late_percentage'] }},
-                                    {{ $attendanceStats['permission_percentage'] }},
-                                    {{ $attendanceStats['absent_percentage'] }}
-                                ];
-                                var label = labels[context.dataIndex] || '';
-                                var percentage = percentages[context.dataIndex] || 0;
-                                return label + ': ' + percentage + '%';
-                            }
-                        }
-                    }
-                }
-            }
-        };
-
-        var ctx = canvas.getContext('2d');
-        var attendanceChart = new Chart(ctx, attendanceConfig);
-
-        $('.attendance-canvas').css({
-            'top': '50%',
-            'left': '50%',
-            'transform': 'translate(-50%, -50%)',
-            'width': '80%'  // Make the text area smaller
-        });
-        
-        $('.attendance-canvas p').css('font-size', '11px');
-        $('.attendance-canvas h3').css('font-size', '16px');
-    });
-</script>
-<!-- Chart JS -->
-<script src="/admin/assets/plugins/apexchart/apexcharts.min.js"></script>
-<script src="/admin/assets/plugins/apexchart/chart-data.js"></script>
-
-<!-- Chart JS -->
-<script src="/admin/assets/plugins/chartjs/chart.min.js"></script>
-<script src="/admin/assets/plugins/chartjs/chart-data.js"></script>
-@endpush

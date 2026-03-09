@@ -91,7 +91,7 @@
                         <div class="floor-item">
                             <div class="item-box">
                                 <img src="{{ $logoBase64 }}" alt="Logo">
-                                <div class="company-header">Shine</div>
+                                <div class="company-header">Cipta Karir</div>
                                 <div class="barcode-svg">
                                     <img src="{{ $item['barcodeSvgUri'] }}">
                                 </div>

@@ -30,7 +30,7 @@
                         <img src="{{ Auth::user()->profile['avatar_url'] ?? '/assets/media/avatars/blank.png' }}" class="rounded-circle" alt="img">
                     </span>
                     <div class="ms-3">
-                        <h3 class="mb-2">Welcome Back to Shine, {{ Auth::user()->name }}</h3>
+                        <h3 class="mb-2">Welcome Back to Cipta Karir, {{ Auth::user()->name }}</h3>
                         {{-- <p>You have <span class="text-primary text-decoration-underline">21</span> Pending Approvals & <span class="text-primary text-decoration-underline">14</span> Leave Requests</p> --}}
                     </div>
                 </div>

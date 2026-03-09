@@ -1,6 +1,6 @@
 /*
 Author       : Dreamstechnologies
-Template Name: Karyax Integrated System
+Template Name: Cipta Karir
 */
 
 (function () {

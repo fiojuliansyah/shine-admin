@@ -22,7 +22,7 @@
                                     @csrf
                                     <div class="vh-100 d-flex flex-column justify-content-between p-4 pb-0">
                                         <div class=" mx-auto mb-5 text-center">
-                                            <img src="/admin/assets/img/logo-dark.svg" class="img-fluid"
+                                            <img src="/admin/assets/img/logo-dark-ciptakarir.svg" class="img-fluid"
                                                 alt="Logo" width="150">
                                         </div>
                                         <div class="text-center mb-3">
@@ -91,7 +91,7 @@
                                             </h6>
                                         </div>
                                         <div class="mt-5 pb-4 text-center">
-                                            <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Shine</p>
+                                            <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Cipta Karir</p>
                                         </div>
                                     </div>
                                 </form>

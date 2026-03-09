@@ -119,7 +119,7 @@
                                 </div>
                                 <div class="flex-fill ps-3 pb-4 timeline-hrline">
                                     <div class="mt-4">
-                                        <p class="fw-medium text-gray-9 mb-1">Selamat datang di Shine Karir Official !</p>
+                                        <p class="fw-medium text-gray-9 mb-1">Selamat datang di Cipta Karir Karir Official !</p>
                                         <span>lengkapi profil anda, dan pilih pekerjaan yang anda minati.</span>
                                     </div>
                                 </div>

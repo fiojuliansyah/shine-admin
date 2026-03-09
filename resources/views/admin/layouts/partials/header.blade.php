@@ -3,10 +3,10 @@
     
         <div class="header-left">
             <a href="#" class="logo">
-                <img src="/admin/assets/img/logo-dark.svg" alt="Logo" width="150">
+                <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Logo" width="150">
             </a>
             <a href="#" class="dark-logo">
-                <img src="/admin/assets/img/logo-white.svg" alt="Logo">
+                <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Logo">
             </a>
         </div>
 
