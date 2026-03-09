@@ -44,7 +44,13 @@
                     <ul>
                         <li class="{{ Route::is('web.applicants.letter') ? 'active' : '' }}">
                             <a href="{{ route('web.applicants.letter') }}">
-                                <i class="ti ti-edit"></i><span>Tanda Tangan</span>
+                                <i class="ti ti-edit"></i><span>Berkas</span>
+                                @if($eletterBadge)
+                                    <span class="badge badge-xs rounded-pill bg-danger"
+                                        style="color: white">
+                                        <small>terbit</small>
+                                    </span>
+                                @endif
                             </a>
                         </li>
                     </ul>

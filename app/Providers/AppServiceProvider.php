@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use Carbon\Carbon;
-use App\Models\Status;
-use App\Models\Company;
 use App\Models\Applicant;
+use App\Models\Company;
+use App\Models\Generate;
+use App\Models\Status;
+use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -48,6 +49,13 @@ class AppServiceProvider extends ServiceProvider
                 ->whereNull('done')
                 ->count();
             view()->share('countPending', $countPending);
+
+            $user = Auth::user();
+
+            $eletterBadge = Generate::where('user_id', $user->id)
+                ->orderBy('created_at', 'DESC')
+                ->first();
+            view()->share('eletterBadge', $eletterBadge);
 
             $pendingApplicants = Applicant::where('approve_id', null)
                 ->where('status_id', '=', 0)
