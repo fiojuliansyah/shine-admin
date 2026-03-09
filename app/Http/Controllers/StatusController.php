@@ -215,9 +215,22 @@ class StatusController extends Controller
             $yearJoinCode = Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
+            $letter = Letter::with('type_letter')->find($request->letter_id);
+            $typeLetter = $letter->type_letter;
+            
+            $currentNumber = $typeLetter->number ?? 0;
+            $newNumber = $currentNumber + 1;
+            
+            $formattedNumber = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+            $letterNumber = $formattedNumber . '/' . $request->letter_number;
+
+            $typeLetter->update([
+                'number' => $newNumber
+            ]);
+
             Generate::create([
                 'letter_id'      => $request->letter_id,
-                'letter_number'  => $request->letter_number,
+                'letter_number'  => $letterNumber,
                 'romawi'         => $this->getRomawi(date('m')),
                 'year'           => date('Y'),
                 'start_date'     => $request->start_date,
