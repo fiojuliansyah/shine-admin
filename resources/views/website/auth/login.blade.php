@@ -9,9 +9,9 @@
                 <div class="row">
                     <div class="col-lg-5">
                         <div
-                            class="d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 bg-primary-transparent">
+                            class="d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 bg-primary">
                             <div>
-                                <img src="/admin/assets/img/bg/authentication-bg-03.svg" alt="Img">
+                                <img src="/admin/assets/img/system-cover.png" alt="Img">
                             </div>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                                             </h6>
                                         </div>
                                         <div class="mt-5 pb-4 text-center">
-                                            <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Cipta Karir</p>
+                                            <p class="mb-0 text-gray-9">Copyright &copy; 2026 - Cipta Karir</p>
                                         </div>
                                     </div>
                                 </form>

@@ -50,9 +50,7 @@ class AppServiceProvider extends ServiceProvider
                 ->count();
             view()->share('countPending', $countPending);
 
-            $user = Auth::user();
-
-            $eletterBadge = Generate::where('user_id', $user->id)
+            $eletterBadge = Generate::where('user_id', Auth::id())
                 ->orderBy('created_at', 'DESC')
                 ->first();
             view()->share('eletterBadge', $eletterBadge);

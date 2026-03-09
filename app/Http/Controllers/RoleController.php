@@ -21,10 +21,13 @@ class RoleController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
+            'code' => 'required',
             'permissions' => 'required',
+
         ]);
     
-        $role = Role::create(['name' => $request->input('name')]);
+        $role = Role::create(
+            ['name' => $request->input('name'), 'code' => $request->input('code')]);
         $role->syncPermissions($request->input('permissions'));
     
         return redirect()->route('roles.index')
@@ -35,11 +38,13 @@ class RoleController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
+            'code' => 'required',
             'permissions' => 'required',
         ]);
     
         $role = Role::find($id);
         $role->name = $request->input('name');
+        $role->code = $request->input('code');
         $role->save();
     
         $role->syncPermissions($request->input('permissions'));

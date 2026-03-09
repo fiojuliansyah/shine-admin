@@ -8,22 +8,10 @@
         <div class="w-100 overflow-hidden position-relative flex-wrap d-block vh-100">
             <div class="row">
                 <div class="col-lg-5">
-                    <div class="login-background position-relative d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100">
-                        <div class="bg-overlay-img">
-                            <img src="/admin/assets/img/bg/bg-01.png" class="bg-1" alt="Img">
-                            <img src="/admin/assets/img/bg/bg-02.png" class="bg-2" alt="Img">
-                            <img src="/admin/assets/img/bg/bg-03.png" class="bg-3" alt="Img">
-                        </div>
-                        <div class="authentication-card w-100">
-                            <div class="authen-overlay-item border w-100">
-                                <h1 class="text-white display-1">Empowering people <br> through seamless HR <br> management.</h1>
-                                <div class="my-4 mx-auto authen-overlay-img">
-                                    <img src="/admin/assets/img/bg/authentication-bg-01.png" alt="Img">
-                                </div>
-                                <div>
-                                    <p class="text-white fs-20 fw-semibold text-center">Efficiently manage your workforce, streamline <br> operations effortlessly.</p>
-                                </div>
-                            </div>
+                    <div
+                        class="d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 bg-primary">
+                        <div>
+                            <img src="/admin/assets/img/system-cover.png" alt="Img">
                         </div>
                     </div>
                 </div>

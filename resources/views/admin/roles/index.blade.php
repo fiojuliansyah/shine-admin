@@ -84,7 +84,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="col-form-label">Kode Jabatan</label>
-                            <input type="text" class="form-control" name="name" required>
+                            <input type="text" class="form-control" name="code" value="{{ $role->code }}" required>
                         </div>
                         <div class="mb-3">
                             <label class="col-form-label">Hak & Akses</label>
@@ -155,7 +155,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="col-form-label">Kode Jabatan</label>
-                        <input type="text" class="form-control" name="name" required>
+                        <input type="text" class="form-control" name="code" required>
                     </div>
                     <div class="mb-3">
                         <label class="col-form-label">Hak & Akses</label>

@@ -8,9 +8,10 @@
         <div class="w-100 overflow-hidden position-relative flex-wrap d-block vh-100">
             <div class="row">
                 <div class="col-lg-5">
-                    <div class="d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 bg-primary-transparent">
+                    <div
+                        class="d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 bg-primary">
                         <div>
-                            <img src="/admin/assets/img/bg/authentication-bg-02.svg" alt="Img">
+                            <img src="/admin/assets/img/system-cover.png" alt="Img">
                         </div>
                     </div>
                 </div>

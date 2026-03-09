@@ -59,11 +59,15 @@
                                 <span class="menu-arrow"></span>
                             </a>
                             <ul>
+                                <li>
+                                    <a href=""
+                                        class="">Konfigurasi No Surat</a>
+                                </li>
                                 <li><a href="{{ route('generates.index') }}"
-                                        class="{{ Route::is('generates.index') ? 'active' : '' }}">Buat Letter</a></li>
+                                        class="{{ Route::is('generates.index') ? 'active' : '' }}">Buat Surat</a></li>
                                 <li><a href="{{ route('letters.index') }}"
                                         class="{{ Route::is(['letters.index', 'type_letters.index']) ? 'active' : '' }}">Buat
-                                        Template</a></li>
+                                        Template Surat</a></li>
                             </ul>
                         </li>
                     </ul>
