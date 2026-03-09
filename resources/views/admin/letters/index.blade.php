@@ -20,7 +20,6 @@
             </div>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
                 <div class="d-flex align-items-center flex-wrap mb-1">
-                    <a href="{{ route('type_letters.index') }}" class="btn btn-secondary me-2 mb-2" ><i class="ti ti-square-rounded-plus me-1"></i>Tambah Tipe</a>
                     <a href="{{ route('letters.create') }}" class="btn btn-primary mb-2"><i class="ti ti-square-rounded-plus me-1"></i>Buat Template</a>
                 </div>
             </div>

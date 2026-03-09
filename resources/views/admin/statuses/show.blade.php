@@ -4,7 +4,6 @@
 <div class="page-wrapper">
     <div class="content">
 
-        <!-- Breadcrumb -->
         <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
             <div class="my-auto mb-2">
                 <h2 class="mb-1">{{ $status->name }} List</h2>
@@ -41,7 +40,6 @@
                 </div>
             </div>
         </div>
-        <!-- /Breadcrumb -->
 
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
@@ -70,7 +68,6 @@
     </div>
 </div>
 
-<!-- Bulk Update Modal -->
 <div class="modal fade" id="bulkUpdate" tabindex="-1" aria-labelledby="bulkUpdateLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -80,12 +77,12 @@
                     <i class="ti ti-x"></i>
                 </button>
             </div>
-            <form id="bulk-update-form" action="{{ route('bulk.update.status') }}" method="POST">
+            <form id="form-bulk-update-status" action="{{ route('bulk.update.status') }}" method="POST">
                 @csrf
                 <div class="modal-body pb-0">
                     <div class="mb-3">
                         <label class="form-label">Pilih Tingkat</label>
-                        <select class="form-select" name="status_id" id="bulk-status-id">
+                        <select class="form-select" name="status_id" required>
                             <option disabled selected>Pilih Tingkat</option>
                             @foreach ($statuses as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -97,7 +94,7 @@
                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
-                <input type="hidden" name="applicant_ids[]" id="applicant-ids">
+                <div class="applicant-ids-container"></div>
             </form>
         </div>
     </div>
@@ -112,7 +109,7 @@
                     <i class="ti ti-x"></i>
                 </button>
             </div>
-            <form id="bulk-offering-form" action="{{ route('bulk.update.applicant-document') }}" method="POST">
+            <form id="form-applicant-document" action="{{ route('bulk.update.applicant-document') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
@@ -148,7 +145,7 @@
                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Proses & Generate Letter</button>
                 </div>
-                <div id="offering-applicant-container"></div>
+                <div class="applicant-ids-container"></div>
             </form>
         </div>
     </div>
@@ -164,7 +161,6 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Confirmation Content -->
                 <p>Apakah Anda yakin ingin melanjutkan dengan tindakan ini?</p>
                 <p><strong>Detail Tindakan:</strong></p>
                 <ul>
@@ -189,12 +185,11 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkOffering">Lanjutkan</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkOffering">Lanjutkan</button>
             </div>
         </div>
     </div>
 </div>
-
 
 <div class="modal fade" id="bulkOffering" tabindex="-1" aria-labelledby="bulkOfferingLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -205,7 +200,7 @@
                     <i class="ti ti-x"></i>
                 </button>
             </div>
-            <form id="bulk-offering-form" action="{{ route('bulk.update.offering') }}" method="POST">
+            <form id="form-bulk-offering" action="{{ route('bulk.update.offering') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
@@ -249,7 +244,7 @@
                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Proses & Generate Letter</button>
                 </div>
-                <div id="offering-applicant-container"></div>
+                <div class="applicant-ids-container"></div>
             </form>
         </div>
     </div>
@@ -265,9 +260,6 @@
 <script src="/admin/assets/js/dataTables.bootstrap5.min.js"></script>
 <script type="text/javascript">
 $(function () {
-    var selectedIds = [];
-
-    // Initialize DataTable
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
@@ -282,94 +274,50 @@ $(function () {
             { data: 'resume', name: 'resume' },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ],
-        scrollX: true,
-        drawCallback: function() {
-            $('.data-table input[type="checkbox"]').each(function() {
-                if (selectedIds.includes($(this).val())) {
-                    $(this).prop('checked', true);
-                }
-            });
-            toggleBulkUpdateButton();
-        }
+        scrollX: true
     });
 
-    // Select/Deselect all rows
     $('#select-all').on('click', function () {
-        var rows = table.rows({ 'search': 'applied' }).nodes();
         var isChecked = this.checked;
-        
-        $('input[type="checkbox"]', rows).prop('checked', isChecked);
-        
-        // Update selectedIds array based on whether the checkbox is checked or unchecked
-        if (isChecked) {
-            // Add all checked IDs to selectedIds
-            $('input[type="checkbox"]:checked', rows).each(function() {
-                if (!selectedIds.includes($(this).val())) {
-                    selectedIds.push($(this).val());
-                }
-            });
-        } else {
-            // Clear selectedIds if unchecked
-            selectedIds = [];
-        }
-        toggleBulkUpdateButton();
+        $('.applicant-checkbox').prop('checked', isChecked);
     });
 
-    // Handle individual checkbox changes
-    $('.data-table').on('change', 'input[type="checkbox"]', function () {
-        toggleBulkUpdateButton();
+    $('form').on('submit', function(e) {
+        var form = $(this);
+        
+        if (form.attr('id') === 'form-bulk-update-status' || 
+            form.attr('id') === 'form-applicant-document' || 
+            form.attr('id') === 'form-bulk-offering') {
+            
+            var selectedIds = [];
+            $('.applicant-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
 
-        var id = $(this).val();
-        if ($(this).prop('checked')) {
-            selectedIds.push(id);
-        } else {
-            selectedIds = selectedIds.filter(function(value) {
-                return value !== id;
+            if (selectedIds.length === 0) {
+                e.preventDefault();
+                alert('Mohon pilih setidaknya satu kandidat dari tabel.');
+                return false;
+            }
+
+            var container = form.find('.applicant-ids-container');
+            container.empty();
+
+            $.each(selectedIds, function(index, id) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'applicant_ids[]',
+                    value: id
+                }).appendTo(container);
             });
         }
     });
 
-    // Toggle button state based on selected checkboxes
-    function toggleBulkUpdateButton() {
-        var selected = $('.data-table input[type="checkbox"]:checked').length;
-        if (selected > 0) {
-            $('#bulk-update-btn').prop('disabled', false);
-        } else {
-            $('#bulk-update-btn').prop('disabled', true);
-        }
-    }
-
-    // Handle form submission for bulk offering
-    $('#bulk-offering-form').submit(function(e) {
-        e.preventDefault();
-
-        if (selectedIds.length === 0) {
-            alert('Mohon pilih setidaknya satu pelamar');
-            return;
-        }
-
-        // Bersihkan container hidden input sebelum append
-        $('#offering-applicant-container').empty();
-
-        $.each(selectedIds, function(index, id) {
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'applicant_ids[]',
-                value: id
-            }).appendTo('#offering-applicant-container');
+    $('#applicantDocument, #bulkOffering').on('shown.bs.modal', function() {
+        $(this).find('.select2').select2({
+            dropdownParent: $(this)
         });
-
-        this.submit();
     });
 });
-</script>
-<script>
-    $(document).ready(function() {
-        $('#applicantDocument').on('shown.bs.modal', function() {
-            $(this).find('.select2').select2({
-                dropdownParent: $('#applicantDocument')
-            });
-        });
-    });
 </script>
 @endpush

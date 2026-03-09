@@ -39,6 +39,10 @@
                         <input type="text" class="form-control" id="short_name-{{ $row->id }}" name="short_name" value="{{ $row->short_name }}" required>
                     </div>
                     <div class="mb-3">
+                        <label for="unique_id-{{ $row->id }}" class="form-label">ID Unik</label>
+                        <input type="text" class="form-control" id="unique_id-{{ $row->id }}" name="unique_id" value="{{ $row->unique_id }}" required>
+                    </div>
+                    <div class="mb-3">
                         <label for="logo-{{ $row->id }}" class="form-label">Logo</label>
                         <input type="file" class="form-control" id="logo-{{ $row->id }}" name="logo">
                     </div>

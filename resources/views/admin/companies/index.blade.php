@@ -84,6 +84,13 @@
                                     <input type="text" name="name" class="form-control">
                                 </div>									
                             </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ID Unik</label>
+                                    <input type="text" name="unique_id" class="form-control">
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                         <label class="form-label">Deskripsi</label>

@@ -60,13 +60,13 @@
                             </a>
                             <ul>
                                 <li>
-                                    <a href=""
-                                        class="">Konfigurasi No Surat</a>
+                                    <a href="{{ route('type_letters.index') }}"
+                                        class="{{ Route::is('type_letters.index') ? 'active' : ''    }}">Konfigurasi No Surat</a>
                                 </li>
                                 <li><a href="{{ route('generates.index') }}"
                                         class="{{ Route::is('generates.index') ? 'active' : '' }}">Buat Surat</a></li>
                                 <li><a href="{{ route('letters.index') }}"
-                                        class="{{ Route::is(['letters.index', 'type_letters.index']) ? 'active' : '' }}">Buat
+                                        class="{{ Route::is(['letters.index']) ? 'active' : '' }}">Buat
                                         Template Surat</a></li>
                             </ul>
                         </li>

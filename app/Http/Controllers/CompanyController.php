@@ -29,7 +29,7 @@ class CompanyController extends Controller
 
         $lastCompany = Company::orderBy('id', 'desc')->first();
         $nextId = $lastCompany ? $lastCompany->id + 1 : 1;
-        $uniqueId = 'CMP-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+        $uniqueId = $request->unique_id ?? 'CMP-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         $isFirstCompany = Company::count() === 0;
     
@@ -62,10 +62,13 @@ class CompanyController extends Controller
             ]);
 
         }
+
+        $uniqueId = $request->unique_id ?? $company->unique_id;
     
         $company->update([
             'name' => $request->name,
             'short_name' => $request->short_name,
+            'unique_id' => $uniqueId,
             'is_default' => $request->is_default
         ]);
     

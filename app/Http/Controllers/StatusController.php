@@ -12,10 +12,10 @@ use App\Models\Applicant;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\DataTables\StatusesDataTable;
+use Carbon\Carbon;
 
 class StatusController extends Controller
 {
-
     public function index(StatusesDataTable $dataTable)
     {
         $title = 'Manage Statuses';
@@ -45,7 +45,6 @@ class StatusController extends Controller
         $letters = Letter::all();
 
         if (request()->ajax()) {
-
             $applicants = Applicant::with(['user','career'])
                 ->where('status_id', $status->id)
                 ->where(function($q) {
@@ -88,7 +87,6 @@ class StatusController extends Controller
                     }
                     return '<span class="badge bg-warning">Menunggu</span>';
                 })
-
                 ->addColumn('resume', function ($row) {
                     $statuses = Status::all();
                     $documents = Document::where('user_id', $row->user->id)->get();
@@ -98,7 +96,6 @@ class StatusController extends Controller
                     return view('admin.statuses.partials.show-actions', compact('row'))->render();
                 })
                 ->rawColumns(['action','progress','resume','checkbox','role'])
-                
                 ->make(true);
         }
             
@@ -114,7 +111,6 @@ class StatusController extends Controller
         $status->is_approve = $request->is_approve;
         $status->is_applicant_document = $request->is_applicant_document;
         $status->process_to_offering = $request->process_to_offering;
-
         $status->update();
 
         return redirect()->route('statuses.index')
@@ -135,10 +131,6 @@ class StatusController extends Controller
             return redirect()->back()->with('error', 'Status tidak valid');
         }
 
-        if (is_string($applicant_ids)) {
-            $applicant_ids = explode(',', $applicant_ids);
-        }
-
         foreach ($applicant_ids as $applicant_id) {
             $applicant = Applicant::find($applicant_id);
 
@@ -153,8 +145,7 @@ class StatusController extends Controller
             }
         }
 
-        // Redirect with a success message
-        return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui dan data baru berhasil dibuat.');
+        return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui.');
     }
 
     public function bulkUpdateApplicantDocument(Request $request)
@@ -165,15 +156,8 @@ class StatusController extends Controller
         $request->validate([
             'letter_id' => 'required',
             'start_date' => 'required|date',
+            'applicant_ids' => 'required|array'
         ]);
-
-        if (!$site_id || empty($applicant_ids)) {
-            return redirect()->back()->with('error', 'Mohon pilih kandidat yang terpilih.');
-        }
-
-        if (is_string($applicant_ids)) {
-            $applicant_ids = explode(',', $applicant_ids);
-        }
 
         Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id) {
             $applicant->user->update([
@@ -190,11 +174,11 @@ class StatusController extends Controller
                 'romawi'         => $this->getRomawi(date('m')),
                 'year'           => date('Y'),
                 'start_date'     => $request->start_date,
-                'end_date'     => $request->start_date,
+                'end_date'       => $request->start_date,
                 'user_id'        => $applicant->user_id,
                 'site_id'        => $site_id,
                 'second_party'   => $applicant->user->name,
-                'esign'         => 'no-need',
+                'esign'          => 'no-need',
                 'description'    => 'Auto generated from Bulk Offering',
             ]);
         });
@@ -211,15 +195,8 @@ class StatusController extends Controller
             'letter_id' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+            'applicant_ids' => 'required|array'
         ]);
-
-        if (!$site_id || empty($applicant_ids)) {
-            return redirect()->back()->with('error', 'Mohon pilih kandidat yang terpilih.');
-        }
-
-        if (is_string($applicant_ids)) {
-            $applicant_ids = explode(',', $applicant_ids);
-        }
 
         Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id) {
             $applicant->user->update([
@@ -230,6 +207,13 @@ class StatusController extends Controller
             $applicant->update([
                 'done' => 'done'
             ]);
+
+            $site = Site::with('company')->find($site_id);
+            $companyCode  = $site->company->code ?? 'XX';
+            $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
+            $monthJoinCode = Carbon::parse($request->start_date)->format('m');
+            $yearJoinCode = Carbon::parse($request->start_date)->format('y');
+            $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
             Generate::create([
                 'letter_id'      => $request->letter_id,
@@ -243,12 +227,17 @@ class StatusController extends Controller
                 'second_party'   => $applicant->user->name,
                 'description'    => 'Auto generated from Bulk Offering',
             ]);
+
+            $applicant->user->update([
+                'employee_nik' => $employeeNIK,
+            ]);
         });
 
-        return redirect()->back()->with('success', 'Kandidat berhasil dikonversi menjadi karyawan dan surat digital telah dibuat.');
+        return redirect()->back()->with('success', 'Kandidat berhasil dikonversi menjadi karyawan.');
     }
 
-    private function getRomawi($month) {
+    private function getRomawi($month) 
+    {
         $map = [1=>'I',2=>'II',3=>'III',4=>'IV',5=>'V',6=>'VI',7=>'VII',8=>'VIII',9=>'IX',10=>'X',11=>'XI',12=>'XII'];
         return $map[(int)$month] ?? 'I';
     }
