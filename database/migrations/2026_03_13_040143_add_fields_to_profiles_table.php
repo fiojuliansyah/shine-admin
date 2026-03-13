@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('profiles', function (Blueprint $table) {
-            $table->enum('last_education',['SD', 'SMP', 'SMA/SLTA', 'D3', 'S1', 'S2', 'S3'])->nullable()->after('pbb');
+            $table->enum('last_education',['SD', 'SMP', 'SMA/SLTA', 'D3', 'S1', 'S2', 'S3'])->nullable()->after('gender');
             $table->enum('living_with',['Parent', 'Spouse', 'Family', 'Live Alone'])->default('Live Alone')->after('last_education');
             $table->string('family_name')->nullable()->after('living_with');
             $table->float('height')->nullable()->after('npwp_number');
