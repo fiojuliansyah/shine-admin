@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use DataTables;
-use App\Models\Site;
-use App\Models\Letter;
-use App\Models\Status;
+use App\DataTables\StatusesDataTable;
+use App\Models\Applicant;
+use App\Models\Company;
 use App\Models\Document;
 use App\Models\Generate;
-use App\Models\Applicant;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use App\DataTables\StatusesDataTable;
+use App\Models\Letter;
+use App\Models\Site;
+use App\Models\Status;
 use Carbon\Carbon;
+use DataTables;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class StatusController extends Controller
 {
@@ -41,8 +42,9 @@ class StatusController extends Controller
     {
         $status = Status::where('slug', $slug)->first();
         $statuses = Status::all();
-        $sites = Site::all();
+        $companies = Company::all();
         $letters = Letter::all();
+        $sites = Site::all();
 
         if (request()->ajax()) {
             $applicants = Applicant::with(['user','career'])
@@ -81,7 +83,6 @@ class StatusController extends Controller
                     if ($row->done === 'done') {
                         return '<span class="badge bg-success">Selesai</span>';
                     }
-
                     if ($row->done === 'document-digital') {
                         return '<span class="badge bg-info text-white">Terlampir E-Dokumen</span>';
                     }
@@ -99,7 +100,13 @@ class StatusController extends Controller
                 ->make(true);
         }
             
-        return view('admin.statuses.show', compact('status','statuses','sites','letters'));
+        return view('admin.statuses.show', compact('status','statuses','sites','letters','companies'));
+    }
+
+    public function getSitesByCompany($company_id)
+    {
+        $sites = Site::where('company_id', $company_id)->get();
+        return response()->json($sites);
     }
 
     public function update(Request $request, $id)

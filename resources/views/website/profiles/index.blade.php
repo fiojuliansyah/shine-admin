@@ -110,6 +110,20 @@
                                     <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->address ?? '' }}</h6>
                                 </div>
                             </div>
+                            <div class="row mt-3">
+                                <div class="col-md-3">
+                                    <span class="d-inline-flex align-items-center">
+                                        Tinggi Badan
+                                    </span>
+                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->height ?? '' }}</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="d-inline-flex align-items-center">
+                                        Berat Badan
+                                    </span>
+                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->weight ?? '' }}</h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 

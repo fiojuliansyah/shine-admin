@@ -114,19 +114,26 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Pilih Penempatan / Site</label>
-                            <select class="form-select select2" name="site_id" required>
-                                <option disabled selected>Pilih Penempatan</option>
-                                @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
+                            <label class="form-label">Pilih Perusahaan</label>
+                            <select class="form-select select-company" data-target="#site-applicant-document" required>
+                                <option disabled selected>Pilih Perusahaan</option>
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
+                            <label class="form-label">Pilih Penempatan / Site</label>
+                            <select class="form-select" id="site-applicant-document" name="site_id" required>
+                                <option disabled selected>Pilih Perusahaan Dahulu</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Template Surat</label>
-                            <select class="form-select select2" name="letter_id" required>
+                            <select class="form-select" name="letter_id" required>
                                 <option disabled selected>Pilih Template</option>
-                                @foreach ($letters as $letter) <option value="{{ $letter->id }}">{{ $letter->title }}</option>
+                                @foreach ($letters as $letter) 
+                                    <option value="{{ $letter->id }}">{{ $letter->title }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -136,8 +143,7 @@
                         </div>
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Nomor Surat (Optional)</label>
-                            <input type="text" name="letter_number" class="form-control" placeholder="Contoh: 001/HRD/PKWT/2025">
-                            <small class="text-muted italic">*Kosongkan jika ingin generate otomatis</small>
+                            <input type="text" name="letter_number" class="form-control" placeholder="001/HRD/PKWT/2025">
                         </div>
                     </div>
                 </div>
@@ -204,39 +210,41 @@
                 @csrf
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Pilih Penempatan / Site</label>
-                            <select class="form-select" name="site_id" required>
-                                <option disabled selected>Pilih Penempatan</option>
-                                @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Pilih Perusahaan</label>
+                            <select class="form-select select-company" data-target="#site-bulk-offering" required>
+                                <option disabled selected>Pilih Perusahaan</option>
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Pilih Penempatan / Site</label>
+                            <select class="form-select" id="site-bulk-offering" name="site_id" required>
+                                <option disabled selected>Pilih Perusahaan Dahulu</option>
+                            </select>
+                        </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Template Surat (PKWT)</label>
                             <select class="form-select" name="letter_id" required>
                                 <option disabled selected>Pilih Template</option>
-                                @foreach ($letters as $letter) <option value="{{ $letter->id }}">{{ $letter->title }}</option>
+                                @foreach ($letters as $letter) 
+                                    <option value="{{ $letter->id }}">{{ $letter->title }}</option>
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Tanggal Mulai Kontrak</label>
                             <input type="date" name="start_date" class="form-control" required>
                         </div>
-
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Tanggal Berakhir Kontrak</label>
                             <input type="date" name="end_date" class="form-control" required>
                         </div>
-
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Nomor Surat (Optional)</label>
-                            <input type="text" name="letter_number" class="form-control" placeholder="Contoh: 001/HRD/PKWT/2025">
-                            <small class="text-muted italic">*Kosongkan jika ingin generate otomatis</small>
+                            <input type="text" name="letter_number" class="form-control" placeholder="001/HRD/PKWT/2025">
                         </div>
                     </div>
                 </div>
@@ -277,6 +285,27 @@ $(function () {
         scrollX: true
     });
 
+    $('.select-company').on('change', function() {
+        var companyId = $(this).val();
+        var targetSelect = $(this).data('target');
+        var $siteDropdown = $(targetSelect);
+
+        $siteDropdown.empty().append('<option disabled selected>Loading...</option>');
+
+        if (companyId) {
+            $.ajax({
+                url: '/manage/get-sites-by-company/' + companyId,
+                type: 'GET',
+                success: function(data) {
+                    $siteDropdown.empty().append('<option disabled selected>Pilih Penempatan</option>');
+                    $.each(data, function(key, site) {
+                        $siteDropdown.append('<option value="' + site.id + '">' + site.name + '</option>');
+                    });
+                }
+            });
+        }
+    });
+
     $('#select-all').on('click', function () {
         var isChecked = this.checked;
         $('.applicant-checkbox').prop('checked', isChecked);
@@ -284,11 +313,9 @@ $(function () {
 
     $('form').on('submit', function(e) {
         var form = $(this);
+        var formId = form.attr('id');
         
-        if (form.attr('id') === 'form-bulk-update-status' || 
-            form.attr('id') === 'form-applicant-document' || 
-            form.attr('id') === 'form-bulk-offering') {
-            
+        if (['form-bulk-update-status', 'form-applicant-document', 'form-bulk-offering'].includes(formId)) {
             var selectedIds = [];
             $('.applicant-checkbox:checked').each(function() {
                 selectedIds.push($(this).val());
@@ -302,7 +329,6 @@ $(function () {
 
             var container = form.find('.applicant-ids-container');
             container.empty();
-
             $.each(selectedIds, function(index, id) {
                 $('<input>').attr({
                     type: 'hidden',
@@ -311,12 +337,6 @@ $(function () {
                 }).appendTo(container);
             });
         }
-    });
-
-    $('#applicantDocument, #bulkOffering').on('shown.bs.modal', function() {
-        $(this).find('.select2').select2({
-            dropdownParent: $(this)
-        });
     });
 });
 </script>

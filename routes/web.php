@@ -97,6 +97,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::resource('companies', CompanyController::class);
     Route::resource('sites', SiteController::class);
 
+    Route::get('/get-sites-by-company/{company_id}', [StatusController::class, 'getSitesByCompany'])->name('sites.by.company');
     Route::resource('statuses', StatusController::class);
     Route::resource('valets', ValetController::class);
 

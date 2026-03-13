@@ -4,7 +4,6 @@
 <div class="page-wrapper">
     <div class="content">
 
-        <!-- Breadcrumb -->
         <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
             <div class="my-auto mb-2">
                 <h2 class="mb-1">Sites</h2>
@@ -20,18 +19,14 @@
             </div>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
                 <div class="me-2 mb-2">
-                    <div class="dropdown">
-                        <a href="{{ route('sites.export') }}" class="btn btn-white d-inline-flex align-items-center">
-                            <i class="ti ti-file-export me-1"></i>Export Excel
-                        </a>
-                    </div>
+                    <a href="{{ route('sites.export') }}" class="btn btn-white d-inline-flex align-items-center">
+                        <i class="ti ti-file-export me-1"></i>Export Excel
+                    </a>
                 </div>
                 <div class="me-2 mb-2">
-                    <div class="dropdown">
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#importModal" class="btn btn-white d-inline-flex align-items-center">
-                            <i class="ti ti-file-import me-1"></i>Import
-                        </a>
-                    </div>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#importModal" class="btn btn-white d-inline-flex align-items-center">
+                        <i class="ti ti-file-import me-1"></i>Import
+                    </a>
                 </div>
                 <div class="mb-2">
                     <a href="#" data-bs-toggle="modal" data-bs-target="#createModal" class="btn btn-primary d-flex align-items-center">
@@ -40,11 +35,19 @@
                 </div>
             </div>
         </div>
-        <!-- /Breadcrumb -->
 
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
                 <h5>List Sites</h5>
+                <div class="d-flex align-items-center">
+                    <label class="me-2 mb-0">Company:</label>
+                    <select id="filter_company" class="form-select form-select-sm" style="width: 200px;">
+                        <option value="">All Companies</option>
+                        @foreach ($companies as $company)
+                            <option value="{{ $company->id }}">{{ $company->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="custom-datatable-filter table-responsive">
@@ -54,15 +57,12 @@
         </div>
     </div>
 
-    <!-- Create Modal -->
-    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Tambah Site</h4>
-                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
-                        <i class="ti ti-x"></i>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('sites.store') }}" method="POST">
                     @csrf
@@ -71,7 +71,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Company</label>
-                                    <select class="form-select" name="company_id" data-placeholder="Select an option">
+                                    <select class="form-select" name="company_id">
                                         @foreach ($companies as $company)
                                             <option value="{{ $company->id }}" {{ $company->is_default == 1 ? 'selected' : '' }}>
                                                 {{ $company->name }}
@@ -137,44 +137,41 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Tambah Site</h4>
-                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
-                        <i class="ti ti-x"></i>
-                    </button>
+                    <h4 class="modal-title">Import Site</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('sites.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body pb-0">
-                        <div class="row">
-                            <div class="mb-3">
-                                <label class="form-label">Perusahaan</label>
-                                <select class="form-select" name="company_id">
-                                    @foreach ($companies as $company)
-                                        <option value="{{ $company->id }}">
-                                            {{ $company->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">File Import</label>
-                                <input type="file" class="form-control" name="file">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Perusahaan</label>
+                            <select class="form-select" name="company_id">
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}">
+                                        {{ $company->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">File Import</label>
+                            <input type="file" class="form-control" name="file">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
@@ -192,4 +189,12 @@
 <script src="/admin/assets/js/jquery.dataTables.min.js"></script>
 <script src="/admin/assets/js/dataTables.bootstrap5.min.js"></script>
 {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+
+<script>
+    $(document).ready(function() {
+        $('#filter_company').on('change', function() {
+            window.LaravelDataTables["sites-table"].draw();
+        });
+    });
+</script>
 @endpush

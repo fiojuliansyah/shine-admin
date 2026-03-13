@@ -19,11 +19,6 @@
                         <a href="{{ route('applicants.profiles.index') }}" class="btn btn-dark btn-md me-2 mb-2">Kelola Profil</a>
                     </div>
                 </div>
-                <div class="welcome-bg">
-                    <img src="/admin/assets/img/bg/welcome-bg-02.svg" alt="img" class="welcome-bg-01">
-                    <img src="/admin/assets/img/bg/welcome-bg-03.svg" alt="img" class="welcome-bg-02">
-                    <img src="/admin/assets/img/bg/welcome-bg-01.svg" alt="img" class="welcome-bg-03">
-                </div>
             </div>
 
             <div class="row" style="transform: none;">
