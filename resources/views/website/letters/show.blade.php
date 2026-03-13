@@ -10,18 +10,9 @@
             </button>
         </div>
 
-        <div class="card mx-auto shadow-lg border-0" style="max-width: 850px;">
+        <div class="card mx-auto shadow-lg border-0 card-print-reset" style="max-width: 850px;">
             <div class="card-body p-0">
-                <div id="printableArea" style="
-                    background-color: #fff; 
-                    padding: 5rem 4rem; 
-                    min-height: 297mm; 
-                    font-family: 'Times New Roman', Times, serif; 
-                    color: #000; 
-                    line-height: 1.6;
-                    font-size: 12pt;
-                    position: relative;
-                ">
+                <div id="printableArea">
                     
                     @if($eletter->esign && $eletter->esign != 'no-need')
                         <div class="signed-watermark">
@@ -85,6 +76,17 @@
 
 @push('css')
 <style>
+    #printableArea {
+        background-color: #fff; 
+        padding: 5rem 4rem; 
+        min-height: 297mm; 
+        font-family: 'Times New Roman', Times, serif; 
+        color: #000; 
+        line-height: 1.6;
+        font-size: 12pt;
+        position: relative;
+    }
+
     .signed-watermark {
         position: absolute;
         top: 20%;
@@ -100,48 +102,70 @@
         z-index: 1;
     }
 
-    @media screen {
-        .letter-content img {
-            max-width: 100%;
-            height: auto;
-        }
+    .letter-content img {
+        max-width: 100%;
+        height: auto;
     }
 
     @media print {
-        body {
+        /* 1. Sembunyikan SEMUA elemen root layout */
+        html, body {
             background: #fff !important;
+            height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
         }
-        
-        header, footer, .d-print-none, .btn, .modal, .modal-backdrop {
+
+        /* 2. Sembunyikan elemen spesifik tema (Header, Sidebar, Navbar, dll) */
+        header, 
+        footer, 
+        .header, 
+        .sidebar, 
+        .sidebar-left, 
+        .sidebar-right, 
+        .navbar, 
+        .breadcrumb,
+        .d-print-none,
+        .btn,
+        .modal {
             display: none !important;
-        }
-
-        .page-wrapper {
-            background: #fff !important;
+            height: 0 !important;
+            margin: 0 !important;
             padding: 0 !important;
-            margin: 0 !important;
-            min-height: auto !important;
         }
 
-        .card {
-            box-shadow: none !important;
-            border: none !important;
+        /* 3. Reset wrapper agar tidak memiliki margin/padding dari tema */
+        .main-wrapper, 
+        .page-wrapper, 
+        .content {
             margin: 0 !important;
+            padding: 0 !important;
+            min-height: auto !important;
+            background: #fff !important;
+        }
+
+        /* 4. Pastikan kartu tidak memiliki border atau shadow saat dicetak */
+        .card-print-reset {
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
             max-width: 100% !important;
         }
 
+        /* 5. Paksa area ini menjadi satu-satunya yang terlihat */
         #printableArea {
+            visibility: visible !important;
             padding: 0 !important;
+            margin: 0 !important;
             width: 100% !important;
-            box-shadow: none !important;
-            min-height: auto !important;
+            position: static !important;
         }
 
         @page {
             size: A4;
-            margin: 2cm;
+            margin: 1.5cm;
         }
     }
 
@@ -152,7 +176,6 @@
     .letter-content table {
         width: 100% !important;
         border-collapse: collapse;
-        margin-bottom: 1rem;
     }
     
     .letter-content table td, 
@@ -188,7 +211,6 @@
                 alert('Mohon bubuhkan tanda tangan terlebih dahulu!');
                 return;
             }
-
             const signatureData = signaturePad.toDataURL('image/png');
             document.getElementById('signatureInput').value = signatureData;
         });
