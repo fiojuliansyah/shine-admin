@@ -113,8 +113,22 @@ class ApplicantController extends Controller
         $applicant = Applicant::with(['user.profile', 'career', 'user.document'])->findOrFail($id);
         $user = $applicant->user;
         $documents = $user->document;
+        $statuses = Status::all();
 
-        return view('admin.applicants.resume', compact('applicant', 'user', 'documents'));
+        return view('admin.applicants.resume', compact('applicant', 'user', 'documents', 'statuses'));
+    }
+
+    public function updateStatusSingle(Request $request, $id)
+    {
+        $request->validate([
+            'status_id' => 'required|exists:statuses,id'
+        ]);
+
+        $applicant = Applicant::findOrFail($id);
+        $applicant->status_id = $request->status_id;
+        $applicant->save();
+
+        return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui.');
     }
 
 }

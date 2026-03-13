@@ -31,18 +31,50 @@
                         <h4 class="mb-1">{{ $user->name }}</h4>
                         <p class="text-muted">{{ $applicant->career->name ?? 'Lowongan Pekerjaan' }}</p>
                         <hr>
-                        <div class="text-start">
+                        <div class="text-start mb-0">
                             <p class="mb-2"><strong>Email:</strong> <br> {{ $user->email }}</p>
                             <p class="mb-2"><strong>No. Telp:</strong> <br> {{ $user->phone_number ?? '-' }}</p>
-                            <p class="mb-0"><strong>NIK:</strong> <br> {{ $user->employee_nik ?? '-' }}</p>
+                            <p class="mb-2"><strong>NIK Pelamar:</strong> <br> {{ $user->employee_nik ?? '-' }}</p>
+                            <p class="mb-0"><strong>No. NPWP:</strong> <br> {{ $user->profile?->npwp_number ?? '-' }}</p>
                         </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Proses Status Kandidat</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('applicants.update-status-single', $applicant->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">Status Saat Ini</label>
+                                <span class="badge bg-info-transparent d-block p-2 text-info" style="font-size: 14px;">
+                                    {{ $applicant->status->name }}
+                                </span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Pindahkan Ke Status</label>
+                                <select class="form-select" name="status_id" required>
+                                    <option disabled selected>Pilih Status Baru</option>
+                                    @foreach($statuses as $st)
+                                        <option value="{{ $st->id }}" {{ $applicant->status_id == $st->id ? 'disabled' : '' }}>
+                                            {{ $st->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="ti ti-refresh me-1"></i> Update Status
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
             <div class="col-xl-8">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between">
+                    <div class="card-header">
                         <h5>Informasi Profil</h5>
                     </div>
                     <div class="card-body">
@@ -67,15 +99,24 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="text-muted small">Tinggal Dengan</label>
-                                <p class="fw-bold">{{ $user->profile->living_with ?? '-' }}</p>
+                                <p class="fw-bold">
+                                    @php
+                                        $livingArr = ['Parent' => 'Orang Tua', 'Spouse' => 'Suami/Istri', 'Family' => 'Keluarga', 'Live Alone' => 'Tinggal Sendiri'];
+                                    @endphp
+                                    {{ $livingArr[$user->profile->living_with] ?? ($user->profile->living_with ?? '-') }}
+                                </p>
                             </div>
                             <div class="col-md-4">
-                                <label class="text-muted small">Kontak Darurat (Keluarga)</label>
+                                <label class="text-muted small">Nama Anggota Keluarga (Darurat)</label>
                                 <p class="fw-bold">{{ $user->profile->family_name ?? '-' }}</p>
                             </div>
                         </div>
-                        <div class="row mb-0">
-                            <div class="col-md-12">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="text-muted small">Nama Ibu Kandung</label>
+                                <p class="fw-bold">{{ $user->profile->mother_name ?? '-' }}</p>
+                            </div>
+                            <div class="col-md-8">
                                 <label class="text-muted small">Alamat Lengkap</label>
                                 <p class="fw-bold">{{ $user->profile->address ?? '-' }}</p>
                             </div>
@@ -91,19 +132,41 @@
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label class="text-muted small">Tinggi / Berat</label>
-                                <p class="fw-bold">{{ $user->profile->height ?? '-' }}cm / {{ $user->profile->weight ?? '-' }}kg</p>
+                                <p class="fw-bold">{{ $user->profile->height ?? '-' }} cm / {{ $user->profile->weight ?? '-' }} kg</p>
                             </div>
                             <div class="col-md-3">
                                 <label class="text-muted small">Kondisi Mata</label>
                                 <p class="fw-bold">{{ $user->profile->eye_condition ?? '-' }}</p>
                             </div>
                             <div class="col-md-3">
+                                <label class="text-muted small">Panca Indera</label>
+                                <p class="fw-bold">{{ $user->profile->sense ?? '-' }}</p>
+                            </div>
+                            <div class="col-md-3">
                                 <label class="text-muted small">Pendengaran</label>
                                 <p class="fw-bold">{{ $user->profile->hearing ?? '-' }}</p>
                             </div>
+                        </div>
+                        <div class="row mb-3">
                             <div class="col-md-3">
-                                <label class="text-muted small">Tato / Tindik</label>
-                                <p class="fw-bold">{{ $user->profile->tattoo == 'Present' ? 'Ada' : 'Tidak' }} / {{ $user->profile->piercing == 'Present' ? 'Ada' : 'Tidak' }}</p>
+                                <label class="text-muted small">Tato</label>
+                                <p class="fw-bold">{{ $user->profile->tattoo == 'Present' ? 'Ada' : 'Tidak Ada' }}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Tindik</label>
+                                <p class="fw-bold">{{ $user->profile->piercing == 'Present' ? 'Ada' : 'Tidak Ada' }}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Push Up</label>
+                                <p class="fw-bold">{{ $user->profile->push_up ?? '0' }} Kali</p>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-muted small">Kemampuan PBB</label>
+                                <p class="fw-bold">
+                                    <span class="badge {{ $user->profile->pbb ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $user->profile->pbb ? 'Normal / Bisa' : 'Abnormal / Tidak Bisa' }}
+                                    </span>
+                                </p>
                             </div>
                         </div>
                         <div class="row">
@@ -124,15 +187,15 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <label class="text-muted small">Gada Pratama</label>
-                                <h6 class="text-uppercase">{{ $user->profile->gada_pratama }}</h6>
+                                <h6 class="text-uppercase fw-bold text-primary">{{ $user->profile->gada_pratama }}</h6>
                             </div>
                             <div class="col-md-4">
                                 <label class="text-muted small">Gada Madya</label>
-                                <h6 class="text-uppercase">{{ $user->profile->gada_madya }}</h6>
+                                <h6 class="text-uppercase fw-bold text-primary">{{ $user->profile->gada_madya }}</h6>
                             </div>
                             <div class="col-md-4">
                                 <label class="text-muted small">Gada Utama</label>
-                                <h6 class="text-uppercase">{{ $user->profile->gada_utama }}</h6>
+                                <h6 class="text-uppercase fw-bold text-primary">{{ $user->profile->gada_utama }}</h6>
                             </div>
                         </div>
                     </div>
@@ -140,7 +203,7 @@
                 @endif
 
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header border-bottom">
                         <h5>Dokumen Terlampir</h5>
                     </div>
                     <div class="card-body p-0">
@@ -156,17 +219,17 @@
                                 <tbody>
                                     @forelse($documents as $doc)
                                     <tr>
-                                        <td>{{ $doc->name }}</td>
+                                        <td><h6 class="fw-medium">{{ $doc->name }}</h6></td>
                                         <td>{{ Str::limit($doc->description, 50) }}</td>
                                         <td class="text-center">
-                                            <a href="{{ $doc->file_url }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <a href="{{ $doc->file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                 <i class="ti ti-download me-1"></i> Download
                                             </a>
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="3" class="text-center">Tidak ada dokumen.</td>
+                                        <td colspan="3" class="text-center p-4 text-muted">Tidak ada dokumen yang diunggah.</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
