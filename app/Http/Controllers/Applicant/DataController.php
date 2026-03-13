@@ -305,10 +305,25 @@ class DataController extends Controller
             'mother_name',
             'npwp_number',
             'marriage_status',
+            'last_education',
+            'living_with',
+            'family_name',
+            'height',
+            'weight',
+            'eye_condition',
+            'sense',
+            'tattoo',
+            'hearing',
+            'piercing',
+            'push_up',
+            'pbb',
+            'gada_pratama',
+            'gada_madya',
+            'gada_utama',
+            'skills',
             'bank_name',
             'account_name',
-            'account_number',
-            'resign_date'
+            'account_number'
         ]);
 
         if ($request->hasFile('avatar')) {
