@@ -47,6 +47,7 @@
                     <div class="card-body">
                         <form action="{{ route('applicants.update-status-single', $applicant->id) }}" method="POST">
                             @csrf
+                            @method('PUT')
                             <div class="mb-3">
                                 <label class="form-label">Status Saat Ini</label>
                                 <span class="badge bg-info-transparent d-block p-2 text-info" style="font-size: 14px;">
