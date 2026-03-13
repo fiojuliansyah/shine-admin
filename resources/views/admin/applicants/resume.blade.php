@@ -51,7 +51,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Status Saat Ini</label>
                                 <span class="badge bg-info-transparent d-block p-2 text-info" style="font-size: 14px;">
-                                    {{ $applicant->status->name }}
+                                    {{ $applicant->status->name ?? 'Pemberkasan' }}
                                 </span>
                             </div>
                             <div class="mb-3">
