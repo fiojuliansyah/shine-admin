@@ -108,4 +108,13 @@ class ApplicantController extends Controller
         }
     }
 
+    public function resume($id)
+    {
+        $applicant = Applicant::with(['user.profile', 'career', 'user.document'])->findOrFail($id);
+        $user = $applicant->user;
+        $documents = $user->document;
+
+        return view('admin.applicants.resume', compact('applicant', 'user', 'documents'));
+    }
+
 }

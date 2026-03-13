@@ -185,6 +185,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::post('/statuses/bulk-applicant-document', [StatusController::class, 'bulkUpdateApplicantDocument'])->name('bulk.update.applicant-document');
     Route::post('/statuses/bulk-offering', [StatusController::class, 'bulkUpdateOffering'])->name('bulk.update.offering');
     Route::delete('/applicants/{id}', [ApplicantController::class, 'destroy'])->name('applicants.destroy');
+    Route::get('/applicants/{id}/resume', [ApplicantController::class, 'resume'])->name('applicants.resume');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profiles.index');
     Route::put('/profile', [ProfileController::class, 'updateAccount'])->name('profiles.update.account');

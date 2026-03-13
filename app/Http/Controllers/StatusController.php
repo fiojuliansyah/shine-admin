@@ -47,25 +47,17 @@ class StatusController extends Controller
         $sites = Site::all();
 
         if (request()->ajax()) {
-            $applicants = Applicant::with(['user','career'])
+            $applicants = Applicant::with(['user', 'career'])
                 ->where('status_id', $status->id)
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->where('done', 'document-digital')
-                    ->orWhereNull('done');
-                })
-                ->when(request('search')['value'], function ($query) {
-                    $search = request('search')['value'];
-
-                    return $query->where(function ($q) use ($search) {
-                        $q->whereHas('user', fn($x) => $x->where('name', 'like', "%$search%"))
-                        ->orWhereHas('career', fn($x) => $x->where('name', 'like', "%$search%"));
-                    });
+                        ->orWhereNull('done');
                 });
 
             return DataTables::of($applicants)
                 ->addColumn('checkbox', function ($row) {
                     return '<input type="checkbox" class="applicant-checkbox" value="' . $row->id . '">';
-                })            
+                })
                 ->addColumn('employee', function ($row) {
                     return $row->user->employee_nik ?? 'Belum di Update';
                 })
@@ -89,18 +81,18 @@ class StatusController extends Controller
                     return '<span class="badge bg-warning">Menunggu</span>';
                 })
                 ->addColumn('resume', function ($row) {
-                    $statuses = Status::all();
-                    $documents = Document::where('user_id', $row->user->id)->get();
-                    return view('admin.statuses.partials.resume', compact('row','statuses','documents'))->render();
+                    return '<a href="' . route('applicants.resume', $row->id) . '" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center">
+                                <i class="ti ti-file-description me-1"></i> Lihat Resume
+                            </a>';
                 })
                 ->addColumn('action', function ($row) {
                     return view('admin.statuses.partials.show-actions', compact('row'))->render();
                 })
-                ->rawColumns(['action','progress','resume','checkbox','role'])
+                ->rawColumns(['action', 'progress', 'resume', 'checkbox', 'role'])
                 ->make(true);
         }
-            
-        return view('admin.statuses.show', compact('status','statuses','sites','letters','companies'));
+
+        return view('admin.statuses.show', compact('status', 'statuses', 'sites', 'letters', 'companies'));
     }
 
     public function getSitesByCompany($company_id)
