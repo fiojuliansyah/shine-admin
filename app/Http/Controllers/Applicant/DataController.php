@@ -273,6 +273,8 @@ class DataController extends Controller
         $sites = Site::all();
         $user = Auth::user();
 
+        $user->loadMissing('profile');
+
         $documents = Document::where('user_id', $user->id)->get();
         return view('website.profiles.index', compact('user', 'sites', 'documents'));
     }
