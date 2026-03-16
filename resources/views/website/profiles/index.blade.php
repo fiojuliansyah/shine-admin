@@ -112,8 +112,9 @@
                                                 'Family' => 'Keluarga',
                                                 'Live Alone' => 'Tinggal Sendiri',
                                             ];
+                                            $userLivingWith = $user->profile?->living_with;
                                         @endphp
-                                        {{ $living[$user->profile->living_with] ?? ($user->profile->living_with ?? '-') }}
+                                        {{ $living[$userLivingWith] ?? ($userLivingWith ?? '-') }}
                                     </h6>
                                 </div>
                                 <div class="col-md-3">
