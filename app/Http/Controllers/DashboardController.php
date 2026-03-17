@@ -271,4 +271,58 @@ class DashboardController extends Controller
         $documents = Document::where('user_id', $user->id)->get();
         return view('website.profiles.document',compact('user','documents'));
     }
+
+    public function whatsappConfig()
+    {
+        return view('admin.dashboards.whatsapp-config');
+    }
+
+    public function getWhatsappStatus()
+    {
+        try {
+            $token = env('FONNTE_TOKEN');
+
+            if (!$token) {
+                return response()->json([
+                    'status' => false,
+                    'reason' => 'Token Fonnte tidak ditemukan'
+                ], 404);
+            }
+
+            $response = Http::withHeaders([
+                'Authorization' => $token
+            ])->timeout(15)->post('https://api.fonnte.com/qr', [
+                'type' => 'qr'
+            ]);
+
+            return response()->json($response->json());
+
+        } catch (\Exception $e) {
+            Log::error('WA Status Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'reason' => 'Server Error'
+            ], 500);
+        }
+    }
+
+    public function disconnectWhatsapp()
+    {
+        try {
+            $token = env('FONNTE_TOKEN');
+
+            $response = Http::withHeaders([
+                'Authorization' => $token
+            ])->timeout(15)->post('https://api.fonnte.com/disconnect');
+
+            return response()->json($response->json());
+
+        } catch (\Exception $e) {
+            Log::error('WA Disconnect Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'reason' => 'Gagal memutuskan koneksi'
+            ], 500);
+        }
+    }
 }

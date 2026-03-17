@@ -88,6 +88,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/whatsapp-config', [DashboardController::class, 'whatsappConfig'])->name('whatsapp.config');
+    Route::get('/whatsapp-status', [DashboardController::class, 'getWhatsappStatus'])->name('whatsapp.status');
+    Route::post('/whatsapp-disconnect', [DashboardController::class, 'disconnectWhatsapp'])->name('whatsapp.disconnect');
     Route::get('/comingsoon', [DashboardController::class, 'comingsoon'])->name('comingsoon');
     Route::get('/recuit', [DashboardController::class, 'recruit'])->name('recruit');
     Route::get('/activities', [DashboardController::class, 'activities'])->name('activities');

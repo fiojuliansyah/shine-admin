@@ -10,9 +10,11 @@ use App\Models\Generate;
 use App\Models\Letter;
 use App\Models\Site;
 use App\Models\Status;
+use App\Notifications\ApplicantStatusNotification;
 use Carbon\Carbon;
 use DataTables;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class StatusController extends Controller
@@ -134,17 +136,23 @@ class StatusController extends Controller
             $applicant = Applicant::find($applicant_id);
 
             if ($applicant) {
-                Applicant::create([
+                $newApplicantEntry = Applicant::create([
                     'status_id' => $status_id,
                     'user_id' => $applicant->user_id,
                     'career_id' => $applicant->career_id,
                 ]);
 
                 $applicant->update(['done' => 'done']);
+
+                try {
+                    $newApplicantEntry->notify(new ApplicantStatusNotification($newApplicantEntry));
+                } catch (\Exception $e) {
+                    Log::error("Gagal mengirim WA ke ID {$applicant->id}: " . $e->getMessage());
+                }
             }
         }
 
-        return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui dan notifikasi sedang dikirim.');
     }
 
     public function bulkUpdateApplicantDocument(Request $request)

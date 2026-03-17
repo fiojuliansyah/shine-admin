@@ -143,6 +143,15 @@
                         </li>
                     </ul>
                 </li>
+                <li>
+                    <ul>
+                        <li class="{{ Route::is('whatsapp.config') ? 'active' : '' }}">
+                            <a href="{{ route('whatsapp.config') }}">
+                                <i class="ti ti-smart-home"></i><span>Whatsapp Configuration</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>

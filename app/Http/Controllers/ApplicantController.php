@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use DataTables;
-use App\Models\Career;
-use App\Models\Status;
-use App\Models\Document;
+use App\DataTables\ApplicantsDataTable;
 use App\Models\Applicant;
+use App\Models\Career;
+use App\Models\Document;
+use App\Models\Status;
+use App\Notifications\ApplicantStatusNotification;
+use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\DataTables\ApplicantsDataTable;
 
 class ApplicantController extends Controller
 {
@@ -99,7 +100,6 @@ class ApplicantController extends Controller
         try {
             $applicant = Applicant::findOrFail($id);
             
-            // Hapus data applicant
             $applicant->delete();
 
             return redirect()->back()->with('success', 'Data pelamar berhasil dihapus.');
@@ -127,6 +127,13 @@ class ApplicantController extends Controller
         $applicant = Applicant::findOrFail($id);
         $applicant->status_id = $request->status_id;
         $applicant->save();
+
+        try {
+            $applicant->load(['status', 'career']);
+            $applicant->notify(new ApplicantStatusNotification($applicant));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('success', 'Status diperbarui, namun notifikasi WA gagal terkirim.');
+        }
 
         return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui.');
     }

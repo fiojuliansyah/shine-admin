@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Broadcasting\WhatsappChannel;
 use App\Models\Applicant;
 use App\Models\Company;
 use App\Models\Generate;
@@ -11,6 +12,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Notification;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
         
         Schema::defaultStringLength(191);
+
+        Notification::extend('whatsapp', function ($app) {
+            return new WhatsappChannel();
+        });
 
         if (!$this->app->runningInConsole()) {
             
