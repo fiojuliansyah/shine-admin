@@ -182,8 +182,8 @@ class StatusController extends Controller
             $yearJoinCode = Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
-            $letter = Letter::with('type_letter')->find($request->letter_id);
-            $typeLetter = $letter->type_letter;
+            $letter = Letter::with('type')->find($request->letter_id);
+            $typeLetter = $letter->type;
             
             $currentNumber = $typeLetter->number ?? 0;
             $newNumber = $currentNumber + 1;
@@ -246,8 +246,8 @@ class StatusController extends Controller
             $yearJoinCode = Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
-            $letter = Letter::with('type_letter')->find($request->letter_id);
-            $typeLetter = $letter->type_letter;
+            $letter = Letter::with('type')->find($request->letter_id);
+            $typeLetter = $letter->type;
             
             $currentNumber = $typeLetter->number ?? 0;
             $newNumber = $currentNumber + 1;
