@@ -176,7 +176,7 @@ class StatusController extends Controller
             ]);
 
             $site = Site::with('company')->find($site_id);
-            $companyCode  = $site->company->code ?? 'XX';
+            $companyCode  = $site->company->unique_id ?? 'XX';
             $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
             $monthJoinCode = Carbon::parse($request->start_date)->format('m');
             $yearJoinCode = Carbon::parse($request->start_date)->format('y');
@@ -240,7 +240,7 @@ class StatusController extends Controller
             ]);
 
             $site = Site::with('company')->find($site_id);
-            $companyCode  = $site->company->code ?? 'XX';
+            $companyCode  = $site->company->unique_id ?? 'XX';
             $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
             $monthJoinCode = Carbon::parse($request->start_date)->format('m');
             $yearJoinCode = Carbon::parse($request->start_date)->format('y');
