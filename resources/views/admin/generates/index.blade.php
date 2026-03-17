@@ -6,14 +6,14 @@
             <!-- Breadcrumb -->
             <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
                 <div class="my-auto mb-2">
-                    <h2 class="mb-1">Generate Surat</h2>
+                    <h2 class="mb-1">Surat Terbit</h2>
                     <nav>
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item">
                                 <a href="index.html"><i class="ti ti-smart-home"></i></a>
                             </li>
                             <li class="breadcrumb-item">HR</li>
-                            <li class="breadcrumb-item active" aria-current="page">Generate Surat</li>
+                            <li class="breadcrumb-item active" aria-current="page">Surat Terbit</li>
                         </ol>
                     </nav>
                 </div>
