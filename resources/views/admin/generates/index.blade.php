@@ -116,7 +116,6 @@
                 url: "{{ route('generates.index') }}",
                 type: "GET",
                 data: function (d) {
-                    // Add filter parameters
                     d.site_id = $('#siteFilter').val();
                     d.type_id = $('#typeFilter').val();
                     d.start_date = $('#startDate').val();

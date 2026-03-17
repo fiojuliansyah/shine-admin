@@ -175,9 +175,29 @@ class StatusController extends Controller
                 'done' => 'document-digital'
             ]);
 
+            $site = Site::with('company')->find($site_id);
+            $companyCode  = $site->company->code ?? 'XX';
+            $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
+            $monthJoinCode = Carbon::parse($request->start_date)->format('m');
+            $yearJoinCode = Carbon::parse($request->start_date)->format('y');
+            $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
+
+            $letter = Letter::with('type_letter')->find($request->letter_id);
+            $typeLetter = $letter->type_letter;
+            
+            $currentNumber = $typeLetter->number ?? 0;
+            $newNumber = $currentNumber + 1;
+            
+            $formattedNumber = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+            $letterNumber = $formattedNumber . '/' . $request->letter_number;
+
+            $typeLetter->update([
+                'number' => $newNumber
+            ]);
+
             Generate::create([
                 'letter_id'      => $request->letter_id,
-                'letter_number'  => $request->letter_number,
+                'letter_number'  => $letterNumber,
                 'romawi'         => $this->getRomawi(date('m')),
                 'year'           => date('Y'),
                 'start_date'     => $request->start_date,
@@ -185,8 +205,12 @@ class StatusController extends Controller
                 'user_id'        => $applicant->user_id,
                 'site_id'        => $site_id,
                 'second_party'   => $applicant->user->name,
-                'esign'          => 'no-need',
+                'esign'          => null,
                 'description'    => 'Auto generated from Bulk Offering',
+            ]);
+
+            $applicant->user->update([
+                'employee_nik' => $employeeNIK,
             ]);
         });
 
