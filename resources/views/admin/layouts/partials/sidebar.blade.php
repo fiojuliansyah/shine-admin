@@ -64,7 +64,7 @@
                                         class="{{ Route::is('type_letters.index') ? 'active' : ''    }}">Konfigurasi No Surat</a>
                                 </li>
                                 <li><a href="{{ route('generates.index') }}"
-                                        class="{{ Route::is('generates.index') ? 'active' : '' }}">Buat Surat</a></li>
+                                        class="{{ Route::is('generates.index') ? 'active' : '' }}">Surat Terbit</a></li>
                                 <li><a href="{{ route('letters.index') }}"
                                         class="{{ Route::is(['letters.index']) ? 'active' : '' }}">Buat
                                         Template Surat</a></li>
