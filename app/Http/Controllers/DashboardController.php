@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\Site;
-use App\Models\User;
-use App\Models\Career;
-use App\Models\Status;
-use App\Models\Company;
-use App\Models\Document;
 use App\Models\Applicant;
 use App\Models\Attendance;
-use Illuminate\Http\Request;
+use App\Models\Career;
+use App\Models\Company;
+use App\Models\Document;
 use App\Models\GeneratePayroll;
-use Spatie\Permission\Models\Role;
+use App\Models\Site;
+use App\Models\Status;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
+use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {

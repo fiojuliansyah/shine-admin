@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+
 
 class Applicant extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
     protected $guarded = [];
 
     public function user()
@@ -30,4 +32,9 @@ class Applicant extends Model
         return $this->belongsTo(Status::class, 'status_id');
     }
     
+
+    public function routeNotificationForWhatsapp()
+    {
+        return $this->user ? $this->user->phone : null;
+    }
 }

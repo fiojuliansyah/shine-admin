@@ -13,36 +13,30 @@ class ApplicantStatusNotification extends Notification
 
     protected $applicant;
 
-    /**
-     * Create a new notification instance.
-     * * @param Applicant $applicant
-     */
     public function __construct(Applicant $applicant)
     {
         $this->applicant = $applicant;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     */
     public function via($notifiable)
     {
-        // Menggunakan channel WhatsApp kustom Anda
         return [WhatsappChannel::class];
     }
 
-    /**
-     * Representation of the notification for WhatsApp.
-     */
     public function toWhatsapp($notifiable)
     {
+        // Mengambil data dari property $applicant yang sudah di-set di constructor
         $applicant = $this->applicant;
+        
+        // Ambil nomor telepon dari relasi user
+        // Pastikan relasi 'user' sudah di-load di Controller
+        $phoneNumber = $applicant->user->phone ?? ''; 
+        
         $careerName = $applicant->career->name ?? 'Posisi Pekerjaan';
         $statusName = $applicant->status->name ?? 'Update Status';
         
-        // Pesan WA kustom berdasarkan status
         $waMessage = "📢 *UPDATE STATUS LAMARAN* 📢\n\n";
-        $waMessage .= "Halo *{$applicant->name}*,\n";
+        $waMessage .= "Halo *{$applicant->user->name}*,\n"; // Mengambil nama dari user
         $waMessage .= "Kami ingin menginformasikan bahwa terdapat update pada lamaran kerja Anda.\n\n";
         
         $waMessage .= "*Detail Lamaran:*\n";
@@ -54,20 +48,17 @@ class ApplicantStatusNotification extends Notification
         $waMessage .= "*Tim HR Ciptakarir*";
 
         return [
-            'to' => $this->formatPhoneNumber($applicant->phone),
+            'to' => $this->formatPhoneNumber($phoneNumber),
             'message' => $waMessage,
         ];
     }
 
-    /**
-     * Format nomor telepon ke standar internasional (62)
-     */
     private function formatPhoneNumber($phone)
     {
-        // Menghilangkan karakter non-digit
+        if (!$phone) return "";
+
         $phone = preg_replace('/[^0-9]/', '', $phone);
         
-        // Mengganti awalan '0' menjadi '62'
         if (str_starts_with($phone, '0')) {
             return '62' . substr($phone, 1);
         }
