@@ -135,23 +135,35 @@
         const qrImage = document.getElementById('wa-qr-image');
         const successArea = document.getElementById('wa-success-area');
 
-        fetch("{{ route('whatsapp.status') }}")
-            .then(response => response.json())
-            .then(data => {
-                loading.classList.add('hidden');
-                
-                if (data.status === true && data.url) {
-                    qrImage.src = "data:image/png;base64," + data.url;
-                    qrArea.classList.remove('hidden');
-                    successArea.classList.add('hidden');
-                } else if (data.reason === "device already connect") {
-                    qrArea.classList.add('hidden');
-                    successArea.classList.remove('hidden');
-                    // Opsional: Hentikan polling jika sudah sukses terhubung
-                    // clearInterval(pollingInterval);
-                }
-            })
-            .catch(error => console.error('Status Error:', error));
+        fetch("{{ route('whatsapp.status') }}", {
+            headers: {
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => {
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new TypeError("Server tidak mengembalikan JSON. Cek login atau Route!");
+            }
+            return response.json();
+        })
+        .then(data => {
+            loading.classList.add('hidden');
+            
+            if (data.status === true && data.url) {
+                qrImage.src = "data:image/png;base64," + data.url;
+                qrArea.classList.remove('hidden');
+                successArea.classList.add('hidden');
+            } else if (data.reason === "device already connect" || data.status === "connected") {
+                qrArea.classList.add('hidden');
+                successArea.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Status Error:', error);
+            // Tetap tampilkan loading atau pesan error di UI jika perlu
+        });
     }
 
     function disconnectWA() {
@@ -165,7 +177,8 @@
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
         })
         .then(response => response.json())
@@ -180,9 +193,7 @@
         });
     }
 
-    // Jalankan pengecekan pertama kali
     checkWhatsappStatus();
-    // Jalankan polling setiap 15 detik
     pollingInterval = setInterval(checkWhatsappStatus, 15000);
 </script>
 
