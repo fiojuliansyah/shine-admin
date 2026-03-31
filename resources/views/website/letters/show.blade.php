@@ -23,7 +23,9 @@
                     <div class="letter-content">
                         @php
                             $content = $eletter->letter->description;
-                            $content = str_replace('', '<div class="page-break"></div>', $content);
+                            /** * Menggunakan Regex untuk menangkap * meski ada spasi tambahan di dalamnya 
+                             */
+                            $content = preg_replace('//i', '<div class="page-break"></div>', $content);
                         @endphp
                         {!! $content !!}
                     </div>
@@ -106,9 +108,64 @@
         z-index: 1;
     }
 
-    .letter-content img {
-        max-width: 100%;
-        height: auto;
+    @media print {
+        /* Memaksa semua elemen pembungkus menjadi blok statis */
+        html, body, .main-wrapper, .page-wrapper, .content, .card, .card-body {
+            display: block !important;
+            overflow: visible !important;
+            height: auto !important;
+            min-height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: #fff !important;
+        }
+
+        /* Sembunyikan elemen UI */
+        .d-print-none, header, footer, .navbar, .sidebar {
+            display: none !important;
+        }
+
+        #printableArea {
+            display: block !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            position: static !important;
+        }
+
+        /* Rule Utama Page Break */
+        .page-break {
+            display: block !important;
+            clear: both !important;
+            page-break-before: always !important;
+            break-before: page !important;
+            height: 1px !important; /* Memberi sedikit tinggi agar terbaca browser */
+            visibility: hidden !important;
+        }
+
+        /* Memaksa Paragraf yang membungkus page-break agar tidak memblokir */
+        p, span {
+            orphans: 3;
+            widows: 3;
+        }
+
+        /* Reset MsoNormal dan pembungkus break */
+        .MsoNormal:has(.page-break), 
+        span:has(.page-break),
+        p:has(.page-break) {
+            display: block !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 0 !important;
+        }
+
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
     }
 
     .letter-content table {
@@ -120,72 +177,6 @@
     .letter-content table th {
         padding: 8px;
         border: 1px solid #000;
-    }
-
-    @media print {
-        html, body {
-            background: #fff !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        header, footer, .header, .sidebar, .navbar, .breadcrumb, .d-print-none, .btn, .modal {
-            display: none !important;
-        }
-
-        .main-wrapper, .page-wrapper, .content, .card, .card-body {
-            margin: 0 !important;
-            padding: 0 !important;
-            min-height: auto !important;
-            background: #fff !important;
-            display: block !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: visible !important;
-        }
-
-        #printableArea {
-            visibility: visible !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 100% !important;
-            position: static !important;
-            display: block !important;
-            overflow: visible !important;
-        }
-
-        .page-break {
-            display: block !important;
-            page-break-before: always !important;
-            break-before: page !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* Mengatasi pembungkus paragraph MsoNormal agar tidak menghalangi break */
-        p:has(.page-break), 
-        span:has(.page-break) {
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 0 !important;
-            height: 0 !important;
-            display: block !important;
-        }
-
-        table { 
-            page-break-inside: auto; 
-        }
-        tr { 
-            page-break-inside: avoid; 
-            page-break-after: auto; 
-        }
-
-        @page {
-            size: A4;
-            margin: 2cm;
-        }
     }
 </style>
 @endpush
