@@ -106,12 +106,13 @@ class DataController extends Controller
                 $nominal = $component->amount;
                 $nama_komponen = $component->component_type->name ?? 'Tunjangan';
                 
-                // Tambahkan tanda hubung (-) di awal setiap string
+                // Tambahkan tanda hubung di awal setiap item
                 $tunjangan_items[] = '- ' . $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
             }
         }
 
-        $tunjangan = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
+        // Gunakan <br> sebagai pemisah antar baris
+        $tunjangan = !empty($tunjangan_items) ? implode("<br>", $tunjangan_items) : '-';
         
         $mulai = isset($eletter->start_date)
             ? Carbon::parse($eletter->start_date)->format('d-m-Y')
