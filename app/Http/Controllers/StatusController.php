@@ -99,13 +99,21 @@ class StatusController extends Controller
 
     public function getSitesByCompany($company_id)
     {
-        $sites = Site::where('company_id', $company_id)->get();
+        // Mengurutkan site berdasarkan nama (A-Z)
+        $sites = Site::where('company_id', $company_id)
+                    ->orderBy('name', 'asc')
+                    ->get();
+                    
         return response()->json($sites);
     }
 
     public function getLettersBySite($site_id)
     {
-        $letters = Letter::where('site_id', $site_id)->get();
+        // Mengurutkan template surat berdasarkan judul (A-Z)
+        $letters = Letter::where('site_id', $site_id)
+                        ->orderBy('title', 'asc')
+                        ->get();
+                        
         return response()->json($letters);
     }
 
