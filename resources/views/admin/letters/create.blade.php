@@ -4,15 +4,12 @@
 <div class="page-wrapper">
     <div class="content">
 
-        <!-- Breadcrumb -->
-        <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-4">
             <div class="my-auto mb-2">
-                <h2 class="mb-1">List Template</h2>
+                <h2 class="mb-1">E-Letter Builder</h2>
                 <nav>
                     <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item">
-                            <a href="index.html"><i class="ti ti-smart-home"></i></a>
-                        </li>
+                        <li class="breadcrumb-item"><a href="#"><i class="ti ti-smart-home"></i></a></li>
                         <li class="breadcrumb-item">E-Recruitment</li>
                         <li class="breadcrumb-item active" aria-current="page">Template</li>
                     </ol>
@@ -20,22 +17,23 @@
             </div>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
                 <div class="mb-2">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#lihatVariable">List Variable</button>
+                    <button class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#lihatVariable">
+                        <i class="ti ti-copy me-2"></i> List Variable & Copy
+                    </button>
                 </div>
             </div>
         </div>
-        <!-- /Breadcrumb -->
 
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
-                <h5>Buat E-Letter</h5>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title mb-0 text-primary">Buat Template E-Letter</h5>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body">
                 <form id="letterForm" action="{{ route('letters.store') }}" method="POST">
                     @csrf
-                    <div class="row p-3">
+                    <div class="row g-3 mb-4">
                         <div class="col-md-4">
-                            <label class="form-label">Site</label>
+                            <label class="form-label fw-bold">Site</label>
                             <select class="select2 form-select" name="site_id" required>
                                 @foreach ($sites as $site)
                                     <option value="{{ $site->id }}">{{ $site->name }}</option>
@@ -43,11 +41,11 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Nama</label>
-                            <input type="text" class="form-control" name="title" required>
+                            <label class="form-label fw-bold">Nama Template</label>
+                            <input type="text" class="form-control" name="title" required placeholder="Nama template...">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Tipe Template</label>
+                            <label class="form-label fw-bold">Tipe Template</label>
                             <select class="form-select" name="type_letter_id" required>
                                 @foreach ($types as $type)
                                     <option value="{{ $type->id }}">{{ $type->name }}</option>
@@ -55,11 +53,11 @@
                             </select>
                         </div>
                     </div>
-                    <div class="p-3">
-                        <textarea class="form-control" id="description" name="description" required></textarea>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="description" name="description"></textarea>
                     </div>
-                    <div class="p-3">
-                        <button type="submit" class="btn btn-primary">Buat Letter</button>
+                    <div class="d-flex justify-content-end gap-2 pt-3">
+                        <button type="submit" class="btn btn-primary px-5">Simpan Template</button>
                     </div>
                 </form>
             </div>
@@ -67,16 +65,80 @@
     </div>
 </div>
 
-<!-- Modal List Variable -->
-<div class="modal fade" id="lihatVariable" tabindex="-1" aria-labelledby="lihatVariableLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="lihatVariableLabel">Variable List</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="lihatVariable" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark">
+                <h5 class="modal-title text-white">Klik Variable Untuk Menyalin</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                @include('admin.letters.partials.variable-list')
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">KOP SURAT</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_surat]')">No Surat <code>[no_surat]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[romawi]')">Bulan Romawi <code>[romawi]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tahun]')">Tahun <code>[tahun]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-light" onclick="copyVar('[tgl_surat]')">Tgl Terbit <code>[tgl_surat]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">ISI SURAT</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[hari]')">Hari <code>[hari]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[mulai]')">Tgl Mulai <code>[mulai]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[selesai]')">Tgl Selesai <code>[selesai]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[pihak_2]')">Pihak 2 <code>[pihak_2]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[sign_2]')">Tanda Tangan P2 <code>[sign_2]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI PERSONAL</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[nama_karyawan]')">Nama Karyawan <code>[nama_karyawan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[ttl]')">TTL <code>[ttl]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[alamat]')">Alamat <code>[alamat]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[handphone]')">No HP <code>[handphone]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI PEGAWAI</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_karyawan]')">No Karyawan <code>[no_karyawan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area]')">Area <code>[area]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[jabatan]')">Jabatan <code>[jabatan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[esign]')">Tanda Tangan HRD <code>[esign]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">KOMPONEN GAJI</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[gaji]')">Gaji <code>[gaji]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunjangan]')">Tunjangan <code>[tunjangan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[komisi]')">Komisi <code>[komisi]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[potongan]')">Potongan <code>[potongan]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">KONTAK DARURAT</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[nama_kontak]')">Nama <code>[nama_kontak]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_kontak]')">Nomor HP <code>[no_kontak]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[alamat_kontak]')">Alamat <code>[alamat_kontak]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[hubungan]')">Hubungan <code>[hubungan]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <div class="me-auto"><small id="copyStatus" class="text-success fw-bold"></small></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -90,68 +152,38 @@
         selector: "#description",
         plugins: "anchor autolink autosave charmap codesample directionality emoticons help image insertdatetime link lists media nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
         toolbar: "undo redo | blocks fontfamily fontsizeinput | bold italic underline forecolor backcolor | link image | align lineheight bullist numlist | indent outdent | removeformat nonbreaking",
-        nonbreaking_force_tab: true,
-        editable_root: false,
-        height: '700px',
-        toolbar_sticky: true,
-        autosave_restore_when_empty: true,
+        height: '750px',
         content_style: `
-            body {
-            background: #fff;
-            }
-            .editable-section:focus-visible {
-            outline: none !important;
-            }
-            .header,
-            .footer {
-            font-size: 0.8rem;
-            color: #ddd;
-            }
-            .header {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 0 1rem 0;
-            }
-            .header .right-text {
-            text-align: right;
-            }
-            .footer {
-            padding: 2rem 0 0 0;
-            text-align: center;
-            }
+            body { background: #fff; font-family: 'Helvetica', sans-serif; font-size: 14px; }
             @media (min-width: 840px) {
-            html {
-                background: #eceef4;
-                min-height: 100%;
-                padding: 0.5rem;
-            }
-            body {
-                background-color: #fff;
-                box-shadow: 0 0 4px rgba(0, 0, 0, .15);
-                box-sizing: border-box;
-                margin: 1rem auto 0;
-                max-width: 820px;
-                min-height: calc(100vh - 1rem);
-                padding: 2rem 6rem 2rem 6rem;
-            }
-            }
-            @media print {
-            .pagebreak {
-                page-break-before: always;
-            }
+                html { background: #eceef4; padding: 0.5rem; }
+                body {
+                    background-color: #fff;
+                    box-shadow: 0 0 4px rgba(0, 0, 0, .15);
+                    margin: 1rem auto;
+                    max-width: 820px;
+                    min-height: calc(100vh - 2rem);
+                    padding: 2rem 5rem;
+                }
             }
         `,
         setup: function (editor) {
-            editor.on('change', function () {
-                editor.save();
-            });
+            editor.on('change', function () { editor.save(); });
         }
     });
+
+    function copyVar(val) {
+        navigator.clipboard.writeText(val).then(() => {
+            const status = document.getElementById('copyStatus');
+            status.innerText = 'Copied: ' + val;
+            setTimeout(() => { status.innerText = ''; }, 2000);
+        });
+    }
 
     document.getElementById('letterForm').addEventListener('submit', function(event) {
         var description = tinymce.get('description').getContent();
         if (description.trim() === '') {
-            alert('Deskripsi tidak boleh kosong.');
+            alert('Konten surat tidak boleh kosong.');
             event.preventDefault();
         }
     });

@@ -148,18 +148,23 @@ class GenerateController extends Controller
     public function show(Generate $generate)
     {
         $no_surat = $generate->letter_number ?? 'belum ada no surat';
+        $tgl_surat = isset($generate->created_at) 
+        ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') 
+        : '';
         $romawi = $generate->romawi ?? 'belum ada data';
         $tahun = $generate->year ?? 'belum ada tahun';
         $hari = $generate->day ?? 'belum ada hari';
         $pihak_2 = $generate->second_party ?? 'belum ada data';
         $sign_2 = $generate->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = $generate->user->name ?? 'belum ada nama';
-        $ttl = $generate->user->profile->birth_place . ', ' . Carbon::parse($generate->user->profile->birth_date)->format('d-m-Y') ?? 'belum ada data';
+        $nama_karyawan = strtoupper($generate->user->name ?? 'belum ada nama');
+        $ttl = isset($generate->user->profile->birth_place) && isset($generate->user->profile->birth_date)
+            ? $generate->user->profile->birth_place . ', ' . Carbon::parse($generate->user->profile->birth_date)->format('d-m-Y')
+            : 'belum ada data';
         $alamat = $generate->user->profile->address ?? 'belum ada alamat';
         $handphone = $generate->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
-        $area = $generate->site->name ?? 'belum ada area';
-        $jabatan = $generate->jabatan ?? 'belum ada jabatan';
+        $area = strtoupper($generate->site->name ?? 'belum ada area');
+        $jabatan = strtoupper($generate->jabatan ?? 'belum ada jabatan');
         $esign = $generate->esign ?? 'belum ada tanda tangan';
         $nama_kontak = $generate->emergency_name ?? 'belum ada nama';
         $no_kontak = $generate->emergency_number ?? 'belum ada no hp';
@@ -226,13 +231,18 @@ class GenerateController extends Controller
             }
         }
         
-        $mulai = Carbon::parse($generate->join_date)->format('d-m-Y') ?? 'belum ada data';
+        $mulai = isset($generate->join_date) 
+        ? Carbon::parse($generate->join_date)->locale('id')->translatedFormat('j F Y') 
+        : 'belum ada data';
 
-        $selesai = Carbon::parse($generate->end_date)->format('d-m-Y') ?? 'belum ada data';
+    $selesai = isset($generate->end_date) 
+        ? Carbon::parse($generate->end_date)->locale('id')->translatedFormat('j F Y') 
+        : 'Sampai dengan Selesai';
     
         $generate->letter->description = str_replace(
             [
                 '[no_surat]', 
+                '[tgl_surat]',
                 '[romawi]', 
                 '[tahun]',
                 '[hari]',
@@ -259,6 +269,7 @@ class GenerateController extends Controller
             ],
             [
                 $no_surat, 
+                $tgl_surat,
                 $romawi, 
                 $tahun,
                 $hari,

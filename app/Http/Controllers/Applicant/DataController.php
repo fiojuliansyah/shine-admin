@@ -63,20 +63,25 @@ class DataController extends Controller
         }
 
         $no_surat = $eletter->letter_number ?? 'belum ada no surat';
+        $tgl_surat = isset($eletter->created_at) 
+            ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') 
+            : '';
         $romawi = $eletter->romawi ?? 'belum ada data';
         $tahun = $eletter->year ?? 'belum ada tahun';
         $hari = $eletter->day ?? 'belum ada hari';
         $pihak_2 = $eletter->second_party ?? 'belum ada data';
         $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = $eletter->user->name ?? 'belum ada nama';
+        $nama_karyawan = strtoupper($eletter->user->name ?? 'belum ada nama');
         $nik_ktp = $eletter->user->nik ?? 'belum ada NIK KTP';
         $jenis_kelamin = $eletter->user->profile->gender ?? 'belum ada Jenis Kelamin';
-        $ttl = $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y') ?? 'belum ada data';
+        $ttl = isset($eletter->user->profile->birth_place) && isset($eletter->user->profile->birth_date)
+            ? $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y')
+            : 'belum ada data';
         $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
         $area = $eletter->site->name ?? 'belum ada area';
-        $jabatan = $eletter->jabatan ?? 'belum ada jabatan';
+        $jabatan = strtoupper($eletter->jabatan ?? 'belum ada jabatan');
         $esign = $eletter->esign ?? 'belum ada tanda tangan';
         $nama_kontak = $eletter->emergency_name ?? 'belum ada nama';
         $no_kontak = $eletter->emergency_number ?? 'belum ada no hp';
@@ -107,12 +112,17 @@ class DataController extends Controller
         }
         $tunjangan = !empty($tunjangan_items) ? implode('<br>', $tunjangan_items) : 'Tidak ada data';
         
-        $mulai = Carbon::parse($eletter->join_date)->format('d-m-Y') ?? 'belum ada data';
-        $selesai = Carbon::parse($eletter->end_date)->format('d-m-Y') ?? 'belum ada data';
-    
+        $mulai = isset($eletter->join_date)
+            ? Carbon::parse($eletter->join_date)->format('d-m-Y')
+            : 'belum ada data';
+        $selesai = isset($eletter->end_date)
+            ? Carbon::parse($eletter->end_date)->format('d-m-Y')
+            : 'belum ada data';
+
         $eletter->letter->description = str_replace(
             [
                 '[no_surat]', 
+                '[tgl_surat]',
                 '[romawi]', 
                 '[tahun]',
                 '[hari]',
@@ -141,6 +151,7 @@ class DataController extends Controller
             ],
             [
                 $no_surat, 
+                $tgl_surat,
                 $romawi, 
                 $tahun,
                 $hari,
