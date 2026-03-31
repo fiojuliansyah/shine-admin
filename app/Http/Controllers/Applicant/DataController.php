@@ -101,17 +101,16 @@ class DataController extends Controller
         $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
 
         $tunjangan_items = [];
+        
         if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
             foreach ($eletter->user->payroll->payroll_components as $component) {
                 $nominal = $component->amount;
                 $nama_komponen = $component->component_type->name ?? 'Tunjangan';
                 
-                // Tambahkan tanda hubung di awal setiap item
                 $tunjangan_items[] = '- ' . $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
             }
         }
 
-        // Gunakan <br> sebagai pemisah antar baris
         $tunjangan = !empty($tunjangan_items) ? implode("<br>", $tunjangan_items) : '-';
         
         $mulai = isset($eletter->start_date)

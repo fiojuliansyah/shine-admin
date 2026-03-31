@@ -21,7 +21,11 @@
                     @endif
 
                     <div class="letter-content">
-                        {!! $eletter->letter->description !!}
+                        @php
+                            $content = $eletter->letter->description;
+                            $content = str_replace('', '<div class="page-break"></div>', $content);
+                        @endphp
+                        {!! $content !!}
                     </div>
 
                 </div>
@@ -107,72 +111,6 @@
         height: auto;
     }
 
-    @media print {
-        /* 1. Sembunyikan SEMUA elemen root layout */
-        html, body {
-            background: #fff !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* 2. Sembunyikan elemen spesifik tema (Header, Sidebar, Navbar, dll) */
-        header, 
-        footer, 
-        .header, 
-        .sidebar, 
-        .sidebar-left, 
-        .sidebar-right, 
-        .navbar, 
-        .breadcrumb,
-        .d-print-none,
-        .btn,
-        .modal {
-            display: none !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* 3. Reset wrapper agar tidak memiliki margin/padding dari tema */
-        .main-wrapper, 
-        .page-wrapper, 
-        .content {
-            margin: 0 !important;
-            padding: 0 !important;
-            min-height: auto !important;
-            background: #fff !important;
-        }
-
-        /* 4. Pastikan kartu tidak memiliki border atau shadow saat dicetak */
-        .card-print-reset {
-            border: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-
-        /* 5. Paksa area ini menjadi satu-satunya yang terlihat */
-        #printableArea {
-            visibility: visible !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 100% !important;
-            position: static !important;
-        }
-
-        @page {
-            size: A4;
-            margin: 1.5cm;
-        }
-    }
-
-    .letter-content {
-        color: #000 !important;
-    }
-    
     .letter-content table {
         width: 100% !important;
         border-collapse: collapse;
@@ -182,6 +120,72 @@
     .letter-content table th {
         padding: 8px;
         border: 1px solid #000;
+    }
+
+    @media print {
+        html, body {
+            background: #fff !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        header, footer, .header, .sidebar, .navbar, .breadcrumb, .d-print-none, .btn, .modal {
+            display: none !important;
+        }
+
+        .main-wrapper, .page-wrapper, .content, .card, .card-body {
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: auto !important;
+            background: #fff !important;
+            display: block !important;
+            box-shadow: none !important;
+            border: none !important;
+            overflow: visible !important;
+        }
+
+        #printableArea {
+            visibility: visible !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            position: static !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+
+        .page-break {
+            display: block !important;
+            page-break-before: always !important;
+            break-before: page !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Mengatasi pembungkus paragraph MsoNormal agar tidak menghalangi break */
+        p:has(.page-break), 
+        span:has(.page-break) {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 0 !important;
+            height: 0 !important;
+            display: block !important;
+        }
+
+        table { 
+            page-break-inside: auto; 
+        }
+        tr { 
+            page-break-inside: avoid; 
+            page-break-after: auto; 
+        }
+
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
     }
 </style>
 @endpush
