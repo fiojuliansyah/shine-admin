@@ -11,6 +11,7 @@ use App\Notifications\ApplicantStatusNotification;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class ApplicantController extends Controller
 {
@@ -113,29 +114,36 @@ class ApplicantController extends Controller
         $applicant = Applicant::with(['user.profile', 'career', 'user.document'])->findOrFail($id);
         $user = $applicant->user;
         $documents = $user->document;
+        $roles = Role::all();
         $statuses = Status::all();
 
-        return view('admin.applicants.resume', compact('applicant', 'user', 'documents', 'statuses'));
+        return view('admin.applicants.resume', compact('applicant', 'user', 'documents', 'statuses', 'roles'));
     }
 
     public function updateStatusSingle(Request $request, $id)
     {
         $request->validate([
-            'status_id' => 'required|exists:statuses,id'
+            'status_id' => 'required|exists:statuses,id',
+            'role_name' => 'nullable|string'
         ]);
 
         $applicant = Applicant::findOrFail($id);
+        
         $applicant->status_id = $request->status_id;
         $applicant->save();
+
+        if ($applicant->user && $request->role_name) {
+            $applicant->user->syncRoles([$request->role_name]);
+        }
 
         try {
             $applicant->load(['status', 'career']);
             $applicant->notify(new ApplicantStatusNotification($applicant));
         } catch (\Exception $e) {
-            return redirect()->back()->with('success', 'Status diperbarui, namun notifikasi WA gagal terkirim.');
+            return redirect()->back()->with('success', 'Data diperbarui, tapi WA gagal.');
         }
 
-        return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Status dan Role berhasil diperbarui.');
     }
 
 }
