@@ -23,10 +23,9 @@
                     <div class="letter-content">
                         @php
                             $content = $eletter->letter->description;
-                            /** * Menggunakan Regex untuk menangkap * meski ada spasi tambahan di dalamnya 
-                             */
-                            $content = preg_replace('//i', '<div class="page-break"></div>', $content);
+                            $content = str_replace('', '<div class="page-break"></div>', $content);
                         @endphp
+                        
                         {!! $content !!}
                     </div>
 
@@ -108,66 +107,77 @@
         z-index: 1;
     }
 
+    .letter-content img {
+        max-width: 100%;
+        height: auto;
+    }
+
     @media print {
-        /* Memaksa semua elemen pembungkus menjadi blok statis */
-        html, body, .main-wrapper, .page-wrapper, .content, .card, .card-body {
-            display: block !important;
-            overflow: visible !important;
-            height: auto !important;
-            min-height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border: none !important;
-            box-shadow: none !important;
+        /* 1. Sembunyikan SEMUA elemen root layout */
+        html, body {
             background: #fff !important;
-        }
-
-        /* Sembunyikan elemen UI */
-        .d-print-none, header, footer, .navbar, .sidebar {
-            display: none !important;
-        }
-
-        #printableArea {
-            display: block !important;
-            width: 100% !important;
-            padding: 0 !important;
+            height: auto !important;
             margin: 0 !important;
-            position: static !important;
+            padding: 0 !important;
         }
 
-        /* Rule Utama Page Break */
-        .page-break {
-            display: block !important;
-            clear: both !important;
-            page-break-before: always !important;
-            break-before: page !important;
-            height: 1px !important; /* Memberi sedikit tinggi agar terbaca browser */
-            visibility: hidden !important;
-        }
-
-        /* Memaksa Paragraf yang membungkus page-break agar tidak memblokir */
-        p, span {
-            orphans: 3;
-            widows: 3;
-        }
-
-        /* Reset MsoNormal dan pembungkus break */
-        .MsoNormal:has(.page-break), 
-        span:has(.page-break),
-        p:has(.page-break) {
-            display: block !important;
+        /* 2. Sembunyikan elemen spesifik tema (Header, Sidebar, Navbar, dll) */
+        header, 
+        footer, 
+        .header, 
+        .sidebar, 
+        .sidebar-left, 
+        .sidebar-right, 
+        .navbar, 
+        .breadcrumb,
+        .d-print-none,
+        .btn,
+        .modal {
+            display: none !important;
             height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
-            line-height: 0 !important;
+        }
+
+        /* 3. Reset wrapper agar tidak memiliki margin/padding dari tema */
+        .main-wrapper, 
+        .page-wrapper, 
+        .content {
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: auto !important;
+            background: #fff !important;
+        }
+
+        /* 4. Pastikan kartu tidak memiliki border atau shadow saat dicetak */
+        .card-print-reset {
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* 5. Paksa area ini menjadi satu-satunya yang terlihat */
+        #printableArea {
+            visibility: visible !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            position: static !important;
         }
 
         @page {
             size: A4;
-            margin: 2cm;
+            margin: 1.5cm;
         }
     }
 
+    .letter-content {
+        color: #000 !important;
+    }
+    
     .letter-content table {
         width: 100% !important;
         border-collapse: collapse;
