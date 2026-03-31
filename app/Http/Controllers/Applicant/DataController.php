@@ -105,10 +105,14 @@ class DataController extends Controller
             foreach ($eletter->user->payroll->payroll_components as $component) {
                 $nominal = $component->amount;
                 $nama_komponen = $component->component_type->name ?? 'Tunjangan';
-                $tunjangan_items[] = $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
+                
+                // Tambahkan tanda hubung (-) di awal setiap string
+                $tunjangan_items[] = '- ' . $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
             }
         }
-        $tunjangan = !empty($tunjangan_items) ? implode('<br>', $tunjangan_items) : 'Tidak ada data';
+
+        // Gabungkan array menjadi satu string panjang dengan baris baru
+        $tunjangan_list = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
         
         $mulai = isset($eletter->start_date)
             ? Carbon::parse($eletter->start_date)->format('d-m-Y')
