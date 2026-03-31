@@ -1,14 +1,11 @@
-<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalTitle"
-                aria-hidden="true">
+<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <form id="importForm" action="{{ route('import.process') }}" method="POST"
-                enctype="multipart/form-data">
+            <form id="importForm" action="{{ route('import.process') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title" id="importModalTitle">Import Surat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div>
@@ -59,25 +56,46 @@
 </div>
 
 <!-- Modal untuk tanda tangan -->
-<div class="modal fade" id="signaturemodal" tabindex="-1" role="dialog" aria-labelledby="signaturemodalTitle" aria-hidden="true">
+<div class="modal fade" id="signaturemodal" tabindex="-1" role="dialog" aria-labelledby="signaturemodalTitle"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            @if (Auth::user()->profile && Auth::user()->profile->esign == null) 
-                <form action="{{ route('save.signature') }}" method="POST" id="signatureForm">
+            @if (Auth::user()->profile && Auth::user()->profile->esign == null)
+                <form action="{{ route('save.signature') }}" method="POST" id="signatureForm"
+                    enctype="multipart/form-data">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title" id="signaturemodalTitle">Buat Tanda Tangan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title">Buat Tanda Tangan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <canvas id="signatureCanvas" width="500" height="200"></canvas>
-                        <!-- Hidden input to store the signature -->
-                        <input type="hidden" name="signature" id="signatureInput">
+                        <ul class="nav nav-tabs mb-3" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab" href="#drawTab">Gambar Manual</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#uploadTab">Upload File</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div id="drawTab" class="tab-pane fade show active">
+                                <canvas id="signatureCanvas" width="450" height="200"
+                                    style="border: 1px dashed #ccc; background: #f9f9f9;"></canvas>
+                                <input type="hidden" name="signature" id="signatureInput">
+                            </div>
+                            <div id="uploadTab" class="tab-pane fade">
+                                <label class="form-label">Upload Foto Tanda Tangan (PNG/JPG)</label>
+                                <input type="file" name="signature_file" class="form-control" accept="image/*">
+                                <small class="text-muted">Gunakan background putih/transparan untuk hasil
+                                    terbaik.</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">batal</button>
-                        <button type="submit" class="btn btn-primary me-2" id="saveSignature">Buat</button>
-                        <button type="button" class="btn btn-warning" id="resetSignature">Reset</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-warning" id="resetSignature">Reset Canvas</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             @else
@@ -101,7 +119,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="approvemodal" tabindex="-1" role="dialog" aria-labelledby="approvemodalTitle" aria-hidden="true">
+<div class="modal fade" id="approvemodal" tabindex="-1" role="dialog" aria-labelledby="approvemodalTitle"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <form action="{{ route('generates.bulkApprove') }}" method="POST" id="bulkApproveForm">
@@ -112,7 +131,8 @@
                 </div>
                 <div class="modal-body">
                     <p>Apakah Anda yakin ingin menanda tanganin yang anda pilih?</p>
-                    <input type="hidden" name="esign" value="{{ Auth::user()->profile ? Auth::user()->profile->esign : 'Profil tidak ditemukan' }}">
+                    <input type="hidden" name="esign"
+                        value="{{ Auth::user()->profile ? Auth::user()->profile->esign : 'Profil tidak ditemukan' }}">
                     <input type="hidden" name="ids" id="bulkApproveIds">
                 </div>
                 <div class="modal-footer">
@@ -124,7 +144,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="deletemodal" tabindex="-1" role="dialog" aria-labelledby="deletemodalTitle" aria-hidden="true">
+<div class="modal fade" id="deletemodal" tabindex="-1" role="dialog" aria-labelledby="deletemodalTitle"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <form action="{{ route('generates.bulkDelete') }}" method="POST" id="bulkDeleteForm">
@@ -141,7 +162,7 @@
                     <button type="button" class="btn btn-light me-2"" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-danger" id="bulk-delete-btn">Hapus</button>
                 </div>
-            </form>                     
+            </form>
         </div>
     </div>
 </div>
