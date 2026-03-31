@@ -86,9 +86,9 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Update Role User</label>
+                                    <label class="form-label">Update Posisi User</label>
                                     <select class="form-select" name="role_name">
-                                        <option value="">-- Tetap Gunakan Role Saat Ini --</option>
+                                        <option value="">-- Posisi Saat Ini --</option>
                                         @foreach ($roles as $role)
                                             <option value="{{ $role->name }}"
                                                 {{ $applicant->user && $applicant->user->hasRole($role->name) ? 'selected' : '' }}>

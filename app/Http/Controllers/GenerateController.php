@@ -164,7 +164,7 @@ class GenerateController extends Controller
         $handphone = $generate->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
         $area = strtoupper($generate->site->name ?? 'belum ada area');
-        $jabatan = strtoupper($generate->jabatan ?? 'belum ada jabatan');
+        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
         $esign = $generate->esign ?? 'belum ada tanda tangan';
         $nama_kontak = $generate->emergency_name ?? 'belum ada nama';
         $no_kontak = $generate->emergency_number ?? 'belum ada no hp';
