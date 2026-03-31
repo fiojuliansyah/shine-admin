@@ -231,8 +231,8 @@ class GenerateController extends Controller
             }
         }
         
-        $mulai = isset($generate->join_date) 
-        ? Carbon::parse($generate->join_date)->locale('id')->translatedFormat('j F Y') 
+        $mulai = isset($generate->start_date) 
+        ? Carbon::parse($generate->start_date)->locale('id')->translatedFormat('j F Y') 
         : 'belum ada data';
 
     $selesai = isset($generate->end_date) 

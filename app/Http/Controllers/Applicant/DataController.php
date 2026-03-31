@@ -81,7 +81,7 @@ class DataController extends Controller
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
         $area = $eletter->site->name ?? 'belum ada area';
-        $jabatan = strtoupper($eletter->jabatan ?? 'belum ada jabatan');
+        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
         $esign = $eletter->esign ?? 'belum ada tanda tangan';
         $nama_kontak = $eletter->emergency_name ?? 'belum ada nama';
         $no_kontak = $eletter->emergency_number ?? 'belum ada no hp';
@@ -112,8 +112,8 @@ class DataController extends Controller
         }
         $tunjangan = !empty($tunjangan_items) ? implode('<br>', $tunjangan_items) : 'Tidak ada data';
         
-        $mulai = isset($eletter->join_date)
-            ? Carbon::parse($eletter->join_date)->format('d-m-Y')
+        $mulai = isset($eletter->start_date)
+            ? Carbon::parse($eletter->start_date)->format('d-m-Y')
             : 'belum ada data';
         $selesai = isset($eletter->end_date)
             ? Carbon::parse($eletter->end_date)->format('d-m-Y')
