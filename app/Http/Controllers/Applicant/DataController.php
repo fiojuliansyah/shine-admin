@@ -81,7 +81,7 @@ class DataController extends Controller
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
         $area = $eletter->site->name ?? 'belum ada area';
-        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
+        $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
         $esign = $eletter->esign ?? 'belum ada tanda tangan';
         $nama_kontak = $eletter->emergency_name ?? 'belum ada nama';
         $no_kontak = $eletter->emergency_number ?? 'belum ada no hp';
