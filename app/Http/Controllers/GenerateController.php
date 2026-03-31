@@ -185,15 +185,13 @@ class GenerateController extends Controller
         $tunjangan_calculation = 0;
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
-                if ($component->component_type === 'allowance') {
-                    if ($component->amount) {
-                        $tunjangan_calculation += $component->amount;
-                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+                if ($component->amount) {
+                    $tunjangan_calculation += $component->amount;
+                    $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
 
-                    } elseif ($component->percentage) {
-                        $tunjangan_calculation += ($gaji * $component->percentage) / 100;
-                        $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
-                    }
+                } elseif ($component->percentage) {
+                    $tunjangan_calculation += ($gaji * $component->percentage) / 100;
+                    $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
                 }
             }
         }

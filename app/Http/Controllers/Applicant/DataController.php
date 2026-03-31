@@ -103,11 +103,9 @@ class DataController extends Controller
         $tunjangan_items = [];
         if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
             foreach ($eletter->user->payroll->payroll_components as $component) {
-                if ($component->type === 'allowance') {
-                    $nominal = $component->amount;
-                    $nama_komponen = $component->component_type->name ?? 'Tunjangan';
-                    $tunjangan_items[] = $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
-                }
+                $nominal = $component->amount;
+                $nama_komponen = $component->component_type->name ?? 'Tunjangan';
+                $tunjangan_items[] = $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
             }
         }
         $tunjangan = !empty($tunjangan_items) ? implode('<br>', $tunjangan_items) : 'Tidak ada data';
