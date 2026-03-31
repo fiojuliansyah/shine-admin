@@ -35,7 +35,7 @@
                 </nav>
             </div>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
-                @include('payrolls.partials.head-button')
+                @include('admin.payrolls.partials.head-button')
             </div>
         </div>
 
@@ -137,7 +137,7 @@
                                         </button>
                                     </td>
                                 </tr>
-                                @include('payrolls.partials.modals')
+                                @include('admin.payrolls.partials.modals')
                             @endforeach
                         </tbody>
                     </table>
