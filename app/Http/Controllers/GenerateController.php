@@ -116,7 +116,7 @@ class GenerateController extends Controller
         $ids = explode(',', $ids);
     
         $updated = Generate::whereIn('id', $ids)
-                            ->update(['second_party_esign' => $esign]);
+                            ->update(['esign' => $esign]);
     
         if ($updated) {
             return redirect()->back()->with('success', 'Tanda tangan berhasil disalin ke surat yang dipilih.');
