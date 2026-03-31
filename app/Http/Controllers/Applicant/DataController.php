@@ -111,8 +111,7 @@ class DataController extends Controller
             }
         }
 
-        // Gabungkan array menjadi satu string panjang dengan baris baru
-        $tunjangan_list = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
+        $tunjangan = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
         
         $mulai = isset($eletter->start_date)
             ? Carbon::parse($eletter->start_date)->format('d-m-Y')
