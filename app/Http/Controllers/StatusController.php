@@ -103,6 +103,12 @@ class StatusController extends Controller
         return response()->json($sites);
     }
 
+    public function getLettersBySite($site_id)
+    {
+        $letters = Letter::where('site_id', $site_id)->get();
+        return response()->json($letters);
+    }
+
     public function update(Request $request, $id)
     {
         $status = Status::findOrFail($id);

@@ -226,12 +226,9 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Template Surat (PKWT)</label>
-                            <select class="form-select" name="letter_id" required>
-                                <option disabled selected>Pilih Template</option>
-                                @foreach ($letters as $letter) 
-                                    <option value="{{ $letter->id }}">{{ $letter->title }}</option>
-                                @endforeach
+                            <label class="form-label">Template Surat</label>
+                            <select class="form-select select-letter" name="letter_id" required>
+                                <option disabled selected>Pilih Penempatan Dahulu</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -287,10 +284,12 @@ $(function () {
 
     $('.select-company').on('change', function() {
         var companyId = $(this).val();
-        var targetSelect = $(this).data('target');
-        var $siteDropdown = $(targetSelect);
+        var $form = $(this).closest('form');
+        var $siteDropdown = $form.find('select[name="site_id"]');
+        var $letterDropdown = $form.find('select[name="letter_id"]');
 
-        $siteDropdown.empty().append('<option disabled selected>Loading...</option>');
+        $siteDropdown.empty().append('<option disabled selected>Loading Site...</option>');
+        $letterDropdown.empty().append('<option disabled selected>Pilih Penempatan Dahulu</option>');
 
         if (companyId) {
             $.ajax({
@@ -306,9 +305,29 @@ $(function () {
         }
     });
 
+    $('select[name="site_id"]').on('change', function() {
+        var siteId = $(this).val();
+        var $form = $(this).closest('form');
+        var $letterDropdown = $form.find('select[name="letter_id"]');
+
+        $letterDropdown.empty().append('<option disabled selected>Loading Template...</option>');
+
+        if (siteId) {
+            $.ajax({
+                url: '/manage/get-letters-by-site/' + siteId,
+                type: 'GET',
+                success: function(data) {
+                    $letterDropdown.empty().append('<option disabled selected>Pilih Template</option>');
+                    $.each(data, function(key, letter) {
+                        $letterDropdown.append('<option value="' + letter.id + '">' + letter.title + '</option>');
+                    });
+                }
+            });
+        }
+    });
+
     $('#select-all').on('click', function () {
-        var isChecked = this.checked;
-        $('.applicant-checkbox').prop('checked', isChecked);
+        $('.applicant-checkbox').prop('checked', this.checked);
     });
 
     $('form').on('submit', function(e) {
