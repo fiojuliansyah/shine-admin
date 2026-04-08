@@ -72,22 +72,13 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu-title"><span>FINANCE & ACCOUNTS</span></li>
+                <li class="menu-title"><span>DOKUMEN GAJI</span></li>
                 <li>
                     <ul>
-                        <li class="submenu">
-                            <a href="javascript:void(0);"
-                                class="{{ Route::is(['payrolls.main', 'payrolls.generate', 'payroll.generateDetail', 'payrolls.overtime']) ? 'active subdrop' : '' }}">
-                                <i class="ti ti-cash"></i><span>Payroll</span>
-                                <span class="menu-arrow"></span>
+                        <li class="{{ Route::is('payrolls.main') ? 'active' : '' }}">
+                            <a href="{{ route('payrolls.main') }}">
+                                <i class="ti ti-cash"></i><span>Pengaturan Gaji</span>
                             </a>
-                            <ul>
-                                <li><a href="{{ route('payrolls.main') }}"
-                                        class="{{ Route::is('payrolls.main') ? 'active' : '' }}">Master</a></li>
-                                <li><a href="{{ route('payrolls.generate') }}"
-                                        class="{{ Route::is(['payrolls.generate', 'payroll.generateDetail']) ? 'active' : '' }}">Generate
-                                        Payroll</a></li>
-                            </ul>
                         </li>
                     </ul>
                 </li>
