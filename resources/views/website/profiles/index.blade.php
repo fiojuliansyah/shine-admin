@@ -770,7 +770,7 @@
                                         <option value="SIM">SIM</option>
                                         <option value="NPWP">NPWP</option>
                                         <option value="IJAZAH">IJAZAH</option>
-                                        <option value="KARTU KELUARGA">KARTU KELUARGA</option>
+                                        <option value="KARTU KELUARGA">KARTU KELUARGA (wajib)</option>
                                         <option value="PAKLARING">PAKLARING</option>
                                         <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN/PROFESI</option>
                                     </select>

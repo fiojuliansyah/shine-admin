@@ -32,26 +32,34 @@ class ApplicantAuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|max:20',
             'password' => 'required|string|min:6|confirmed',
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar gunakan email lain.',
+            'phone.required' => 'Nomor WhatsApp wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal harus 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.'
         ]);
-    
-       $user = User::create([
+
+        $user = User::create([
             'name' => $request->name,
             'email' => strtolower($request->email),
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
-    
+
         $link = 'https://google.com/'; 
-    
         $qrCodeSvg = QrCode::format('svg')->size(300)->generate($link);
-    
+
         $user->update([
             'profile_qr' => $qrCodeSvg,
         ]);
-    
+
         Auth::login($user);
-    
-        return redirect()->route('web.applicants.dashboard')->with('success', 'Pendaftaran berhasil! QR Code Anda telah dibuat.');
+
+        return redirect()->route('web.applicants.dashboard')->with('success', 'Pendaftaran berhasil!');
     }
     
 
@@ -60,6 +68,9 @@ class ApplicantAuthController extends Controller
         $request->validate([
             'login' => 'required|string',
             'password' => 'required|string',
+        ], [
+            'login.required' => 'Email atau Nomor WhatsApp wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
         ]);
 
         $credentials = filter_var($request->login, FILTER_VALIDATE_EMAIL)
@@ -70,9 +81,7 @@ class ApplicantAuthController extends Controller
             return redirect()->route('web.applicants.dashboard')->with('success', 'Login berhasil!');
         }
 
-        return back()->withErrors([
-            'login' => 'Email/No HP atau Password salah.',
-        ]);
+        return back()->with('error', 'Email/No HP atau Password yang Anda masukkan salah.')->withInput();
     }
 
     public function logout(Request $request)
