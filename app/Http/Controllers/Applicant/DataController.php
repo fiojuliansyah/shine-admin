@@ -265,7 +265,7 @@ class DataController extends Controller
         }
 
         // 2. Validasi Dokumen Wajib (KTP, SKCK, KARTU KELUARGA)
-        $requiredDocuments = ['KTP', 'SKCK', 'KARTU KELUARGA'];
+        $requiredDocuments = ['KTP', 'KARTU KELUARGA'];
         
         // Ambil nama dokumen yang sudah diunggah user
         $userDocuments = Document::where('user_id', $user->id)
