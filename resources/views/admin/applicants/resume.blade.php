@@ -34,7 +34,7 @@
                             <hr>
                             <div class="text-start mb-0">
                                 <p class="mb-2"><strong>Email:</strong> <br> {{ $user->email }}</p>
-                                <p class="mb-2"><strong>No. Telp:</strong> <br> {{ $user->phone_number ?? '-' }}</p>
+                                <p class="mb-2"><strong>No. Telp:</strong> <br> {{ $user->phone ?? '-' }}</p>
                                 <p class="mb-2"><strong>NIK Pelamar:</strong> <br> {{ $user->employee_nik ?? '-' }}</p>
                                 <p class="mb-0"><strong>No. NPWP:</strong> <br> {{ $user->profile?->npwp_number ?? '-' }}
                                 </p>
