@@ -65,12 +65,7 @@ class ApplicantsDataTable extends DataTable
         return $this->builder()
             ->setTableId('applicants-table')
             ->columns($this->getColumns())
-            ->minifiedAjax([
-                'data' => 'function(d) {
-                    d.start_date = $("#start_date").val();
-                    d.end_date = $("#end_date").val();
-                }'
-            ])
+            ->minifiedAjax()
             ->orderBy(4, 'desc')
             ->selectStyleSingle()
             ->buttons([
