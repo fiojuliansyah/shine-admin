@@ -66,6 +66,11 @@
 $(function () {
     let table = $('#applicants-table').DataTable();
 
+    $('#applicants-table').on('preXhr.dt', function (e, settings, data) {
+        data.start_date = $('#start_date').val();
+        data.end_date = $('#end_date').val();
+    });
+
     $('#filter').click(function () {
         table.draw();
     });
