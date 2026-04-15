@@ -64,7 +64,7 @@
 
 <script>
 $(function () {
-    let table = $('#applicants-table').DataTable();
+    let table = window.LaravelDataTables['applicants-table'];
 
     $('#applicants-table').on('preXhr.dt', function (e, settings, data) {
         data.start_date = $('#start_date').val();
