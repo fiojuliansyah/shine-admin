@@ -55,7 +55,18 @@ class DataController extends Controller
         $user = Auth::user();
 
         $histories = Generate::where('user_id', $user->id)
-            ->with(['letter', 'site'])
+            ->with(['letter.type', 'site'])
+            ->where(function ($query) {
+                $query->whereDoesntHave('letter', function ($q) {
+                    $q->where('type_letter', 'PKWT');
+                })
+                ->orWhere(function ($q) {
+                    $q->whereHas('letter', function ($subQ) {
+                        $subQ->where('type_letter', 'PKWT');
+                    })
+                    ->whereNull('second_party_esign'); 
+                });
+            })
             ->orderBy('created_at', 'DESC')
             ->get();
         
