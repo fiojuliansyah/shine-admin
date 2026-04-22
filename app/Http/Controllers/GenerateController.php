@@ -71,6 +71,9 @@ class GenerateController extends Controller
                 ->addColumn('checkbox', function ($row) {
                     return '<input type="checkbox" class="generate-checkbox" value="' . $row->id . '">';
                 })
+                ->addColumn('created_at', function ($row) {
+                    return $row->created_at->format('d M Y');
+                })
                 ->addColumn('template', function ($row) {
                     return $row->letter->title . '<br>' . ($row->letter->type ? $row->letter->type->name : 'No Type');
                 })

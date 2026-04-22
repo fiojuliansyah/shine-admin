@@ -81,6 +81,7 @@
                                     <th style="text-align: center; vertical-align: middle; width: 40px;">
                                         <input type="checkbox" id="select-all" class="form-check-input">
                                     </th>
+                                    <th style="text-align: center; vertical-align: middle;">Tanggal Dibuat</th>
                                     <th style="text-align: center; vertical-align: middle;">Template</th>
                                     <th style="text-align: center; vertical-align: middle;">Nama</th>
                                     <th style="text-align: center; vertical-align: middle;">Tanda Tangan</th>
@@ -124,6 +125,7 @@
             },
             columns: [
                 { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
+                { data: 'created_at', name: 'created_at' },
                 { data: 'template', name: 'template' },
                 { data: 'name', name: 'name' },
                 { data: 'signature', name: 'signature' },
