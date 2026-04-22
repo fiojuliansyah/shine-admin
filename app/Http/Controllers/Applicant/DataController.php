@@ -57,14 +57,20 @@ class DataController extends Controller
         $histories = Generate::where('user_id', $user->id)
             ->with(['letter.type', 'site'])
             ->where(function ($query) {
-                $query->whereDoesntHave('letter', function ($q) {
-                    $q->where('type_letter', 'PKWT');
+                // Tampilkan surat jika:
+                // 1. Tipenya BUKAN PKWT
+                $query->whereHas('letter.type', function ($q) {
+                    $q->where('name', '!=', 'PKWT');
                 })
+                // 2. ATAU Tipenya PKWT tapi second_party_esign MASIH KOSONG
                 ->orWhere(function ($q) {
-                    $q->whereHas('letter', function ($subQ) {
-                        $subQ->where('type_letter', 'PKWT');
+                    $q->whereHas('letter.type', function ($subQ) {
+                        $subQ->where('name', 'PKWT');
                     })
-                    ->whereNull('second_party_esign'); 
+                    ->where(function($esignQuery) {
+                        $esignQuery->whereNull('second_party_esign')
+                                ->orWhere('second_party_esign', '');
+                    });
                 });
             })
             ->orderBy('created_at', 'DESC')
