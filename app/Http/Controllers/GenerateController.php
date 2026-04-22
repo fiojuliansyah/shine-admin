@@ -16,7 +16,7 @@ class GenerateController extends Controller
     public function index()
     {
         $types = TypeLetter::with('letters')->get();
-        $letters = Letter::all();
+        $letters = Letter::latest()->get();
         $sites = Site::with('company')->get();
         
         $filters = [
