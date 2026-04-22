@@ -15,6 +15,16 @@ class ApplicantsDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->filterColumn('name', function($query, $keyword) {
+                $query->whereHas('user', function($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('career', function($query, $keyword) {
+                $query->whereHas('career', function($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
             ->addColumn('name', function ($row) {
                 return $row->user->name ?? '';
             })
@@ -46,7 +56,7 @@ class ApplicantsDataTable extends DataTable
     public function query(Applicant $model): QueryBuilder
     {
         $query = $model->newQuery()
-            ->with(['user.profile', 'career'])
+            ->with(['user', 'career'])
             ->where('status_id', 0)
             ->whereNull('done');
 
@@ -57,7 +67,7 @@ class ApplicantsDataTable extends DataTable
             ]);
         }
 
-        return $query->orderBy('created_at', 'desc');
+        return $query;
     }
 
     public function html(): HtmlBuilder
@@ -66,7 +76,7 @@ class ApplicantsDataTable extends DataTable
             ->setTableId('applicants-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(4, 'desc')
+            ->orderBy(1, 'desc')
             ->selectStyleSingle()
             ->buttons([
                 Button::make('excel'),
@@ -83,10 +93,12 @@ class ApplicantsDataTable extends DataTable
         return [
             Column::make('id')
                 ->title('#')
-                ->render('meta.row + meta.settings._iDisplayStart + 1'),
+                ->render('meta.row + meta.settings._iDisplayStart + 1')
+                ->orderable(false)
+                ->searchable(false),
             Column::make('created_at')->title('Tanggal Daftar'),
-            Column::make('name')->title('Nama Pelamar'),
-            Column::make('career')->title('Lowongan'),
+            Column::make('name')->title('Nama Pelamar')->name('user.name'),
+            Column::make('career')->title('Lowongan')->name('career.name'),
             Column::make('progress')->title('Progress'),
             Column::make('resume')->title('Resume'),
             Column::computed('action')

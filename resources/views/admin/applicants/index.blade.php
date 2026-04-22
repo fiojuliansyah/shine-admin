@@ -10,7 +10,7 @@
                 <nav>
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item">
-                            <a href="index.html"><i class="ti ti-smart-home"></i></a>
+                            <a href="#"><i class="ti ti-smart-home"></i></a>
                         </li>
                         <li class="breadcrumb-item">Recruitment</li>
                         <li class="breadcrumb-item">Kandidat</li>
@@ -64,21 +64,21 @@
 
 <script>
 $(function () {
-    let table = window.LaravelDataTables['applicants-table'];
-
-    $('#applicants-table').on('preXhr.dt', function (e, settings, data) {
-        data.start_date = $('#start_date').val();
-        data.end_date = $('#end_date').val();
-    });
-
+    const tableId = 'applicants-table';
+    
     $('#filter').click(function () {
-        table.draw();
+        window.LaravelDataTables[tableId].draw();
     });
 
     $('#reset').click(function () {
         $('#start_date').val('');
         $('#end_date').val('');
-        table.draw();
+        window.LaravelDataTables[tableId].draw();
+    });
+
+    $('#' + tableId).on('preXhr.dt', function (e, settings, data) {
+        data.start_date = $('#start_date').val();
+        data.end_date = $('#end_date').val();
     });
 });
 </script>
