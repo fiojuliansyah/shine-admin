@@ -16,7 +16,7 @@ class GenerateController extends Controller
     public function index()
     {
         $types = TypeLetter::with('letters')->get();
-        $letters = Letter::latest()->get();
+        $letters = Letter::all();
         $sites = Site::with('company')->get();
         
         $filters = [
@@ -28,6 +28,7 @@ class GenerateController extends Controller
     
         if (request()->ajax()) {
             $generates = Generate::with('letter.type', 'site', 'user') 
+                ->orderBy('created_at', 'DESC')
                 // Search filter
                 ->when(request('search')['value'], function ($query) {
                     $search = request('search')['value'];
