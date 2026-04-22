@@ -160,7 +160,27 @@
         toolbar: "undo redo | blocks fontfamily fontsizeinput | bold italic underline forecolor backcolor | link image | align lineheight bullist numlist | indent outdent | removeformat nonbreaking",
         height: '750px',
         content_style: `
-            body { background: #fff; font-family: 'Helvetica', sans-serif; font-size: 14px; }
+            body { 
+                background: #fff; 
+                font-family: 'Helvetica', sans-serif; 
+                font-size: 14px; 
+                position: relative; 
+                z-index: 1; 
+            }
+            img { 
+                position: absolute; 
+                z-index: -1; 
+                pointer-events: auto;
+                max-width: 100%;
+                height: auto;
+                opacity: 0.7;
+            }
+            p, h1, h2, h3, h4, h5, h6, ul, ol, table {
+                position: relative;
+                z-index: 2;
+                pointer-events: none;
+                background: transparent !important;
+            }
             @media (min-width: 840px) {
                 html { background: #eceef4; padding: 0.5rem; }
                 body {
