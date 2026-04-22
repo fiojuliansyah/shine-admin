@@ -88,7 +88,6 @@ class DataController extends Controller
         $alamat_kontak = $eletter->emergency_address ?? 'belum ada alamat';
         $hubungan = $eletter->relationship ?? 'belum ada hubungan';
         
-        
         $payroll = $user->payroll;
         $gaji_raw = 0;
         $gaji_label = "";
@@ -120,67 +119,32 @@ class DataController extends Controller
             ? Carbon::parse($eletter->end_date)->format('d-m-Y')
             : 'belum ada data';
 
-        $eletter->letter->description = str_replace(
-            [
-                '[no_surat]', 
-                '[tgl_surat]',
-                '[romawi]', 
-                '[tahun]',
-                '[hari]',
-                '[mulai]',
-                '[selesai]',
-                '[pihak_2]',
-                '[sign_2]',
-                '[nama_karyawan]',
-                '[jenis_kelamin]',
-                '[nik_ktp]',
-                '[ttl]',
-                '[alamat]',
-                '[handphone]',
-                '[no_karyawan]',
-                '[area]',
-                '[jabatan]',
-                '[esign]',
-                '[gaji]',
-                '[tunjangan]',
-                '[komisi]',
-                '[potongan]',
-                '[nama_kontak]',
-                '[no_kontak]',
-                '[alamat_kontak]',
-                '[hubungan]'
-            ],
-            [
-                $no_surat, 
-                $tgl_surat,
-                $romawi, 
-                $tahun,
-                $hari,
-                $mulai,
-                $selesai,
-                $pihak_2,
-                $sign_2,
-                $nama_karyawan,
-                $jenis_kelamin,
-                $nik_ktp,
-                $ttl,
-                $alamat,
-                $handphone,
-                $no_karyawan,
-                $area,
-                $jabatan,
-                $esign,
-                $gaji,
-                $tunjangan,
-                // $komisi,
-                // $potongan,
-                $nama_kontak,
-                $no_kontak,
-                $alamat_kontak,
-                $hubungan
-            ],
-            $eletter->letter->description
-        );
+        $search = [
+            '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
+            '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[jenis_kelamin]', '[nik_ktp]', '[ttl]', 
+            '[alamat]', '[handphone]', '[no_karyawan]', '[area]', '[jabatan]', '[esign]', 
+            '[gaji]', '[tunjangan]', '[nama_kontak]', '[no_kontak]', '[alamat_kontak]', '[hubungan]'
+        ];
+
+        $replace = [
+            $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
+            $pihak_2, $sign_2, $nama_karyawan, $jenis_kelamin, $nik_ktp, $ttl, 
+            $alamat, $handphone, $no_karyawan, $area, $jabatan, $esign, 
+            $gaji, $tunjangan, $nama_kontak, $no_kontak, $alamat_kontak, $hubungan
+        ];
+
+        $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)
+            ->with('customVariable')
+            ->get();
+
+        foreach ($customValues as $cv) {
+            if ($cv->customVariable) {
+                $search[] = '[' . $cv->customVariable->variable . ']';
+                $replace[] = $cv->value;
+            }
+        }
+
+        $eletter->letter->description = str_replace($search, $replace, $eletter->letter->description);
 
         return view('website.letters.show', compact('eletter'));
     }
