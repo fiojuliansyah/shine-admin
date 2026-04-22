@@ -65,7 +65,6 @@ class CareersDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('status')->title('Status'),
             Column::make('company')->title('Perusahaan'),
             Column::make('name')->title('Lowongan'),
             Column::make('department')->title('Department'),

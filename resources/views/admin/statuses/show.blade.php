@@ -202,9 +202,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Konfigurasi Offering & PKWT</h4>
-                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="ti ti-x"></i>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="form-bulk-offering" action="{{ route('bulk.update.offering') }}" method="POST">
                 @csrf
@@ -212,7 +210,7 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Pilih Perusahaan</label>
-                            <select class="form-select select-company" data-target="#site-bulk-offering" required>
+                            <select class="form-select select-company" name="company_id" data-target="#site-bulk-offering" required>
                                 <option disabled selected>Pilih Perusahaan</option>
                                 @foreach ($companies as $company)
                                     <option value="{{ $company->id }}">{{ $company->name }}</option>
@@ -226,9 +224,12 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Template Surat</label>
-                            <select class="form-select select-letter" name="letter_id" required>
-                                <option disabled selected>Pilih Penempatan Dahulu</option>
+                            <label class="form-label">Template Surat (Searchable)</label>
+                            <select class="form-select select2-search" name="letter_id" required>
+                                <option value="" disabled selected>Cari & Pilih Template</option>
+                                @foreach ($letters as $letter) 
+                                    <option value="{{ $letter->id }}">{{ $letter->title }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -258,13 +259,21 @@
 
 @push('css')
 <link rel="stylesheet" href="/admin/assets/css/dataTables.bootstrap5.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<style>
+    .select2-container--bootstrap-5 { z-index: 1060 !important; }
+</style>
 @endpush
 
 @push('js')
 <script src="/admin/assets/js/jquery.dataTables.min.js"></script>
 <script src="/admin/assets/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script type="text/javascript">
 $(function () {
+    // 1. Inisialisasi DataTable
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
@@ -282,14 +291,20 @@ $(function () {
         scrollX: true
     });
 
+    // 2. Inisialisasi Select2 Searchable
+    $('.select2-search').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#bulkOffering'), // Penting agar select2 jalan di dalam modal
+        width: '100%'
+    });
+
+    // 3. Dropdown Company -> Site (Surat tidak difilter lagi)
     $('.select-company').on('change', function() {
         var companyId = $(this).val();
         var $form = $(this).closest('form');
         var $siteDropdown = $form.find('select[name="site_id"]');
-        var $letterDropdown = $form.find('select[name="letter_id"]');
 
         $siteDropdown.empty().append('<option disabled selected>Loading Site...</option>');
-        $letterDropdown.empty().append('<option disabled selected>Pilih Penempatan Dahulu</option>');
 
         if (companyId) {
             $.ajax({
@@ -305,31 +320,12 @@ $(function () {
         }
     });
 
-    $('select[name="site_id"]').on('change', function() {
-        var siteId = $(this).val();
-        var $form = $(this).closest('form');
-        var $letterDropdown = $form.find('select[name="letter_id"]');
-
-        $letterDropdown.empty().append('<option disabled selected>Loading Template...</option>');
-
-        if (siteId) {
-            $.ajax({
-                url: '/manage/get-letters-by-site/' + siteId,
-                type: 'GET',
-                success: function(data) {
-                    $letterDropdown.empty().append('<option disabled selected>Pilih Template</option>');
-                    $.each(data, function(key, letter) {
-                        $letterDropdown.append('<option value="' + letter.id + '">' + letter.title + '</option>');
-                    });
-                }
-            });
-        }
-    });
-
+    // 4. Checkbox Select All
     $('#select-all').on('click', function () {
         $('.applicant-checkbox').prop('checked', this.checked);
     });
 
+    // 5. Form Submission (Injecting Selected IDs)
     $('form').on('submit', function(e) {
         var form = $(this);
         var formId = form.attr('id');
