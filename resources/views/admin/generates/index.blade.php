@@ -78,13 +78,13 @@
                         <table class="table table-bordered data-table" style="font-size: 12px; table-layout: fixed; width: 100%;">
                             <thead>
                                 <tr>
-                                    <th style="text-align: center; vertical-align: middle;">
-                                        <input type="checkbox" id="select-all">
+                                    <th style="text-align: center; vertical-align: middle; width: 40px;">
+                                        <input type="checkbox" id="select-all" class="form-check-input">
                                     </th>
                                     <th style="text-align: center; vertical-align: middle;">Template</th>
                                     <th style="text-align: center; vertical-align: middle;">Nama</th>
                                     <th style="text-align: center; vertical-align: middle;">Tanda Tangan</th>
-                                    <th style="text-align: center; vertical-align: middle;">Aksi</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 150px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
