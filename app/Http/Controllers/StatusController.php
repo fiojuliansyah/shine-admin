@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DataTables\StatusesDataTable;
 use App\Models\Applicant;
 use App\Models\Company;
+use App\Models\CustomVariable;
 use App\Models\Document;
 use App\Models\Generate;
 use App\Models\Letter;
@@ -95,6 +96,12 @@ class StatusController extends Controller
         }
 
         return view('admin.statuses.show', compact('status', 'statuses', 'sites', 'letters', 'companies'));
+    }
+
+    public function getCustomVariables($letterId)
+    {
+        $variables = CustomVariable::where('letter_id', $letterId)->get();
+        return response()->json($variables);
     }
 
     public function getSitesByCompany($company_id)
@@ -192,8 +199,8 @@ class StatusController extends Controller
             $site = Site::with('company')->find($site_id);
             $companyCode  = $site->company->unique_id ?? 'XX';
             $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
-            $monthJoinCode = Carbon::parse($request->start_date)->format('m');
-            $yearJoinCode = Carbon::parse($request->start_date)->format('y');
+            $monthJoinCode = \Carbon\Carbon::parse($request->start_date)->format('m');
+            $yearJoinCode = \Carbon\Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
             $letter = Letter::with('type')->find($request->letter_id);
@@ -209,7 +216,8 @@ class StatusController extends Controller
                 'number' => $newNumber
             ]);
 
-            Generate::create([
+            // Simpan ke variabel agar ID bisa diambil untuk ValueVariable
+            $generatedLetter = Generate::create([
                 'letter_id'      => $request->letter_id,
                 'letter_number'  => $letterNumber,
                 'romawi'         => $this->getRomawi(date('m')),
@@ -222,6 +230,17 @@ class StatusController extends Controller
                 'esign'          => null,
                 'description'    => 'Auto generated from Bulk Offering',
             ]);
+
+            // Simpan Value Variable Kustom
+            if ($request->has('custom_values')) {
+                foreach ($request->custom_values as $varId => $val) {
+                    \App\Models\ValueVariable::create([
+                        'generate_id'        => $generatedLetter->id, // Sesuaikan foreign key di tabel Anda
+                        'custom_variable_id' => $varId,
+                        'value'              => $val
+                    ]);
+                }
+            }
 
             $applicant->user->update([
                 'employee_nik' => $employeeNIK,
@@ -256,8 +275,8 @@ class StatusController extends Controller
             $site = Site::with('company')->find($site_id);
             $companyCode  = $site->company->unique_id ?? 'XX';
             $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
-            $monthJoinCode = Carbon::parse($request->start_date)->format('m');
-            $yearJoinCode = Carbon::parse($request->start_date)->format('y');
+            $monthJoinCode = \Carbon\Carbon::parse($request->start_date)->format('m');
+            $yearJoinCode = \Carbon\Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
             $letter = Letter::with('type')->find($request->letter_id);
@@ -273,7 +292,7 @@ class StatusController extends Controller
                 'number' => $newNumber
             ]);
 
-            Generate::create([
+            $generatedLetter = Generate::create([
                 'letter_id'      => $request->letter_id,
                 'letter_number'  => $letterNumber,
                 'romawi'         => $this->getRomawi(date('m')),
@@ -285,6 +304,17 @@ class StatusController extends Controller
                 'second_party'   => $applicant->user->name,
                 'description'    => 'Auto generated from Bulk Offering',
             ]);
+
+            // Simpan Value Variable Kustom
+            if ($request->has('custom_values')) {
+                foreach ($request->custom_values as $varId => $val) {
+                    \App\Models\ValueVariable::create([
+                        'generate_id'        => $generatedLetter->id, // Gunakan ID dari record generates yang baru dibuat
+                        'custom_variable_id' => $varId,
+                        'value'              => $val
+                    ]);
+                }
+            }
 
             $applicant->user->update([
                 'employee_nik' => $employeeNIK,

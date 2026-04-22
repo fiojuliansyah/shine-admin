@@ -19,7 +19,6 @@ class GenerateController extends Controller
         $letters = Letter::all();
         $sites = Site::with('company')->get();
         
-        // Get filter values
         $filters = [
             'site_id' => request('site_id'),
             'type_id' => request('type_id'),

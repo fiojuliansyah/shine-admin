@@ -16,6 +16,11 @@
                 </nav>
             </div>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+                <div class="mb-2 me-2">
+                    <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addVariable">
+                        <i class="ti ti-plus me-2"></i> Add Custom Variable
+                    </button>
+                </div>
                 <div class="mb-2">
                     <button type="button" class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#lihatVariable">
                         <i class="ti ti-copy me-2"></i> List Variable & Copy
@@ -32,6 +37,9 @@
                 <form id="letterForm" action="{{ route('letters.update', $letter->id) }}" method="POST">
                     @csrf
                     @method('PUT')
+                    
+                    <div id="customVarsContainer"></div>
+
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Site</label>
@@ -66,6 +74,54 @@
                         <button type="submit" class="btn btn-primary px-5">Update Template</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addVariable" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white">Tambah Variabel Kustom</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nama Keterangan</label>
+                    <input type="text" id="var_name" class="form-control" placeholder="Contoh: No Sertifikat">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Kode Variabel</label>
+                    <div class="input-group">
+                        <span class="input-group-text">[</span>
+                        <input type="text" id="var_code" class="form-control" placeholder="no_sertifikat">
+                        <span class="input-group-text">]</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="fw-bold border-bottom pb-2">Variabel Terpasang:</h6>
+                    <ul class="list-group list-group-flush" id="tempVarList">
+                        @if($letter->customVariables)
+                            @foreach($letter->customVariables as $cv)
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <div>
+                                        <span class="fw-medium">{{ $cv->name }}</span> 
+                                        <code class="ms-1">[{{ $cv->variable }}]</code>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="removeVar(this, '{{ $cv->id }}')">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </li>
+                            @endforeach
+                        @endif
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="addNewVariable()">Simpan Variabel</button>
             </div>
         </div>
     </div>
@@ -142,6 +198,21 @@
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[hubungan]')">Hubungan <code>[hubungan]</code> <i class="ti ti-copy"></i></button>
                         </div>
                     </div>
+
+                    <div class="col-md-12 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-danger">VARIABEL KUSTOM ANDA</h6>
+                        <div class="row" id="list-custom-vars">
+                            @if($letter->customVariables)
+                                @foreach($letter->customVariables as $cv)
+                                    <div class="col-md-4">
+                                        <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[{{ $cv->variable }}]')">
+                                            {{ $cv->name }} <code>[{{ $cv->variable }}]</code> <i class="ti ti-copy"></i>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer bg-light py-2">
@@ -156,6 +227,8 @@
 @push('js')
 <script src="/admin/assets/libs/tinymce/tinymce.min.js"></script>
 <script>
+    let varCount = 0;
+
     tinymce.init({
         selector: "#description",
         plugins: "anchor autolink autosave charmap codesample directionality emoticons help image insertdatetime link lists media nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
@@ -188,8 +261,61 @@
         });
     }
 
+    function addNewVariable() {
+        const name = document.getElementById('var_name').value;
+        const codeInput = document.getElementById('var_code').value;
+        const code = codeInput.toLowerCase().replace(/[^a-z0-9_]/g, '');
+
+        if (name === '' || code === '') {
+            alert('Nama dan Kode variabel harus diisi!');
+            return;
+        }
+
+        const fullCode = `[${code}]`;
+        
+        const list = document.getElementById('tempVarList');
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center px-0';
+        li.innerHTML = `<div><span class="fw-medium">${name}</span> <code class="ms-1">${fullCode}</code></div>
+                        <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="removeVar(this)"><i class="ti ti-trash"></i></button>`;
+        list.appendChild(li);
+
+        const copyList = document.getElementById('list-custom-vars');
+        const col = document.createElement('div');
+        col.className = 'col-md-4';
+        col.innerHTML = `
+            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('${fullCode}')">
+                ${name} <code>${fullCode}</code> <i class="ti ti-copy"></i>
+            </button>
+        `;
+        copyList.appendChild(col);
+
+        const container = document.getElementById('customVarsContainer');
+        const inputHtml = `
+            <div id="input-group-${varCount}">
+                <input type="hidden" name="custom_vars[${varCount}][name]" value="${name}">
+                <input type="hidden" name="custom_vars[${varCount}][variable]" value="${code}">
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', inputHtml);
+
+        document.getElementById('var_name').value = '';
+        document.getElementById('var_code').value = '';
+        varCount++;
+    }
+
+    function removeVar(btn, id = null) {
+        if (confirm('Hapus variabel ini?')) {
+            if (id) {
+                const container = document.getElementById('customVarsContainer');
+                container.insertAdjacentHTML('beforeend', `<input type="hidden" name="delete_vars[]" value="${id}">`);
+            }
+            btn.closest('li').remove();
+        }
+    }
+
     document.getElementById('letterForm').addEventListener('submit', function(event) {
-        var description = tinymce.get('description').getContent();
+        const description = tinymce.get('description').getContent();
         if (description.trim() === '') {
             alert('Konten surat tidak boleh kosong.');
             event.preventDefault();

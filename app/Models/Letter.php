@@ -27,4 +27,9 @@ class Letter extends Model
     {
         return $this->belongsTo(TypeLetter::class, 'type_letter_id');
     }
+
+    public function customVariables()
+    {
+        return $this->hasMany(CustomVariable::class);
+    }
 }

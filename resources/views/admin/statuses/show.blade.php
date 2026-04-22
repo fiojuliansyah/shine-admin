@@ -10,7 +10,7 @@
                 <nav>
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item">
-                            <a href="index.html"><i class="ti ti-smart-home"></i></a>
+                            <a href="#"><i class="ti ti-smart-home"></i></a>
                         </li>
                         <li class="breadcrumb-item">Recruitment</li>
                         <li class="breadcrumb-item">Kandidat</li>
@@ -50,7 +50,7 @@
                     <table class="table table-bordered data-table" style="font-size: 12px; table-layout: fixed; width: 100%;">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" id="select-all"></th>
+                                <th style="width: 40px;"><input type="checkbox" id="select-all"></th>
                                 <th>NIK Karyawan</th>
                                 <th>Nama Pelamar</th>
                                 <th>Lowongan Pekerjaan</th>
@@ -68,7 +68,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="bulkUpdate" tabindex="-1" aria-labelledby="bulkUpdateLabel" aria-hidden="true">
+<div class="modal fade" id="bulkUpdate" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -100,7 +100,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="applicantDocument" tabindex="-1" aria-labelledby="applicantDocumentLabel" aria-hidden="true">
+<div class="modal fade" id="applicantDocument" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -115,7 +115,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Pilih Perusahaan</label>
-                            <select class="form-select select-company" data-target="#site-applicant-document" required>
+                            <select class="form-select select-company" name="company_id" data-target="#site-applicant-document" required>
                                 <option disabled selected>Pilih Perusahaan</option>
                                 @foreach ($companies as $company)
                                     <option value="{{ $company->id }}">{{ $company->name }}</option>
@@ -130,7 +130,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Template Surat</label>
-                            <select class="form-select" name="letter_id" required>
+                            <select class="form-select select-letter" name="letter_id" data-container="#custom-vars-inputs-doc" data-section="#custom-vars-section-doc" required>
                                 <option disabled selected>Pilih Template</option>
                                 @foreach ($letters as $letter) 
                                     <option value="{{ $letter->id }}">{{ $letter->title }}</option>
@@ -146,6 +146,11 @@
                             <input type="text" name="letter_number" class="form-control" placeholder="001/HRD/PKWT/2025">
                         </div>
                     </div>
+
+                    <div id="custom-vars-section-doc" class="mt-3" style="display: none;">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">Variabel Kustom Template</h6>
+                        <div class="row" id="custom-vars-inputs-doc"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
@@ -157,7 +162,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="confirmation" tabindex="-1" aria-labelledby="confirmationLabel" aria-hidden="true">
+<div class="modal fade" id="confirmation" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -170,24 +175,10 @@
                 <p>Apakah Anda yakin ingin melanjutkan dengan tindakan ini?</p>
                 <p><strong>Detail Tindakan:</strong></p>
                 <ul>
-                    <li class="mb-2">Pelamar yang akan diproses <strong>wajib diupdate <span style="color: red">EMPLOYEE ID atau NIK KARYAWAN dan ROLE atau JABATAN</span> di Actions->Edit pada page ini sebelum melakukan Offering</strong></li>
-                    <li class="mb-2">Pelamar yang akan diproses <strong>akan bisa langsung menjalankan Aplikasi Mobile</strong></li>
-                    <li class="mb-2">Pastikan anda Lapor atau konfirmasi untuk <strong>Posting Payroll sebelum Offering / PKWT Digital</strong></li>
-                    <li class="mb-2">
-                        Siapkan template di menu 
-                        <nav>
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item">
-                                    <a href="index.html"><i class="ti ti-smart-home"></i></a>
-                                </li>
-                                <li class="breadcrumb-item">HRM</li>
-                                <li class="breadcrumb-item">Digital Letter</li>
-                                <li class="breadcrumb-item active">Buat Template</li>
-                            </ol>
-                        </nav>
-                    </li>
+                    <li class="mb-2">Pelamar wajib diupdate <span style="color: red">NIK KARYAWAN dan JABATAN</span> sebelum Offering.</li>
+                    <li class="mb-2">Pelamar bisa langsung menjalankan Aplikasi Mobile setelah diproses.</li>
+                    <li class="mb-2">Pastikan sudah Lapor/Konfirmasi Posting Payroll.</li>
                 </ul>
-                <p class="mt-2">Pastikan semua informasi yang dimasukkan sudah benar sebelum melanjutkan.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
@@ -197,7 +188,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="bulkOffering" tabindex="-1" aria-labelledby="bulkOfferingLabel" aria-hidden="true">
+<div class="modal fade" id="bulkOffering" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -224,8 +215,8 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Template Surat (Searchable)</label>
-                            <select class="form-select select2-search" name="letter_id" required>
+                            <label class="form-label">Template Surat</label>
+                            <select class="form-select select2-search select-letter" name="letter_id" data-container="#custom-vars-inputs-offering" data-section="#custom-vars-section-offering" required>
                                 <option value="" disabled selected>Cari & Pilih Template</option>
                                 @foreach ($letters as $letter) 
                                     <option value="{{ $letter->id }}">{{ $letter->title }}</option>
@@ -244,6 +235,11 @@
                             <label class="form-label">Nomor Surat (Optional)</label>
                             <input type="text" name="letter_number" class="form-control" placeholder="001/HRD/PKWT/2025">
                         </div>
+                    </div>
+
+                    <div id="custom-vars-section-offering" class="mt-3" style="display: none;">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">Variabel Kustom Template</h6>
+                        <div class="row" id="custom-vars-inputs-offering"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -273,7 +269,6 @@
 
 <script type="text/javascript">
 $(function () {
-    // 1. Inisialisasi DataTable
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
@@ -291,18 +286,16 @@ $(function () {
         scrollX: true
     });
 
-    // 2. Inisialisasi Select2 Searchable
     $('.select2-search').select2({
         theme: 'bootstrap-5',
-        dropdownParent: $('#bulkOffering'), // Penting agar select2 jalan di dalam modal
+        dropdownParent: $('#bulkOffering'),
         width: '100%'
     });
 
-    // 3. Dropdown Company -> Site (Surat tidak difilter lagi)
     $('.select-company').on('change', function() {
         var companyId = $(this).val();
-        var $form = $(this).closest('form');
-        var $siteDropdown = $form.find('select[name="site_id"]');
+        var targetSite = $(this).data('target');
+        var $siteDropdown = $(targetSite);
 
         $siteDropdown.empty().append('<option disabled selected>Loading Site...</option>');
 
@@ -320,12 +313,41 @@ $(function () {
         }
     });
 
-    // 4. Checkbox Select All
+    $('.select-letter').on('change', function() {
+        var letterId = $(this).val();
+        var container = $(this).data('container');
+        var section = $(this).data('section');
+        var $container = $(container);
+        var $section = $(section);
+
+        if (letterId) {
+            $.ajax({
+                url: '/manage/get-custom-variables/' + letterId,
+                type: 'GET',
+                success: function(data) {
+                    $container.empty();
+                    if (data.length > 0) {
+                        $section.show();
+                        $.each(data, function(key, v) {
+                            $container.append(`
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">${v.name} <code>[${v.variable}]</code></label>
+                                    <input type="text" name="custom_values[${v.id}]" class="form-control" placeholder="Isi nilai..." required>
+                                </div>
+                            `);
+                        });
+                    } else {
+                        $section.hide();
+                    }
+                }
+            });
+        }
+    });
+
     $('#select-all').on('click', function () {
         $('.applicant-checkbox').prop('checked', this.checked);
     });
 
-    // 5. Form Submission (Injecting Selected IDs)
     $('form').on('submit', function(e) {
         var form = $(this);
         var formId = form.attr('id');

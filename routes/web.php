@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ComponentTypeController;
+use App\Http\Controllers\CustomVariableController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeductionTypeController;
 use App\Http\Controllers\FaceAttendanceController;
@@ -101,6 +102,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::resource('sites', SiteController::class);
 
     Route::get('/get-sites-by-company/{company_id}', [StatusController::class, 'getSitesByCompany'])->name('sites.by.company');
+    Route::get('get-custom-variables/{letterId}', [StatusController::class, 'getCustomVariables'])->name('get.custom.variables');
     Route::get('/get-letters-by-site/{site_id}', [StatusController::class, 'getLettersBySite'])->name('letters.by.site');
     Route::resource('statuses', StatusController::class);
     Route::resource('valets', ValetController::class);
@@ -157,6 +159,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/careers/{id}/banner', [CareerController::class, 'banner'])->name('banner-career');
 
     Route::resource('letters', LetterController::class);
+    Route::resource('custom-variables', CustomVariableController::class);
 
     Route::resource('taxrates', TaxRateController::class);
     Route::resource('payrollcomponents', PayrollComponentController::class);
