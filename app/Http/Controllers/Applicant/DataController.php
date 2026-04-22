@@ -54,7 +54,19 @@ class DataController extends Controller
     {
         $user = Auth::user();
 
-        $eletter = Generate::where('user_id', $user->id)
+        $histories = Generate::where('user_id', $user->id)
+            ->with(['letter', 'site'])
+            ->orderBy('created_at', 'DESC')
+            ->get();
+        
+        return view('website.letters.index', compact('histories'));
+    }
+
+    public function letterDetail($id)
+    {
+        $user = Auth::user();
+
+        $eletter = Generate::where('id', $id)
             ->orderBy('created_at', 'DESC')
             ->first();
 

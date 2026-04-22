@@ -22,7 +22,8 @@ Route::middleware(['applicant.auth'])->prefix('applicant')->group(function () {
     Route::get('/dashboard', [DataController::class, 'dashboard'])->name('web.applicants.dashboard');
     Route::get('/pertanyaan', [DataController::class, 'faq'])->name('web.applicants.faq');
     Route::get('/riwayat-lamar-pekerjaan', [DataController::class, 'history'])->name('web.applicants.history');
-    Route::get('/tanda-tangan-digital', [DataController::class, 'letter'])->name('web.applicants.letter');
+    Route::get('/berkas', [DataController::class, 'letter'])->name('web.applicants.letter');
+    Route::get('/{id}/tanda-tangan-digital', [DataController::class, 'letterDetail'])->name('web.applicants.letter.detail');
     Route::post('/tanda-tangan-digital/sign/{id}', [DataController::class, 'sign'])->name('web.applicants.letter.sign');
     Route::get('/lowongan-pekerjaan', [DataController::class, 'index'])->name('web.applicants.career');
     Route::get('/lowongan-pekerjaan/{slug}', [DataController::class, 'detail'])->name('web.applicants.career.detail');
