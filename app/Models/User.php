@@ -106,4 +106,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserNotification::class);
     }
+
+    public function applicants()
+    {
+        return $this->hasMany(Applicant::class);
+    }
 }
