@@ -30,7 +30,17 @@ class DataController extends Controller
             ->orderBy('created_at', 'DESC')
             ->get();
 
-        $requiredFields = ['marriage_status'];
+        $requiredFields = [
+        'gender',
+        'avatar_url',
+        'birth_place',
+        'birth_date',
+        'mother_name',
+        'marriage_status',
+        'address',
+        'bank_name',
+        'account_number'
+    ];
         $isProfileComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
             return !empty($user->profile->$field);
         });
