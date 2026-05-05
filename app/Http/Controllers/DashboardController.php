@@ -27,6 +27,7 @@ class DashboardController extends Controller
         $siteCount = Site::count();
         $companyCount = Company::count();
         $userCount = User::where('is_employee', 1)->count();
+        $userApplicantCount = User::whereNull('is_employee')->count();
         $applicantCount = User::whereNull('is_employee')->count();
         
         // Get roles data for the chart
@@ -183,6 +184,7 @@ class DashboardController extends Controller
             'careerCount', 
             'userCount', 
             'applicantCount',
+            'userApplicantCount',
             'attendances',
             'attendanceCount',
             'companyCount',
