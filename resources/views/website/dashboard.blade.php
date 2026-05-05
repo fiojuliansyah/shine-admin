@@ -4,14 +4,31 @@
     <div class="page-wrapper">
         <div class="content">
 
-            <div class="alert bg-danger-transparent alert-dismissible fade show mb-4">
-                Lengkapi profil anda sebelum melamar!
-                <button type="button" class="btn-close fs-14" data-bs-dismiss="alert" aria-label="Close"><i
-                        class="ti ti-x"></i></button>
-            </div>
+            @if($showWarning)
+                <div class="alert bg-danger-transparent alert-dismissible fade show mb-4">
+                    <div class="d-flex">
+                        <i class="ti ti-alert-circle me-2 fs-18"></i>
+                        <div>
+                            <strong>Lengkapi profil anda sebelum melamar!</strong>
+                            <ul class="mb-0 mt-1">
+                                @if(!$isProfileComplete)
+                                    <li>Data profil (Status Pernikahan) belum diisi.</li>
+                                @endif
+                                
+                                @if(!empty($missingDocuments))
+                                    <li>Dokumen belum diunggah: {{ implode(', ', $missingDocuments) }}.</li>
+                                @endif
+                            </ul>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close fs-14" data-bs-dismiss="alert" aria-label="Close">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+            @endif
 
             <div class="welcome-wrap mb-4">
-                <div class=" d-flex align-items-center justify-content-between flex-wrap">
+                <div class="d-flex align-items-center justify-content-between flex-wrap">
                     <div class="mb-3">
                         <h2 class="mb-1 text-white">Welcome Back, {{ Auth::user()->name ?? 'Pelamar' }}</h2>
                     </div>

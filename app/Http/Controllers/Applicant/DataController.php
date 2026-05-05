@@ -29,7 +29,21 @@ class DataController extends Controller
         $timelines = Applicant::where('user_id', $user->id)
             ->orderBy('created_at', 'DESC')
             ->get();
-        return view('website.dashboard', compact('timelines'));
+
+        $requiredFields = ['marriage_status'];
+        $isProfileComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
+            return !empty($user->profile->$field);
+        });
+
+        $requiredDocuments = ['KTP', 'KARTU KELUARGA'];
+        $userDocuments = Document::where('user_id', $user->id)
+            ->pluck('name')
+            ->toArray();
+        $missingDocuments = array_diff($requiredDocuments, $userDocuments);
+
+        $showWarning = !$isProfileComplete || !empty($missingDocuments);
+
+        return view('website.dashboard', compact('timelines', 'showWarning', 'missingDocuments', 'isProfileComplete'));
     }
 
     public function faq()
@@ -243,7 +257,6 @@ class DataController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Validasi Data Diri (Profile)
         $requiredFields = [
             'marriage_status', 
         ];
@@ -257,15 +270,12 @@ class DataController extends Controller
                 ->with('error', 'Profil tidak lengkap. Mohon lengkapi data diri Anda di menu profil.');
         }
 
-        // 2. Validasi Dokumen Wajib (KTP, SKCK, KARTU KELUARGA)
         $requiredDocuments = ['KTP', 'KARTU KELUARGA'];
         
-        // Ambil nama dokumen yang sudah diunggah user
         $userDocuments = Document::where('user_id', $user->id)
             ->pluck('name')
             ->toArray();
 
-        // Cek apakah semua dokumen wajib ada di dalam array dokumen user
         $missingDocuments = array_diff($requiredDocuments, $userDocuments);
 
         if (!empty($missingDocuments)) {
@@ -274,7 +284,6 @@ class DataController extends Controller
                 ->with('error', 'Dokumen belum lengkap. Silahkan unggah dokumen: ' . $listMissing);
         }
 
-        // 3. Proses Apply
         $career = Career::where('slug', $slug)->firstOrFail();
         
         if (Applicant::where(['user_id' => $user->id, 'career_id' => $career->id])->exists()) {
