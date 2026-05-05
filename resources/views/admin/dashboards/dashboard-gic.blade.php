@@ -85,7 +85,7 @@
                             <i class="ti ti-users-group fs-16"></i>
                         </span>
                         <h6 class="fs-13 fw-medium text-default mb-1">Pelamar</h6>
-                        <h3 class="mb-3">{{ $pplicantCount }} </h3>
+                        <h3 class="mb-3">{{ $applicantCount }} </h3>
                         <a href="{{ route('applicants.index') }}" class="link-default">Lihat semua</a>
                     </div>
                 </div>
