@@ -30,6 +30,8 @@ Route::middleware(['applicant.auth'])->prefix('applicant')->group(function () {
     Route::post('/lowongan-pekerjaan/{slug}/apply', [DataController::class, 'apply'])->name('web.applicants.career.apply');
 
     Route::get('/my-profile', [DataController::class, 'indexProfile'])->name('applicants.profiles.index');
+    Route::get('/profile/ocr', [DataController::class, 'ocrPage'])->name('applicant.profiles.ocr');
+    Route::post('/profile/ocr/update', [DataController::class, 'storeOcr'])->name('applicant.profiles.update-ocr');
     Route::put('/applicant/profile', [DataController::class, 'updateAccount'])->name('applicants.profiles.update.account');
     Route::post('/applicant/profile/update',[DataController::class, 'updateProfile'])->name('applicants.profiles.update.profile');
     Route::post('/applicant/profile/document/create',[DataController::class, 'storeDocument'])->name('applicants.profiles.document.store');

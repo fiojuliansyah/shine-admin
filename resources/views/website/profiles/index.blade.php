@@ -53,6 +53,9 @@
                                         <a href="#" class="btn btn-dark w-100" data-bs-toggle="modal"
                                             data-bs-target="#employeeModal"><i class="ti ti-edit me-1"></i>Edit Info</a>
                                     </div>
+                                    <div class="mt-4">
+                                        <a href="{{ route('applicant.profiles.ocr') }}" class="btn btn-primary w-100"><i class="ti ti-scan me-1"></i>OCR Data Diri</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

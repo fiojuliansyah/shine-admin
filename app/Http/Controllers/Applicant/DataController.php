@@ -310,6 +310,40 @@ class DataController extends Controller
             ->with('success', 'Terimakasih telah melamar pekerjaan!');
     }
 
+    public function ocrPage()
+    {
+        return view('website.profiles.ocr');
+    }
+
+    public function storeOcr(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|numeric|digits:16',
+            'name' => 'required|string|max:255',
+            'birth_place' => 'nullable|string|max:100',
+            'birth_date' => 'nullable|string',
+            'address' => 'nullable|string',
+        ]);
+
+        $user = Auth::user();
+
+        $user->update([
+            'name' => $request->name
+        ]);
+
+        Profile::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'birth_place' => $request->birth_place,
+                'birth_date' => $request->birth_date,
+                'address' => $request->address,
+            ]
+        );
+
+        return redirect()->route('applicants.profiles.index')
+            ->with('success', 'Data profil berhasil diperbarui.');
+    }
+
     public function indexProfile()
     {
         $sites = Site::all();
