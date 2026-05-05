@@ -247,7 +247,6 @@
                                                 <span class="fs-12">No of Openings: {{ $job->name }}</span>
                                             </div>
                                         </div>
-                                        <a href="{{ route('careers.edit', $job->id) }}" class="btn btn-light btn-sm p-0 btn-icon d-flex align-items-center justify-content-center"><i class="ti ti-edit"></i></a>
                                     </div>
                                 @empty
                                     <div class="text-center p-3">
