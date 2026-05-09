@@ -292,34 +292,84 @@
                     <div class="card mt-4">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between flex-fill">
-                                <h5>Dokumen</h5>
-                                <div class="d-flex">
-                                    <a href="#" class="btn btn-icon btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#documentModal">
-                                        <i class="ti ti-edit"></i>
+                                <h5 class="mb-0">Dokumen Pendukung</h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    @php
+                                        $requiredDocs = ['KTP', 'IJAZAH', 'KARTU KELUARGA'];
+                                        
+                                        if ($user->profile?->gada_pratama === 'yes') $requiredDocs[] = 'GADA PRATAMA';
+                                        if ($user->profile?->gada_madya === 'yes') $requiredDocs[] = 'GADA MADYA';
+                                        if ($user->profile?->gada_utama === 'yes') $requiredDocs[] = 'GADA UTAMA';
+
+                                        $uploadedDocs = $documents->pluck('name')->toArray();
+                                        
+                                        $missingDocs = array_diff($requiredDocs, $uploadedDocs);
+                                    @endphp
+
+                                    @if(empty($missingDocs))
+                                        <span class="badge bg-label-success"><i class="ti ti-circle-check me-1"></i>Dokumen Lengkap</span>
+                                    @else
+                                        <span class="badge bg-label-warning"><i class="ti ti-alert-circle me-1"></i>{{ count($missingDocs) }} Dokumen Wajib Belum Ada</span>
+                                    @endif
+
+                                    <a href="#" class="btn btn-icon btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#documentModal">
+                                        <i class="ti ti-plus"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="row">
+                            <!-- Alert Dokumen yang Belum Diupload -->
+                            @if(!empty($missingDocs))
+                                <div class="alert alert-warning border-0 shadow-none mb-4" role="alert">
+                                    <div class="d-flex">
+                                        <i class="ti ti-file-info me-2 mt-1"></i>
+                                        <div>
+                                            <h6 class="alert-heading mb-1 fw-bold">Dokumen Wajib Belum Lengkap!</h6>
+                                            <p class="mb-0 small">Mohon segera upload: <strong>{{ implode(', ', $missingDocs) }}</strong></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="row g-3">
                                 @forelse ($documents as $document)
-                                    <div class="col-md-3 mb-4">
-                                        <div class="card shadow-none border">
+                                    <div class="col-md-4 col-xl-3">
+                                        <div class="card shadow-none border h-100 mb-0">
                                             <div class="card-body p-3">
-                                                <h6 class="card-title mb-2">{{ $document->name }}</h6>
-                                                <p class="small text-muted mb-3">
-                                                    {{ Str::limit($document->description, 50) }}</p>
-                                                <a href="{{ $document->file_url }}" class="btn btn-sm btn-primary w-100"
-                                                    target="_blank">
-                                                    <i class="ti ti-download me-1"></i> Download
-                                                </a>
+                                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                                    <div class="avatar bg-light-primary p-2 rounded">
+                                                        <i class="ti ti-file-text fs-4 text-primary"></i>
+                                                    </div>
+                                                    <div class="dropdown">
+                                                        <button class="btn p-0" type="button" data-bs-toggle="dropdown">
+                                                            <i class="ti ti-dots-vertical"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item text-danger" href="#"><i class="ti ti-trash me-1"></i>Hapus</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 class="mb-1 text-truncate" title="{{ $document->name }}">{{ $document->name }}</h6>
+                                                <p class="small text-muted mb-3">Format: JPG/PNG</p>
+                                                
+                                                <div class="d-flex gap-2">
+                                                    <a href="{{ $document->file_url }}" class="btn btn-sm btn-label-primary flex-grow-1" target="_blank">
+                                                        <i class="ti ti-eye me-1"></i> Lihat
+                                                    </a>
+                                                    <a href="{{ $document->file_url }}" class="btn btn-sm btn-primary btn-icon" download>
+                                                        <i class="ti ti-download"></i>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 @empty
-                                    <div class="col-12">
-                                        <p class="text-center text-muted">Tidak ada dokumen yang diupload</p>
+                                    <div class="col-12 py-4">
+                                        <div class="text-center">
+                                            <i class="ti ti-file-off fs-1 text-muted d-block mb-2"></i>
+                                            <p class="text-muted">Belum ada dokumen yang diunggah.</p>
+                                        </div>
                                     </div>
                                 @endforelse
                             </div>
@@ -766,68 +816,57 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="documentModal">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <div class="d-flex align-items-center">
-                        <h4 class="modal-title me-2">Tambah Dokumen</h4>
-                    </div>
-                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal"
-                        aria-label="Close">
-                        <i class="ti ti-x"></i>
-                    </button>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title">Upload Dokumen Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="text-center mt-4">
-                    <p>Hanya menerima hasil <strong>SCAN</strong> <i class="fas fa-check-circle text-success"></i> dan
-                        tidak menerima hasil <strong>FOTO</strong> <i class="fas fa-times-circle text-danger"></i></p>
-                </div>
-                <form class="form" action="{{ route('applicants.profiles.document.store') }}" method="POST"
-                    enctype="multipart/form-data">
+                <form action="{{ route('applicants.profiles.document.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="modal-body pb-0">
-                        <div class="row">
-                            <!-- Tipe Dokumen -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Tipe Dokumen<span class="text-danger"> *</span></label>
-                                    <select class="form-select" name="name" required>
-                                        <option value="">Pilih Tipe Dokumen</option>
-                                        <option value="KTP">KTP (wajib)</option>
-                                        <option value="SKCK">SKCK</option>
-                                        <option value="SIM">SIM</option>
-                                        <option value="NPWP">NPWP</option>
-                                        <option value="IJAZAH">IJAZAH (wajib)</option>
-                                        <option value="KARTU KELUARGA">KARTU KELUARGA (wajib)</option>
-                                        <option value="PAKLARING">PAKLARING</option>
-                                        <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN/PROFESI</option>
-                                        @if ($user->profile?->gada_pratama === 'yes')
-                                            <option value="GADA PRATAMA">GADA PRATAMA (wajib)</option> 
-                                        @endif
-                                        @if ($user->profile?->gada_madya === 'yes')
-                                            <option value="GADA MADYA">GADA MADYA (wajib)</option> 
-                                        @endif
-                                        @if ($user->profile?->gada_utama === 'yes')
-                                            <option value="GADA UTAMA">GADA UTAMA (wajib)</option> 
-                                        @endif
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">File Dokumen<span class="text-danger"> *</span></label>
-                                    <input type="file" name="file" class="form-control" accept=".jpg, .jpeg, .png"
-                                        id="file-input" required>
-                                </div>
-                            </div>
+                    <div class="modal-body">
+                        <!-- Warning Section -->
+                        <div class="bg-light-info p-3 rounded mb-4 text-center border">
+                            <p class="mb-0 small text-dark">
+                                <i class="ti ti-scan me-1 text-info"></i> Hanya menerima hasil <strong>SCAN</strong> bersih.<br>
+                                <span class="text-danger"><i class="ti ti-camera-off me-1"></i> Tidak menerima hasil FOTO HP.</span>
+                            </p>
                         </div>
 
-                        <!-- Modal Footer -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-light border me-2"
-                                data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
+                        <div class="mb-3">
+                            <label class="form-label">Tipe Dokumen <span class="text-danger">*</span></label>
+                            <select class="form-select select2" name="name" required>
+                                <option value="">Pilih Tipe Dokumen</option>
+                                <optgroup label="Dokumen Wajib">
+                                    <option value="KTP">KTP</option>
+                                    <option value="IJAZAH">IJAZAH</option>
+                                    <option value="KARTU KELUARGA">KARTU KELUARGA</option>
+                                    @if ($user->profile?->gada_pratama === 'yes') <option value="GADA PRATAMA">GADA PRATAMA</option> @endif
+                                    @if ($user->profile?->gada_madya === 'yes') <option value="GADA MADYA">GADA MADYA</option> @endif
+                                    @if ($user->profile?->gada_utama === 'yes') <option value="GADA UTAMA">GADA UTAMA</option> @endif
+                                </optgroup>
+                                <optgroup label="Dokumen Tambahan">
+                                    <option value="SKCK">SKCK</option>
+                                    <option value="SIM">SIM</option>
+                                    <option value="NPWP">NPWP</option>
+                                    <option value="PAKLARING">PAKLARING</option>
+                                    <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN</option>
+                                </optgroup>
+                            </select>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">File Gambar (JPG/PNG) <span class="text-danger">*</span></label>
+                            <input type="file" name="file" class="form-control" accept="image/*" required>
+                            <div class="form-text mt-2 text-warning">
+                                <i class="ti ti-info-circle me-1 small"></i> Pastikan tulisan terbaca jelas.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Mulai Upload</button>
                     </div>
                 </form>
             </div>
