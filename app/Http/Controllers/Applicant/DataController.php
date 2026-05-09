@@ -235,15 +235,19 @@ class DataController extends Controller
 
         $signatureData = $request->input('second_party_esign');
 
-        if (!$signatureData || strpos($signatureData, 'data:image/svg+xml;base64,') === false) {
-            return back()->with('error', 'Data tanda tangan tidak valid.');
+        // 1. Cek apakah formatnya PNG (sesuai dengan JS toDataURL)
+        if (!$signatureData || strpos($signatureData, 'data:image/png;base64,') === false) {
+            return back()->with('error', 'Data tanda tangan tidak valid (Harus format PNG).');
         }
 
-        $base64Data = substr($signatureData, strlen('data:image/svg+xml;base64,'));
+        // 2. Hapus prefix 'data:image/png;base64,'
+        $base64Data = str_replace('data:image/png;base64,', '', $signatureData);
+        $base64Data = str_replace(' ', '+', $base64Data); // Opsional: jaga-jaga jika ada spasi dalam transmisi
 
-        $svgData = base64_decode($base64Data);
+        // 3. Decode
+        $imageData = base64_decode($base64Data);
 
-        if ($svgData === false) {
+        if ($imageData === false) {
             return back()->with('error', 'Gagal mengonversi data tanda tangan.');
         }
 
@@ -253,12 +257,12 @@ class DataController extends Controller
 
         try {
             $generate->update([
-                'second_party_esign' => $svgData,
+                'second_party_esign' => $signatureData,
             ]);
-
-            return redirect()->route('web.applicants.dashboard')->with('success', 'Tanda tangan berhasil disimpan!');
+            return redirect()->route('web.applicants.dashboard')->with('success', 'Berhasil!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui data.');
+            // Tampilkan pesan error asli untuk debugging
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
