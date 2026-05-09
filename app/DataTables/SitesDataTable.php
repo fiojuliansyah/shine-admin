@@ -69,10 +69,8 @@ class SitesDataTable extends DataTable
                 ->title('Nama Project'),
             Column::make('client_name')
                 ->title('Nama Management'),
-            Column::make('client_phone')
-                ->title('No handphone'),
-            Column::make('client_email')
-                ->title('Email'),
+            Column::make('client_position')
+                ->title('Jabatan Client'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)

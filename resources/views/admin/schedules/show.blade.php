@@ -12,7 +12,7 @@
                             <li class="breadcrumb-item">
                                 <a href="index.html"><i class="ti ti-smart-home"></i></a>
                             </li>
-                            <li class="breadcrumb-item">HRM</li>
+    
                             <li class="breadcrumb-item">Jadwal Project</li>
                             <li class="breadcrumb-item active">{{ $site->name }}</li>
                         </ol>
