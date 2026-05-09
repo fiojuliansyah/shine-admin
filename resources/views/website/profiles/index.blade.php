@@ -839,9 +839,9 @@
                                 <option value="NPWP">NPWP</option>
                                 <option value="PAKLARING">PAKLARING</option>
                                 <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN</option>
-                                @if ($user->profile?->gada_pratama === 'yes') <option value="GADA PRATAMA">SERTIFIKAT/KTA GADA PRATAMA</option> @endif
-                                @if ($user->profile?->gada_madya === 'yes') <option value="GADA MADYA">SERTIFIKAT/KTA GADA MADYA</option> @endif
-                                @if ($user->profile?->gada_utama === 'yes') <option value="GADA UTAMA">SERTIFIKAT/KTA GADA UTAMA</option> @endif
+                                @if ($user->profile?->gada_pratama === 'yes') <option value="GADA PRATAMA">SERTIFIKAT/KTA GADA PRATAMA (wajib)</option> @endif
+                                @if ($user->profile?->gada_madya === 'yes') <option value="GADA MADYA">SERTIFIKAT/KTA GADA MADYA (wajib)</option> @endif
+                                @if ($user->profile?->gada_utama === 'yes') <option value="GADA UTAMA">SERTIFIKAT/KTA GADA UTAMA (wajib)</option> @endif
                             </select>
                         </div>
 
