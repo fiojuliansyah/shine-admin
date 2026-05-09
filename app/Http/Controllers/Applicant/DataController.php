@@ -377,6 +377,7 @@ class DataController extends Controller
         $user = Auth::user();
         $profileData = $request->only([
             'address',
+            'current_address',
             'gender',
             'birth_place',
             'birth_date',

@@ -88,30 +88,10 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Description</label>
                                     <input type="text" class="form-control" name="description">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Radius</label>
-                                    <input type="text" class="form-control" name="radius">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Latitude</label>
-                                    <input type="text" class="form-control" name="lat">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Longitude</label>
-                                    <input type="text" class="form-control" name="long">
                                 </div>
                             </div>
                         </div>

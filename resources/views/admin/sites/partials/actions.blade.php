@@ -48,24 +48,6 @@
                     <div class="row">
                         <div class="col">
                             <div class="mb-3">
-                                <label for="lat" class="col-form-label">Lat</label>
-                                <input type="text" class="form-control" id="lat" name="lat" value="{{ $row->lat }}">
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="mb-3">
-                                <label for="long" class="col-form-label">Long</label>
-                                <input type="text" class="form-control" id="long" name="long" value="{{ $row->long }}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="radius" class="col-form-label">Radius</label>
-                        <input type="text" class="form-control" id="radius" name="radius" value="{{ $row->radius }}">
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="mb-3">
                                 <label for="client_name" class="col-form-label">Nama Client</label>
                                 <input type="text" class="form-control" id="client_name" name="client_name" value="{{ $row->client_name }}">
                             </div>

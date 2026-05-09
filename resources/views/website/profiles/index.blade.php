@@ -134,9 +134,14 @@
 
                             <div class="row mt-3">
                                 <div class="col-md-12">
-                                    <span class="d-inline-flex align-items-center">Alamat</span>
+                                    <span class="d-inline-flex align-items-center">Alamat KTP</span>
                                     <h6 class="d-flex align-items-center fw-medium mt-1">
                                         {{ $user->profile->address ?? '-' }}</h6>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="d-inline-flex align-items-center">Alamat Domisili</span>
+                                    <h6 class="d-flex align-items-center fw-medium mt-1">
+                                        {{ $user->profile->current_address ?? '-' }}</h6>
                                 </div>
                             </div>
 
