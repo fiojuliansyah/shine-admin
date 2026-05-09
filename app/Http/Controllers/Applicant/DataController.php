@@ -398,6 +398,8 @@ class DataController extends Controller
             'last_education',
             'living_with',
             'family_name',
+            'family_relation',
+            'family_phone',
             'height',
             'weight',
             'eye_condition',

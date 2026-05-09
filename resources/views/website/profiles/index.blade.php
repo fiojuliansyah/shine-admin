@@ -504,7 +504,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">No NPWP</label>
                                     <input type="text" name="npwp_number" class="form-control"
@@ -525,7 +525,7 @@
                                         value="{{ $user->profile?->weight }}">
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Kondisi Mata<span class="text-danger"> *</span></label>
                                     <select name="eye_condition" class="form-select">
@@ -538,7 +538,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Bertato?<span class="text-danger"> *</span></label>
                                     <select name="tattoo" class="form-select">
@@ -549,7 +549,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Pendengaran<span class="text-danger"> *</span></label>
                                     <select name="hearing" class="form-select">
@@ -561,7 +561,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Tindik?<span class="text-danger"> *</span></label>
                                     <select name="piercing" class="form-select">
@@ -586,6 +586,13 @@
                                         value="{{ $user->profile?->current_address }}">
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Keahlian (Skills)</label>
+                                    <textarea name="skills" class="form-control" rows="3"
+                                        placeholder="Contoh: Bela Diri, Mengemudi, Sertifikasi IT, dll">{{ $user->profile?->skills }}</textarea>
+                                </div>
+                            </div>
                             <div class="col-md-12 pt-3 pb-3">
                                 <h4>Kontak Darurat</h4>
                             </div>
@@ -594,6 +601,22 @@
                                     <label class="form-label">Nama Anggota Keluarga (Darurat)<span class="text-danger"> *</span></label>
                                     <input type="text" name="family_name" class="form-control"
                                         value="{{ $user->profile?->family_name }}"
+                                        placeholder="Nama Suami/Istri/Orang Tua" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Hubungan Anggota Keluarga (Darurat)<span class="text-danger"> *</span></label>
+                                    <input type="text" name="family_relation" class="form-control"
+                                        value="{{ $user->profile?->family_relation }}"
+                                        placeholder="Nama Suami/Istri/Orang Tua" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">No Telepon Anggota Keluarga (Darurat)<span class="text-danger"> *</span></label>
+                                    <input type="text" name="family_phone" class="form-control"
+                                        value="{{ $user->profile?->family_phone }}"
                                         placeholder="Nama Suami/Istri/Orang Tua" required>
                                 </div>
                             </div>
@@ -668,14 +691,6 @@
                                                 {{ $user->profile?->gada_utama == 'yes' ? 'selected' : '' }}>Aktif</option>
                                         </select>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Keahlian (Skills)</label>
-                                    <textarea name="skills" class="form-control" rows="3"
-                                        placeholder="Contoh: Bela Diri, Mengemudi, Sertifikasi IT, dll">{{ $user->profile?->skills }}</textarea>
                                 </div>
                             </div>
                         </div>
