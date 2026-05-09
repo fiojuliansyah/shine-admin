@@ -452,20 +452,15 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Status Tempat Tinggal<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Status Rumah<span class="text-danger"> *</span></label>
                                     <select class="form-select" name="living_with">
-                                        <option value="Parent"
-                                            {{ $user->profile?->living_with == 'Parent' ? 'selected' : '' }}>Orang Tua
+                                        <option value="Orang Tua"
+                                            {{ $user->profile?->living_with == 'Orang Tua' ? 'selected' : '' }}>Orang Tua/Lainnya
                                         </option>
-                                        <option value="Spouse"
-                                            {{ $user->profile?->living_with == 'Spouse' ? 'selected' : '' }}>Suami/Istri
-                                        </option>
-                                        <option value="Family"
-                                            {{ $user->profile?->living_with == 'Family' ? 'selected' : '' }}>Keluarga
-                                            Lainnya</option>
-                                        <option value="Live Alone"
-                                            {{ $user->profile?->living_with == 'Live Alone' ? 'selected' : '' }}>Tinggal
-                                            Sendiri</option>
+                                        <option value="Kontrak/Sewa"
+                                            {{ $user->profile?->living_with == 'Kontrak/Sewa' ? 'selected' : '' }}>Kontrak/Sewa</option>
+                                        <option value="Milik Sendiri"
+                                            {{ $user->profile?->living_with == 'Milik Sendiri' ? 'selected' : '' }}>Milik Sendiri</option>
                                     </select>
                                 </div>
                             </div>
