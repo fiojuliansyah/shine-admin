@@ -72,14 +72,28 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Pindahkan Ke Status</label>
+                                    <label class="form-label">Pilih Site area Project</label>
+                                    <select class="form-select" name="site_id" required>
+                                        <option value="" disabled>Pilih area Project</option>
+                                        @foreach ($sites as $site)
+                                            <option value="{{ $site->id }}"
+                                                {{ ($applicant->user && $applicant->user->site_id == $site->id) ? 'selected' : '' }}>
+                                                {{ $site->name }}
+                                                {{ ($applicant->user && $applicant->user->site_id == $site->id) ? '(Aktif)' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Pilih Site area Project</label>
                                     <select class="form-select" name="status_id" required>
-                                        <option disabled>Pilih Status Baru</option>
-                                        @foreach ($statuses as $st)
+                                        <option disabled>Pilih area Project</option>
+                                        @foreach ($sites as $site)
                                             <option value="{{ $st->id }}"
-                                                {{ $applicant->status_id == $st->id ? 'selected' : '' }}>
-                                                {{ $st->name }}
-                                                {{ $applicant->status_id == $st->id ? '(Aktif)' : '' }}
+                                                {{ $applicant->user->site_id == $site->id ? 'selected' : '' }}>
+                                                {{ $site->name }}
+                                                {{ $applicant->user->site_id == $site->id ? '(Aktif)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>

@@ -116,34 +116,48 @@ class ApplicantController extends Controller
         $documents = $user->document;
         $roles = Role::all();
         $statuses = Status::all();
+        $sites = Site::all();
 
-        return view('admin.applicants.resume', compact('applicant', 'user', 'documents', 'statuses', 'roles'));
+        return view('admin.applicants.resume', compact('applicant', 'user', 'documents', 'statuses', 'roles', 'sites'));
     }
 
     public function updateStatusSingle(Request $request, $id)
     {
         $request->validate([
             'status_id' => 'required|exists:statuses,id',
+            'site_id'   => 'nullable|exists:sites,id', // Tambahkan validasi site
             'role_name' => 'nullable|string'
         ]);
 
         $applicant = Applicant::findOrFail($id);
         
+        // 1. Update Status Applicant
         $applicant->status_id = $request->status_id;
         $applicant->save();
 
-        if ($applicant->user && $request->role_name) {
-            $applicant->user->syncRoles([$request->role_name]);
+        // 2. Update Data User (Role & Site)
+        if ($applicant->user) {
+            // Update Site ID
+            if ($request->has('site_id')) {
+                $applicant->user->update([
+                    'site_id' => $request->site_id
+                ]);
+            }
+
+            // Update Role (Spatie)
+            if ($request->role_name) {
+                $applicant->user->syncRoles([$request->role_name]);
+            }
         }
 
         try {
             $applicant->load(['status', 'career']);
             $applicant->notify(new ApplicantStatusNotification($applicant));
         } catch (\Exception $e) {
-            return redirect()->back()->with('success', 'Data diperbarui, tapi WA gagal.');
+            return redirect()->back()->with('success', 'Data diperbarui (termasuk Site), tapi notifikasi gagal.');
         }
 
-        return redirect()->back()->with('success', 'Status dan Role berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Status, Site, dan Role berhasil diperbarui.');
     }
 
 }
