@@ -524,7 +524,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label">Bertato?</label>
                                     <select name="tattoo" class="form-select">
@@ -535,7 +535,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label">Pendengaran</label>
                                     <select name="hearing" class="form-select">
@@ -547,7 +547,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label">Tindik?</label>
                                     <select name="piercing" class="form-select">
@@ -556,24 +556,6 @@
                                         <option value="Present"
                                             {{ $user->profile?->piercing == 'Present' ? 'selected' : '' }}>Ada</option>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-md-12 pt-3 pb-3">
-                                <h4>Data Lainnya</h4>
-                            </div>
-                            <br>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
-                                    <input type="text" name="mother_name" class="form-control"
-                                        value="{{ $user->profile?->mother_name }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">No NPWP</label>
-                                    <input type="text" name="npwp_number" class="form-control"
-                                        value="{{ $user->profile?->npwp_number }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -592,10 +574,27 @@
                             </div>
 
                             <div class="col-md-12 pt-3 pb-3">
-                                <h4>Kontak Darurat</h4>
+                                <h4>Data Lainnya</h4>
                             </div>
                             <br>
                             <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
+                                    <input type="text" name="mother_name" class="form-control"
+                                        value="{{ $user->profile?->mother_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">No NPWP</label>
+                                    <input type="text" name="npwp_number" class="form-control"
+                                        value="{{ $user->profile?->npwp_number }}">
+                                </div>
+                            </div>
+                            <div class="col-md-12 pt-3 pb-3">
+                                <h4>Kontak Darurat</h4>
+                            </div>
+                            <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Nama Anggota Keluarga (Darurat)<span class="text-danger"> *</span></label>
                                     <input type="text" name="family_name" class="form-control"
