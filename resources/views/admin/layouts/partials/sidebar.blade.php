@@ -50,7 +50,7 @@
                         <li class="submenu">
                             <a href="javascript:void(0);"
                                 class="{{ Route::is(['generates.index', 'type_letters.index', 'letters.index']) ? 'active subdrop' : '' }}"">
-                                <i class="ti ti-edit"></i><span>Template SUrat</span>
+                                <i class="ti ti-edit"></i><span>Konfigurasi SUrat</span>
                                 <span class="menu-arrow"></span>
                             </a>
                             <ul>
