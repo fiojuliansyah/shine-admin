@@ -219,7 +219,6 @@
                                 </div>
                             </div>
 
-                            <!-- Bagian 4: Atribut Security -->
                             <div class="border p-3 rounded">
                                 <h6 class="mb-3 text-dark fw-bold"><i class="ti ti-shield-check me-2"></i>Atribut Security</h6>
                                 <div class="row g-3 align-items-center">
