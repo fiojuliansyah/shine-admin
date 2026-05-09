@@ -24,7 +24,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu-title"><span>PERUSAHAAN</span></li>
+                <li class="menu-title"><span>MASTER DATA</span></li>
                 <li>
                     <ul>
                         <li class="{{ Route::is('companies.index') ? 'active' : '' }}">
@@ -37,11 +37,6 @@
                                 <i class="ti ti-box"></i><span>Site Project</span>
                             </a>
                         </li>
-                    </ul>
-                </li>
-                <li class="menu-title"><span>MASTER DATA</span></li>
-                <li>
-                    <ul>
                         <li class="{{ Route::is(['employees.index', 'user-account']) ? 'active' : '' }}">
                             <a href="{{ route('employees.index') }}">
                                 <i class="ti ti-users"></i><span>Admin</span>
@@ -77,7 +72,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu-title"><span>DOKUMEN GAJI</span></li>
+                {{-- <li class="menu-title"><span>DOKUMEN GAJI</span></li>
                 <li>
                     <ul>
                         <li class="{{ Route::is('payrolls.main') ? 'active' : '' }}">
@@ -86,7 +81,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
                 <li class="menu-title"><span>RECRUITMENT</span></li>
                 <li>
                     <ul>
