@@ -397,6 +397,7 @@
                             <div class="col-md-12">
                                 <h5>Data Diri</h5>
                             </div>
+                            <br>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Pas Foto (Pilih File / Ambil Foto)<span class="text-danger">
@@ -561,6 +562,7 @@
                             <div class="col-md-12">
                                 <h5>Data lainnya</h5>
                             </div>
+                            <br>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
@@ -593,7 +595,7 @@
                             <div class="col-md-12">
                                 <h5>Kontak Darurat</h5>
                             </div>
-
+                            <br>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Nama Anggota Keluarga (Darurat)<span class="text-danger"> *</span></label>
