@@ -68,9 +68,8 @@
                                 <h5 class="mb-0">Informasi Profil</h5>
                                 <div class="d-flex align-items-center gap-2">
                                     @php
-                                        // Definisikan field wajib dan labelnya untuk tampilan alert
                                         $requiredFields = [
-                                            'avatar' => 'Pas Foto',
+                                            'avatar_url' => 'Pas Foto',
                                             'gender' => 'Jenis Kelamin',
                                             'birth_place' => 'Tempat Lahir',
                                             'birth_date' => 'Tanggal Lahir',
@@ -111,7 +110,6 @@
                         </div>
                         
                         <div class="card-body">
-                            <!-- Alert List Field yang Kosong -->
                             @if(!empty($emptyFields))
                                 <div class="alert alert-danger mb-4" role="alert">
                                     <div class="d-flex">
@@ -131,11 +129,7 @@
 
                             <!-- Bagian 1: Data Diri Utama -->
                             <div class="row align-items-center mb-4">
-                                <div class="col-md-2 text-center">
-                                    <img src="{{ $user->profile?->avatar ? asset('storage/' . $user->profile->avatar) : asset('assets/img/default-avatar.png') }}" 
-                                        alt="Avatar" class="rounded img-fluid border" style="max-height: 120px;">
-                                </div>
-                                <div class="col-md-10">
+                                <div class="col-md-12">
                                     <div class="row g-3">
                                         <div class="col-md-4">
                                             <span class="text-muted d-block small">Jenis Kelamin</span>
