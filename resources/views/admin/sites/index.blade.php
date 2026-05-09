@@ -82,7 +82,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Name</label>
+                                    <label class="form-label">Nama Lokasi Project</label>
                                     <input type="text" class="form-control" name="name" required>
                                 </div>
                             </div>
@@ -90,7 +90,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Description</label>
+                                    <label class="form-label">Deskripsi Project</label>
                                     <input type="text" class="form-control" name="description">
                                 </div>
                             </div>

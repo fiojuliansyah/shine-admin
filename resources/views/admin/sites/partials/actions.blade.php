@@ -38,11 +38,11 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="name-{{ $row->id }}" class="form-label">Nama</label>
+                        <label for="name-{{ $row->id }}" class="form-label">Nama Lokasi Project</label>
                         <input type="text" class="form-control" id="name-{{ $row->id }}" name="name" value="{{ $row->name }}" required>
                     </div>
                     <div class="mb-3">
-                        <label for="description-{{ $row->id }}" class="form-label">Deskripsi</label>
+                        <label for="description-{{ $row->id }}" class="form-label">Deskripsi Project</label>
                         <input type="text" class="form-control" id="description-{{ $row->id }}" name="description" value="{{ $row->description }}">
                     </div>
                     <div class="row">

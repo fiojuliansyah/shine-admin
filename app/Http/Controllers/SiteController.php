@@ -32,6 +32,7 @@ class SiteController extends Controller
         $site->client_name = $request->client_name;
         $site->client_phone = $request->client_phone;
         $site->client_email = $request->client_email;
+        $site->client_position = $request->client_position;
         $site->save();
 
         return redirect()->back()
@@ -57,6 +58,7 @@ class SiteController extends Controller
         $site->client_name = $request->client_name;
         $site->client_phone = $request->client_phone;
         $site->client_email = $request->client_email;
+        $site->client_position = $request->client_position;
 
         $site->update();
 
