@@ -394,8 +394,8 @@
                     @csrf
                     <div class="modal-body pb-0">
                         <div class="row">
-                            <div class="col-md-12 pb-3">
-                                <h5>Data Diri</h5>
+                            <div class="col-md-12 pt-3 pb-3">
+                                <h4>Data Diri</h4>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -558,8 +558,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <h5>Data lainnya</h5>
+                            <div class="col-md-12 pt-3 pb-3">
+                                <h4>Data Lainnya</h4>
                             </div>
                             <br>
                             <div class="col-md-6">
@@ -591,8 +591,8 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-12">
-                                <h5>Kontak Darurat</h5>
+                            <div class="col-md-12 pt-3 pb-3">
+                                <h4>Kontak Darurat</h4>
                             </div>
                             <br>
                             <div class="col-md-6">
