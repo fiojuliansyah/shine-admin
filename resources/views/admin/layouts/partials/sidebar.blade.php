@@ -50,7 +50,7 @@
                         <li class="submenu">
                             <a href="javascript:void(0);"
                                 class="{{ Route::is(['generates.index', 'type_letters.index', 'letters.index']) ? 'active subdrop' : '' }}"">
-                                <i class="ti ti-edit"></i><span>Surat Digital</span>
+                                <i class="ti ti-edit"></i><span>Template SUrat</span>
                                 <span class="menu-arrow"></span>
                             </a>
                             <ul>
@@ -58,8 +58,6 @@
                                     <a href="{{ route('type_letters.index') }}"
                                         class="{{ Route::is('type_letters.index') ? 'active' : ''    }}">Konfigurasi No Surat</a>
                                 </li>
-                                <li><a href="{{ route('generates.index') }}"
-                                        class="{{ Route::is('generates.index') ? 'active' : '' }}">Surat Terbit</a></li>
                                 <li><a href="{{ route('letters.index') }}"
                                         class="{{ Route::is(['letters.index']) ? 'active' : '' }}">Buat
                                         Template Surat</a></li>
@@ -75,7 +73,11 @@
                 <li class="menu-title"><span>DOKUMEN DIGITAL</span></li>
                 <li>
                     <ul>
-                       <li><a href="{{ route('generates.index') }}" class="{{ Route::is('generates.index') ? 'active' : '' }}">Surat Terbit</a></li>
+                        <li class="{{ Route::is('generate.index') ? 'active' : '' }}">
+                            <a href="{{ route('generate.index') }}">
+                                <i class="ti ti ti-edit"></i><span>Surat Terbit</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 <li class="menu-title"><span>PROSES RECRUITMENT</span></li>
