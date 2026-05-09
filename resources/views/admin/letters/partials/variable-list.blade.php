@@ -1,59 +1,82 @@
-<div class="row">
-    <!-- Personal Surat -->
-    <div class="col-md-4">
-        <h5>KOP Surat</h5>
-        <ul>
-            <li><strong>No Surat</strong><br>[no_surat]</li>
-            <li><strong>Bulan Romawi</strong><br>[romawi]</li>
-            <li><strong>Tahun</strong><br>[tahun]</li>
-        </ul>
-    </div>
-    <div class="col-md-4">
-        <h5>Isi Surat</h5>
-        <ul>
-            <li><strong>Hari</strong><br>[hari]</li>
-            <li><strong>Tanggal Mulai</strong><br>[mulai]</li>
-            <li><strong>Tanggal Selesai</strong><br>[selesai]</li>
-            <li><strong>Pihak 2</strong><br>[pihak_2]</li>
-            <li><strong>Tanda Tangan Pihak 2</strong><br>[sign_2]</li>
-        </ul>
-    </div>
-    <div class="col-md-4">
-        <h5>Informasi Personal</h5>
-        <ul>
-            <li><strong>Nama Karyawan</strong><br>[nama_karyawan]</li>
-            <li><strong>Tempat Tanggal Lahir</strong><br>[ttl]</li>
-            <li><strong>Alamat</strong><br>[alamat]</li>
-            <li><strong>No Handphone</strong><br>[handphone]</li>
-        </ul>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <h5>Informasi Pegawai</h5>
-        <ul>
-            <li><strong>No Karyawan</strong><br>[no_karyawan]</li>
-            <li><strong>Area</strong><br>[area]</li>
-            <li><strong>Jabatan</strong><br>[jabatan]</li>
-            <li><strong>Tanda Tangan</strong><br>[esign]</li>
-        </ul>
-    </div>
-    <div class="col-md-4">
-        <h5>Komponen Gaji</h5>
-        <ul>
-            <li><strong>Gaji</strong><br>[gaji]</li>
-            <li><strong>Tunjangan</strong><br>[tunjangan]</li>
-            <li><strong>Komisi</strong><br>[komisi]</li>
-            <li><strong>Potongan</strong><br>[potongan]</li>
-        </ul>
-    </div>
-    <div class="col-md-4">
-        <h5>Kontak Darurat</h5>
-        <ul>
-            <li><strong>Nama</strong><br>[nama_kontak]</li>
-            <li><strong>Nomor HP</strong><br>[no_kontak]</li>
-            <li><strong>Alamat</strong><br>[alamat_kontak]</li>
-            <li><strong>Hubungan</strong><br>[hubungan]</li>
-        </ul>
+<div class="modal fade" id="lihatVariable" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark">
+                <h5 class="modal-title text-white">Klik Variable Untuk Menyalin</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">KOP SURAT</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_surat]')">No Surat <code>[no_surat]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[romawi]')">Bulan Romawi <code>[romawi]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tahun]')">Tahun <code>[tahun]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-light" onclick="copyVar('[tgl_surat]')">Tgl Terbit <code>[tgl_surat]</code> <i class="ti ti-copy text-primary"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">ISI SURAT</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[hari]')">Hari <code>[hari]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[mulai]')">Tgl Mulai <code>[mulai]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[selesai]')">Tgl Selesai <code>[selesai]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[pihak_2]')">Pihak 2 <code>[pihak_2]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[sign_2]')">Tanda Tangan P2 <code>[sign_2]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI PERSONAL</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[nama_karyawan]')">Nama Karyawan <code>[nama_karyawan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[ttl]')">TTL <code>[ttl]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[alamat]')">Alamat <code>[alamat]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[handphone]')">No HP <code>[handphone]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI PEGAWAI</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_karyawan]')">No Karyawan <code>[no_karyawan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area]')">Area <code>[area]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area_client]')">Area Client <code>[area_client]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area_description]')">Description Area <code>[area_description]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[jabatan]')">Jabatan <code>[jabatan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[esign]')">Tanda Tangan HRD <code>[esign]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">KOMPONEN GAJI</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[gaji]')">Gaji <code>[gaji]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunjangan]')">Tunjangan <code>[tunjangan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[komisi]')">Komisi <code>[komisi]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[potongan]')">Potongan <code>[potongan]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">KONTAK DARURAT</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[nama_kontak]')">Nama <code>[nama_kontak]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_kontak]')">Nomor HP <code>[no_kontak]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[alamat_kontak]')">Alamat <code>[alamat_kontak]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[hubungan]')">Hubungan <code>[hubungan]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-danger">VARIABEL KUSTOM ANDA</h6>
+                        <div class="row" id="list-custom-vars">
+                            {{-- Variabel kustom yang baru dibuat akan muncul di sini otomatis --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <div class="me-auto text-success fw-bold ps-2" id="copyStatus"></div>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
     </div>
 </div>
