@@ -829,23 +829,19 @@
 
                         <div class="mb-3">
                             <label class="form-label">Tipe Dokumen <span class="text-danger">*</span></label>
-                            <select class="form-select select2" name="name" required>
+                            <select class="form-select" name="name" required>
                                 <option value="">Pilih Tipe Dokumen</option>
-                                <optgroup label="Dokumen Wajib">
-                                    <option value="KTP">KTP</option>
-                                    <option value="IJAZAH">IJAZAH</option>
-                                    <option value="KARTU KELUARGA">KARTU KELUARGA</option>
-                                    @if ($user->profile?->gada_pratama === 'yes') <option value="GADA PRATAMA">GADA PRATAMA</option> @endif
-                                    @if ($user->profile?->gada_madya === 'yes') <option value="GADA MADYA">GADA MADYA</option> @endif
-                                    @if ($user->profile?->gada_utama === 'yes') <option value="GADA UTAMA">GADA UTAMA</option> @endif
-                                </optgroup>
-                                <optgroup label="Dokumen Tambahan">
-                                    <option value="SKCK">SKCK</option>
-                                    <option value="SIM">SIM</option>
-                                    <option value="NPWP">NPWP</option>
-                                    <option value="PAKLARING">PAKLARING</option>
-                                    <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN</option>
-                                </optgroup>
+                                <option value="KTP">KTP (Wajib)</option>
+                                <option value="IJAZAH">IJAZAH (Wajib)</option>
+                                <option value="KARTU KELUARGA">KARTU KELUARGA (Wajib)</option>
+                                <option value="SKCK">SKCK</option>
+                                <option value="SIM">SIM</option>
+                                <option value="NPWP">NPWP</option>
+                                <option value="PAKLARING">PAKLARING</option>
+                                <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN</option>
+                                @if ($user->profile?->gada_pratama === 'yes') <option value="GADA PRATAMA">SERTIFIKAT/KTA GADA PRATAMA</option> @endif
+                                @if ($user->profile?->gada_madya === 'yes') <option value="GADA MADYA">SERTIFIKAT/KTA GADA MADYA</option> @endif
+                                @if ($user->profile?->gada_utama === 'yes') <option value="GADA UTAMA">SERTIFIKAT/KTA GADA UTAMA</option> @endif
                             </select>
                         </div>
 

@@ -31,25 +31,25 @@ class DataController extends Controller
             ->get();
 
         $requiredFields = [
-        'address',
-            'current_address',
-            'gender',
-            'birth_place',
-            'birth_date',
-            'mother_name',
-            'npwp_number',
-            'marriage_status',
-            'living_with',
-            'family_name',
-            'height',
-            'weight',
-            'eye_condition',
-            'sense',
-            'tattoo',
-            'hearing',
-            'piercing',
-            'skills',
-    ];
+            'avatar_url' => 'Pas Foto',
+            'gender' => 'Jenis Kelamin',
+            'birth_place' => 'Tempat Lahir',
+            'birth_date' => 'Tanggal Lahir',
+            'mother_name' => 'Nama Ibu Kandung',
+            'last_education' => 'Pendidikan Terakhir',
+            'marriage_status' => 'Status Pernikahan',
+            'living_with' => 'Status Tempat Tinggal',
+            'height' => 'Tinggi Badan',
+            'weight' => 'Berat Badan',
+            'eye_condition' => 'Kondisi Mata',
+            'hearing' => 'Pendengaran',
+            'address' => 'Alamat KTP',
+            'current_address' => 'Alamat Domisili',
+            'family_name' => 'Nama Kontak Darurat',
+            'family_relation' => 'Hubungan Kontak Darurat',
+            'family_phone' => 'No. Telp Kontak Darurat',
+        ];
+
         $isProfileComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
             return !empty($user->profile->$field);
         });
@@ -59,6 +59,7 @@ class DataController extends Controller
         $userDocuments = Document::where('user_id', $user->id)
             ->pluck('name')
             ->toArray();
+            
         $missingDocuments = array_diff($requiredDocuments, $userDocuments);
 
 
