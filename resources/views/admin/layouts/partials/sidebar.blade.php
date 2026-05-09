@@ -24,7 +24,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu-title"><span>CRM</span></li>
+                <li class="menu-title"><span>PERUSAHAAN</span></li>
                 <li>
                     <ul>
                         <li class="{{ Route::is('companies.index') ? 'active' : '' }}">
@@ -39,12 +39,12 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu-title"><span>HRM</span></li>
+                <li class="menu-title"><span>DATABASE</span></li>
                 <li>
                     <ul>
                         <li class="{{ Route::is(['employees.index', 'user-account']) ? 'active' : '' }}">
                             <a href="{{ route('employees.index') }}">
-                                <i class="ti ti-users"></i><span>Pegawai</span>
+                                <i class="ti ti-users"></i><span>Admin</span>
                             </a>
                         </li>
                         <li class="{{ Route::is(['roles.index']) ? 'active' : '' }}">
@@ -55,7 +55,7 @@
                         <li class="submenu">
                             <a href="javascript:void(0);"
                                 class="{{ Route::is(['generates.index', 'type_letters.index', 'letters.index']) ? 'active subdrop' : '' }}"">
-                                <i class="ti ti-edit"></i><span>Digital Letter</span>
+                                <i class="ti ti-edit"></i><span>Surat Digital</span>
                                 <span class="menu-arrow"></span>
                             </a>
                             <ul>
@@ -69,6 +69,11 @@
                                         class="{{ Route::is(['letters.index']) ? 'active' : '' }}">Buat
                                         Template Surat</a></li>
                             </ul>
+                        </li>
+                        <li class="{{ Route::is('statuses.index') ? 'active' : '' }}">
+                            <a href="{{ route('statuses.index') }}">
+                                <i class="ti ti-timeline-event-text"></i><span>Tingkatan</span>
+                            </a>
                         </li>
                     </ul>
                 </li>
@@ -126,11 +131,6 @@
                                     </li>
                                 @endforeach
                             </ul>
-                        </li>
-                        <li class="{{ Route::is('statuses.index') ? 'active' : '' }}">
-                            <a href="{{ route('statuses.index') }}">
-                                <i class="ti ti-timeline-event-text"></i><span>Tingkatan</span>
-                            </a>
                         </li>
                     </ul>
                 </li>
