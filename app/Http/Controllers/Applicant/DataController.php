@@ -162,7 +162,7 @@ class DataController extends Controller
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
         $lokasi_project = $eletter->site->name ?? 'belum ada area';
         $nama_client = $eletter->site->client_name ?? 'belum ada area';
-        $jabatan_client = $eletter->site->client_position ?? 'belum ada area';
+        $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
         $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
         $esign = $eletter->esign ?? 'belum ada tanda tangan';
         
