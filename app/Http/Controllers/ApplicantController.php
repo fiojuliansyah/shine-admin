@@ -6,6 +6,7 @@ use App\DataTables\ApplicantsDataTable;
 use App\Models\Applicant;
 use App\Models\Career;
 use App\Models\Document;
+use App\Models\Site;
 use App\Models\Status;
 use App\Notifications\ApplicantStatusNotification;
 use DataTables;
