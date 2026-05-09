@@ -394,10 +394,9 @@
                     @csrf
                     <div class="modal-body pb-0">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 pb-3">
                                 <h5>Data Diri</h5>
                             </div>
-                            <br>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Pas Foto (Pilih File / Ambil Foto)<span class="text-danger">
