@@ -37,14 +37,9 @@
                                 <i class="ti ti-file-description"></i><span>Riwayat Lamaran</span>
                             </a>
                         </li>
-                    </ul>
-                </li>
-                <li class="menu-title"><span>DOKUMEN DIGITAL</span></li>
-                <li>
-                    <ul>
                         <li class="{{ Route::is('web.applicants.letter') ? 'active' : '' }}">
                             <a href="{{ route('web.applicants.letter') }}">
-                                <i class="ti ti-edit"></i><span>Berkas</span>
+                                <i class="ti ti-edit"></i><span>DOKUMEN DIGITAL</span>
                                 @if($eletterBadge)
                                     <span class="badge badge-xs rounded-pill bg-danger"
                                         style="color: white">
