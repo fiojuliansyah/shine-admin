@@ -156,11 +156,11 @@
                                     <label class="text-muted small">Nama Ibu Kandung</label>
                                     <p class="fw-bold">{{ $user->profile->mother_name ?? '-' }}</p>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-4">
                                     <label class="text-muted small">Alamat KTP</label>
                                     <p class="fw-bold">{{ $user->profile->address ?? '-' }}</p>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-4">
                                     <label class="text-muted small">Alamat Domisili</label>
                                     <p class="fw-bold">{{ $user->profile->current_address ?? '-' }}</p>
                                 </div>
