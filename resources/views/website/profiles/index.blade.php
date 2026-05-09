@@ -753,13 +753,13 @@
                                         <option value="PAKLARING">PAKLARING</option>
                                         <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN/PROFESI</option>
                                         @if ($user->profile?->gada_pratama === 'yes')
-                                            <option value="GADA PRATAMA">GADA PRATAMA</option> 
+                                            <option value="GADA PRATAMA">GADA PRATAMA (wajib)</option> 
                                         @endif
                                         @if ($user->profile?->gada_madya === 'yes')
-                                            <option value="GADA MADYA">GADA MADYA</option> 
+                                            <option value="GADA MADYA">GADA MADYA (wajib)</option> 
                                         @endif
                                         @if ($user->profile?->gada_utama === 'yes')
-                                            <option value="GADA UTAMA">GADA UTAMA</option> 
+                                            <option value="GADA UTAMA">GADA UTAMA (wajib)</option> 
                                         @endif
                                     </select>
                                 </div>
