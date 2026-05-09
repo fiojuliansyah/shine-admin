@@ -434,6 +434,13 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
+                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
+                                    <input type="text" name="mother_name" class="form-control"
+                                        value="{{ $user->profile?->mother_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
                                     <label class="form-label">Pendidikan Terakhir<span class="text-danger">
                                             *</span></label>
                                     <select class="form-select" name="last_education">
@@ -480,7 +487,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Status Templat Tinggal<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Status Tempat Tinggal<span class="text-danger"> *</span></label>
                                     <select class="form-select" name="living_with">
                                         <option value="Parent"
                                             {{ $user->profile?->living_with == 'Parent' ? 'selected' : '' }}>Orang Tua
@@ -499,21 +506,28 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Tinggi Badan (cm)</label>
+                                    <label class="form-label">No NPWP</label>
+                                    <input type="text" name="npwp_number" class="form-control"
+                                        value="{{ $user->profile?->npwp_number }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tinggi Badan (cm)<span class="text-danger"> *</span></label>
                                     <input type="number" step="0.1" name="height" class="form-control"
                                         value="{{ $user->profile?->height }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Berat Badan (kg)</label>
+                                    <label class="form-label">Berat Badan (kg)<span class="text-danger"> *</span></label>
                                     <input type="number" step="0.1" name="weight" class="form-control"
                                         value="{{ $user->profile?->weight }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Kondisi Mata</label>
+                                    <label class="form-label">Kondisi Mata<span class="text-danger"> *</span></label>
                                     <select name="eye_condition" class="form-select">
                                         <option value="Normal"
                                             {{ $user->profile?->eye_condition == 'Normal' ? 'selected' : '' }}>Normal
@@ -526,7 +540,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label">Bertato?</label>
+                                    <label class="form-label">Bertato?<span class="text-danger"> *</span></label>
                                     <select name="tattoo" class="form-select">
                                         <option value="None" {{ $user->profile?->tattoo == 'None' ? 'selected' : '' }}>
                                             Tidak Ada</option>
@@ -537,7 +551,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label">Pendengaran</label>
+                                    <label class="form-label">Pendengaran<span class="text-danger"> *</span></label>
                                     <select name="hearing" class="form-select">
                                         <option value="Normal"
                                             {{ $user->profile?->hearing == 'Normal' ? 'selected' : '' }}>Normal</option>
@@ -549,7 +563,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label">Tindik?</label>
+                                    <label class="form-label">Tindik?<span class="text-danger"> *</span></label>
                                     <select name="piercing" class="form-select">
                                         <option value="None"
                                             {{ $user->profile?->piercing == 'None' ? 'selected' : '' }}>Tidak Ada</option>
@@ -570,25 +584,6 @@
                                     <label class="form-label">Alamat Domisili<span class="text-danger"> *</span></label>
                                     <input type="text" name="current_address" class="form-control"
                                         value="{{ $user->profile?->current_address }}">
-                                </div>
-                            </div>
-
-                            <div class="col-md-12 pt-3 pb-3">
-                                <h4>Data Lainnya</h4>
-                            </div>
-                            <br>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
-                                    <input type="text" name="mother_name" class="form-control"
-                                        value="{{ $user->profile?->mother_name }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">No NPWP</label>
-                                    <input type="text" name="npwp_number" class="form-control"
-                                        value="{{ $user->profile?->npwp_number }}">
                                 </div>
                             </div>
                             <div class="col-md-12 pt-3 pb-3">
