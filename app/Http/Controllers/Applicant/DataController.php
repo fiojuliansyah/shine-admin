@@ -165,10 +165,6 @@ class DataController extends Controller
         $jabatan_client = $eletter->site->client_position ?? 'belum ada area';
         $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
         $esign = $eletter->esign ?? 'belum ada tanda tangan';
-        $nama_kontak = $eletter->emergency_name ?? 'belum ada nama';
-        $no_kontak = $eletter->emergency_number ?? 'belum ada no hp';
-        $alamat_kontak = $eletter->emergency_address ?? 'belum ada alamat';
-        $hubungan = $eletter->relationship ?? 'belum ada hubungan';
         
         $payroll = $user->payroll;
         $gaji_raw = 0;
@@ -205,7 +201,7 @@ class DataController extends Controller
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
             '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[jenis_kelamin]', '[nik_ktp]', '[ttl]', 
             '[alamat]', '[handphone]', '[no_karyawan]', '[lokasi_project]', '[nama_client]', '[jabatan_client]', '[jabatan]', '[esign]', 
-            '[gaji]', '[tunjangan]', '[nama_kontak]', '[no_kontak]', '[alamat_kontak]', '[hubungan]'
+            '[gaji]', '[tunjangan]'
         ];
 
         $replace = [
