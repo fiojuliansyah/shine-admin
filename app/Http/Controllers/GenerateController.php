@@ -246,7 +246,7 @@ class GenerateController extends Controller
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
             '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[ttl]', '[alamat]', '[handphone]',
-            '[no_karyawan]', '[lokasi_project]', '[area_client]', '[area_description]', '[jabatan]',
+            '[no_karyawan]', '[lokasi_project]', '[nama_client]', '[jabatan_client]', '[jabatan]',
             '[esign]', '[gaji]', '[tunjangan]', '[komisi]', '[potongan]', '[nama_kontak]',
             '[no_kontak]', '[alamat_kontak]', '[hubungan]'
         ];
@@ -254,7 +254,7 @@ class GenerateController extends Controller
         $replace = [
             $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
             $pihak_2, $sign_2, $nama_karyawan, $ttl, $alamat, $handphone,
-            $no_karyawan, $area, $area_client, $area_description, $jabatan,
+            $no_karyawan, $area, $nama_client, $jabatan_client, $jabatan,
             $esign, $gaji, $tunjangan, $komisi, $potongan, $nama_kontak,
             $no_kontak, $alamat_kontak, $hubungan
         ];
