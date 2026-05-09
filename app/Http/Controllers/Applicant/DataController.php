@@ -32,7 +32,7 @@ class DataController extends Controller
 
         // 1. Cek Kelengkapan Field Profil
         $requiredFields = [
-            'avatar' => 'Pas Foto', // Sesuaikan dengan nama kolom di DB Anda
+            'avatar_url' => 'Pas Foto', // Sesuaikan dengan nama kolom di DB Anda
             'gender' => 'Jenis Kelamin',
             'birth_place' => 'Tempat Lahir',
             'birth_date' => 'Tanggal Lahir',
@@ -295,7 +295,23 @@ class DataController extends Controller
         $user = Auth::user();
 
         $requiredFields = [
-            'marriage_status', 
+            'avatar_url' => 'Pas Foto',
+            'gender' => 'Jenis Kelamin',
+            'birth_place' => 'Tempat Lahir',
+            'birth_date' => 'Tanggal Lahir',
+            'mother_name' => 'Nama Ibu Kandung',
+            'last_education' => 'Pendidikan Terakhir',
+            'marriage_status' => 'Status Pernikahan',
+            'living_with' => 'Status Tempat Tinggal',
+            'height' => 'Tinggi Badan',
+            'weight' => 'Berat Badan',
+            'eye_condition' => 'Kondisi Mata',
+            'hearing' => 'Pendengaran',
+            'address' => 'Alamat KTP',
+            'current_address' => 'Alamat Domisili',
+            'family_name' => 'Nama Kontak Darurat',
+            'family_relation' => 'Hubungan Kontak Darurat',
+            'family_phone' => 'No. Telp Kontak Darurat',
         ];
 
         $isProfileComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
