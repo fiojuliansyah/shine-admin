@@ -229,19 +229,19 @@
                                     </div>
                                     <div class="col-md-3">
                                         <span class="text-muted d-block small">Gada Pratama</span>
-                                        <span class="badge {{ $user->profile->gada_pratama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                        <span class="badge {{ $user->profile->gada_pratama == 'yes' ? 'badge-xs rounded-pill bg-success' : 'badge-xs rounded-pill bg-secondary' }}">
                                             {{ strtoupper($user->profile->gada_pratama ?? 'no') }}
                                         </span>
                                     </div>
                                     <div class="col-md-3">
                                         <span class="text-muted d-block small">Gada Madya</span>
-                                        <span class="badge {{ $user->profile->gada_madya == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                        <span class="badge {{ $user->profile->gada_madya == 'yes' ? 'badge-xs rounded-pill bg-success' : 'badge-xs rounded-pill bg-secondary' }}">
                                             {{ strtoupper($user->profile->gada_madya ?? 'no') }}
                                         </span>
                                     </div>
                                     <div class="col-md-3">
                                         <span class="text-muted d-block small">Gada Utama</span>
-                                        <span class="badge {{ $user->profile->gada_utama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                        <span class="badge {{ $user->profile->gada_utama == 'yes' ? 'badge-xs rounded-pill bg-success' : 'badge-xs rounded-pill bg-secondary' }}">
                                             {{ strtoupper($user->profile->gada_utama ?? 'no') }}
                                         </span>
                                     </div>
