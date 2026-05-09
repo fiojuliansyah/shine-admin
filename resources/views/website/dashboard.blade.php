@@ -11,10 +11,6 @@
                         <div>
                             <strong>Lengkapi profil anda sebelum melamar!</strong>
                             <ul class="mb-0 mt-1">
-                                @if(!$isProfileComplete)
-                                    <li>Data profil (Status Pernikahan) belum diisi.</li>
-                                @endif
-                                
                                 @if(!empty($missingDocuments))
                                     <li>Dokumen belum diunggah: {{ implode(', ', $missingDocuments) }}.</li>
                                 @endif

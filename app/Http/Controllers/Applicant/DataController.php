@@ -54,12 +54,20 @@ class DataController extends Controller
             return !empty($user->profile->$field);
         });
 
-        $requiredDocuments = ['KTP', 'KARTU KELUARGA'];
+        $requiredDocs = ['KTP', 'IJAZAH', 'KARTU KELUARGA'];
+                                        
+        if ($user->profile?->gada_pratama === 'yes') $requiredDocs[] = 'GADA PRATAMA';
+        if ($user->profile?->gada_madya === 'yes') $requiredDocs[] = 'GADA MADYA';
+        if ($user->profile?->gada_utama === 'yes') $requiredDocs[] = 'GADA UTAMA';
+
+        $uploadedDocs = $documents->pluck('name')->toArray();
+        
+        $missingDocs = array_diff($requiredDocs, $uploadedDocs);    
 
         $userDocuments = Document::where('user_id', $user->id)
             ->pluck('name')
             ->toArray();
-            
+
         $missingDocuments = array_diff($requiredDocuments, $userDocuments);
 
 
