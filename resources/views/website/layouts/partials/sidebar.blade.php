@@ -39,7 +39,7 @@
                         </li>
                         <li class="{{ Route::is('web.applicants.letter') ? 'active' : '' }}">
                             <a href="{{ route('web.applicants.letter') }}">
-                                <i class="ti ti-edit"></i><span>DOKUMEN DIGITAL</span>
+                                <i class="ti ti-edit"></i><span>Dokumen DigitalL</span>
                                 @if($eletterBadge)
                                     <span class="badge badge-xs rounded-pill bg-danger"
                                         style="color: white">
