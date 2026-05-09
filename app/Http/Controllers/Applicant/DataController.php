@@ -208,7 +208,7 @@ class DataController extends Controller
             $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
             $pihak_2, $sign_2, $nama_karyawan, $jenis_kelamin, $nik_ktp, $ttl, 
             $alamat, $handphone, $no_karyawan, $lokasi_project, $nama_client, $jabatan_client, $jabatan, $esign, 
-            $gaji, $tunjangan, $nama_kontak, $no_kontak, $alamat_kontak, $hubungan
+            $gaji, $tunjangan
         ];
 
         $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)
