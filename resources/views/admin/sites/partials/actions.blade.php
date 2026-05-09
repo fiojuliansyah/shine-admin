@@ -54,14 +54,8 @@
                         </div>
                         <div class="col">
                             <div class="mb-3">
-                                <label for="client_phone" class="col-form-label">Phone Client</label>
-                                <input type="text" class="form-control" id="client_phone" name="client_phone" value="{{ $row->client_phone }}">
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="mb-3">
-                                <label for="client_email" class="col-form-label">Email Client</label>
-                                <input type="email" class="form-control" id="client_email" name="client_email" value="{{ $row->client_email }}">
+                                <label for="client_phone" class="col-form-label">Jabatan Client</label>
+                                <input type="text" class="form-control" id="client_position" name="client_position" value="{{ $row->client_position }}">
                             </div>
                         </div>
                     </div>

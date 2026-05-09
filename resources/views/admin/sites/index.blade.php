@@ -96,22 +96,16 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Client Name</label>
+                                    <label class="form-label">Nama Client</label>
                                     <input type="text" class="form-control" name="client_name">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Client Phone</label>
-                                    <input type="text" class="form-control" name="client_phone">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">Client Email</label>
-                                    <input type="email" class="form-control" name="client_email">
+                                    <label class="form-label">Jabatan Client</label>
+                                    <input type="text" class="form-control" name="client_position">
                                 </div>
                             </div>
                         </div>
