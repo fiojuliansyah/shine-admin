@@ -160,7 +160,9 @@ class DataController extends Controller
         $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
-        $area = $eletter->site->name ?? 'belum ada area';
+        $lokasi_project = $eletter->site->name ?? 'belum ada area';
+        $nama_client = $eletter->site->client_name ?? 'belum ada area';
+        $jabatan_client = $eletter->site->client_position ?? 'belum ada area';
         $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
         $esign = $eletter->esign ?? 'belum ada tanda tangan';
         $nama_kontak = $eletter->emergency_name ?? 'belum ada nama';
@@ -202,14 +204,14 @@ class DataController extends Controller
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
             '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[jenis_kelamin]', '[nik_ktp]', '[ttl]', 
-            '[alamat]', '[handphone]', '[no_karyawan]', '[area]', '[jabatan]', '[esign]', 
+            '[alamat]', '[handphone]', '[no_karyawan]', '[lokasi_project]', '[nama_client]', '[jabatan_client]', '[jabatan]', '[esign]', 
             '[gaji]', '[tunjangan]', '[nama_kontak]', '[no_kontak]', '[alamat_kontak]', '[hubungan]'
         ];
 
         $replace = [
             $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
             $pihak_2, $sign_2, $nama_karyawan, $jenis_kelamin, $nik_ktp, $ttl, 
-            $alamat, $handphone, $no_karyawan, $area, $jabatan, $esign, 
+            $alamat, $handphone, $no_karyawan, $lokasi_project, $nama_client, $jabatan_client, $jabatan, $esign, 
             $gaji, $tunjangan, $nama_kontak, $no_kontak, $alamat_kontak, $hubungan
         ];
 
