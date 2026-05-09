@@ -588,7 +588,7 @@
 
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Apakah Anda Security?<span class="text-danger">
+                                    <label class="form-label">Apakah Anda Melamar Sebagai Security?<span class="text-danger">
                                             *</span></label>
                                     <select class="form-select" id="is_security" name="is_security">
                                         <option value="no"
@@ -745,14 +745,14 @@
                                     <select class="form-select" name="name" required>
                                         <option value="">Pilih Tipe Dokumen</option>
                                         <option value="KTP">KTP (wajib)</option>
-                                        <option value="SKCK">SKCK (wajib)</option>
+                                        <option value="SKCK">SKCK</option>
                                         <option value="SIM">SIM</option>
                                         <option value="NPWP">NPWP</option>
-                                        <option value="IJAZAH">IJAZAH</option>
+                                        <option value="IJAZAH">IJAZAH (wajib)</option>
                                         <option value="KARTU KELUARGA">KARTU KELUARGA (wajib)</option>
                                         <option value="PAKLARING">PAKLARING</option>
                                         <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN/PROFESI</option>
-                                        @if ($user->profile?->gada_utama === 'yes')
+                                        @if ($user->profile?->gada_pratama === 'yes')
                                             <option value="GADA PRATAMA">GADA PRATAMA</option> 
                                         @endif
                                         @if ($user->profile?->gada_madya === 'yes')

@@ -413,9 +413,6 @@ class DataController extends Controller
             'gada_madya',
             'gada_utama',
             'skills',
-            'bank_name',
-            'account_name',
-            'account_number'
         ]);
 
         if ($request->hasFile('avatar')) {
