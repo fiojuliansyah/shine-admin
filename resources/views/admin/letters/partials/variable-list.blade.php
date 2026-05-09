@@ -20,15 +20,16 @@
                         <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">ISI SURAT</h6>
                         <div class="list-group list-group-flush">
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[hari]')">Hari <code>[hari]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[mulai]')">Tgl Mulai <code>[mulai]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[selesai]')">Tgl Selesai <code>[selesai]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[pihak_2]')">Pihak 2 <code>[pihak_2]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[sign_2]')">Tanda Tangan P2 <code>[sign_2]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[mulai]')">Tgl Mulai Kontrak<code>[mulai]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[selesai]')">Tgl Selesai Kontrak<code>[selesai]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[sign_2]')">Tanda Tangan karyawan <code>[sign_2]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[esign]')">Tanda Tangan HRD <code>[esign]</code> <i class="ti ti-copy"></i></button>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI PERSONAL</h6>
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI PEGAWAI</h6>
                         <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_karyawan]')">No Karyawan <code>[no_karyawan]</code> <i class="ti ti-copy"></i></button>
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[nama_karyawan]')">Nama Karyawan <code>[nama_karyawan]</code> <i class="ti ti-copy"></i></button>
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[ttl]')">TTL <code>[ttl]</code> <i class="ti ti-copy"></i></button>
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[alamat]')">Alamat <code>[alamat]</code> <i class="ti ti-copy"></i></button>
@@ -36,14 +37,12 @@
                         </div>
                     </div>
                     <div class="col-md-4 border-top pt-3">
-                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI PEGAWAI</h6>
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">INFORMASI LOKASI PROJECT</h6>
                         <div class="list-group list-group-flush">
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_karyawan]')">No Karyawan <code>[no_karyawan]</code> <i class="ti ti-copy"></i></button>
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area]')">Area <code>[area]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area_client]')">Area Client <code>[area_client]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area_description]')">Description Area <code>[area_description]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area_client]')">Nama Client <code>[nama_client]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[area_description]')">Deskripsi Client<code>[area_description]</code> <i class="ti ti-copy"></i></button>
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[jabatan]')">Jabatan <code>[jabatan]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[esign]')">Tanda Tangan HRD <code>[esign]</code> <i class="ti ti-copy"></i></button>
                         </div>
                     </div>
                     <div class="col-md-4 border-top pt-3">
@@ -55,15 +54,7 @@
                             <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[potongan]')">Potongan <code>[potongan]</code> <i class="ti ti-copy"></i></button>
                         </div>
                     </div>
-                    <div class="col-md-4 border-top pt-3">
-                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">KONTAK DARURAT</h6>
-                        <div class="list-group list-group-flush">
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[nama_kontak]')">Nama <code>[nama_kontak]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[no_kontak]')">Nomor HP <code>[no_kontak]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[alamat_kontak]')">Alamat <code>[alamat_kontak]</code> <i class="ti ti-copy"></i></button>
-                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[hubungan]')">Hubungan <code>[hubungan]</code> <i class="ti ti-copy"></i></button>
-                        </div>
-                    </div>
+
 
                     <div class="col-md-12 border-top pt-3">
                         <h6 class="fw-bold border-bottom pb-2 mb-3 text-danger">VARIABEL KUSTOM ANDA</h6>
