@@ -31,25 +31,36 @@ class DataController extends Controller
             ->get();
 
         $requiredFields = [
-        'gender',
-        'avatar_url',
-        'birth_place',
-        'birth_date',
-        'mother_name',
-        'marriage_status',
         'address',
-        'bank_name',
-        'account_number'
+            'current_address',
+            'gender',
+            'birth_place',
+            'birth_date',
+            'mother_name',
+            'npwp_number',
+            'marriage_status',
+            'living_with',
+            'family_name',
+            'height',
+            'weight',
+            'eye_condition',
+            'sense',
+            'tattoo',
+            'hearing',
+            'piercing',
+            'skills',
     ];
         $isProfileComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
             return !empty($user->profile->$field);
         });
 
         $requiredDocuments = ['KTP', 'KARTU KELUARGA'];
+
         $userDocuments = Document::where('user_id', $user->id)
             ->pluck('name')
             ->toArray();
         $missingDocuments = array_diff($requiredDocuments, $userDocuments);
+
 
         $showWarning = !$isProfileComplete || !empty($missingDocuments);
 

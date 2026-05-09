@@ -394,6 +394,9 @@
                     @csrf
                     <div class="modal-body pb-0">
                         <div class="row">
+                            <div class="col-md-12">
+                                <h5>Data Diri</h5>
+                            </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Pas Foto (Pilih File / Ambil Foto)<span class="text-danger">
@@ -413,6 +416,20 @@
                                             {{ $user->profile?->gender == 'Perempuan' ? 'selected' : '' }}>Perempuan
                                         </option>
                                     </select>
+                                </div>
+                            </div>
+                             <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tempat Lahir<span class="text-danger"> *</span></label>
+                                    <input type="text" name="birth_place" class="form-control"
+                                        value="{{ $user->profile?->birth_place }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal Lahir<span class="text-danger"> *</span></label>
+                                    <input type="date" name="birth_date" class="form-control"
+                                        value="{{ $user->profile?->birth_date }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -463,7 +480,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Tinggal Dengan<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Status Templat Tinggal<span class="text-danger"> *</span></label>
                                     <select class="form-select" name="living_with">
                                         <option value="Parent"
                                             {{ $user->profile?->living_with == 'Parent' ? 'selected' : '' }}>Orang Tua
@@ -480,59 +497,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Anggota Keluarga (Darurat)</label>
-                                    <input type="text" name="family_name" class="form-control"
-                                        value="{{ $user->profile?->family_name }}"
-                                        placeholder="Nama Suami/Istri/Orang Tua">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
-                                    <input type="text" name="mother_name" class="form-control"
-                                        value="{{ $user->profile?->mother_name }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Tempat Lahir<span class="text-danger"> *</span></label>
-                                    <input type="text" name="birth_place" class="form-control"
-                                        value="{{ $user->profile?->birth_place }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Tanggal Lahir<span class="text-danger"> *</span></label>
-                                    <input type="date" name="birth_date" class="form-control"
-                                        value="{{ $user->profile?->birth_date }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">No NPWP</label>
-                                    <input type="text" name="npwp_number" class="form-control"
-                                        value="{{ $user->profile?->npwp_number }}">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Alamat KTP<span class="text-danger"> *</span></label>
-                                    <input type="text" name="address" class="form-control"
-                                        value="{{ $user->profile?->address }}">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Alamat Domisili<span class="text-danger"> *</span></label>
-                                    <input type="text" name="current_address" class="form-control"
-                                        value="{{ $user->profile?->current_address }}">
-                                </div>
-                            </div>
-
-                            <hr>
-
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Tinggi Badan (cm)</label>
@@ -557,17 +521,6 @@
                                         <option value="Color Blind"
                                             {{ $user->profile?->eye_condition == 'Color Blind' ? 'selected' : '' }}>Buta
                                             Warna</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Panca Indera</label>
-                                    <select name="sense" class="form-select">
-                                        <option value="Normal" {{ $user->profile?->sense == 'Normal' ? 'selected' : '' }}>
-                                            Normal</option>
-                                        <option value="Poor" {{ $user->profile?->sense == 'Poor' ? 'selected' : '' }}>
-                                            Buruk</option>
                                     </select>
                                 </div>
                             </div>
@@ -605,24 +558,51 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <h5>Data lainnya</h5>
+                            </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Push Up (Jumlah)</label>
-                                    <input type="number" name="push_up" class="form-control"
-                                        value="{{ $user->profile?->push_up }}">
+                                    <label class="form-label">Nama Ibu Kandung<span class="text-danger"> *</span></label>
+                                    <input type="text" name="mother_name" class="form-control"
+                                        value="{{ $user->profile?->mother_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">No NPWP</label>
+                                    <input type="text" name="npwp_number" class="form-control"
+                                        value="{{ $user->profile?->npwp_number }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Kemampuan PBB</label>
-                                    <select name="pbb" class="form-select">
-                                        <option value="0" {{ $user->profile?->pbb == 0 ? 'selected' : '' }}>Tidak
-                                            Bisa / Abnormal</option>
-                                        <option value="1" {{ $user->profile?->pbb == 1 ? 'selected' : '' }}>Bisa /
-                                            Normal</option>
-                                    </select>
+                                    <label class="form-label">Alamat KTP<span class="text-danger"> *</span></label>
+                                    <input type="text" name="address" class="form-control"
+                                        value="{{ $user->profile?->address }}">
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Alamat Domisili<span class="text-danger"> *</span></label>
+                                    <input type="text" name="current_address" class="form-control"
+                                        value="{{ $user->profile?->current_address }}">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <h5>Kontak Darurat</h5>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Anggota Keluarga (Darurat)<span class="text-danger"> *</span></label>
+                                    <input type="text" name="family_name" class="form-control"
+                                        value="{{ $user->profile?->family_name }}"
+                                        placeholder="Nama Suami/Istri/Orang Tua" required>
+                                </div>
+                            </div>
+
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Apakah Anda Security?<span class="text-danger">
@@ -639,6 +619,24 @@
                             </div>
 
                             <div id="security-fields" class="row" style="display: none;">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Push Up (Jumlah)</label>
+                                        <input type="number" name="push_up" class="form-control"
+                                            value="{{ $user->profile?->push_up }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Kemampuan PBB</label>
+                                        <select name="pbb" class="form-select">
+                                            <option value="0" {{ $user->profile?->pbb == 0 ? 'selected' : '' }}>Tidak
+                                                Bisa / Abnormal</option>
+                                            <option value="1" {{ $user->profile?->pbb == 1 ? 'selected' : '' }}>Bisa /
+                                                Normal</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Gada Pratama</label>
@@ -648,9 +646,6 @@
                                             </option>
                                             <option value="yes"
                                                 {{ $user->profile?->gada_pratama == 'yes' ? 'selected' : '' }}>Aktif
-                                            </option>
-                                            <option value="expired"
-                                                {{ $user->profile?->gada_pratama == 'expired' ? 'selected' : '' }}>Expired
                                             </option>
                                         </select>
                                     </div>
@@ -664,9 +659,6 @@
                                             </option>
                                             <option value="yes"
                                                 {{ $user->profile?->gada_madya == 'yes' ? 'selected' : '' }}>Aktif</option>
-                                            <option value="expired"
-                                                {{ $user->profile?->gada_madya == 'expired' ? 'selected' : '' }}>Expired
-                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -679,9 +671,6 @@
                                             </option>
                                             <option value="yes"
                                                 {{ $user->profile?->gada_utama == 'yes' ? 'selected' : '' }}>Aktif</option>
-                                            <option value="expired"
-                                                {{ $user->profile?->gada_utama == 'expired' ? 'selected' : '' }}>Expired
-                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -788,33 +777,23 @@
                                         <option value="KARTU KELUARGA">KARTU KELUARGA (wajib)</option>
                                         <option value="PAKLARING">PAKLARING</option>
                                         <option value="CERTIFICATE">SERTIFIKAT KEAHLIAN/PROFESI</option>
+                                        @if ($user->profile?->gada_utama === 'yes')
+                                            <option value="GADA PRATAMA">GADA PRATAMA</option> 
+                                        @endif
+                                        @if ($user->profile?->gada_madya === 'yes')
+                                            <option value="GADA MADYA">GADA MADYA</option> 
+                                        @endif
+                                        @if ($user->profile?->gada_utama === 'yes')
+                                            <option value="GADA UTAMA">GADA UTAMA</option> 
+                                        @endif
                                     </select>
                                 </div>
                             </div>
-
-                            <!-- Deskripsi Dokumen -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Deskripsi Dokumen</label>
-                                    <input type="text" name="description" class="form-control"
-                                        placeholder="Masukkan deskripsi dokumen" required>
-                                </div>
-                            </div>
-
-                            <!-- Upload File -->
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">File Dokumen<span class="text-danger"> *</span></label>
                                     <input type="file" name="file" class="form-control" accept=".jpg, .jpeg, .png"
                                         id="file-input" required>
-                                </div>
-                            </div>
-
-                            <!-- Tanggal Expired -->
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Tanggal Expired</label>
-                                    <input type="date" name="validate" class="form-control">
                                 </div>
                             </div>
                         </div>
