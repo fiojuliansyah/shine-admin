@@ -67,24 +67,37 @@
                             <div class="d-flex align-items-center justify-content-between flex-fill">
                                 <h5 class="mb-0">Informasi Profil</h5>
                                 <div class="d-flex align-items-center gap-2">
-                                    <!-- Check Kelengkapan Data (Kecuali NPWP & Skills) -->
                                     @php
+                                        // Definisikan field wajib dan labelnya untuk tampilan alert
                                         $requiredFields = [
-                                            'gender', 'birth_place', 'birth_date', 'mother_name', 'last_education', 
-                                            'marriage_status', 'living_with', 'height', 'weight', 'eye_condition', 
-                                            'hearing', 'tattoo', 'piercing', 'address', 'current_address', 
-                                            'family_name', 'family_relation', 'family_phone'
+                                            'avatar' => 'Pas Foto',
+                                            'gender' => 'Jenis Kelamin',
+                                            'birth_place' => 'Tempat Lahir',
+                                            'birth_date' => 'Tanggal Lahir',
+                                            'mother_name' => 'Nama Ibu Kandung',
+                                            'last_education' => 'Pendidikan Terakhir',
+                                            'marriage_status' => 'Status Pernikahan',
+                                            'living_with' => 'Status Tempat Tinggal',
+                                            'height' => 'Tinggi Badan',
+                                            'weight' => 'Berat Badan',
+                                            'eye_condition' => 'Kondisi Mata',
+                                            'hearing' => 'Pendengaran',
+                                            'address' => 'Alamat KTP',
+                                            'current_address' => 'Alamat Domisili',
+                                            'family_name' => 'Nama Kontak Darurat',
+                                            'family_relation' => 'Hubungan Kontak Darurat',
+                                            'family_phone' => 'No. Telp Kontak Darurat',
                                         ];
-                                        $isComplete = true;
-                                        foreach($requiredFields as $field) {
-                                            if(empty($user->profile->$field)) {
-                                                $isComplete = false;
-                                                break;
+
+                                        $emptyFields = [];
+                                        foreach ($requiredFields as $field => $label) {
+                                            if (empty($user->profile->$field)) {
+                                                $emptyFields[] = $label;
                                             }
                                         }
                                     @endphp
 
-                                    @if($isComplete)
+                                    @if(empty($emptyFields))
                                         <span class="badge bg-label-success"><i class="ti ti-check me-1"></i>Data Lengkap</span>
                                     @else
                                         <span class="badge bg-label-danger"><i class="ti ti-alert-triangle me-1"></i>Data Belum Lengkap</span>
@@ -98,14 +111,20 @@
                         </div>
                         
                         <div class="card-body">
-                            <!-- Alert Pemberitahuan jika data belum lengkap -->
-                            @if(!$isComplete)
-                                <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
-                                    <span class="alert-icon text-warning me-2">
-                                        <i class="ti ti-info-circle ti-xs"></i>
-                                    </span>
-                                    <div>
-                                        <strong>Perhatian!</strong> Mohon lengkapi data profil wajib Anda untuk mempermudah proses verifikasi.
+                            <!-- Alert List Field yang Kosong -->
+                            @if(!empty($emptyFields))
+                                <div class="alert alert-danger mb-4" role="alert">
+                                    <div class="d-flex">
+                                        <i class="ti ti-ban me-2 mt-1"></i>
+                                        <div>
+                                            <h6 class="alert-heading fw-bold mb-1">Data Wajib Belum Lengkap!</h6>
+                                            <p class="mb-2">Mohon lengkapi informasi berikut agar profil Anda dapat diverifikasi:</p>
+                                            <ul class="mb-0 row">
+                                                @foreach($emptyFields as $emptyLabel)
+                                                    <li class="col-md-4 small">{{ $emptyLabel }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -113,45 +132,38 @@
                             <!-- Bagian 1: Data Diri Utama -->
                             <div class="row align-items-center mb-4">
                                 <div class="col-md-2 text-center">
-                                    <div class="position-relative d-inline-block">
-                                        <img src="{{ $user->profile?->avatar ? asset('storage/' . $user->profile->avatar) : asset('assets/img/default-avatar.png') }}" 
-                                            alt="Avatar" class="rounded img-fluid border {{ !$user->profile?->avatar ? 'border-danger' : '' }}" style="max-height: 120px;">
-                                        @if(!$user->profile?->avatar)
-                                            <span class="position-absolute top-0 start-100 translate-middle badge border border-light rounded-circle bg-danger p-1"><span class="visually-hidden">Wajib</span></span>
-                                        @endif
-                                    </div>
+                                    <img src="{{ $user->profile?->avatar ? asset('storage/' . $user->profile->avatar) : asset('assets/img/default-avatar.png') }}" 
+                                        alt="Avatar" class="rounded img-fluid border" style="max-height: 120px;">
                                 </div>
                                 <div class="col-md-10">
                                     <div class="row g-3">
                                         <div class="col-md-4">
-                                            <span class="text-muted d-block small">Jenis Kelamin <span class="text-danger">*</span></span>
-                                            <h6 class="fw-medium mb-0 {{ !$user->profile->gender ? 'text-danger' : '' }}">{{ $user->profile->gender ?? 'Belum diisi' }}</h6>
+                                            <span class="text-muted d-block small">Jenis Kelamin</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->gender ?? '-' }}</h6>
                                         </div>
                                         <div class="col-md-4">
-                                            <span class="text-muted d-block small">Tempat, Tanggal Lahir <span class="text-danger">*</span></span>
-                                            <h6 class="fw-medium mb-0 {{ !$user->profile->birth_place ? 'text-danger' : '' }}">
-                                                {{ $user->profile->birth_place ?? '-' }}, {{ $user->profile->birth_date ?? '-' }}
-                                            </h6>
+                                            <span class="text-muted d-block small">Tempat, Tanggal Lahir</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->birth_place ?? '-' }}, {{ $user->profile->birth_date ?? '-' }}</h6>
                                         </div>
                                         <div class="col-md-4">
-                                            <span class="text-muted d-block small">Pendidikan Terakhir <span class="text-danger">*</span></span>
-                                            <h6 class="fw-medium mb-0 {{ !$user->profile->last_education ? 'text-danger' : '' }}">{{ $user->profile->last_education ?? 'Belum diisi' }}</h6>
+                                            <span class="text-muted d-block small">Pendidikan Terakhir</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->last_education ?? '-' }}</h6>
                                         </div>
                                         <div class="col-md-4">
-                                            <span class="text-muted d-block small">Nama Ibu Kandung <span class="text-danger">*</span></span>
-                                            <h6 class="fw-medium mb-0 {{ !$user->profile->mother_name ? 'text-danger' : '' }}">{{ $user->profile->mother_name ?? 'Belum diisi' }}</h6>
+                                            <span class="text-muted d-block small">Nama Ibu Kandung</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->mother_name ?? '-' }}</h6>
                                         </div>
                                         <div class="col-md-4">
-                                            <span class="text-muted d-block small">Status Pernikahan <span class="text-danger">*</span></span>
-                                            <h6 class="fw-medium mb-0 {{ !$user->profile->marriage_status ? 'text-danger' : '' }}">{{ $user->profile->marriage_status ?? 'Belum diisi' }}</h6>
+                                            <span class="text-muted d-block small">Status Pernikahan</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->marriage_status ?? '-' }}</h6>
                                         </div>
                                         <div class="col-md-4">
-                                            <span class="text-muted d-block small">Status Tempat Tinggal <span class="text-danger">*</span></span>
-                                            <h6 class="fw-medium mb-0 {{ !$user->profile->living_with ? 'text-danger' : '' }}">
+                                            <span class="text-muted d-block small">Status Tempat Tinggal</span>
+                                            <h6 class="fw-medium mb-0">
                                                 @php
                                                     $living = ['Parent' => 'Orang Tua', 'Spouse' => 'Suami/Istri', 'Family' => 'Keluarga', 'Live Alone' => 'Tinggal Sendiri'];
                                                 @endphp
-                                                {{ $living[$user->profile->living_with] ?? 'Belum diisi' }}
+                                                {{ $living[$user->profile->living_with] ?? '-' }}
                                             </h6>
                                         </div>
                                     </div>
@@ -167,26 +179,26 @@
                                     <h6 class="fw-medium mb-0 text-secondary">{{ $user->profile->npwp_number ?? '-' }}</h6>
                                 </div>
                                 <div class="col-md-3">
-                                    <span class="text-muted d-block small">Tinggi / Berat Badan <span class="text-danger">*</span></span>
-                                    <h6 class="fw-medium mb-0 {{ !$user->profile->height ? 'text-danger' : '' }}">{{ $user->profile->height ?? '0' }} cm / {{ $user->profile->weight ?? '0' }} kg</h6>
+                                    <span class="text-muted d-block small">Tinggi / Berat Badan</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->height ?? '0' }} cm / {{ $user->profile->weight ?? '0' }} kg</h6>
                                 </div>
                                 <div class="col-md-3">
-                                    <span class="text-muted d-block small">Kondisi Mata / Pendengaran <span class="text-danger">*</span></span>
+                                    <span class="text-muted d-block small">Kondisi Mata / Pendengaran</span>
                                     <h6 class="fw-medium mb-0">{{ $user->profile->eye_condition ?? '-' }} / {{ $user->profile->hearing ?? '-' }}</h6>
                                 </div>
                                 <div class="col-md-3">
-                                    <span class="text-muted d-block small">Tato / Tindik <span class="text-danger">*</span></span>
+                                    <span class="text-muted d-block small">Tato / Tindik</span>
                                     <h6 class="fw-medium mb-0">
                                         {{ $user->profile->tattoo == 'Present' ? 'Ada' : 'Tidak' }} / {{ $user->profile->piercing == 'Present' ? 'Ada' : 'Tidak' }}
                                     </h6>
                                 </div>
                                 <div class="col-md-6">
-                                    <span class="text-muted d-block small">Alamat KTP <span class="text-danger">*</span></span>
-                                    <h6 class="fw-medium mb-0 {{ !$user->profile->address ? 'text-danger' : '' }}">{{ $user->profile->address ?? 'Belum diisi' }}</h6>
+                                    <span class="text-muted d-block small">Alamat KTP</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->address ?? '-' }}</h6>
                                 </div>
                                 <div class="col-md-6">
-                                    <span class="text-muted d-block small">Alamat Domisili <span class="text-danger">*</span></span>
-                                    <h6 class="fw-medium mb-0 {{ !$user->profile->current_address ? 'text-danger' : '' }}">{{ $user->profile->current_address ?? 'Belum diisi' }}</h6>
+                                    <span class="text-muted d-block small">Alamat Domisili</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->current_address ?? '-' }}</h6>
                                 </div>
                                 <div class="col-md-12">
                                     <span class="text-muted d-block small">Keahlian (Skills) (Opsional)</span>
@@ -195,60 +207,50 @@
                             </div>
 
                             <!-- Bagian 3: Kontak Darurat -->
-                            <div class="bg-light p-3 rounded mb-4 border-start border-primary border-3">
-                                <h6 class="mb-3 text-primary"><i class="ti ti-phone-call me-2"></i>Kontak Darurat <span class="text-danger small">(Wajib)</span></h6>
+                            <div class="bg-light p-3 rounded mb-4">
+                                <h6 class="mb-3 text-primary fw-bold"><i class="ti ti-phone-call me-2"></i>Kontak Darurat</h6>
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <span class="text-muted d-block small">Nama Anggota Keluarga</span>
-                                        <h6 class="fw-medium mb-0 {{ !$user->profile->family_name ? 'text-danger' : '' }}">{{ $user->profile->family_name ?? '-' }}</h6>
+                                        <h6 class="fw-medium mb-0">{{ $user->profile->family_name ?? '-' }}</h6>
                                     </div>
                                     <div class="col-md-4">
                                         <span class="text-muted d-block small">Hubungan</span>
-                                        <h6 class="fw-medium mb-0 {{ !$user->profile->family_relation ? 'text-danger' : '' }}">{{ $user->profile->family_relation ?? '-' }}</h6>
+                                        <h6 class="fw-medium mb-0">{{ $user->profile->family_relation ?? '-' }}</h6>
                                     </div>
                                     <div class="col-md-4">
                                         <span class="text-muted d-block small">No. Telepon</span>
-                                        <h6 class="fw-medium mb-0 text-primary {{ !$user->profile->family_phone ? 'text-danger' : '' }}">{{ $user->profile->family_phone ?? '-' }}</h6>
+                                        <h6 class="fw-medium mb-0 text-primary">{{ $user->profile->family_phone ?? '-' }}</h6>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Bagian 4: Informasi Security -->
-                            @php
-                                $isSecurity = ($user->profile->gada_pratama == 'yes' || $user->profile->gada_madya == 'yes' || $user->profile->gada_utama == 'yes');
-                            @endphp
-                            
+                            <!-- Bagian 4: Atribut Security -->
                             <div class="border p-3 rounded">
-                                <h6 class="mb-3 text-dark"><i class="ti ti-shield-check me-2"></i>Atribut Security</h6>
+                                <h6 class="mb-3 text-dark fw-bold"><i class="ti ti-shield-check me-2"></i>Atribut Security</h6>
                                 <div class="row g-3 align-items-center">
-                                    @if($isSecurity)
-                                        <div class="col-md-3">
-                                            <span class="text-muted d-block small">Push Up / PBB</span>
-                                            <h6 class="fw-medium mb-0 text-success">{{ $user->profile->push_up ?? '0' }} Kali / {{ $user->profile->pbb ? 'Bisa' : 'Tidak' }}</h6>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <span class="text-muted d-block small">Gada Pratama</span>
-                                            <span class="badge {{ $user->profile->gada_pratama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
-                                                {{ strtoupper($user->profile->gada_pratama ?? 'no') }}
-                                            </span>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <span class="text-muted d-block small">Gada Madya</span>
-                                            <span class="badge {{ $user->profile->gada_madya == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
-                                                {{ strtoupper($user->profile->gada_madya ?? 'no') }}
-                                            </span>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <span class="text-muted d-block small">Gada Utama</span>
-                                            <span class="badge {{ $user->profile->gada_utama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
-                                                {{ strtoupper($user->profile->gada_utama ?? 'no') }}
-                                            </span>
-                                        </div>
-                                    @else
-                                        <div class="col-12 text-center py-2">
-                                            <span class="text-muted small italic">Bukan merupakan personil Security atau belum memiliki sertifikasi Gada.</span>
-                                        </div>
-                                    @endif
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Push Up / PBB</span>
+                                        <h6 class="fw-medium mb-0">{{ $user->profile->push_up ?? '0' }} Kali / {{ $user->profile->pbb ? 'Bisa' : 'Tidak' }}</h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Gada Pratama</span>
+                                        <span class="badge {{ $user->profile->gada_pratama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ strtoupper($user->profile->gada_pratama ?? 'no') }}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Gada Madya</span>
+                                        <span class="badge {{ $user->profile->gada_madya == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ strtoupper($user->profile->gada_madya ?? 'no') }}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Gada Utama</span>
+                                        <span class="badge {{ $user->profile->gada_utama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ strtoupper($user->profile->gada_utama ?? 'no') }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
