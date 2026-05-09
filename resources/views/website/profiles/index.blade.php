@@ -518,9 +518,16 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Alamat Lengkap<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Alamat KTP<span class="text-danger"> *</span></label>
                                     <input type="text" name="address" class="form-control"
                                         value="{{ $user->profile?->address }}">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Alamat Domisili<span class="text-danger"> *</span></label>
+                                    <input type="text" name="current_address" class="form-control"
+                                        value="{{ $user->profile?->current_address }}">
                                 </div>
                             </div>
 
