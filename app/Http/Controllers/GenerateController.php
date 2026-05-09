@@ -246,7 +246,7 @@ class GenerateController extends Controller
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
             '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[ttl]', '[alamat]', '[handphone]',
-            '[no_karyawan]', '[area]', '[area_client]', '[area_description]', '[jabatan]',
+            '[no_karyawan]', '[lokasi_project]', '[area_client]', '[area_description]', '[jabatan]',
             '[esign]', '[gaji]', '[tunjangan]', '[komisi]', '[potongan]', '[nama_kontak]',
             '[no_kontak]', '[alamat_kontak]', '[hubungan]'
         ];
