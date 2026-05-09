@@ -65,175 +65,140 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between flex-fill">
-                                <h5>Informasi Profil</h5>
+                                <h5 class="mb-0">Informasi Profil</h5>
                                 <div class="d-flex">
-                                    <a href="#" class="btn btn-icon btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#profileModal">
+                                    <a href="#" class="btn btn-icon btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
                                         <i class="ti ti-edit"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Jenis Kelamin</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->gender ?? '-' }}
-                                    </h6>
+                            <!-- Bagian 1: Data Diri Utama -->
+                            <div class="row align-items-center mb-4">
+                                <div class="col-md-2 text-center">
+                                    <img src="{{ $user->profile?->avatar ? asset('storage/' . $user->profile->avatar) : asset('assets/img/default-avatar.png') }}" 
+                                        alt="Avatar" class="rounded img-fluid border" style="max-height: 120px;">
                                 </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Pendidikan Terakhir</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->last_education ?? '-' }}</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Tempat & Tanggal Lahir</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->birth_place ?? '-' }}, {{ $user->profile->birth_date ?? '-' }}
-                                    </h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Nama Ibu Kandung</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->mother_name ?? '-' }}</h6>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Status Pernikahan</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->marriage_status ?? '-' }}</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Tinggal Dengan</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        @php
-                                            $living = [
-                                                'Parent' => 'Orang Tua',
-                                                'Spouse' => 'Suami/Istri',
-                                                'Family' => 'Keluarga',
-                                                'Live Alone' => 'Tinggal Sendiri',
-                                            ];
-                                            $userLivingWith = $user->profile?->living_with;
-                                        @endphp
-                                        {{ $living[$userLivingWith] ?? ($userLivingWith ?? '-') }}
-                                    </h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Anggota Keluarga (Darurat)</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->family_name ?? '-' }}</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">No NPWP</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->npwp_number ?? '-' }}</h6>
+                                <div class="col-md-10">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block small">Jenis Kelamin</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->gender ?? '-' }}</h6>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block small">Tempat, Tanggal Lahir</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->birth_place ?? '-' }}, {{ $user->profile->birth_date ?? '-' }}</h6>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block small">Pendidikan Terakhir</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->last_education ?? '-' }}</h6>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block small">Nama Ibu Kandung</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->mother_name ?? '-' }}</h6>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block small">Status Pernikahan</span>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->marriage_status ?? '-' }}</h6>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block small">Status Tempat Tinggal</span>
+                                            <h6 class="fw-medium mb-0">
+                                                @php
+                                                    $living = ['Parent' => 'Orang Tua', 'Spouse' => 'Suami/Istri', 'Family' => 'Keluarga', 'Live Alone' => 'Tinggal Sendiri'];
+                                                @endphp
+                                                {{ $living[$user->profile->living_with] ?? '-' }}
+                                            </h6>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="row mt-3">
+                            <hr class="my-4">
+
+                            <!-- Bagian 2: Fisik & Alamat -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-3">
+                                    <span class="text-muted d-block small">No. NPWP</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->npwp_number ?? '-' }}</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted d-block small">Tinggi / Berat Badan</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->height ?? '0' }} cm / {{ $user->profile->weight ?? '0' }} kg</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted d-block small">Kondisi Mata / Pendengaran</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->eye_condition ?? '-' }} / {{ $user->profile->hearing ?? '-' }}</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted d-block small">Tato / Tindik</span>
+                                    <h6 class="fw-medium mb-0">
+                                        {{ $user->profile->tattoo == 'Present' ? 'Ada' : 'Tidak' }} / {{ $user->profile->piercing == 'Present' ? 'Ada' : 'Tidak' }}
+                                    </h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <span class="text-muted d-block small">Alamat KTP</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->address ?? '-' }}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <span class="text-muted d-block small">Alamat Domisili</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->current_address ?? '-' }}</h6>
+                                </div>
                                 <div class="col-md-12">
-                                    <span class="d-inline-flex align-items-center">Alamat KTP</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->address ?? '-' }}</h6>
-                                </div>
-                                <div class="col-md-12">
-                                    <span class="d-inline-flex align-items-center">Alamat Domisili</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->current_address ?? '-' }}</h6>
+                                    <span class="text-muted d-block small">Keahlian (Skills)</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->skills ?? '-' }}</h6>
                                 </div>
                             </div>
 
-                            <hr>
-
-                            <div class="row mt-3">
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Tinggi & Berat Badan</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->height ?? '-' }} cm / {{ $user->profile->weight ?? '-' }} kg
-                                    </h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Kondisi Mata</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->eye_condition ?? '-' }}</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Panca Indera</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">{{ $user->profile->sense ?? '-' }}
-                                    </h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Pendengaran</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->hearing ?? '-' }}</h6>
+                            <!-- Bagian 3: Kontak Darurat -->
+                            <div class="bg-light p-3 rounded mb-4">
+                                <h6 class="mb-3 text-primary"><i class="ti ti-phone-call me-2"></i>Kontak Darurat</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <span class="text-muted d-block small">Nama Anggota Keluarga</span>
+                                        <h6 class="fw-medium mb-0">{{ $user->profile->family_name ?? '-' }}</h6>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted d-block small">Hubungan</span>
+                                        <h6 class="fw-medium mb-0">{{ $user->profile->family_relation ?? '-' }}</h6>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted d-block small">No. Telepon</span>
+                                        <h6 class="fw-medium mb-0 text-primary">{{ $user->profile->family_phone ?? '-' }}</h6>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="row mt-3">
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Tato</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->tattoo == 'Present' ? 'Ada' : 'Tidak Ada' }}</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Tindik</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->piercing == 'Present' ? 'Ada' : 'Tidak Ada' }}</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Push Up</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->push_up ?? '0' }} Kali</h6>
-                                </div>
-                                <div class="col-md-3">
-                                    <span class="d-inline-flex align-items-center">Kemampuan PBB</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        <span class="badge {{ $user->profile->pbb ? 'bg-success' : 'bg-danger' }}">
-                                            {{ $user->profile->pbb ? 'Normal / Bisa' : 'Abnormal / Tidak Bisa' }}
+                            @if($user->profile->gada_pratama != 'no' || $user->profile->gada_madya != 'no' || $user->profile->gada_utama != 'no')
+                            <div class="border p-3 rounded">
+                                <h6 class="mb-3 text-dark"><i class="ti ti-shield-check me-2"></i>Atribut Security</h6>
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Push Up / PBB</span>
+                                        <h6 class="fw-medium mb-0">{{ $user->profile->push_up ?? '0' }} Kali / {{ $user->profile->pbb ? 'Bisa' : 'Tidak' }}</h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Gada Pratama</span>
+                                        <span class="badge {{ $user->profile->gada_pratama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ strtoupper($user->profile->gada_pratama ?? 'no') }}
                                         </span>
-                                    </h6>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Gada Madya</span>
+                                        <span class="badge {{ $user->profile->gada_madya == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ strtoupper($user->profile->gada_madya ?? 'no') }}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="text-muted d-block small">Gada Utama</span>
+                                        <span class="badge {{ $user->profile->gada_utama == 'yes' ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                            {{ strtoupper($user->profile->gada_utama ?? 'no') }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-4">
-                                    <span class="d-inline-flex align-items-center">Gada Pratama</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        <span
-                                            class="text-uppercase badge {{ $user->profile->gada_pratama == 'yes' ? 'bg-outline-success' : 'bg-outline-secondary' }} border">
-                                            {{ $user->profile->gada_pratama ?? 'no' }}
-                                        </span>
-                                    </h6>
-                                </div>
-                                <div class="col-md-4">
-                                    <span class="d-inline-flex align-items-center">Gada Madya</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        <span
-                                            class="text-uppercase badge {{ $user->profile->gada_madya == 'yes' ? 'bg-outline-success' : 'bg-outline-secondary' }} border">
-                                            {{ $user->profile->gada_madya ?? 'no' }}
-                                        </span>
-                                    </h6>
-                                </div>
-                                <div class="col-md-4">
-                                    <span class="d-inline-flex align-items-center">Gada Utama</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        <span
-                                            class="text-uppercase badge {{ $user->profile->gada_utama == 'yes' ? 'bg-outline-success' : 'bg-outline-secondary' }} border">
-                                            {{ $user->profile->gada_utama ?? 'no' }}
-                                        </span>
-                                    </h6>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-12">
-                                    <span class="d-inline-flex align-items-center">Keahlian (Skills)</span>
-                                    <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->skills ?? '-' }}</h6>
-                                </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
 
