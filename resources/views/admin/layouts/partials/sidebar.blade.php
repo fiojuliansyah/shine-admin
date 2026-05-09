@@ -72,16 +72,12 @@
                         </li>
                     </ul>
                 </li>
-                {{-- <li class="menu-title"><span>DOKUMEN GAJI</span></li>
+                <li class="menu-title"><span>DOKUMEN DIGITAL</span></li>
                 <li>
                     <ul>
-                        <li class="{{ Route::is('payrolls.main') ? 'active' : '' }}">
-                            <a href="{{ route('payrolls.main') }}">
-                                <i class="ti ti-cash"></i><span>Pengaturan Gaji</span>
-                            </a>
-                        </li>
+                       <li><a href="{{ route('generates.index') }}" class="{{ Route::is('generates.index') ? 'active' : '' }}">Surat Terbit</a></li>
                     </ul>
-                </li> --}}
+                </li>
                 <li class="menu-title"><span>PROSES RECRUITMENT</span></li>
                 <li>
                     <ul>
