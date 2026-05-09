@@ -30,8 +30,9 @@ class DataController extends Controller
             ->orderBy('created_at', 'DESC')
             ->get();
 
+        // 1. Cek Kelengkapan Field Profil
         $requiredFields = [
-            'avatar_url' => 'Pas Foto',
+            'avatar' => 'Pas Foto', // Sesuaikan dengan nama kolom di DB Anda
             'gender' => 'Jenis Kelamin',
             'birth_place' => 'Tempat Lahir',
             'birth_date' => 'Tanggal Lahir',
@@ -50,30 +51,36 @@ class DataController extends Controller
             'family_phone' => 'No. Telp Kontak Darurat',
         ];
 
-        $isProfileComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
-            return !empty($user->profile->$field);
-        });
+        $missingProfileFields = [];
+        if (!$user->profile) {
+            $missingProfileFields = array_values($requiredFields);
+        } else {
+            foreach ($requiredFields as $field => $label) {
+                if (empty($user->profile->$field)) {
+                    $missingProfileFields[] = $label;
+                }
+            }
+        }
 
+        // 2. Cek Kelengkapan Dokumen
         $requiredDocs = ['KTP', 'IJAZAH', 'KARTU KELUARGA'];
-                                        
         if ($user->profile?->gada_pratama === 'yes') $requiredDocs[] = 'GADA PRATAMA';
         if ($user->profile?->gada_madya === 'yes') $requiredDocs[] = 'GADA MADYA';
         if ($user->profile?->gada_utama === 'yes') $requiredDocs[] = 'GADA UTAMA';
 
-        $uploadedDocs = $documents->pluck('name')->toArray();
-        
-        $missingDocs = array_diff($requiredDocs, $uploadedDocs);    
+        // Ambil dokumen yang sudah diupload
+        $uploadedDocs = Document::where('user_id', $user->id)->pluck('name')->toArray();
+        $missingDocuments = array_diff($requiredDocs, $uploadedDocs);
 
-        $userDocuments = Document::where('user_id', $user->id)
-            ->pluck('name')
-            ->toArray();
+        // 3. Status Akhir
+        $showWarning = !empty($missingProfileFields) || !empty($missingDocuments);
 
-        $missingDocuments = array_diff($requiredDocuments, $userDocuments);
-
-
-        $showWarning = !$isProfileComplete || !empty($missingDocuments);
-
-        return view('website.dashboard', compact('timelines', 'showWarning', 'missingDocuments', 'isProfileComplete'));
+        return view('website.dashboard', compact(
+            'timelines', 
+            'showWarning', 
+            'missingProfileFields', 
+            'missingDocuments'
+        ));
     }
 
     public function faq()

@@ -5,21 +5,48 @@
         <div class="content">
 
             @if($showWarning)
-                <div class="alert bg-danger-transparent alert-dismissible fade show mb-4">
-                    <div class="d-flex">
-                        <i class="ti ti-alert-circle me-2 fs-18"></i>
+                <div class="alert alert-important alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    <div class="d-flex border-bottom pb-2 mb-2">
+                        <i class="ti ti-alert-triangle me-2 fs-3"></i>
                         <div>
-                            <strong>Lengkapi profil anda sebelum melamar!</strong>
-                            <ul class="mb-0 mt-1">
-                                @if(!empty($missingDocuments))
-                                    <li>Dokumen belum diunggah: {{ implode(', ', $missingDocuments) }}.</li>
-                                @endif
-                            </ul>
+                            <h5 class="alert-heading mb-1 text-danger fw-bold">Aksi Diperlukan: Profil Belum Lengkap!</h5>
+                            <p class="mb-0 small">Anda tidak dapat melamar pekerjaan sebelum melengkapi data berikut:</p>
                         </div>
                     </div>
-                    <button type="button" class="btn-close fs-14" data-bs-dismiss="alert" aria-label="Close">
-                        <i class="ti ti-x"></i>
-                    </button>
+
+                    <div class="row small">
+                        {{-- List Field Profil yang Kurang --}}
+                        @if(!empty($missingProfileFields))
+                            <div class="col-md-6 border-end">
+                                <span class="fw-bold d-block mb-1"><i class="ti ti-user me-1"></i> Data Profil:</span>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach($missingProfileFields as $field)
+                                        <span class="badge bg-white text-danger border border-danger small">{{ $field }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- List Dokumen yang Kurang --}}
+                        @if(!empty($missingDocuments))
+                            <div class="col-md-6 ps-md-3">
+                                <span class="fw-bold d-block mb-1"><i class="ti ti-file-text me-1"></i> Dokumen Wajib:</span>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach($missingDocuments as $doc)
+                                        <span class="badge bg-white text-danger border border-danger small">{{ $doc }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        <a href="#section-profile" class="btn btn-sm btn-danger shadow-sm">
+                            Lengkapi Sekarang <i class="ti ti-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
