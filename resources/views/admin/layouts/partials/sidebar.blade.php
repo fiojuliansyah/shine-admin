@@ -39,7 +39,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="menu-title"><span>DATABASE</span></li>
+                <li class="menu-title"><span>MASTER DATA</span></li>
                 <li>
                     <ul>
                         <li class="{{ Route::is(['employees.index', 'user-account']) ? 'active' : '' }}">
