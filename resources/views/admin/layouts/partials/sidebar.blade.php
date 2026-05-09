@@ -82,12 +82,12 @@
                         </li>
                     </ul>
                 </li> --}}
-                <li class="menu-title"><span>RECRUITMENT</span></li>
+                <li class="menu-title"><span>PROSES RECRUITMENT</span></li>
                 <li>
                     <ul>
                         <li class="{{ Route::is('careers.index') ? 'active' : '' }}">
                             <a href="{{ route('careers.index') }}">
-                                <i class="ti ti-timeline"></i><span>Lowongan</span>
+                                <i class="ti ti-timeline"></i><span>Buka Lowongan</span>
                             </a>
                         </li>
                         <li class="submenu">
