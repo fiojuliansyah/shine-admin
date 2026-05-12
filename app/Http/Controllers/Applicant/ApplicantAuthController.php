@@ -50,7 +50,8 @@ class ApplicantAuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $link = 'https://google.com/'; 
+        $link = route('applicants.resume', ['id' => $user->id]); 
+        
         $qrCodeSvg = QrCode::format('svg')->size(300)->generate($link);
 
         $user->update([
