@@ -109,7 +109,8 @@ class UsersDataTable extends DataTable
                 'roles',
                 'site.company'
             ])
-            ->where('is_employee', 1);
+            ->where('is_employee', 1)
+            ->where('is_admin', 1);
 
         if (request()->has('site_id') && request('site_id') != '') {
             $query->where('site_id', request('site_id'));
