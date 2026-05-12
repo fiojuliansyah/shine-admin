@@ -465,7 +465,7 @@ class DataController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'file' => 'required|file|mimes:png,jpg,jpeg,pdf|max:2048',
+            'file' => 'required|file|mimes:png,jpg,jpeg',
             'name' => 'required|string|max:255',
         ]);
 
