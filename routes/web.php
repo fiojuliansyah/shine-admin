@@ -194,6 +194,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::delete('/applicants/{id}', [ApplicantController::class, 'destroy'])->name('applicants.destroy');
     Route::get('/applicants/{id}/resume', [ApplicantController::class, 'resume'])->name('applicants.resume');
     Route::put('/applicants/{id}/status', [ApplicantController::class, 'updateStatusSingle'])->name('applicants.update-status-single');
+    Route::post('/applicants/reset-all-qr', [ApplicantController::class, 'resetAllQr'])->name('applicants.reset-all-qr');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profiles.index');
     Route::put('/profile', [ProfileController::class, 'updateAccount'])->name('profiles.update.account');

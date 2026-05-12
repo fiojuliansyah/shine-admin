@@ -39,6 +39,11 @@
                     <div class="col-md-2">
                         <button id="reset" class="btn btn-secondary w-100">Reset</button>
                     </div>
+                    <div class="col-md-2">
+                        <button id="reset-all-qr" class="btn btn-danger w-100">
+                            <i class="ti ti-qrcode me-1"></i> Reset All QR
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -79,6 +84,31 @@ $(function () {
     $('#' + tableId).on('preXhr.dt', function (e, settings, data) {
         data.start_date = $('#start_date').val();
         data.end_date = $('#end_date').val();
+    });
+
+    $('#reset-all-qr').click(function () {
+        if (confirm('Apakah Anda yakin ingin mereset SEMUA QR Code kandidat? Aksi ini tidak dapat dibatalkan.')) {
+            const btn = $(this);
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
+
+            $.ajax({
+                url: "{{ route('applicants.reset-all-qr') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function (response) {
+                    alert(response.message || 'Semua QR Code berhasil diperbarui!');
+                    window.LaravelDataTables[tableId].draw();
+                },
+                error: function (xhr) {
+                    alert('Terjadi kesalahan saat mereset QR.');
+                },
+                complete: function () {
+                    btn.prop('disabled', false).html('<i class="ti ti-qrcode me-1"></i> Reset All QR');
+                }
+            });
+        }
     });
 });
 </script>

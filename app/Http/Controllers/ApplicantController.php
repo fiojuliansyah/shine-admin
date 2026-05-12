@@ -8,10 +8,12 @@ use App\Models\Career;
 use App\Models\Document;
 use App\Models\Site;
 use App\Models\Status;
+use App\Models\User;
 use App\Notifications\ApplicantStatusNotification;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Spatie\Permission\Models\Role;
 
 class ApplicantController extends Controller
@@ -159,6 +161,26 @@ class ApplicantController extends Controller
         }
 
         return redirect()->back()->with('success', 'Status, Site, dan Role berhasil diperbarui.');
+    }
+
+    public function resetAllQr()
+    {
+        try {
+            $users = User::all();
+
+            foreach ($users as $user) {
+                $link = route('applicants.resume', ['id' => $user->id]);
+                $qrCodeSvg = QrCode::format('svg')->size(300)->generate($link);
+
+                $user->update([
+                    'profile_qr' => $qrCodeSvg,
+                ]);
+            }
+
+            return response()->json(['message' => 'Berhasil mereset ' . $users->count() . ' QR Code.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal: ' . $e->getMessage()], 500);
+        }
     }
 
 }
