@@ -58,7 +58,8 @@ class ApplicantsDataTable extends DataTable
         $query = $model->newQuery()
             ->with(['user', 'career'])
             ->where('status_id', 0)
-            ->whereNull('done');
+            ->whereNull('done')
+            ->latest();
 
         if (request()->filled('start_date') && request()->filled('end_date')) {
             $query->whereBetween('created_at', [
