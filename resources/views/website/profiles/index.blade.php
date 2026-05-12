@@ -154,10 +154,7 @@
                                         <div class="col-md-4">
                                             <span class="text-muted d-block small">Status Tempat Tinggal</span>
                                             <h6 class="fw-medium mb-0">
-                                                @php
-                                                    $living = ['Parent' => 'Orang Tua', 'Spouse' => 'Suami/Istri', 'Family' => 'Keluarga', 'Live Alone' => 'Tinggal Sendiri'];
-                                                @endphp
-                                                {{ $living[$user->profile->living_with] ?? '-' }}
+                                                {{ $user->profile->living_with ?? '-' }}
                                             </h6>
                                         </div>
                                     </div>
