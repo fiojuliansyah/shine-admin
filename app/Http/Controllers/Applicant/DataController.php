@@ -296,6 +296,7 @@ class DataController extends Controller
     {
         $user = Auth::user();
 
+        // Key adalah nama kolom di database, Value adalah label untuk tampilan error
         $requiredFields = [
             'avatar_url' => 'Pas Foto',
             'gender' => 'Jenis Kelamin',
@@ -316,13 +317,24 @@ class DataController extends Controller
             'family_phone' => 'No. Telp Kontak Darurat',
         ];
 
-        $isProfileComplete = $user->profile && collect($requiredFields)->every(function($field) use ($user) {
-            return !empty($user->profile->$field);
-        });
+        // 1. Cek apakah profil ada, jika tidak ada langsung error
+        if (!$user->profile) {
+            return redirect()->back()->with('error', 'Silahkan lengkapi data profil Anda terlebih dahulu.');
+        }
 
-        if (!$isProfileComplete) {
+        // 2. Cari field mana saja yang masih kosong
+        $emptyFields = [];
+        foreach ($requiredFields as $column => $label) {
+            if (empty($user->profile->$column)) {
+                $emptyFields[] = $label;
+            }
+        }
+
+        // 3. Jika ada yang kosong, tampilkan listnya
+        if (!empty($emptyFields)) {
+            $listMissing = implode(', ', $emptyFields);
             return redirect()->back()
-                ->with('error', 'Profil tidak lengkap. Mohon lengkapi data diri Anda di menu profil.');
+                ->with('error', 'Profil belum lengkap. Mohon isi: ' . $listMissing);
         }
 
         $requiredDocuments = ['KTP', 'KARTU KELUARGA'];
@@ -334,9 +346,9 @@ class DataController extends Controller
         $missingDocuments = array_diff($requiredDocuments, $userDocuments);
 
         if (!empty($missingDocuments)) {
-            $listMissing = implode(', ', $missingDocuments);
+            $listMissingDoc = implode(', ', $missingDocuments);
             return redirect()->back()
-                ->with('error', 'Dokumen belum lengkap. Silahkan unggah dokumen: ' . $listMissing);
+                ->with('error', 'Dokumen belum lengkap. Silahkan unggah dokumen: ' . $listMissingDoc);
         }
 
         $career = Career::where('slug', $slug)->firstOrFail();
