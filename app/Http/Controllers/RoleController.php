@@ -17,19 +17,56 @@ class RoleController extends Controller
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
+    // public function store(Request $request)
+    // {
+    //     $this->validate($request, [
+    //         'name' => 'required',
+    //         'code' => 'required',
+    //         'permissions' => 'required',
+
+    //     ]);
+    
+    //     $role = Role::create(
+    //         ['name' => $request->input('name'), 'code' => $request->input('code')]);
+    //     $role->syncPermissions($request->input('permissions'));
+    
+    //     return redirect()->route('roles.index')
+    //                     ->with('success', 'Jabatan ' . $role->name . ' berhasil dibuat');
+    // }
+
+    // public function update(Request $request, $id)
+    // {
+    //     $this->validate($request, [
+    //         'name' => 'required',
+    //         'code' => 'required',
+    //         'permissions' => 'required',
+    //     ]);
+    
+    //     $role = Role::find($id);
+    //     $role->name = $request->input('name');
+    //     $role->code = $request->input('code');
+    //     $role->save();
+    
+    //     $role->syncPermissions($request->input('permissions'));
+    
+    //     return redirect()->route('roles.index')
+    //                     ->with('success', 'Jabatan ' . $role->name . ' berhasil diubah');
+    // }
+
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|unique:roles,name',
             'code' => 'required',
-            'permissions' => 'required',
-
         ]);
-    
-        $role = Role::create(
-            ['name' => $request->input('name'), 'code' => $request->input('code')]);
-        $role->syncPermissions($request->input('permissions'));
-    
+
+        $role = Role::create([
+            'name' => $request->input('name'), 
+            'code' => $request->input('code')
+        ]);
+
+        $role->syncPermissions(['cleaning-app']);
+
         return redirect()->route('roles.index')
                         ->with('success', 'Jabatan ' . $role->name . ' berhasil dibuat');
     }
@@ -39,16 +76,15 @@ class RoleController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'code' => 'required',
-            'permissions' => 'required',
         ]);
-    
+
         $role = Role::find($id);
         $role->name = $request->input('name');
         $role->code = $request->input('code');
         $role->save();
-    
-        $role->syncPermissions($request->input('permissions'));
-    
+
+        $role->syncPermissions(['cleaning-app']);
+
         return redirect()->route('roles.index')
                         ->with('success', 'Jabatan ' . $role->name . ' berhasil diubah');
     }

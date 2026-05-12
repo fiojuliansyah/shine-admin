@@ -3,6 +3,7 @@
 @section('content')
 <div class="page-wrapper">
     <div class="content">
+        <!-- Page Title -->
         <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
             <div class="my-auto mb-2">
                 <h2 class="mb-1">Jabatan</h2>
@@ -24,6 +25,7 @@
             </div>
         </div>
 
+        <!-- Table Layout -->
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -33,6 +35,7 @@
                                 <th style="width: 50px;">No</th>
                                 <th>Nama Jabatan</th>
                                 <th>Kode</th>
+                                <th>Hak Akses (Permissions)</th>
                                 <th class="text-end">Aksi</th>
                             </tr>
                         </thead>
@@ -42,6 +45,20 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td><strong>{{ $role->name }}</strong></td>
                                     <td><span class="badge badge-soft-secondary">{{ $role->code }}</span></td>
+                                    <td>
+                                        @foreach ($role->permissions->groupBy('category') as $category => $permissionGroup)
+                                            <div class="mb-1">
+                                                <small class="text-muted fw-bold">{{ $category }}:</small>
+                                                @foreach ($permissionGroup as $permission)
+                                                    @if ($permission->status == '1')
+                                                        <span class="badge bg-primary-transparent text-primary" style="font-size: 11px;">
+                                                            {{ $permission->mock }}
+                                                        </span>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @endforeach
+                                    </td>
                                     <td class="text-end">
                                         <div class="dropdown dropdown-action">
                                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal-{{ $role->id }}">
@@ -62,9 +79,11 @@
     </div>
 </div>
 
+{{-- MODAL SECTION (Edit & Delete) --}}
 @foreach ($roles as $role)
+    <!-- Edit Modal -->
     <div class="modal fade" id="editModal-{{ $role->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg"> 
             <div class="modal-content">
                 <form action="{{ route('roles.update', $role->id) }}" method="POST">
                     @csrf
@@ -75,13 +94,40 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-12 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Nama Jabatan</label>
                                 <input type="text" class="form-control" name="name" value="{{ $role->name }}" required>
                             </div>
-                            <div class="col-md-12 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Kode Jabatan</label>
                                 <input type="text" class="form-control" name="code" value="{{ $role->code }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Hak & Akses</label>
+                            <div class="border rounded p-3">
+                                @foreach ($permissions->groupBy('category') as $category => $permissionGroup)
+                                    <div class="mb-3">
+                                        <h6 class="border-bottom pb-1">{{ $category }}</h6>
+                                        <div class="row">
+                                            @foreach ($permissionGroup as $permission)
+                                                @if ($permission->status == '1')
+                                                    <div class="col-md-4">
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="checkbox" name="permissions[]" 
+                                                                   value="{{ $permission->name }}" 
+                                                                   id="perm-{{ $role->id }}-{{ $permission->id }}"
+                                                                   {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="perm-{{ $role->id }}-{{ $permission->id }}">
+                                                                {{ $permission->mock }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -94,6 +140,7 @@
         </div>
     </div>
 
+    <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal-{{ $role->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -115,8 +162,9 @@
     </div>
 @endforeach
 
+<!-- Create Modal -->
 <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ route('roles.store') }}" method="POST">
                 @csrf
@@ -126,13 +174,39 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Nama Jabatan</label>
                             <input type="text" class="form-control" name="name" placeholder="Contoh: Manager" required>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Kode Jabatan</label>
                             <input type="text" class="form-control" name="code" placeholder="Contoh: MNG" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Hak & Akses</label>
+                        <div class="border rounded p-3">
+                            @foreach ($permissions->groupBy('category') as $category => $permissionGroup)
+                                <div class="mb-3">
+                                    <h6 class="border-bottom pb-1">{{ $category }}</h6>
+                                    <div class="row">
+                                        @foreach ($permissionGroup as $permission)
+                                            @if ($permission->status == '1')
+                                                <div class="col-md-4">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="permissions[]" 
+                                                               value="{{ $permission->name }}" 
+                                                               id="create-perm-{{ $permission->id }}">
+                                                        <label class="form-check-label" for="create-perm-{{ $permission->id }}">
+                                                            {{ $permission->mock }}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
