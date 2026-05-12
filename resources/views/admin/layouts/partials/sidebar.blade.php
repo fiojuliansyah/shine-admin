@@ -49,7 +49,7 @@
                         </li>
                         <li class="submenu">
                             <a href="javascript:void(0);"
-                                class="{{ Route::is(['generates.index', 'type_letters.index', 'letters.index']) ? 'active subdrop' : '' }}"">
+                                class="{{ Route::is(['type_letters.index', 'letters.index']) ? 'active subdrop' : '' }}"">
                                 <i class="ti ti-edit"></i><span>Konfigurasi Surat</span>
                                 <span class="menu-arrow"></span>
                             </a>
