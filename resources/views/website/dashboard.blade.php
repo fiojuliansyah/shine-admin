@@ -41,7 +41,7 @@
                     </div>
 
                     <div class="mt-3 text-end">
-                        <a href="#section-profile" class="btn btn-sm btn-danger shadow-sm">
+                        <a href="{{ route('applicants.profiles.index') }}" class="btn btn-sm btn-danger shadow-sm">
                             Lengkapi Sekarang <i class="ti ti-arrow-right ms-1"></i>
                         </a>
                     </div>
