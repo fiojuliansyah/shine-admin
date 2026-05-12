@@ -55,9 +55,6 @@
                                     <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" href="{{ route('applicants.profiles.index') }}">
                                         <i class="ti ti-user-circle me-1"></i>Kelola Profil
                                     </a>
-                                    <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" href="bussiness-settings.html">
-                                        <i class="ti ti-settings me-1"></i>Pengaturan Akun
-                                    </a>
                                 </div>
                                 <div class="card-footer py-1">
                                     <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" href="{{ route('applicant-logout') }}"
@@ -83,10 +80,6 @@
             </a>
         
             <div class="dropdown-menu dropdown-menu-end">
-                <a class="dropdown-item" href="profile.html">
-                    Notification
-                    <span class="badge badge-xs rounded-pill bg-danger">1</span>
-                </a>
                 <a class="dropdown-item" href="{{ route('applicants.profiles.index') }}">Kelola Profil</a>
                 <a class="dropdown-item" href="{{ route('applicant-logout') }}"
                    onclick="event.preventDefault();
