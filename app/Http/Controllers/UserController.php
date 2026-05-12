@@ -195,7 +195,10 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        User::find($id)->delete();
+        $user = User::findOrFail($id);
+        $user->notifications()->delete(); 
+        $user->delete();
+
         return redirect()->back()
             ->with('success', 'Berhasil Dihapus');
     }
