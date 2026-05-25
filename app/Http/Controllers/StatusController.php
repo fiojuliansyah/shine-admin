@@ -67,17 +67,17 @@ class StatusController extends Controller
                     return '<input type="checkbox" class="applicant-checkbox" value="' . $row->id . '">';
                 })
                 ->addColumn('employee', function ($row) {
-                    return $row->user->employee_nik ?? 'Belum di Update';
+                    return $row->user?->employee_nik ?? 'Belum di Update';
                 })
                 ->addColumn('name', function ($row) {
-                    return $row->user->name ?? '';
+                    return $row->user?->name ?? '';
                 })
                 ->addColumn('career', function ($row) {
-                    return $row->career->name ?? '';
+                    return $row->career?->name ?? '';
                 })
                 ->addColumn('role', function ($row) {
-                    $roles = $row->user->getRoleNames();
-                    return $roles->isNotEmpty() ? $roles->implode(', ') : 'Jabatan belum diupdate';
+                    $roles = $row->user?->getRoleNames();
+                    return $roles && $roles->isNotEmpty() ? $roles->implode(', ') : 'Jabatan belum diupdate';
                 })
                 ->addColumn('progress', function ($row) {
                     if ($row->done === 'done') {
