@@ -44,6 +44,11 @@ class StatusController extends Controller
     public function show($slug)
     {
         $status = Status::where('slug', $slug)->first();
+
+        if (!$status) {
+            abort(404, 'Status tidak ditemukan.');
+        }
+
         $statuses = Status::all();
         $companies = Company::all();
         $letters = Letter::all();
