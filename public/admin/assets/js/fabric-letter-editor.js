@@ -354,6 +354,7 @@ class FabricLetterEditor {
 
     addImage(file) {
         const self = this;
+        const isPng = file.type === 'image/png';
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image();
@@ -371,8 +372,14 @@ class FabricLetterEditor {
                 canvas.width = w;
                 canvas.height = h;
                 const ctx = canvas.getContext('2d');
+                if (!isPng) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, w, h);
+                }
                 ctx.drawImage(img, 0, 0, w, h);
-                const compressed = canvas.toDataURL('image/jpeg', 0.7);
+                const compressed = isPng
+                    ? canvas.toDataURL('image/png')
+                    : canvas.toDataURL('image/jpeg', 0.7);
 
                 fabric.Image.fromURL(compressed, function(fImg) {
                     if (!fImg) return;
