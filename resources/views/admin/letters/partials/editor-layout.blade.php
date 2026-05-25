@@ -311,6 +311,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script src="/admin/assets/js/fabric-letter-editor.js"></script>
 <script>
+    const UPLOAD_IMAGE_URL = '{{ route("letters.upload-image") }}';
     const editor = new FabricLetterEditor();
 
     function insertVar(val) {

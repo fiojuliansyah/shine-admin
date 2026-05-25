@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'applicant.auth' => \App\Http\Middleware\ApplicantAuth::class,
             'mobile.auth' => \App\Http\Middleware\MobileAuth::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'manage/letters/upload-image',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

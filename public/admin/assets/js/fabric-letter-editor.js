@@ -354,40 +354,39 @@ class FabricLetterEditor {
 
     addImage(file) {
         const self = this;
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const MAX_W = 800;
+                const MAX_H = 800;
+                let w = img.width;
+                let h = img.height;
+                if (w > MAX_W || h > MAX_H) {
+                    const ratio = Math.min(MAX_W / w, MAX_H / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                const compressed = canvas.toDataURL('image/jpeg', 0.7);
 
-        fetch('/manage/letters/upload-image', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (!data.url) return;
-            fabric.Image.fromURL(data.url, function(img) {
-                img.scaleToWidth(300);
-                img.set({ left: 100, top: 100 });
-                const fc = self.pages[self.currentPage].canvas;
-                fc.add(img);
-                fc.setActiveObject(img);
-                fc.renderAll();
-            }, { crossOrigin: 'anonymous' });
-        })
-        .catch(() => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                fabric.Image.fromURL(e.target.result, function(img) {
-                    img.scaleToWidth(300);
-                    img.set({ left: 100, top: 100 });
+                fabric.Image.fromURL(compressed, function(fImg) {
+                    if (!fImg) return;
+                    fImg.scaleToWidth(Math.min(300, self.CANVAS_W - 120));
+                    fImg.set({ left: 100, top: 100 });
                     const fc = self.pages[self.currentPage].canvas;
-                    fc.add(img);
-                    fc.setActiveObject(img);
+                    fc.add(fImg);
+                    fc.setActiveObject(fImg);
                     fc.renderAll();
                 });
             };
-            reader.readAsDataURL(file);
-        });
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 
     deleteSelected() {
