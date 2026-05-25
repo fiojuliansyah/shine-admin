@@ -79,6 +79,13 @@ class LetterController extends Controller
         return view('admin.letters.edit', compact('letter', 'sites', 'types', 'customVariable', 'numberConfigs'));
     }
 
+    public function uploadImage(Request $request)
+    {
+        $request->validate(['image' => 'required|image|max:5120']);
+        $path = $request->file('image')->store('letter-images', 'public');
+        return response()->json(['url' => asset('storage/' . $path)]);
+    }
+
     public function show(Letter $letter)
     {
         return view('admin.letters.show', compact('letter'));

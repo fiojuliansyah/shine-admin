@@ -165,6 +165,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/letters/{letter}/pdf', [LetterController::class, 'pdf'])->name('letters.pdf');
     Route::get('/letters/{letter}/print', [LetterController::class, 'printView'])->name('letters.print');
     Route::get('/letters/{letter}/number-preview', [LetterController::class, 'numberPreview'])->name('letters.number-preview');
+    Route::post('/letters/upload-image', [LetterController::class, 'uploadImage'])->name('letters.upload-image');
     Route::resource('letter-number-configs', LetterNumberConfigController::class);
     Route::resource('custom-variables', CustomVariableController::class);
 

@@ -354,18 +354,40 @@ class FabricLetterEditor {
 
     addImage(file) {
         const self = this;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            fabric.Image.fromURL(e.target.result, function(img) {
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
+
+        fetch('/manage/letters/upload-image', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.url) return;
+            fabric.Image.fromURL(data.url, function(img) {
                 img.scaleToWidth(300);
                 img.set({ left: 100, top: 100 });
                 const fc = self.pages[self.currentPage].canvas;
                 fc.add(img);
                 fc.setActiveObject(img);
                 fc.renderAll();
-            });
-        };
-        reader.readAsDataURL(file);
+            }, { crossOrigin: 'anonymous' });
+        })
+        .catch(() => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fabric.Image.fromURL(e.target.result, function(img) {
+                    img.scaleToWidth(300);
+                    img.set({ left: 100, top: 100 });
+                    const fc = self.pages[self.currentPage].canvas;
+                    fc.add(img);
+                    fc.setActiveObject(img);
+                    fc.renderAll();
+                });
+            };
+            reader.readAsDataURL(file);
+        });
     }
 
     deleteSelected() {
