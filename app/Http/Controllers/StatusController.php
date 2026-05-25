@@ -209,7 +209,9 @@ class StatusController extends Controller
             $currentNumber = $typeLetter->number ?? 0;
             $newNumber = $currentNumber + 1;
 
-            $typeLetter->update(['number' => $newNumber]);
+            if ($typeLetter) {
+                $typeLetter->update(['number' => $newNumber]);
+            }
 
             $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
                 ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
@@ -285,7 +287,9 @@ class StatusController extends Controller
             $currentNumber = $typeLetter->number ?? 0;
             $newNumber = $currentNumber + 1;
 
-            $typeLetter->update(['number' => $newNumber]);
+            if ($typeLetter) {
+                $typeLetter->update(['number' => $newNumber]);
+            }
 
             $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
                 ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
