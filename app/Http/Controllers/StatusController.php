@@ -197,21 +197,18 @@ class StatusController extends Controller
             ]);
 
             $site = Site::with('company')->find($site_id);
-            $companyCode  = $site->company->unique_id ?? 'XX';
-            $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
+            $companyCode  = $site?->company?->unique_id ?? 'XX';
+            $roleCode     = $applicant->user?->roles()?->first()?->code ?? 'XX';
             $monthJoinCode = \Carbon\Carbon::parse($request->start_date)->format('m');
             $yearJoinCode = \Carbon\Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
             $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
+            if (!$letter) return;
             $typeLetter = $letter->type;
-            
-            $currentNumber = $typeLetter->number ?? 0;
+            $currentNumber = $typeLetter?->number ?? 0;
             $newNumber = $currentNumber + 1;
-
-            if ($typeLetter) {
-                $typeLetter->update(['number' => $newNumber]);
-            }
+            $typeLetter?->update(['number' => $newNumber]);
 
             $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
                 ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
@@ -225,11 +222,10 @@ class StatusController extends Controller
                 'romawi'         => $this->getRomawi(date('m')),
                 'year'           => date('Y'),
                 'start_date'     => $request->start_date,
-                'end_date'       => $request->start_date,
+                'end_date'       => $request->end_date,
                 'user_id'        => $applicant->user_id,
                 'site_id'        => $site_id,
-                'second_party'   => $applicant->user->name,
-                'esign'          => null,
+                'second_party'   => $applicant->user?->name,
                 'description'    => 'Auto generated from Bulk Offering',
             ]);
 
