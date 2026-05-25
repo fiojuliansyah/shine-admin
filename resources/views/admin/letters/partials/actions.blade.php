@@ -9,7 +9,7 @@
         </li>
         <li>
             <!-- Edit Button -->
-            <a href="{{ route('letters.edit', $row->id) }}" class="dropdown-item">Edit</a>
+            <a href="{{ route('letters.edit', $row->id) }}" target="_blank" class="dropdown-item">Edit</a>
         </li>
         <li>
             <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $row->id }}">Hapus</button>

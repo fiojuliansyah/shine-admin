@@ -130,7 +130,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Template Surat</label>
-                            <select class="form-select select-letter" name="letter_id" data-container="#custom-vars-inputs-doc" data-section="#custom-vars-section-doc" required>
+                            <select class="form-select select-letter" name="letter_id" data-container="#custom-vars-inputs-doc" data-section="#custom-vars-section-doc" data-preview="#letter-number-preview-doc" required>
                                 <option disabled selected>Pilih Template</option>
                                 @foreach ($letters as $letter) 
                                     <option value="{{ $letter->id }}">{{ $letter->title }}</option>
@@ -141,9 +141,10 @@
                             <label class="form-label">Tanggal Kontrak</label>
                             <input type="date" name="start_date" class="form-control" required>
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Nomor Surat (Optional)</label>
-                            <input type="text" name="letter_number" class="form-control" placeholder="001/HRD/PKWT/2025">
+                        <div class="col-md-12 mb-2" id="letter-number-preview-doc" style="display:none;">
+                            <label class="form-label fw-bold">Preview Nomor Surat</label>
+                            <div class="form-control bg-light text-primary fw-bold font-monospace" id="letter-number-preview-doc-text"></div>
+                            <div class="form-text">Nomor urut akan digenerate otomatis saat proses.</div>
                         </div>
                     </div>
 
@@ -216,7 +217,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Template Surat</label>
-                            <select class="form-select select2-search select-letter" name="letter_id" data-container="#custom-vars-inputs-offering" data-section="#custom-vars-section-offering" required>
+                            <select class="form-select select2-search select-letter" name="letter_id" data-container="#custom-vars-inputs-offering" data-section="#custom-vars-section-offering" data-preview="#letter-number-preview-offering" required>
                                 <option value="" disabled selected>Cari & Pilih Template</option>
                                 @foreach ($letters as $letter) 
                                     <option value="{{ $letter->id }}">{{ $letter->title }}</option>
@@ -231,9 +232,10 @@
                             <label class="form-label">Tanggal Berakhir Kontrak</label>
                             <input type="date" name="end_date" class="form-control" required>
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Nomor Surat (Optional)</label>
-                            <input type="text" name="letter_number" class="form-control" placeholder="001/HRD/PKWT/2025">
+                        <div class="col-md-6 mb-3" id="letter-number-preview-offering" style="display:none;">
+                            <label class="form-label fw-bold">Preview Nomor Surat</label>
+                            <div class="form-control bg-light text-primary fw-bold font-monospace" id="letter-number-preview-offering-text"></div>
+                            <div class="form-text">Nomor urut akan digenerate otomatis saat proses.</div>
                         </div>
                     </div>
 
@@ -317,8 +319,10 @@ $(function () {
         var letterId = $(this).val();
         var container = $(this).data('container');
         var section = $(this).data('section');
+        var preview = $(this).data('preview');
         var $container = $(container);
         var $section = $(section);
+        var $preview = $(preview);
 
         if (letterId) {
             $.ajax({
@@ -339,6 +343,22 @@ $(function () {
                     } else {
                         $section.hide();
                     }
+                }
+            });
+
+            $.ajax({
+                url: '/manage/letters/' + letterId + '/number-preview',
+                type: 'GET',
+                success: function(data) {
+                    if (data.preview) {
+                        $preview.show();
+                        $preview.find('[id$="-text"]').text(data.preview);
+                    } else {
+                        $preview.hide();
+                    }
+                },
+                error: function() {
+                    $preview.hide();
                 }
             });
         }

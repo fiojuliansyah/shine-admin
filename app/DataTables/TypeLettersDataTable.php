@@ -61,8 +61,7 @@ class TypeLettersDataTable extends DataTable
     {
         return [
             Column::make('name')->title('Name'),
-            Column::make('number')->title('Number'),
-            Column::make('is_numbering')->title('Is Numbering'),
+            Column::make('code')->title('Code'),
             Column::computed('action')->exportable(false)->printable(false)->orderable(false)->searchable(false),
         ];
     }

@@ -203,20 +203,20 @@ class StatusController extends Controller
             $yearJoinCode = \Carbon\Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
-            $letter = Letter::with('type')->find($request->letter_id);
+            $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
             $typeLetter = $letter->type;
             
             $currentNumber = $typeLetter->number ?? 0;
             $newNumber = $currentNumber + 1;
-            
-            $formattedNumber = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
-            $letterNumber = $formattedNumber . '/' . $request->letter_number;
 
-            $typeLetter->update([
-                'number' => $newNumber
-            ]);
+            $typeLetter->update(['number' => $newNumber]);
 
-            // Simpan ke variabel agar ID bisa diambil untuk ValueVariable
+            $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
+                ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
+                : ($request->letter_number
+                    ? str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT) . '/' . $request->letter_number
+                    : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
+
             $generatedLetter = Generate::create([
                 'letter_id'      => $request->letter_id,
                 'letter_number'  => $letterNumber,
@@ -279,18 +279,19 @@ class StatusController extends Controller
             $yearJoinCode = \Carbon\Carbon::parse($request->start_date)->format('y');
             $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
 
-            $letter = Letter::with('type')->find($request->letter_id);
+            $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
             $typeLetter = $letter->type;
             
             $currentNumber = $typeLetter->number ?? 0;
             $newNumber = $currentNumber + 1;
-            
-            $formattedNumber = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
-            $letterNumber = $formattedNumber . '/' . $request->letter_number;
 
-            $typeLetter->update([
-                'number' => $newNumber
-            ]);
+            $typeLetter->update(['number' => $newNumber]);
+
+            $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
+                ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
+                : ($request->letter_number
+                    ? str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT) . '/' . $request->letter_number
+                    : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
 
             $generatedLetter = Generate::create([
                 'letter_id'      => $request->letter_id,

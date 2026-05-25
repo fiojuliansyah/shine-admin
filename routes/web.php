@@ -20,6 +20,7 @@ use App\Http\Controllers\JobdeskController;
 use App\Http\Controllers\JobdeskPatrollsController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LetterController;
+use App\Http\Controllers\LetterNumberConfigController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MinuteController;
 use App\Http\Controllers\OvertimeController;
@@ -108,6 +109,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::resource('valets', ValetController::class);
 
     Route::resource('generates', GenerateController::class);
+    Route::get('/generates/{generate}/pdf', [GenerateController::class, 'pdf'])->name('generates.pdf');
+    Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');
     Route::post('/bulk-approve', [GenerateController::class, 'bulkApprove'])->name('generates.bulkApprove');
     Route::post('/bulk-delete', [GenerateController::class, 'bulkDelete'])->name('generates.bulkDelete');
 
@@ -159,6 +162,10 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/careers/{id}/banner', [CareerController::class, 'banner'])->name('banner-career');
 
     Route::resource('letters', LetterController::class);
+    Route::get('/letters/{letter}/pdf', [LetterController::class, 'pdf'])->name('letters.pdf');
+    Route::get('/letters/{letter}/print', [LetterController::class, 'printView'])->name('letters.print');
+    Route::get('/letters/{letter}/number-preview', [LetterController::class, 'numberPreview'])->name('letters.number-preview');
+    Route::resource('letter-number-configs', LetterNumberConfigController::class);
     Route::resource('custom-variables', CustomVariableController::class);
 
     Route::resource('taxrates', TaxRateController::class);

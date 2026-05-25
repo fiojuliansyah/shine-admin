@@ -1,44 +1,38 @@
 @extends('admin.layouts.main')
 
 @section('content')
-<div class="main-content">
-
-    <div class="page-content">
-
-        <!-- start page title -->
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="page-title mb-0 font-size-18">Generate</h4>
-
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">HR</a></li>
-                            <li class="breadcrumb-item active">Detail Surat</li>
-                        </ol>
-                    </div>
-
-                </div>
+<div class="page-wrapper">
+    <div class="content">
+        <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+            <div class="my-auto mb-2">
+                <h2 class="mb-1">Detail Surat</h2>
+                <nav>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('generates.index') }}"><i class="ti ti-smart-home"></i></a></li>
+                        <li class="breadcrumb-item">E-Recruitment</li>
+                        <li class="breadcrumb-item active">Detail Surat</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap gap-2">
+                <a href="{{ route('generates.print', $generate->id) }}" target="_blank" class="btn btn-danger mb-2">
+                    <i class="ti ti-printer me-1"></i>Print / PDF
+                </a>
+                <a href="{{ route('generates.index') }}" class="btn btn-light mb-2">
+                    <i class="ti ti-arrow-left me-1"></i>Kembali
+                </a>
             </div>
         </div>
-        <!-- end page title -->
 
-        
-        <div class="card">
-            <div class="card-body" style="background: #eceef4; min-height: 100%; padding: 0.5rem;">
-                <div id="letter-template" style="background-color: #fff;
-                box-sizing: border-box;
-                margin: 1rem auto 0;
-                max-width: 820px;
-                min-height: calc(100vh - 1rem);
-                padding: 2rem 6rem 2rem 6rem;">
-                    {!! $generate->letter->description !!}
-                </div>
+        <div class="card border-0 shadow-sm" style="height: calc(100vh - 180px); min-height: 600px;">
+            <div class="card-body p-0" style="height:100%;">
+                <iframe
+                    src="{{ route('generates.print', $generate->id) }}"
+                    style="width:100%; height:100%; border:none; border-radius: 0 0 8px 8px;"
+                    title="{{ $generate->letter->title ?? 'Surat' }}"
+                ></iframe>
             </div>
         </div>
-        
-        <!-- end row -->
-
     </div>
 </div>
 @endsection

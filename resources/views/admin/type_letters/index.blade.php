@@ -58,15 +58,9 @@
                         <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Number</label>
-                        <input type="text" name="number" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Is Numbering</label>
-                        <select name="is_numbering" class="form-select">
-                            <option value="yes">YES</option>
-                            <option value="no">NO</option>
-                        </select>
+                        <label class="form-label">Kode</label>
+                        <input type="text" name="code" class="form-control" placeholder="Contoh: SPK, PKWT">
+                        <div class="form-text">Digunakan sebagai token <code>{kode_tipe}</code> pada nomor surat.</div>
                     </div>
                 </div>
                 <div class="modal-footer">

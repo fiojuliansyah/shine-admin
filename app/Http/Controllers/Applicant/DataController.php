@@ -15,9 +15,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DataController extends Controller
 {
+    use \App\Traits\PdfPageImageTrait;
     public function registrationForm()
     {
         return view('website.registration-form');
@@ -225,6 +227,195 @@ class DataController extends Controller
         $eletter->letter->description = str_replace($search, $replace, $eletter->letter->description);
 
         return view('website.letters.show', compact('eletter'));
+    }
+
+    public function letterPdf($id)
+    {
+        $eletter = Generate::where('id', $id)->first();
+
+        if (!$eletter) {
+            abort(404);
+        }
+
+        $user = $eletter->user;
+
+        $no_surat = $eletter->letter_number ?? 'belum ada no surat';
+        $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $romawi = $eletter->romawi ?? 'belum ada data';
+        $tahun = $eletter->year ?? 'belum ada tahun';
+        $hari = $eletter->day ?? 'belum ada hari';
+        $pihak_2 = $eletter->second_party ?? 'belum ada data';
+        $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
+        $nama_karyawan = strtoupper($eletter->user->name ?? 'belum ada nama');
+        $nik_ktp = $eletter->user->nik ?? 'belum ada NIK KTP';
+        $jenis_kelamin = $eletter->user->profile->gender ?? 'belum ada Jenis Kelamin';
+        $ttl = isset($eletter->user->profile->birth_place) && isset($eletter->user->profile->birth_date)
+            ? $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y')
+            : 'belum ada data';
+        $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
+        $handphone = $eletter->user->phone ?? 'belum ada no handphone';
+        $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
+        $lokasi_project = $eletter->site->name ?? 'belum ada area';
+        $nama_client = $eletter->site->client_name ?? 'belum ada area';
+        $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
+        $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
+        $esign = $eletter->esign ?? 'belum ada tanda tangan';
+
+        $payroll = $user->payroll;
+        $gaji_raw = 0;
+        $gaji_label = '';
+        if ($payroll) {
+            $gaji_raw = $payroll->amount ?? 0;
+            $gaji_label = ($payroll->pay_type === 'monthly') ? ' / Bulan' : (($payroll->pay_type === 'daily') ? ' / Hari' : '');
+        }
+        $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
+
+        $tunjangan_items = [];
+        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
+            foreach ($eletter->user->payroll->payroll_components as $component) {
+                $nominal = $component->amount;
+                $nama_komponen = $component->component_type->name ?? 'Tunjangan';
+                $tunjangan_items[] = '- ' . $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
+            }
+        }
+        $tunjangan = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
+
+        $mulai = isset($eletter->start_date) ? Carbon::parse($eletter->start_date)->format('d-m-Y') : 'belum ada data';
+        $selesai = isset($eletter->end_date) ? Carbon::parse($eletter->end_date)->format('d-m-Y') : 'belum ada data';
+
+        $search = [
+            '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
+            '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[jenis_kelamin]', '[nik_ktp]', '[ttl]',
+            '[alamat]', '[handphone]', '[no_karyawan]', '[lokasi_project]', '[nama_client]',
+            '[jabatan_client]', '[jabatan]', '[esign]', '[gaji]', '[tunjangan]'
+        ];
+
+        $replace = [
+            $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
+            $pihak_2, $sign_2, $nama_karyawan, $jenis_kelamin, $nik_ktp, $ttl,
+            $alamat, $handphone, $no_karyawan, $lokasi_project, $nama_client,
+            $jabatan_client, $jabatan, $esign, $gaji, $tunjangan
+        ];
+
+        $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)
+            ->with('customVariable')->get();
+
+        foreach ($customValues as $cv) {
+            if ($cv->customVariable) {
+                $search[] = '[' . $cv->customVariable->variable . ']';
+                $replace[] = $cv->value;
+            }
+        }
+
+        $description = $eletter->letter->description ?? '';
+        $pages = [];
+        $isFabric = false;
+
+        if ($description) {
+            try {
+                $parsed = json_decode($description, true);
+                if (isset($parsed['pages']) && is_array($parsed['pages'])) {
+                    $isFabric = true;
+                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $parsedReplaced = json_decode($descriptionReplaced, true);
+                    $pages = $this->savePageImages($parsedReplaced['pages'] ?? []);
+                }
+            } catch (\Exception $e) {}
+        }
+
+        if (!$isFabric) {
+            $description = str_replace($search, $replace, $description);
+        }
+
+        $title = $eletter->letter->title ?? 'surat';
+
+        $pdf = Pdf::loadView('admin.letters.pdf', compact('pages', 'isFabric', 'description', 'title'))
+            ->setPaper([0, 0, 794, 1123], 'portrait');
+
+        $response = $pdf->stream($title . '.pdf');
+        $this->cleanPageImages($pages);
+        return $response;
+    }
+
+    public function letterPrint($id)
+    {
+        $eletter = Generate::where('id', $id)->first();
+        if (!$eletter) abort(404);
+
+        $user = $eletter->user;
+        $no_surat = $eletter->letter_number ?? 'belum ada no surat';
+        $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $romawi = $eletter->romawi ?? 'belum ada data';
+        $tahun = $eletter->year ?? 'belum ada tahun';
+        $hari = $eletter->day ?? 'belum ada hari';
+        $pihak_2 = $eletter->second_party ?? 'belum ada data';
+        $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
+        $nama_karyawan = strtoupper($eletter->user->name ?? 'belum ada nama');
+        $nik_ktp = $eletter->user->nik ?? 'belum ada NIK KTP';
+        $jenis_kelamin = $eletter->user->profile->gender ?? 'belum ada Jenis Kelamin';
+        $ttl = isset($eletter->user->profile->birth_place) && isset($eletter->user->profile->birth_date)
+            ? $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y')
+            : 'belum ada data';
+        $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
+        $handphone = $eletter->user->phone ?? 'belum ada no handphone';
+        $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
+        $lokasi_project = $eletter->site->name ?? 'belum ada area';
+        $nama_client = $eletter->site->client_name ?? 'belum ada area';
+        $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
+        $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
+        $esign = $eletter->esign ?? 'belum ada tanda tangan';
+
+        $payroll = $user->payroll;
+        $gaji_raw = 0; $gaji_label = '';
+        if ($payroll) {
+            $gaji_raw = $payroll->amount ?? 0;
+            $gaji_label = ($payroll->pay_type === 'monthly') ? ' / Bulan' : (($payroll->pay_type === 'daily') ? ' / Hari' : '');
+        }
+        $gaji = ($gaji_raw > 0) ? 'Rp ' . number_format($gaji_raw, 0, ',', '.') . $gaji_label : 'Sesuai Kebijakan Perusahaan';
+
+        $tunjangan_items = [];
+        if ($eletter->user->payroll && $eletter->user->payroll->payroll_components) {
+            foreach ($eletter->user->payroll->payroll_components as $component) {
+                $nominal = $component->amount;
+                $nama_komponen = $component->component_type->name ?? 'Tunjangan';
+                $tunjangan_items[] = '- ' . $nama_komponen . ' : Rp ' . number_format($nominal, 0, ',', '.');
+            }
+        }
+        $tunjangan = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
+
+        $mulai = isset($eletter->start_date) ? Carbon::parse($eletter->start_date)->format('d-m-Y') : 'belum ada data';
+        $selesai = isset($eletter->end_date) ? Carbon::parse($eletter->end_date)->format('d-m-Y') : 'belum ada data';
+
+        $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[jenis_kelamin]','[nik_ktp]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]'];
+        $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$jenis_kelamin,$nik_ktp,$ttl,$alamat,$handphone,$no_karyawan,$lokasi_project,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan];
+
+        $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)->with('customVariable')->get();
+        foreach ($customValues as $cv) {
+            if ($cv->customVariable) { $search[] = '[' . $cv->customVariable->variable . ']'; $replace[] = $cv->value; }
+        }
+
+        $description = $eletter->letter->description ?? '';
+        $pages = [];
+        $isFabric = false;
+        $title = $eletter->letter->title ?? 'surat';
+
+        if ($description) {
+            try {
+                $parsed = json_decode($description, true);
+                if (isset($parsed['pages']) && is_array($parsed['pages'])) {
+                    $isFabric = true;
+                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $parsedReplaced = json_decode($descriptionReplaced, true);
+                    $pages = $parsedReplaced['pages'] ?? [];
+                }
+            } catch (\Exception $e) {}
+        }
+
+        if (!$isFabric) {
+            $description = str_replace($search, $replace, $description);
+        }
+
+        return view('admin.letters.print', compact('pages', 'isFabric', 'title', 'description'));
     }
 
     public function sign(Request $request, $id)

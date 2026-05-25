@@ -28,15 +28,13 @@ class TypeLetterController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'nullable|string|max:255',
-            'number' => 'nullable|string|max:255',
-            'is_numbering' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50',
         ]);
 
-        $typeLetter = TypeLetter::create([
+        TypeLetter::create([
             'name' => $request->name,
-            'number' => $request->number,
-            'is_numbering' => $request->is_numbering,
+            'code' => strtoupper($request->code),
         ]);
 
         return redirect()->route('type_letters.index')
@@ -79,16 +77,14 @@ class TypeLetterController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'nullable|string|max:255',
-            'number' => 'nullable|string|max:255',
-            'is_numbering' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50',
         ]);
 
         $typeLetter = TypeLetter::findOrFail($id);
         $typeLetter->update([
             'name' => $request->name,
-            'number' => $request->number,
-            'is_numbering' => $request->is_numbering,
+            'code' => strtoupper($request->code),
         ]);
 
         return redirect()->route('type_letters.index')

@@ -10,9 +10,11 @@ use App\Models\TypeLetter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class GenerateController extends Controller
 {
+    use \App\Traits\PdfPageImageTrait;
     public function index()
     {
         $types = TypeLetter::with('letters')->get();
@@ -273,5 +275,232 @@ class GenerateController extends Controller
         $generate->letter->description = str_replace($search, $replace, $generate->letter->description);
 
         return view('admin.generates.show', compact('generate'));
+    }
+
+    private function _buildSearchReplace(Generate $generate): array
+    {
+        $no_surat = $generate->letter_number ?? 'belum ada no surat';
+        $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $romawi = $generate->romawi ?? 'belum ada data';
+        $tahun = $generate->year ?? 'belum ada tahun';
+        $hari = $generate->day ?? 'belum ada hari';
+        $pihak_2 = $generate->second_party ?? 'belum ada data';
+        $sign_2 = $generate->second_party_esign ?? 'belum ada data';
+        $nama_karyawan = strtoupper($generate->user->name ?? 'belum ada nama');
+        $ttl = isset($generate->user->profile->birth_place) && isset($generate->user->profile->birth_date)
+            ? $generate->user->profile->birth_place . ', ' . Carbon::parse($generate->user->profile->birth_date)->format('d-m-Y')
+            : 'belum ada data';
+        $alamat = $generate->user->profile->address ?? 'belum ada alamat';
+        $handphone = $generate->user->phone ?? 'belum ada no handphone';
+        $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
+        $area = strtoupper($generate->user->site->name ?? 'belum ada area');
+        $nama_client = $generate->user->site->client_name ?? 'belum ada area';
+        $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
+        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
+        $esign = $generate->esign ?? 'belum ada tanda tangan';
+        $nama_kontak = $generate->emergency_name ?? 'belum ada nama';
+        $no_kontak = $generate->emergency_number ?? 'belum ada no hp';
+        $alamat_kontak = $generate->emergency_address ?? 'belum ada alamat';
+        $hubungan = $generate->relationship ?? 'belum ada hubungan';
+
+        $gaji_type = $generate->gaji_type ?? 'monthly';
+        if ($gaji_type === 'monthly') $gaji = $generate->user->payroll->salary_amount ?? 0;
+        elseif ($gaji_type === 'daily') $gaji = $generate->user->payroll->daily_rate ?? 0;
+        else $gaji = 0;
+
+        $tunjangan_calculation = 0; $tunjangan = 'Tidak ada data';
+        $komisi_calculation = 0; $komisi = 'Tidak ada data';
+        $potongan_calculation = 0; $potongan = 'Tidak ada data';
+
+        if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
+            foreach ($generate->user->payroll->payroll_components as $component) {
+                $amt = $component->amount ? $component->amount : ($component->percentage ? ($gaji * $component->percentage / 100) : 0);
+                $tunjangan_calculation += $amt; $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+                if ($component->component_type === 'comission') { $komisi_calculation += $amt; $komisi = $component->name . ' = ' . $komisi_calculation; }
+                if ($component->component_type === 'deduction') { $potongan_calculation += $amt; $potongan = $component->name . ' = ' . $potongan_calculation; }
+            }
+        }
+
+        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->locale('id')->translatedFormat('j F Y') : 'belum ada data';
+        $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->locale('id')->translatedFormat('j F Y') : 'Sampai dengan Selesai';
+
+        $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]','[komisi]','[potongan]','[nama_kontak]','[no_kontak]','[alamat_kontak]','[hubungan]'];
+        $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$ttl,$alamat,$handphone,$no_karyawan,$area,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan,$komisi,$potongan,$nama_kontak,$no_kontak,$alamat_kontak,$hubungan];
+
+        $customValues = \App\Models\ValueVariable::where('generate_id', $generate->id)->with('customVariable')->get();
+        foreach ($customValues as $cv) {
+            if ($cv->customVariable) { $search[] = '[' . $cv->customVariable->variable . ']'; $replace[] = $cv->value; }
+        }
+
+        return [$search, $replace];
+    }
+
+    public function printView(Generate $generate)
+    {
+        [$search, $replace] = $this->_buildSearchReplace($generate);
+
+        $description = $generate->letter->description ?? '';
+        $pages = [];
+        $isFabric = false;
+        $title = $generate->letter->title ?? 'Surat';
+
+        if ($description) {
+            try {
+                $parsed = json_decode($description, true);
+                if (isset($parsed['pages']) && is_array($parsed['pages'])) {
+                    $isFabric = true;
+                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $parsedReplaced = json_decode($descriptionReplaced, true);
+                    $pages = $parsedReplaced['pages'] ?? [];
+                }
+            } catch (\Exception $e) {}
+        }
+
+        if (!$isFabric) {
+            $description = str_replace($search, $replace, $description);
+        }
+
+        return view('admin.letters.print', compact('pages', 'isFabric', 'title', 'description'));
+    }
+
+    public function pdf(Generate $generate)
+    {
+        $no_surat = $generate->letter_number ?? 'belum ada no surat';
+        $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $romawi = $generate->romawi ?? 'belum ada data';
+        $tahun = $generate->year ?? 'belum ada tahun';
+        $hari = $generate->day ?? 'belum ada hari';
+        $pihak_2 = $generate->second_party ?? 'belum ada data';
+        $sign_2 = $generate->second_party_esign ?? 'belum ada data';
+        $nama_karyawan = strtoupper($generate->user->name ?? 'belum ada nama');
+        $ttl = isset($generate->user->profile->birth_place) && isset($generate->user->profile->birth_date)
+            ? $generate->user->profile->birth_place . ', ' . Carbon::parse($generate->user->profile->birth_date)->format('d-m-Y')
+            : 'belum ada data';
+        $alamat = $generate->user->profile->address ?? 'belum ada alamat';
+        $handphone = $generate->user->phone ?? 'belum ada no handphone';
+        $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
+        $area = strtoupper($generate->user->site->name ?? 'belum ada area');
+        $nama_client = $generate->user->site->client_name ?? 'belum ada area';
+        $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
+        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
+        $esign = $generate->esign ?? 'belum ada tanda tangan';
+        $nama_kontak = $generate->emergency_name ?? 'belum ada nama';
+        $no_kontak = $generate->emergency_number ?? 'belum ada no hp';
+        $alamat_kontak = $generate->emergency_address ?? 'belum ada alamat';
+        $hubungan = $generate->relationship ?? 'belum ada hubungan';
+
+        $gaji_type = $generate->gaji_type ?? 'monthly';
+        if ($gaji_type === 'monthly') {
+            $gaji = $generate->user->payroll->salary_amount ?? 0;
+        } elseif ($gaji_type === 'daily') {
+            $gaji = $generate->user->payroll->daily_rate ?? 0;
+        } else {
+            $gaji = 0;
+        }
+
+        $tunjangan_calculation = 0;
+        $tunjangan = 'Tidak ada data';
+        if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
+            foreach ($generate->user->payroll->payroll_components as $component) {
+                if ($component->amount) {
+                    $tunjangan_calculation += $component->amount;
+                    $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+                } elseif ($component->percentage) {
+                    $tunjangan_calculation += ($gaji * $component->percentage) / 100;
+                    $tunjangan = $component->name . ' = ' . $tunjangan_calculation;
+                }
+            }
+        }
+
+        $komisi_calculation = 0;
+        $komisi = 'Tidak ada data';
+        if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
+            foreach ($generate->user->payroll->payroll_components as $component) {
+                if ($component->component_type === 'comission') {
+                    if ($component->amount) {
+                        $komisi_calculation += $component->amount;
+                        $komisi = $component->name . ' = ' . $komisi_calculation;
+                    } elseif ($component->percentage) {
+                        $komisi_calculation += ($gaji * $component->percentage) / 100;
+                        $komisi = $component->name . ' = ' . $komisi_calculation;
+                    }
+                }
+            }
+        }
+
+        $potongan_calculation = 0;
+        $potongan = 'Tidak ada data';
+        if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
+            foreach ($generate->user->payroll->payroll_components as $component) {
+                if ($component->component_type === 'deduction') {
+                    if ($component->amount) {
+                        $potongan_calculation += $component->amount;
+                        $potongan = $component->name . ' = ' . $potongan_calculation;
+                    } elseif ($component->percentage) {
+                        $potongan_calculation += ($gaji * $component->percentage) / 100;
+                        $potongan = $component->name . ' = ' . $potongan_calculation;
+                    }
+                }
+            }
+        }
+
+        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->locale('id')->translatedFormat('j F Y') : 'belum ada data';
+        $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->locale('id')->translatedFormat('j F Y') : 'Sampai dengan Selesai';
+
+        $search = [
+            '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
+            '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[ttl]', '[alamat]', '[handphone]',
+            '[no_karyawan]', '[lokasi_project]', '[nama_client]', '[jabatan_client]', '[jabatan]',
+            '[esign]', '[gaji]', '[tunjangan]', '[komisi]', '[potongan]', '[nama_kontak]',
+            '[no_kontak]', '[alamat_kontak]', '[hubungan]'
+        ];
+
+        $replace = [
+            $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
+            $pihak_2, $sign_2, $nama_karyawan, $ttl, $alamat, $handphone,
+            $no_karyawan, $area, $nama_client, $jabatan_client, $jabatan,
+            $esign, $gaji, $tunjangan, $komisi, $potongan, $nama_kontak,
+            $no_kontak, $alamat_kontak, $hubungan
+        ];
+
+        $customValues = \App\Models\ValueVariable::where('generate_id', $generate->id)
+            ->with('customVariable')
+            ->get();
+
+        foreach ($customValues as $cv) {
+            if ($cv->customVariable) {
+                $search[] = '[' . $cv->customVariable->variable . ']';
+                $replace[] = $cv->value;
+            }
+        }
+
+        $description = $generate->letter->description ?? '';
+        $pages = [];
+        $isFabric = false;
+
+        if ($description) {
+            try {
+                $parsed = json_decode($description, true);
+                if (isset($parsed['pages']) && is_array($parsed['pages'])) {
+                    $isFabric = true;
+                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $parsedReplaced = json_decode($descriptionReplaced, true);
+                    $pages = $this->savePageImages($parsedReplaced['pages'] ?? []);
+                }
+            } catch (\Exception $e) {}
+        }
+
+        if (!$isFabric) {
+            $description = str_replace($search, $replace, $description);
+        }
+
+        $title = $generate->letter->title ?? 'surat';
+
+        $pdf = Pdf::loadView('admin.letters.pdf', compact('pages', 'isFabric', 'description', 'title'))
+            ->setPaper([0, 0, 794, 1123], 'portrait');
+
+        $response = $pdf->stream($title . '.pdf');
+        $this->cleanPageImages($pages);
+        return $response;
     }
 }

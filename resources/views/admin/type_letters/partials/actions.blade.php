@@ -35,12 +35,9 @@
                         <input type="text" class="form-control" id="name-{{ $row->id }}" name="name" value="{{ $row->name }}">
                     </div>
                     <div class="mb-3">
-                        <label for="number-{{ $row->id }}" class="form-label">Number</label>
-                        <input type="text" class="form-control" id="number-{{ $row->id }}" name="number" value="{{ $row->number }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="is_numbering-{{ $row->id }}" class="form-label">Is Numbering</label>
-                        <input type="text" class="form-control" id="is_numbering-{{ $row->id }}" name="is_numbering" value="{{ $row->is_numbering }}">
+                        <label for="code-{{ $row->id }}" class="form-label">Kode</label>
+                        <input type="text" class="form-control" id="code-{{ $row->id }}" name="code" value="{{ $row->code }}" placeholder="Contoh: SPK, PKWT">
+                        <div class="form-text">Digunakan sebagai token <code>{kode_tipe}</code> pada nomor surat.</div>
                     </div>
                 </div>
                 <div class="modal-footer">

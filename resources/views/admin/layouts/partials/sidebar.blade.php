@@ -56,8 +56,10 @@
                             <ul>
                                 <li>
                                     <a href="{{ route('type_letters.index') }}"
-                                        class="{{ Route::is('type_letters.index') ? 'active' : ''    }}">Konfigurasi No Surat</a>
+                                        class="{{ Route::is('type_letters.index') ? 'active' : ''    }}">Kategory Template Surat</a>
                                 </li>
+                                <li><a href="{{ route('letter-number-configs.index') }}"
+                                        class="{{ Route::is('letter-number-configs.index') ? 'active' : '' }}">Konfigurasi No. Surat</a></li>
                                 <li><a href="{{ route('letters.index') }}"
                                         class="{{ Route::is(['letters.index']) ? 'active' : '' }}">Buat
                                         Template Surat</a></li>
