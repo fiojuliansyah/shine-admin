@@ -16,13 +16,14 @@ class LetterNumberConfigController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'    => 'required|string|max:100',
-            'format'  => 'required|string|max:255',
-            'prefix'  => 'nullable|string|max:50',
-            'padding' => 'required|integer|min:1|max:6',
+            'name'         => 'required|string|max:100',
+            'format'       => 'required|string|max:255',
+            'prefix'       => 'nullable|string|max:50',
+            'padding'      => 'required|integer|min:1|max:6',
+            'start_number' => 'required|integer|min:1',
         ]);
 
-        LetterNumberConfig::create($request->only('name', 'format', 'prefix', 'padding', 'description'));
+        LetterNumberConfig::create($request->only('name', 'format', 'prefix', 'padding', 'start_number', 'description'));
 
         return redirect()->route('letter-number-configs.index')
             ->with('success', 'Konfigurasi nomor surat berhasil ditambahkan.');
@@ -31,13 +32,14 @@ class LetterNumberConfigController extends Controller
     public function update(Request $request, LetterNumberConfig $letterNumberConfig)
     {
         $request->validate([
-            'name'    => 'required|string|max:100',
-            'format'  => 'required|string|max:255',
-            'prefix'  => 'nullable|string|max:50',
-            'padding' => 'required|integer|min:1|max:6',
+            'name'         => 'required|string|max:100',
+            'format'       => 'required|string|max:255',
+            'prefix'       => 'nullable|string|max:50',
+            'padding'      => 'required|integer|min:1|max:6',
+            'start_number' => 'required|integer|min:1',
         ]);
 
-        $letterNumberConfig->update($request->only('name', 'format', 'prefix', 'padding', 'description'));
+        $letterNumberConfig->update($request->only('name', 'format', 'prefix', 'padding', 'start_number', 'description'));
 
         return redirect()->route('letter-number-configs.index')
             ->with('success', 'Konfigurasi nomor surat berhasil diperbarui.');

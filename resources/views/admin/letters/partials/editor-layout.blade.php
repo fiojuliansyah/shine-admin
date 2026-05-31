@@ -246,6 +246,7 @@
             <h6 class="mt-3">LOKASI PROJECT</h6>
             <button class="var-btn" onclick="insertVar('[lokasi_project]')">Lokasi <code>[lokasi_project]</code></button>
             <button class="var-btn" onclick="insertVar('[nama_client]')">Nama Client <code>[nama_client]</code></button>
+            <button class="var-btn" onclick="insertVar('[jabatan_client]')">Jabatan Client <code>[jabatan_client]</code></button>
             <button class="var-btn" onclick="insertVar('[area_description]')">Deskripsi <code>[area_description]</code></button>
 
             <h6 class="mt-3">GAJI</h6>

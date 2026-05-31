@@ -8,15 +8,20 @@
     <div class="form-text">Gunakan token di bawah. Contoh: <code>{prefix}/{no}/{kode_company}/{romawi}/{tahun_pendek}</code></div>
 </div>
 <div class="row g-3 mb-3">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <label class="form-label fw-bold">Prefix Tetap</label>
         <input type="text" name="prefix" class="form-control" placeholder="Contoh: SPK" value="{{ old('prefix') }}">
         <div class="form-text">Digunakan jika format mengandung <code>{prefix}</code></div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <label class="form-label fw-bold">Digit Nomor Urut <span class="text-danger">*</span></label>
         <input type="number" name="padding" class="form-control" min="1" max="6" value="{{ old('padding', 3) }}" required>
         <div class="form-text">Contoh: 3 = 001, 4 = 0001</div>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-bold">Mulai Dari Nomor <span class="text-danger">*</span></label>
+        <input type="number" name="start_number" class="form-control" min="1" value="{{ old('start_number', 1) }}" required>
+        <div class="form-text">Nomor urut pertama saat surat diterbitkan</div>
     </div>
 </div>
 <div class="mb-3">

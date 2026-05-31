@@ -566,25 +566,26 @@ class DataController extends Controller
     public function storeOcr(Request $request)
     {
         $request->validate([
-            'nik' => 'required|numeric|digits:16',
-            'name' => 'required|string|max:255',
-            'birth_place' => 'nullable|string|max:100',
+            'nik'        => 'required|numeric|digits:16',
+            'name'       => 'required|string|max:255',
+            'birth_place'=> 'nullable|string|max:100',
             'birth_date' => 'nullable|string',
-            'address' => 'nullable|string',
+            'address'    => 'nullable|string',
         ]);
 
         $user = Auth::user();
 
         $user->update([
-            'name' => $request->name
+            'name' => $request->name,
+            'nik'  => $request->nik,
         ]);
 
         Profile::updateOrCreate(
             ['user_id' => $user->id],
             [
                 'birth_place' => $request->birth_place,
-                'birth_date' => $request->birth_date,
-                'address' => $request->address,
+                'birth_date'  => $request->birth_date,
+                'address'     => $request->address,
             ]
         );
 

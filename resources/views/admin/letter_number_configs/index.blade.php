@@ -57,7 +57,7 @@
                                 <td>{{ $config->description ?? '-' }}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary"
-                                        onclick="editConfig({{ $config->id }}, '{{ addslashes($config->name) }}', '{{ addslashes($config->format) }}', '{{ addslashes($config->prefix ?? '') }}', {{ $config->padding }}, '{{ addslashes($config->description ?? '') }}')">
+                                        onclick="editConfig({{ $config->id }}, '{{ addslashes($config->name) }}', '{{ addslashes($config->format) }}', '{{ addslashes($config->prefix ?? '') }}', {{ $config->padding }}, {{ $config->start_number ?? 1 }}, '{{ addslashes($config->description ?? '') }}')">
                                         <i class="ti ti-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-danger"
@@ -183,13 +183,14 @@
 
 @push('js')
 <script>
-    function editConfig(id, name, format, prefix, padding, description) {
+    function editConfig(id, name, format, prefix, padding, start_number, description) {
         const form = document.getElementById('editForm');
         form.action = '/manage/letter-number-configs/' + id;
         form.querySelector('[name="name"]').value = name;
         form.querySelector('[name="format"]').value = format;
         form.querySelector('[name="prefix"]').value = prefix;
         form.querySelector('[name="padding"]').value = padding;
+        form.querySelector('[name="start_number"]').value = start_number;
         form.querySelector('[name="description"]').value = description;
         updatePreview('editPreview', format, prefix, padding);
         new bootstrap.Modal(document.getElementById('modalEdit')).show();

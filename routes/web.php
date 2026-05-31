@@ -3,6 +3,7 @@
 use App\Http\Controllers\Applicant\SiteController as ApplicantSiteController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\EmployeeReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CareerController;
@@ -101,6 +102,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::resource('employees', UserController::class);
     Route::resource('companies', CompanyController::class);
     Route::resource('sites', SiteController::class);
+    Route::get('/employee-report', [EmployeeReportController::class, 'index'])->name('employee-report.index');
+    Route::post('/employee-report/export', [EmployeeReportController::class, 'export'])->name('employee-report.export');
 
     Route::get('/get-sites-by-company/{company_id}', [StatusController::class, 'getSitesByCompany'])->name('sites.by.company');
     Route::get('get-custom-variables/{letterId}', [StatusController::class, 'getCustomVariables'])->name('get.custom.variables');

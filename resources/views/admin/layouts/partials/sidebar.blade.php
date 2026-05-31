@@ -42,6 +42,11 @@
                                 <i class="ti ti-users"></i><span>Admin</span>
                             </a>
                         </li>
+                        <li class="{{ Route::is('employee-report.index') ? 'active' : '' }}">
+                            <a href="{{ route('employee-report.index') }}">
+                                <i class="ti ti-id-badge"></i><span>Data Pegawai</span>
+                            </a>
+                        </li>
                         <li class="{{ Route::is(['roles.index']) ? 'active' : '' }}">
                             <a href="{{ route('roles.index') }}">
                                 <i class="ti ti-shield"></i><span>Jabatan</span>

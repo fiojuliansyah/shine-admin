@@ -212,7 +212,8 @@ class StatusController extends Controller
             if (!$letter) return;
             $typeLetter = $letter->type;
             $currentNumber = $typeLetter?->number ?? 0;
-            $newNumber = $currentNumber + 1;
+            $startNumber = $letter->numberConfig?->start_number ?? 1;
+            $newNumber = max($currentNumber + 1, $startNumber);
             $typeLetter?->update(['number' => $newNumber]);
 
             $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
@@ -284,9 +285,10 @@ class StatusController extends Controller
 
             $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
             $typeLetter = $letter->type;
-            
+
             $currentNumber = $typeLetter->number ?? 0;
-            $newNumber = $currentNumber + 1;
+            $startNumber = $letter->numberConfig?->start_number ?? 1;
+            $newNumber = max($currentNumber + 1, $startNumber);
 
             if ($typeLetter) {
                 $typeLetter->update(['number' => $newNumber]);
