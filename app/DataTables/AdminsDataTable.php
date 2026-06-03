@@ -10,7 +10,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class UsersDataTable extends DataTable
+class AdminsDataTable extends DataTable
 {
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -93,7 +93,7 @@ class UsersDataTable extends DataTable
             })
 
             ->addColumn('action', function ($row) {
-                return view('admin.users.partials.actions', compact('row'))->render();
+                return view('admin.admins.partials.actions', compact('row'))->render();
             })
 
             ->rawColumns(['avatar','employee','detail','site','status','action'])
@@ -122,7 +122,7 @@ class UsersDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('users-table')
+            ->setTableId('admins-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->responsive(true)
@@ -156,6 +156,6 @@ class UsersDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'Users_' . date('YmdHis');
+        return 'Admins_' . date('YmdHis');
     }
 }

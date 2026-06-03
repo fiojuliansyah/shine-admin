@@ -12,7 +12,7 @@ use App\Models\UserHasSites;
 use Illuminate\Http\Request;
 use App\Imports\EmployeeImport;
 use App\Models\UserNotification;
-use App\DataTables\UsersDataTable;
+use App\DataTables\AdminsDataTable;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
@@ -20,19 +20,19 @@ use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
 
-class UserController extends Controller
+class AdminController extends Controller
 {
-    public function index(UsersDataTable $dataTable)
+    public function index(AdminsDataTable $dataTable)
     {
         $sites = Site::orderBy('name', 'asc')->get();
 
-        return $dataTable->render('admin.users.index', compact('sites'));
+        return $dataTable->render('admin.admins.index', compact('sites'));
     }
 
     public function indexResume($id)
     {
         $user = User::findOrFail($id);
-        return view('admin.users.profiles.resume', compact('user'));
+        return view('admin.admins.profiles.resume', compact('user'));
     }
 
     public function indexAccount($id)
@@ -54,7 +54,7 @@ class UserController extends Controller
         $userSites = User::with('sites_leader')->find($id);
         $userHasSignLeader = User::where('id', $id)->first();
 
-        return view('admin.users.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader'));
+        return view('admin.admins.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader'));
     }
 
 

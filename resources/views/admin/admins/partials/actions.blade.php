@@ -29,7 +29,7 @@
 <div class="modal fade" id="deleteModal-{{ $row->id }}" tabindex="-1" aria-labelledby="deleteModalLabel-{{ $row->id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('employees.destroy', $row->id) }}" method="POST">
+            <form action="{{ route('admins.destroy', $row->id) }}" method="POST">
                 @csrf
                 @method('DELETE')
                 <div class="modal-header">

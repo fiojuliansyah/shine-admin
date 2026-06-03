@@ -9,7 +9,7 @@ use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class EmployeeReportDataTable extends DataTable
+class EmployeesDataTable extends DataTable
 {
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -78,13 +78,20 @@ class EmployeeReportDataTable extends DataTable
             $query->where('site_id', request('site_id'));
         }
 
+        if (request()->filled('company_id')) {
+            $companyId = request('company_id');
+            $query->whereHas('site', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            });
+        }
+
         return $query;
     }
 
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('employee-report-table')
+            ->setTableId('employees-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->responsive(true)
@@ -109,6 +116,6 @@ class EmployeeReportDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'EmployeeReport_' . date('YmdHis');
+        return 'Employees_' . date('YmdHis');
     }
 }

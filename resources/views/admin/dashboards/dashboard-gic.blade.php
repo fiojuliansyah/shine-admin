@@ -98,7 +98,7 @@
                         </span>
                         <h6 class="fs-13 fw-medium text-default mb-1">Pegawai</h6>
                         <h3 class="mb-3">{{ $userCount }}</h3>
-                        <a href="{{ route('employees.index') }}" class="link-default">Lihat semua</a>
+                        <a href="{{ route('admins.index') }}" class="link-default">Lihat semua</a>
                     </div>
                 </div>
             </div>
@@ -180,7 +180,7 @@
                 <div class="card flex-fill">
                     <div class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap">
                         <h5 class="mb-2">Employees</h5>
-                        <a href="{{ route('employees.index') }}" class="btn btn-light btn-md mb-2">Lihat semua</a>
+                        <a href="{{ route('admins.index') }}" class="btn btn-light btn-md mb-2">Lihat semua</a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">	
@@ -196,11 +196,11 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <a href="{{ route('employees.show', $employee->id) }}" class="avatar">
+                                                    <a href="{{ route('admins.show', $employee->id) }}" class="avatar">
                                                         <img src="{{ $employee->profile->avatar_url ?? '/assets/media/avatars/blank.png' }}" class="img-fluid rounded-circle" alt="img">
                                                     </a>
                                                     <div class="ms-2">
-                                                        <h6 class="fw-medium"><a href="{{ route('employees.show', $employee->id) }}">{{ $employee->name }}</a></h6>
+                                                        <h6 class="fw-medium"><a href="{{ route('admins.show', $employee->id) }}">{{ $employee->name }}</a></h6>
                                                         <span class="fs-12">{{ $employee->employee_nik ?? 'Employee' }}</span>
                                                     </div>
                                                 </div>

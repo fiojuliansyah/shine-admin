@@ -47,8 +47,8 @@
                 <li class="menu-title"><span>HRM</span></li>
                 <li>
                     <ul>
-                        <li class="{{ Route::is(['employees.index', 'user-account']) ? 'active' : '' }}">
-                            <a href="{{ route('employees.index') }}">
+                        <li class="{{ Route::is(['admins.index', 'user-account']) ? 'active' : '' }}">
+                            <a href="{{ route('admins.index') }}">
                                 <i class="ti ti-users"></i><span>Pegawai</span>
                             </a>
                         </li>

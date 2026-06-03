@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EmployeeReportExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+class EmployeesExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
     protected $siteId;
 

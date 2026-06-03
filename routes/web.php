@@ -3,7 +3,7 @@
 use App\Http\Controllers\Applicant\SiteController as ApplicantSiteController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\EmployeeReportController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CareerController;
@@ -45,7 +45,7 @@ use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\TimeDeductionTypeController;
 use App\Http\Controllers\TypeLeaveController;
 use App\Http\Controllers\TypeLetterController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ValetController;
 use Cloudinary\Transformation\Rotate;
 use Illuminate\Support\Facades\Auth;
@@ -77,8 +77,8 @@ Route::middleware('auth')->group(function () {
 
 
     Route::post('/import/process', [ImportController::class, 'processImport'])->name('import.process');
-    Route::post('/users/import', [UserController::class, 'import'])->name('users.import');
-    Route::post('/users/export', [UserController::class, 'export'])->name('users.export');
+    Route::post('/admins/import', [AdminController::class, 'import'])->name('admins.import');
+    Route::post('/admins/export', [AdminController::class, 'export'])->name('admins.export');
     Route::get('/sites/export', [SiteController::class, 'export'])->name('sites.export');
     Route::post('/sites/import', [SiteController::class, 'import'])->name('sites.import');
     Route::get('/employee/export', [ReportController::class, 'employeeExport'])->name('employee.export');
@@ -99,11 +99,11 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/activities', [DashboardController::class, 'activities'])->name('activities');
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
-    Route::resource('employees', UserController::class);
+    Route::resource('admins', AdminController::class);
     Route::resource('companies', CompanyController::class);
     Route::resource('sites', SiteController::class);
-    Route::get('/employee-report', [EmployeeReportController::class, 'index'])->name('employee-report.index');
-    Route::post('/employee-report/export', [EmployeeReportController::class, 'export'])->name('employee-report.export');
+    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::post('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
 
     Route::get('/get-sites-by-company/{company_id}', [StatusController::class, 'getSitesByCompany'])->name('sites.by.company');
     Route::get('get-custom-variables/{letterId}', [StatusController::class, 'getCustomVariables'])->name('get.custom.variables');
@@ -212,14 +212,14 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profiles.update.profile');
     Route::post('/profile/document/create', [ProfileController::class, 'storeDocument'])->name('profiles.document.store');
 
-    Route::post('/users/personal-data/{id}', [UserController::class, 'updatePersonalData'])->name('personal-data-user');
-    Route::post('/users/site-zone/{id}', [UserController::class, 'updateSiteZone'])->name('site-zone-user');
-    Route::get('/profile/{id}/resume', [UserController::class, 'indexResume'])->name('users.resume');
-    Route::get('/profile/{id}/detail', [UserController::class, 'indexAccount'])->name('users.account');
-    Route::put('/profile/{id}/detail', [UserController::class, 'updateAccount'])->name('users.update.account');
-    Route::post('/profile/{id}/profile/update', [UserController::class, 'updateProfile'])->name('users.update.profile');
-    Route::post('/profile/{id}/document/create', [UserController::class, 'storeDocument'])->name('users.document.store');
-    Route::post('/profile/{id}/mutation/create', [UserController::class, 'storeMutation'])->name('users.mutation.store');
+    Route::post('/users/personal-data/{id}', [AdminController::class, 'updatePersonalData'])->name('personal-data-user');
+    Route::post('/users/site-zone/{id}', [AdminController::class, 'updateSiteZone'])->name('site-zone-user');
+    Route::get('/profile/{id}/resume', [AdminController::class, 'indexResume'])->name('users.resume');
+    Route::get('/profile/{id}/detail', [AdminController::class, 'indexAccount'])->name('users.account');
+    Route::put('/profile/{id}/detail', [AdminController::class, 'updateAccount'])->name('users.update.account');
+    Route::post('/profile/{id}/profile/update', [AdminController::class, 'updateProfile'])->name('users.update.profile');
+    Route::post('/profile/{id}/document/create', [AdminController::class, 'storeDocument'])->name('users.document.store');
+    Route::post('/profile/{id}/mutation/create', [AdminController::class, 'storeMutation'])->name('users.mutation.store');
 
     Route::post('/save-signature', [SignatureController::class, 'store'])->name('save.signature');
     Route::delete('/delete-signature', [SignatureController::class, 'delete'])->name('delete.signature');

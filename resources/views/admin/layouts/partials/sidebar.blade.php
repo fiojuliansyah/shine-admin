@@ -37,13 +37,13 @@
                                 <i class="ti ti-box"></i><span>Site Project</span>
                             </a>
                         </li>
-                        <li class="{{ Route::is(['employees.index', 'user-account']) ? 'active' : '' }}">
-                            <a href="{{ route('employees.index') }}">
+                        <li class="{{ Route::is(['admins.index', 'user-account']) ? 'active' : '' }}">
+                            <a href="{{ route('admins.index') }}">
                                 <i class="ti ti-users"></i><span>Admin</span>
                             </a>
                         </li>
-                        <li class="{{ Route::is('employee-report.index') ? 'active' : '' }}">
-                            <a href="{{ route('employee-report.index') }}">
+                        <li class="{{ Route::is('employees.index') ? 'active' : '' }}">
+                            <a href="{{ route('employees.index') }}">
                                 <i class="ti ti-id-badge"></i><span>Data Pegawai</span>
                             </a>
                         </li>

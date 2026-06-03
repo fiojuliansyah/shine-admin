@@ -17,4 +17,9 @@ class Company extends Model
         return LogOptions::defaults()
         ->logAll(['*']);
     }
+
+    public function sites()
+    {
+        return $this->hasMany(Site::class);
+    }
 }
