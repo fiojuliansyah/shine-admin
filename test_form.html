@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Test Form Submission</h2>
+<form id="testForm">
+  <!-- Hidden fields should still be submitted even if hidden by CSS -->
+  <input type="text" name="number_format" id="number_format" value="test_format" style="display:none">
+  <input type="text" name="number_prefix" id="number_prefix" value="test_prefix" style="display:none">
+  <input type="number" name="number_padding" id="number_padding" value="5" style="display:none">
+  <select name="letter_number_config_id" id="selectNumberConfig">
+    <option value="1" selected>Config 1</option>
+  </select>
+</form>
+
+<script>
+  const form = document.getElementById('testForm');
+  const formData = new FormData(form);
+  console.log('Form data entries:');
+  for (let [key, value] of formData.entries()) {
+    console.log(key + ': ' + value);
+  }
+</script>
+</body>
+</html>

@@ -28,6 +28,7 @@ class FabricLetterEditor {
         }
         this.switchPage(0);
         this.renderThumbs();
+        this.renderLayers();
         this._bindToolbar();
     }
 
@@ -71,22 +72,31 @@ class FabricLetterEditor {
             historyRedo.length = 0;
         };
 
-        fc.on('object:added', saveHistory);
-        fc.on('object:removed', saveHistory);
+        fc.on('object:added', (e) => {
+            self._ensureLayerMeta(e.target);
+            saveHistory();
+            self.renderLayers();
+        });
+        fc.on('object:removed', () => {
+            saveHistory();
+            self.renderLayers();
+        });
         fc.on('object:modified', (e) => {
             saveHistory();
             self._constrainObject(e.target, margins);
             if (!self._autoPageLock) self._checkAutoPage(index, e.target);
+            self.renderLayers();
         });
         fc.on('object:moving', (e) => {
             self._constrainObject(e.target, margins);
         });
         fc.on('text:changed', (e) => {
             if (!self._autoPageLock) self._checkAutoPage(index, e.target);
+            self.renderLayers();
         });
-        fc.on('selection:created', () => self._syncToolbarFromSelection());
-        fc.on('selection:updated', () => self._syncToolbarFromSelection());
-        fc.on('selection:cleared', () => self._syncToolbarFromSelection());
+        fc.on('selection:created', () => { self._syncToolbarFromSelection(); self.renderLayers(); });
+        fc.on('selection:updated', () => { self._syncToolbarFromSelection(); self.renderLayers(); });
+        fc.on('selection:cleared', () => { self._syncToolbarFromSelection(); self.renderLayers(); });
         wrapper.addEventListener('click', () => self.switchPage(self.pages.findIndex(p => p.id === index)));
 
         return fc;
@@ -221,6 +231,8 @@ class FabricLetterEditor {
         overflowObjs.forEach(obj => {
             fc.remove(obj);
             const cloned = fabric.util.object.clone(obj);
+            cloned._layerId = obj._layerId;
+            cloned._layerName = obj._layerName;
             const overflowAmount = obj.top - THRESHOLD;
             cloned.set({ top: Math.max(40, insertTop), left: obj.left });
             insertTop += cloned.getScaledHeight() + 10;
@@ -276,6 +288,7 @@ class FabricLetterEditor {
         const wrapper = document.getElementById('page-wrapper-' + this.pages[index].id);
         if (wrapper) wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         this.renderThumbs();
+        this.renderLayers();
     }
 
     convertFromHTML(html) {
@@ -297,8 +310,10 @@ class FabricLetterEditor {
         data.pages.forEach((pageData, i) => {
             const fc = self.pages[i].canvas;
             fc.loadFromJSON(pageData.canvasJSON, () => {
+                fc.getObjects().forEach(o => self._ensureLayerMeta(o));
                 self._drawRuler(fc);
                 fc.renderAll();
+                if (i === self.currentPage) self.renderLayers();
             });
         });
     }
@@ -306,7 +321,7 @@ class FabricLetterEditor {
     serializeAll() {
         const data = {
             pages: this.pages.map(p => {
-                const json = p.canvas.toJSON(['_isRuler', 'excludeFromExport']);
+                const json = p.canvas.toJSON(['_isRuler', 'excludeFromExport', '_layerId', '_layerName']);
                 json.objects = (json.objects || []).filter(o => !o._isRuler);
 
                 const overlay = document.getElementById('ruler-overlay-' + p.id);
@@ -458,8 +473,10 @@ class FabricLetterEditor {
         const prev = page.historyUndo[page.historyUndo.length - 1];
         const self = this;
         page.canvas.loadFromJSON(prev, () => {
+            page.canvas.getObjects().forEach(o => self._ensureLayerMeta(o));
             self._drawRuler(page.canvas);
             page.canvas.renderAll();
+            self.renderLayers();
         });
     }
 
@@ -470,8 +487,10 @@ class FabricLetterEditor {
         page.historyUndo.push(next);
         const self = this;
         page.canvas.loadFromJSON(next, () => {
+            page.canvas.getObjects().forEach(o => self._ensureLayerMeta(o));
             self._drawRuler(page.canvas);
             page.canvas.renderAll();
+            self.renderLayers();
         });
     }
 
@@ -486,6 +505,309 @@ class FabricLetterEditor {
             thumb.addEventListener('click', () => this.switchPage(i));
             container.appendChild(thumb);
         });
+    }
+
+    _ensureLayerMeta(obj) {
+        if (!obj) return;
+        if (!obj._layerId) {
+            obj._layerId = 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        }
+        if (!obj._layerName) {
+            obj._layerName = this._defaultLayerName(obj);
+        }
+    }
+
+    _defaultLayerName(obj) {
+        if (!obj) return 'Layer';
+        if (obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text') {
+            const t = (obj.text || '').replace(/\s+/g, ' ').trim();
+            return t ? (t.length > 22 ? t.slice(0, 22) + '…' : t) : 'Teks';
+        }
+        if (obj.type === 'image') return 'Gambar';
+        if (obj.type === 'rect') return 'Persegi';
+        if (obj.type === 'circle') return 'Lingkaran';
+        if (obj.type === 'line') return 'Garis';
+        if (obj.type === 'group') return 'Grup';
+        return obj.type ? obj.type.charAt(0).toUpperCase() + obj.type.slice(1) : 'Layer';
+    }
+
+    _layerIcon(obj) {
+        if (!obj) return 'ti-square';
+        if (obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text') return 'ti-text-size';
+        if (obj.type === 'image') return 'ti-photo';
+        if (obj.type === 'rect') return 'ti-square';
+        if (obj.type === 'circle') return 'ti-circle';
+        if (obj.type === 'line') return 'ti-line';
+        if (obj.type === 'group') return 'ti-stack-2';
+        return 'ti-shape';
+    }
+
+    renderLayers() {
+        const container = document.getElementById('layersList');
+        const empty = document.getElementById('layersEmpty');
+        if (!container) return;
+
+        const page = this.pages[this.currentPage];
+        if (!page) {
+            container.innerHTML = '';
+            if (empty) empty.style.display = '';
+            return;
+        }
+
+        const fc = page.canvas;
+        const objects = fc.getObjects().filter(o => !o._isRuler && !o.excludeFromExport);
+        const active = fc.getActiveObjects();
+        const activeIds = new Set(active.map(o => o._layerId));
+
+        container.innerHTML = '';
+        if (objects.length === 0) {
+            if (empty) empty.style.display = '';
+            return;
+        }
+        if (empty) empty.style.display = 'none';
+
+        // Render top z-order first (Photoshop convention: top of list = top layer)
+        const ordered = [...objects].reverse();
+        const self = this;
+
+        ordered.forEach((obj) => {
+            self._ensureLayerMeta(obj);
+
+            const item = document.createElement('div');
+            item.className = 'layer-item' + (activeIds.has(obj._layerId) ? ' active' : '');
+            item.draggable = true;
+            item.dataset.layerId = obj._layerId;
+
+            const handle = document.createElement('span');
+            handle.className = 'layer-handle';
+            handle.innerHTML = '<i class="ti ti-grip-vertical"></i>';
+            handle.title = 'Geser untuk ubah urutan';
+
+            const visBtn = document.createElement('button');
+            visBtn.type = 'button';
+            visBtn.className = 'layer-btn' + (obj.visible === false ? ' muted' : '');
+            visBtn.title = obj.visible === false ? 'Tampilkan' : 'Sembunyikan';
+            visBtn.innerHTML = obj.visible === false ? '<i class="ti ti-eye-off"></i>' : '<i class="ti ti-eye"></i>';
+            visBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                self.toggleLayerVisibility(obj._layerId);
+            });
+
+            const lockBtn = document.createElement('button');
+            lockBtn.type = 'button';
+            lockBtn.className = 'layer-btn' + (obj.lockMovementX ? '' : ' muted');
+            lockBtn.title = obj.lockMovementX ? 'Buka kunci' : 'Kunci layer';
+            lockBtn.innerHTML = obj.lockMovementX ? '<i class="ti ti-lock"></i>' : '<i class="ti ti-lock-open"></i>';
+            lockBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                self.toggleLayerLock(obj._layerId);
+            });
+
+            const icon = document.createElement('span');
+            icon.className = 'layer-icon';
+            icon.innerHTML = '<i class="ti ' + self._layerIcon(obj) + '"></i>';
+
+            const name = document.createElement('span');
+            name.className = 'layer-name';
+            name.textContent = obj._layerName || self._defaultLayerName(obj);
+            name.title = name.textContent + ' (klik dua kali untuk rename)';
+            name.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                name.contentEditable = 'true';
+                name.focus();
+                document.execCommand('selectAll', false, null);
+            });
+            name.addEventListener('blur', () => {
+                if (name.contentEditable === 'true') {
+                    name.contentEditable = 'false';
+                    const newName = (name.textContent || '').trim() || self._defaultLayerName(obj);
+                    obj._layerName = newName;
+                    name.textContent = newName;
+                }
+            });
+            name.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); name.blur(); }
+                if (e.key === 'Escape') {
+                    name.textContent = obj._layerName || self._defaultLayerName(obj);
+                    name.blur();
+                }
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'layer-btn';
+            delBtn.title = 'Hapus layer';
+            delBtn.innerHTML = '<i class="ti ti-trash"></i>';
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                self.deleteLayer(obj._layerId);
+            });
+
+            item.appendChild(handle);
+            item.appendChild(icon);
+            item.appendChild(name);
+            item.appendChild(visBtn);
+            item.appendChild(lockBtn);
+            item.appendChild(delBtn);
+
+            item.addEventListener('click', () => {
+                if (name.contentEditable === 'true') return;
+                self.selectLayer(obj._layerId);
+            });
+
+            // Drag & drop reorder
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', obj._layerId);
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+                container.querySelectorAll('.layer-item').forEach(el => el.classList.remove('drag-over'));
+            });
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                item.classList.add('drag-over');
+            });
+            item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                item.classList.remove('drag-over');
+                const draggedId = e.dataTransfer.getData('text/plain');
+                if (draggedId && draggedId !== obj._layerId) {
+                    self.reorderLayer(draggedId, obj._layerId);
+                }
+            });
+
+            container.appendChild(item);
+        });
+    }
+
+    _findLayer(layerId) {
+        const page = this.pages[this.currentPage];
+        if (!page) return null;
+        return page.canvas.getObjects().find(o => o._layerId === layerId) || null;
+    }
+
+    selectLayer(layerId) {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = this._findLayer(layerId);
+        if (!obj || obj.visible === false) return;
+        page.canvas.setActiveObject(obj);
+        page.canvas.requestRenderAll();
+        this.renderLayers();
+        this._syncToolbarFromSelection();
+    }
+
+    toggleLayerVisibility(layerId) {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = this._findLayer(layerId);
+        if (!obj) return;
+        const becomingHidden = obj.visible !== false;
+        obj.visible = !becomingHidden;
+        if (becomingHidden && page.canvas.getActiveObject() === obj) {
+            page.canvas.discardActiveObject();
+        }
+        page.canvas.requestRenderAll();
+        this.renderLayers();
+    }
+
+    toggleLayerLock(layerId) {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = this._findLayer(layerId);
+        if (!obj) return;
+        const locked = !!obj.lockMovementX;
+        const next = !locked;
+        obj.set({
+            lockMovementX: next,
+            lockMovementY: next,
+            lockScalingX: next,
+            lockScalingY: next,
+            lockRotation: next,
+            selectable: !next || true,
+            evented: true,
+            hasControls: !next,
+        });
+        if (next && page.canvas.getActiveObject() === obj) {
+            page.canvas.discardActiveObject();
+        }
+        page.canvas.requestRenderAll();
+        this.renderLayers();
+    }
+
+    deleteLayer(layerId) {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = this._findLayer(layerId);
+        if (!obj) return;
+        if (!confirm('Hapus layer "' + (obj._layerName || 'ini') + '"?')) return;
+        page.canvas.remove(obj);
+        page.canvas.discardActiveObject();
+        page.canvas.requestRenderAll();
+        this.renderLayers();
+    }
+
+    reorderLayer(draggedId, targetId) {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const fc = page.canvas;
+        const dragged = this._findLayer(draggedId);
+        const target = this._findLayer(targetId);
+        if (!dragged || !target) return;
+
+        const objects = fc.getObjects();
+        const targetIndex = objects.indexOf(target);
+        if (targetIndex < 0) return;
+
+        // Top of UI list = top z-order. Dropping onto target means: place dragged
+        // immediately above target in z-order.
+        fc.moveTo(dragged, targetIndex + 1);
+        fc.requestRenderAll();
+        this.renderLayers();
+    }
+
+    bringForward() {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = page.canvas.getActiveObject();
+        if (!obj) return;
+        page.canvas.bringForward(obj);
+        page.canvas.requestRenderAll();
+        this.renderLayers();
+    }
+
+    sendBackwards() {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = page.canvas.getActiveObject();
+        if (!obj) return;
+        page.canvas.sendBackwards(obj);
+        page.canvas.requestRenderAll();
+        this.renderLayers();
+    }
+
+    bringToFront() {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = page.canvas.getActiveObject();
+        if (!obj) return;
+        page.canvas.bringToFront(obj);
+        page.canvas.requestRenderAll();
+        this.renderLayers();
+    }
+
+    sendToBack() {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = page.canvas.getActiveObject();
+        if (!obj) return;
+        page.canvas.sendToBack(obj);
+        page.canvas.requestRenderAll();
+        this.renderLayers();
     }
 
     _bindToolbar() {
@@ -523,5 +845,10 @@ class FabricLetterEditor {
             if (this.files[0]) self.addImage(this.files[0]);
             this.value = '';
         });
+
+        get('layerMoveUp') && get('layerMoveUp').addEventListener('click', () => self.bringForward());
+        get('layerMoveDown') && get('layerMoveDown').addEventListener('click', () => self.sendBackwards());
+        get('layerToFront') && get('layerToFront').addEventListener('click', () => self.bringToFront());
+        get('layerToBack') && get('layerToBack').addEventListener('click', () => self.sendToBack());
     }
 }

@@ -24,8 +24,11 @@ class Letter extends Model
     public function generateLetterNumber(int $sequence, $site = null, $user = null): string
     {
         $config = $this->numberConfig;
+        $kode_tipe = $this->type ? strtoupper($this->type->code ?? substr($this->type->name, 0, 3)) : 'XX';
+        
         if ($config) {
-            return $config->generateNumber($sequence, $site, $user);
+            // Tambahkan parameter letter ke generateNumber agar bisa mengakses kode_tipe
+            return $this->numberConfig->generateNumber($sequence, $site, $user, $this);
         }
         $format = $this->number_format ?? '{no}/{kode_tipe}/{romawi}/{tahun}';
         $padding = $this->number_padding ?? 3;
@@ -35,7 +38,6 @@ class Letter extends Model
         $tahun_pendek = substr((string) now()->year, -2);
         $bulan = str_pad(now()->month, 2, '0', STR_PAD_LEFT);
         $kode_site = $site ? ($site->unique_id ?? strtoupper(substr($site->name, 0, 3))) : 'XX';
-        $kode_tipe = $this->type ? strtoupper($this->type->code ?? substr($this->type->name, 0, 3)) : 'XX';
         $kode_company = $site && $site->company ? ($site->company->unique_id ?? strtoupper(substr($site->company->name, 0, 3))) : 'XX';
         $kode_jabatan = $user ? strtoupper($user->roles()->first()->code ?? substr($user->roles()->first()->name ?? 'XX', 0, 3)) : 'XX';
         $prefix = $this->number_prefix ?? '';

@@ -57,6 +57,38 @@
         .page-thumb.active { border-color: #0d6efd; background: #e8f0fe; color: #0d6efd; font-weight: 700; }
         .page-thumb-preview { background: #fff; border: 1px solid #eee; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #ccc; margin-bottom: 4px; border-radius: 2px; }
 
+        /* Layers panel */
+        #layersList { display: flex; flex-direction: column; gap: 3px; max-height: 320px; overflow-y: auto; padding-right: 2px; }
+        .layer-item {
+            display: flex; align-items: center; gap: 4px; padding: 5px 6px;
+            background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;
+            font-size: 11px; cursor: pointer; user-select: none;
+            transition: background .1s, border-color .1s;
+        }
+        .layer-item:hover { background: #eef3ff; border-color: #bfd2ff; }
+        .layer-item.active { background: #e8f0fe; border-color: #0d6efd; color: #0d6efd; font-weight: 600; }
+        .layer-item.dragging { opacity: 0.45; }
+        .layer-item.drag-over { border-top: 2px solid #0d6efd; }
+        .layer-item .layer-icon { font-size: 13px; color: #6c757d; flex-shrink: 0; }
+        .layer-item.active .layer-icon { color: #0d6efd; }
+        .layer-item .layer-name {
+            flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+            cursor: text;
+        }
+        .layer-item .layer-name[contenteditable="true"] {
+            background: #fff; border: 1px solid #0d6efd; border-radius: 2px;
+            padding: 1px 4px; outline: none;
+        }
+        .layer-item .layer-btn {
+            background: transparent; border: 0; padding: 2px 4px; font-size: 12px;
+            color: #6c757d; cursor: pointer; border-radius: 3px; line-height: 1;
+        }
+        .layer-item .layer-btn:hover { background: #dee2e6; color: #212529; }
+        .layer-item .layer-btn.muted { color: #c0c4ca; }
+        .layer-handle { cursor: grab; color: #adb5bd; font-size: 14px; }
+        .layer-handle:active { cursor: grabbing; }
+        #layersEmpty { text-align: center; font-size: 11px; color: #adb5bd; padding: 12px 0; }
+
         /* Canvas area */
         #editor-canvas-area {
             flex: 1; overflow: auto; background: #eceef4;
@@ -150,60 +182,7 @@
                 @yield('sidebar-fields')
             </div>
 
-            <div class="sidebar-section">
-                <h6>Nomor Surat</h6>
-                <div class="mb-2">
-                    <label>Pilih Konfigurasi</label>
-                    <select name="letter_number_config_id" id="selectNumberConfig" class="form-select form-select-sm">
-                        <option value="">-- Manual / Kustom --</option>
-                        @foreach($numberConfigs ?? [] as $cfg)
-                            <option value="{{ $cfg->id }}"
-                                data-format="{{ $cfg->format }}"
-                                data-prefix="{{ $cfg->prefix }}"
-                                data-padding="{{ $cfg->padding }}"
-                                @yield('number_config_selected_' . $cfg->id)>
-                                {{ $cfg->name }} <small>({{ $cfg->format }})</small>
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div id="manualNumberFields">
-                    <div class="mb-2">
-                        <label>Format Nomor</label>
-                        <input type="text" name="number_format" id="number_format" class="form-control form-control-sm font-monospace"
-                            placeholder="{no}/{kode_tipe}/{romawi}/{tahun}"
-                            value="@yield('number_format_value')">
-                        <div class="mt-1" style="font-size:10px;color:#888;line-height:1.8;">
-                            <code>{no}</code> nomor urut<br>
-                            <code>{romawi}</code> bulan romawi<br>
-                            <code>{tahun}</code> tahun 4 digit (2026)<br>
-                            <code>{tahun_pendek}</code> tahun 2 digit (26)<br>
-                            <code>{bulan}</code> bulan angka (01-12)<br>
-                            <code>{kode_site}</code> kode site<br>
-                            <code>{kode_tipe}</code> kode tipe surat<br>
-                            <code>{kode_company}</code> kode perusahaan<br>
-                            <code>{kode_jabatan}</code> kode jabatan<br>
-                            <code>{prefix}</code> prefix tetap
-                        </div>
-                    </div>
-                    <div class="mb-2">
-                        <label>Prefix Tetap</label>
-                        <input type="text" name="number_prefix" id="number_prefix" class="form-control form-control-sm"
-                            placeholder="Contoh: SPK"
-                            value="@yield('number_prefix_value')">
-                    </div>
-                    <div class="mb-2">
-                        <label>Digit Nomor Urut</label>
-                        <input type="number" name="number_padding" id="number_padding" class="form-control form-control-sm"
-                            min="1" max="6" value="@yield('number_padding_value', 3)">
-                        <div style="font-size:10px;color:#888;">Contoh: 3 digit = 001, 4 digit = 0001</div>
-                    </div>
-                </div>
-                <div class="mb-2">
-                    <label>Preview Nomor</label>
-                    <div id="numberPreview" class="form-control form-control-sm bg-light text-primary fw-bold font-monospace" style="min-height:32px;font-size:12px;"></div>
-                </div>
-            </div>
+            @yield('number-config-section')
 
             <div class="sidebar-section">
                 <h6>Halaman</h6>
@@ -212,6 +191,18 @@
                     <button type="button" id="sbAddPage" class="btn btn-sm btn-success"><i class="ti ti-plus me-1"></i>Tambah Halaman</button>
                     <button type="button" id="sbDeletePage" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash me-1"></i>Hapus Halaman</button>
                 </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h6>Layers</h6>
+                <div class="d-flex gap-1 mb-2">
+                    <button type="button" id="layerMoveUp" class="btn btn-sm btn-outline-secondary flex-fill" title="Naik (atas)"><i class="ti ti-arrow-up"></i></button>
+                    <button type="button" id="layerMoveDown" class="btn btn-sm btn-outline-secondary flex-fill" title="Turun (bawah)"><i class="ti ti-arrow-down"></i></button>
+                    <button type="button" id="layerToFront" class="btn btn-sm btn-outline-secondary flex-fill" title="Paling depan"><i class="ti ti-stack-push"></i></button>
+                    <button type="button" id="layerToBack" class="btn btn-sm btn-outline-secondary flex-fill" title="Paling belakang"><i class="ti ti-stack-pop"></i></button>
+                </div>
+                <div id="layersList"></div>
+                <div id="layersEmpty">Belum ada layer</div>
             </div>
         </div>
 

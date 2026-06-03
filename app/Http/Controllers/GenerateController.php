@@ -152,7 +152,7 @@ class GenerateController extends Controller
 
     public function show(Generate $generate)
     {
-        $no_surat = $generate->letter_number ?? 'belum ada no surat';
+        $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
         
         $tgl_surat = isset($generate->created_at) 
             ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') 
@@ -279,7 +279,7 @@ class GenerateController extends Controller
 
     private function _buildSearchReplace(Generate $generate): array
     {
-        $no_surat = $generate->letter_number ?? 'belum ada no surat';
+        $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
         $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') : '';
         $romawi = $generate->romawi ?? 'belum ada data';
         $tahun = $generate->year ?? 'belum ada tahun';
@@ -365,7 +365,7 @@ class GenerateController extends Controller
 
     public function pdf(Generate $generate)
     {
-        $no_surat = $generate->letter_number ?? 'belum ada no surat';
+        $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
         $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') : '';
         $romawi = $generate->romawi ?? 'belum ada data';
         $tahun = $generate->year ?? 'belum ada tahun';

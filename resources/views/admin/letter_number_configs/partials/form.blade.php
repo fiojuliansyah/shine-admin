@@ -14,10 +14,26 @@
         <div class="form-text">Digunakan jika format mengandung <code>{prefix}</code></div>
     </div>
     <div class="col-md-4">
+        <label class="form-label fw-bold">Perusahaan</label>
+        <select name="company_id" class="form-select">
+            <option value="">-- Pilih Perusahaan --</option>
+            @foreach($companies as $company)
+                <option value="{{ $company->id }}" 
+                    data-company-code="{{ $company->unique_id ?? strtoupper(substr($company->name, 0, 3)) }}"
+                    {{ old('company_id', isset($config) ? $config->company_id : null) == $company->id ? 'selected' : '' }}>
+                    {{ $company->name }} ({{ $company->unique_id ?? '-' }})
+                </option>
+            @endforeach
+        </select>
+        <div class="form-text">Digunakan jika format mengandung <code>{kode_company}</code></div>
+    </div>
+    <div class="col-md-4">
         <label class="form-label fw-bold">Digit Nomor Urut <span class="text-danger">*</span></label>
         <input type="number" name="padding" class="form-control" min="1" max="6" value="{{ old('padding', 3) }}" required>
         <div class="form-text">Contoh: 3 = 001, 4 = 0001</div>
     </div>
+</div>
+<div class="row g-3 mb-3">
     <div class="col-md-4">
         <label class="form-label fw-bold">Mulai Dari Nomor <span class="text-danger">*</span></label>
         <input type="number" name="start_number" class="form-control" min="1" value="{{ old('start_number', 1) }}" required>

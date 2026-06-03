@@ -144,7 +144,7 @@ class DataController extends Controller
             return redirect()->back()->with('error', 'Belum ada surat digital untuk Anda.');
         }
 
-        $no_surat = $eletter->letter_number ?? 'belum ada no surat';
+        $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
         $tgl_surat = isset($eletter->created_at) 
             ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') 
             : '';
@@ -239,7 +239,7 @@ class DataController extends Controller
 
         $user = $eletter->user;
 
-        $no_surat = $eletter->letter_number ?? 'belum ada no surat';
+        $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
         $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') : '';
         $romawi = $eletter->romawi ?? 'belum ada data';
         $tahun = $eletter->year ?? 'belum ada tahun';
@@ -343,7 +343,7 @@ class DataController extends Controller
         if (!$eletter) abort(404);
 
         $user = $eletter->user;
-        $no_surat = $eletter->letter_number ?? 'belum ada no surat';
+        $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
         $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') : '';
         $romawi = $eletter->romawi ?? 'belum ada data';
         $tahun = $eletter->year ?? 'belum ada tahun';

@@ -1,9 +1,48 @@
 @extends('admin.letters.partials.editor-layout')
 
 @section('page-title', 'Buat Template E-Letter')
-@section('number_format_value', '{no}/{kode_tipe}/{romawi}/{tahun}')
-@section('number_prefix_value', '')
-@section('number_padding_value', 3)
+@section('number-config-section')
+<div class="sidebar-section">
+    <h6>Nomor Surat</h6>
+    <div class="mb-2">
+        <label>Pilih Konfigurasi</label>
+        <select name="letter_number_config_id" id="selectNumberConfig" form="letterForm" class="form-select form-select-sm">
+            <option value="">-- Manual / Kustom --</option>
+            @foreach($numberConfigs ?? [] as $cfg)
+                <option value="{{ $cfg->id }}"
+                    data-format="{{ $cfg->format }}"
+                    data-prefix="{{ $cfg->prefix }}"
+                    data-padding="{{ $cfg->padding }}">
+                    {{ $cfg->name }} <small>({{ $cfg->format }})</small>
+                </option>
+            @endforeach
+        </select>
+    </div>
+    <div id="manualNumberFields">
+        <div class="mb-2">
+            <label>Format Nomor</label>
+            <input type="text" name="number_format" id="number_format" form="letterForm" class="form-control form-control-sm font-monospace"
+                placeholder="{no}/{kode_tipe}/{romawi}/{tahun}"
+                value="@yield('number_format_value')">
+        </div>
+        <div class="mb-2">
+            <label>Prefix Tetap</label>
+            <input type="text" name="number_prefix" id="number_prefix" form="letterForm" class="form-control form-control-sm"
+                placeholder="Contoh: SPK"
+                value="@yield('number_prefix_value')">
+        </div>
+        <div class="mb-2">
+            <label>Digit Nomor Urut</label>
+            <input type="number" name="number_padding" id="number_padding" form="letterForm" class="form-control form-control-sm"
+                min="1" max="6" value="@yield('number_padding_value', 3)">
+        </div>
+    </div>
+    <div class="mb-1">
+        <label>Preview Nomor</label>
+        <div id="numberPreview" class="form-control form-control-sm bg-light text-primary fw-bold font-monospace" style="min-height:32px;font-size:12px;"></div>
+    </div>
+</div>
+@endsection
 
 @section('sidebar-fields')
 <form id="letterForm" action="{{ route('letters.store') }}" method="POST">

@@ -35,6 +35,7 @@
                                 <th>Nama Konfigurasi</th>
                                 <th>Format</th>
                                 <th>Prefix</th>
+                                <th>Perusahaan</th>
                                 <th>Digit Urut</th>
                                 <th>Preview</th>
                                 <th>Keterangan</th>
@@ -48,6 +49,7 @@
                                 <td><strong>{{ $config->name }}</strong></td>
                                 <td><code>{{ $config->format }}</code></td>
                                 <td>{{ $config->prefix ?? '-' }}</td>
+                                <td>{{ $config->company ? $config->company->name . ' (' . ($config->company->unique_id ?? '-') . ')' : '-' }}</td>
                                 <td>{{ $config->padding }}</td>
                                 <td>
                                     <span class="badge bg-primary-subtle text-primary">
@@ -57,7 +59,7 @@
                                 <td>{{ $config->description ?? '-' }}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary"
-                                        onclick="editConfig({{ $config->id }}, '{{ addslashes($config->name) }}', '{{ addslashes($config->format) }}', '{{ addslashes($config->prefix ?? '') }}', {{ $config->padding }}, {{ $config->start_number ?? 1 }}, '{{ addslashes($config->description ?? '') }}')">
+                                        onclick="editConfig({{ $config->id }}, '{{ addslashes($config->name) }}', '{{ addslashes($config->format) }}', '{{ addslashes($config->prefix ?? '') }}', {{ $config->padding }}, {{ $config->start_number ?? 1 }}, '{{ addslashes($config->description ?? '') }}', {{ $config->company_id ?? 'null' }})">
                                         <i class="ti ti-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-danger"
@@ -123,7 +125,7 @@
             <form action="{{ route('letter-number-configs.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                    @include('admin.letter_number_configs.partials.form')
+                     @include('admin.letter_number_configs.partials.form', ['companies' => $companies])
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -146,7 +148,7 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body p-4">
-                    @include('admin.letter_number_configs.partials.form', ['isEdit' => true])
+                     @include('admin.letter_number_configs.partials.form', ['isEdit' => true, 'companies' => $companies])
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -183,7 +185,7 @@
 
 @push('js')
 <script>
-    function editConfig(id, name, format, prefix, padding, start_number, description) {
+    function editConfig(id, name, format, prefix, padding, start_number, description, company_id) {
         const form = document.getElementById('editForm');
         form.action = '/manage/letter-number-configs/' + id;
         form.querySelector('[name="name"]').value = name;
@@ -192,6 +194,11 @@
         form.querySelector('[name="padding"]').value = padding;
         form.querySelector('[name="start_number"]').value = start_number;
         form.querySelector('[name="description"]').value = description;
+        if (company_id) {
+            form.querySelector('[name="company_id"]').value = company_id;
+        } else {
+            form.querySelector('[name="company_id"]').value = '';
+        }
         updatePreview('editPreview', format, prefix, padding);
         new bootstrap.Modal(document.getElementById('modalEdit')).show();
     }
@@ -202,10 +209,22 @@
         new bootstrap.Modal(document.getElementById('modalDelete')).show();
     }
 
-    function updatePreview(previewId, format, prefix, padding) {
+    function updatePreview(previewId, format, prefix, padding, companyCode) {
         format = format || document.querySelector('[name="format"]').value;
         prefix = prefix !== undefined ? prefix : document.querySelector('[name="prefix"]').value;
         padding = padding || parseInt(document.querySelector('[name="padding"]').value) || 3;
+        
+        // Get company code from selected option
+        if (companyCode === undefined) {
+            const companySelect = document.querySelector('[name="company_id"]');
+            if (companySelect && companySelect.value) {
+                const selectedOption = companySelect.options[companySelect.selectedIndex];
+                companyCode = selectedOption ? selectedOption.getAttribute('data-company-code') : 'COMP';
+            } else {
+                companyCode = 'COMP';
+            }
+        }
+        
         const no = String(1).padStart(padding, '0');
         const now = new Date();
         const romawi = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][now.getMonth()];
@@ -216,13 +235,13 @@
             .replace('{no}', no).replace('{romawi}', romawi)
             .replace('{tahun}', tahun).replace('{tahun_pendek}', tahun_pendek)
             .replace('{bulan}', bulan).replace('{kode_site}', 'SITE')
-            .replace('{kode_tipe}', 'TIPE').replace('{kode_company}', 'COMP')
+            .replace('{kode_tipe}', 'TIPE').replace('{kode_company}', companyCode)
             .replace('{kode_jabatan}', 'JAB').replace('{prefix}', prefix);
         const el = document.getElementById(previewId);
         if (el) el.innerText = preview;
     }
 
-    document.querySelectorAll('[name="format"],[name="prefix"],[name="padding"]').forEach(el => {
+    document.querySelectorAll('[name="format"],[name="prefix"],[name="padding"],[name="company_id"]').forEach(el => {
         el.addEventListener('input', function() {
             const form = this.closest('form');
             const previewId = form.id === 'editForm' ? 'editPreview' : 'addPreview';
@@ -234,6 +253,6 @@
         });
     });
 
-    updatePreview('addPreview', '{no}/{kode_tipe}/{romawi}/{tahun}', '', 3);
+    updatePreview('addPreview', '{no}/{kode_tipe}/{romawi}/{tahun}', '', 3, 'COMP');
 </script>
 @endpush

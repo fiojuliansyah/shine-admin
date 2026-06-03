@@ -213,7 +213,9 @@ class StatusController extends Controller
             $typeLetter = $letter->type;
             $currentNumber = $typeLetter?->number ?? 0;
             $startNumber = $letter->numberConfig?->start_number ?? 1;
-            $newNumber = max($currentNumber + 1, $startNumber);
+            // Cast currentNumber to integer jika string
+            $currentNumberInt = (int) $currentNumber;
+            $newNumber = max($currentNumberInt + 1, $startNumber);
             $typeLetter?->update(['number' => $newNumber]);
 
             $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
@@ -223,16 +225,17 @@ class StatusController extends Controller
                     : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
 
             $generatedLetter = Generate::create([
-                'letter_id'      => $request->letter_id,
-                'letter_number'  => $letterNumber,
-                'romawi'         => $this->getRomawi(date('m')),
-                'year'           => date('Y'),
-                'start_date'     => $request->start_date,
-                'end_date'       => $request->end_date,
-                'user_id'        => $applicant->user_id,
-                'site_id'        => $site_id,
-                'second_party'   => $applicant->user?->name,
-                'description'    => 'Auto generated from Bulk Offering',
+                'letter_id'        => $request->letter_id,
+                'letter_number'    => $letterNumber,
+                'sequence_number'  => $newNumber,
+                'romawi'           => $this->getRomawi(date('m')),
+                'year'             => date('Y'),
+                'start_date'       => $request->start_date,
+                'end_date'         => $request->end_date,
+                'user_id'          => $applicant->user_id,
+                'site_id'          => $site_id,
+                'second_party'     => $applicant->user?->name,
+                'description'      => 'Auto generated from Bulk Offering',
             ]);
 
             // Simpan Value Variable Kustom
@@ -288,7 +291,9 @@ class StatusController extends Controller
 
             $currentNumber = $typeLetter->number ?? 0;
             $startNumber = $letter->numberConfig?->start_number ?? 1;
-            $newNumber = max($currentNumber + 1, $startNumber);
+            // Cast currentNumber to integer jika string
+            $currentNumberInt = (int) $currentNumber;
+            $newNumber = max($currentNumberInt + 1, $startNumber);
 
             if ($typeLetter) {
                 $typeLetter->update(['number' => $newNumber]);
@@ -301,16 +306,17 @@ class StatusController extends Controller
                     : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
 
             $generatedLetter = Generate::create([
-                'letter_id'      => $request->letter_id,
-                'letter_number'  => $letterNumber,
-                'romawi'         => $this->getRomawi(date('m')),
-                'year'           => date('Y'),
-                'start_date'     => $request->start_date,
-                'end_date'       => $request->end_date,
-                'user_id'        => $applicant->user_id,
-                'site_id'        => $site_id,
-                'second_party'   => $applicant->user->name,
-                'description'    => 'Auto generated from Bulk Offering',
+                'letter_id'        => $request->letter_id,
+                'letter_number'    => $letterNumber,
+                'sequence_number'  => $newNumber,
+                'romawi'           => $this->getRomawi(date('m')),
+                'year'             => date('Y'),
+                'start_date'       => $request->start_date,
+                'end_date'         => $request->end_date,
+                'user_id'          => $applicant->user_id,
+                'site_id'          => $site_id,
+                'second_party'     => $applicant->user->name,
+                'description'      => 'Auto generated from Bulk Offering',
             ]);
 
             // Simpan Value Variable Kustom

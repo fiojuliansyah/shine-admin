@@ -45,7 +45,7 @@
                                                             <i class="ti ti-file-text fs-20 text-primary"></i>
                                                         </div>
                                                         <div class="ms-2">
-                                                            <h6 class="fw-medium mb-0">{{ $history->letter_number ?? 'No. Belum Tersedia' }}</h6>
+                                                            <h6 class="fw-medium mb-0">{{ $history->formatted_letter_number ?? 'No. Belum Tersedia' }}</h6>
                                                         </div>
                                                     </div>
                                                 </td>

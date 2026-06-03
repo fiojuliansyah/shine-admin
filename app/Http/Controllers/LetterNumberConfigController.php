@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\LetterNumberConfig;
+use App\Models\Company;
 
 class LetterNumberConfigController extends Controller
 {
     public function index()
     {
-        $configs = LetterNumberConfig::latest()->get();
-        return view('admin.letter_number_configs.index', compact('configs'));
+        $configs = LetterNumberConfig::with('company')->latest()->get();
+        $companies = Company::orderBy('name')->get();
+        return view('admin.letter_number_configs.index', compact('configs', 'companies'));
     }
 
     public function store(Request $request)
@@ -23,7 +25,7 @@ class LetterNumberConfigController extends Controller
             'start_number' => 'required|integer|min:1',
         ]);
 
-        LetterNumberConfig::create($request->only('name', 'format', 'prefix', 'padding', 'start_number', 'description'));
+        LetterNumberConfig::create($request->only('name', 'format', 'prefix', 'padding', 'start_number', 'company_id', 'description'));
 
         return redirect()->route('letter-number-configs.index')
             ->with('success', 'Konfigurasi nomor surat berhasil ditambahkan.');
@@ -39,7 +41,7 @@ class LetterNumberConfigController extends Controller
             'start_number' => 'required|integer|min:1',
         ]);
 
-        $letterNumberConfig->update($request->only('name', 'format', 'prefix', 'padding', 'start_number', 'description'));
+        $letterNumberConfig->update($request->only('name', 'format', 'prefix', 'padding', 'start_number', 'company_id', 'description'));
 
         return redirect()->route('letter-number-configs.index')
             ->with('success', 'Konfigurasi nomor surat berhasil diperbarui.');

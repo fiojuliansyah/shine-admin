@@ -42,6 +42,15 @@ class LetterController extends Controller
      */
     public function store(Request $request)
     {
+        // Debug: Log request data
+        \Log::info('Letter Store Request:', [
+            'letter_number_config_id' => $request->letter_number_config_id,
+            'number_format' => $request->number_format,
+            'number_prefix' => $request->number_prefix,
+            'number_padding' => $request->number_padding,
+            'all_data' => $request->except(['_token', 'description'])
+        ]);
+        
         // 1. Simpan data utama
         $letter = new Letter;
         $letter->site_id = $request->site_id;
@@ -52,6 +61,15 @@ class LetterController extends Controller
         $letter->number_format = $request->number_format;
         $letter->number_prefix = $request->number_prefix;
         $letter->number_padding = $request->number_padding ?? 3;
+        
+        // Debug before save
+        \Log::info('Letter before save:', [
+            'letter_number_config_id' => $letter->letter_number_config_id,
+            'number_format' => $letter->number_format,
+            'number_prefix' => $letter->number_prefix,
+            'number_padding' => $letter->number_padding
+        ]);
+        
         $letter->save();
 
         // 2. Simpan variabel kustom jika ada
@@ -118,7 +136,7 @@ class LetterController extends Controller
         $currentNumber = ($typeLetter->number ?? 0) + 1;
 
         if ($letter->letter_number_config_id && $letter->numberConfig) {
-            $preview = $letter->numberConfig->generateNumber($currentNumber);
+            $preview = $letter->numberConfig->generateNumber($currentNumber, null, null, $letter);
         } elseif ($letter->number_format) {
             $preview = $letter->generateLetterNumber($currentNumber);
         } else {
@@ -157,6 +175,23 @@ class LetterController extends Controller
     {
         $letter = Letter::findOrFail($id);
         
+        // Debug: Log request data
+        \Log::info('Letter Update Request - ID: ' . $id, [
+            'letter_number_config_id' => $request->letter_number_config_id,
+            'number_format' => $request->number_format,
+            'number_prefix' => $request->number_prefix,
+            'number_padding' => $request->number_padding,
+            'all_data' => $request->except(['_token', 'description', '_method'])
+        ]);
+        
+        // Debug before update
+        \Log::info('Letter before update:', [
+            'current_config_id' => $letter->letter_number_config_id,
+            'current_format' => $letter->number_format,
+            'current_prefix' => $letter->number_prefix,
+            'current_padding' => $letter->number_padding
+        ]);
+        
         // 1. Update data utama surat
         $letter->site_id = $request->site_id;
         $letter->title = $request->title;
@@ -166,6 +201,15 @@ class LetterController extends Controller
         $letter->number_format = $request->number_format;
         $letter->number_prefix = $request->number_prefix;
         $letter->number_padding = $request->number_padding ?? 3;
+        
+        // Debug after update, before save
+        \Log::info('Letter after update, before save:', [
+            'new_config_id' => $letter->letter_number_config_id,
+            'new_format' => $letter->number_format,
+            'new_prefix' => $letter->number_prefix,
+            'new_padding' => $letter->number_padding
+        ]);
+        
         $letter->save();
 
         // 2. Hapus variabel yang diklik hapus di modal (jika ada)
