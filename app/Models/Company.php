@@ -22,4 +22,14 @@ class Company extends Model
     {
         return $this->hasMany(Site::class);
     }
+
+    public function nikConfigs()
+    {
+        return $this->hasMany(EmployeeNikConfig::class);
+    }
+
+    public function defaultNikConfig()
+    {
+        return $this->hasOne(EmployeeNikConfig::class)->where('is_default', true);
+    }
 }

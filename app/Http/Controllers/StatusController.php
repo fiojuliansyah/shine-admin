@@ -7,6 +7,7 @@ use App\Models\Applicant;
 use App\Models\Company;
 use App\Models\CustomVariable;
 use App\Models\Document;
+use App\Models\EmployeeNikConfig;
 use App\Models\Generate;
 use App\Models\Letter;
 use App\Models\Site;
@@ -192,7 +193,19 @@ class StatusController extends Controller
             'applicant_ids' => 'required|array'
         ]);
 
-        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id) {
+        $site = Site::with('company')->find($site_id);
+        if (!$site || !$site->company) {
+            return redirect()->back()->with('error', 'Site/Company tidak valid.');
+        }
+
+        $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);
+        if (!$nikConfig) {
+            return redirect()->back()->with('error',
+                'Company "' . $site->company->name . '" belum memiliki konfigurasi NIK Karyawan. ' .
+                'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
+        }
+
+        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
             $applicant->user->update([
                 'site_id' => $site_id,
             ]);
@@ -201,12 +214,7 @@ class StatusController extends Controller
                 'done' => 'document-digital'
             ]);
 
-            $site = Site::with('company')->find($site_id);
-            $companyCode  = $site?->company?->unique_id ?? 'XX';
-            $roleCode     = $applicant->user?->roles()?->first()?->code ?? 'XX';
-            $monthJoinCode = \Carbon\Carbon::parse($request->start_date)->format('m');
-            $yearJoinCode = \Carbon\Carbon::parse($request->start_date)->format('y');
-            $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
+            $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
 
             $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
             if (!$letter) return;
@@ -269,7 +277,19 @@ class StatusController extends Controller
             'applicant_ids' => 'required|array'
         ]);
 
-        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id) {
+        $site = Site::with('company')->find($site_id);
+        if (!$site || !$site->company) {
+            return redirect()->back()->with('error', 'Site/Company tidak valid.');
+        }
+
+        $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);
+        if (!$nikConfig) {
+            return redirect()->back()->with('error',
+                'Company "' . $site->company->name . '" belum memiliki konfigurasi NIK Karyawan. ' .
+                'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
+        }
+
+        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
             $applicant->user->update([
                 'site_id' => $site_id,
                 'is_employee' => 1
@@ -279,12 +299,7 @@ class StatusController extends Controller
                 'done' => 'done'
             ]);
 
-            $site = Site::with('company')->find($site_id);
-            $companyCode  = $site->company->unique_id ?? 'XX';
-            $roleCode     = $applicant->user->roles()->first()->code ?? 'XX';
-            $monthJoinCode = \Carbon\Carbon::parse($request->start_date)->format('m');
-            $yearJoinCode = \Carbon\Carbon::parse($request->start_date)->format('y');
-            $employeeNIK = $companyCode . $roleCode . $monthJoinCode . $yearJoinCode . str_pad($applicant->user_id, 5, '0', STR_PAD_LEFT);
+            $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
 
             $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
             $typeLetter = $letter->type;

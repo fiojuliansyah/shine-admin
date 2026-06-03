@@ -22,6 +22,7 @@ use App\Http\Controllers\JobdeskPatrollsController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\LetterNumberConfigController;
+use App\Http\Controllers\EmployeeNikConfigController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MinuteController;
 use App\Http\Controllers\OvertimeController;
@@ -170,6 +171,9 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/letters/{letter}/number-preview', [LetterController::class, 'numberPreview'])->name('letters.number-preview');
     Route::post('/letters/upload-image', [LetterController::class, 'uploadImage'])->name('letters.upload-image');
     Route::resource('letter-number-configs', LetterNumberConfigController::class);
+    Route::post('/employee-nik-configs/preview', [EmployeeNikConfigController::class, 'preview'])->name('employee-nik-configs.preview');
+    Route::resource('employee-nik-configs', EmployeeNikConfigController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('custom-variables', CustomVariableController::class);
 
     Route::resource('taxrates', TaxRateController::class);

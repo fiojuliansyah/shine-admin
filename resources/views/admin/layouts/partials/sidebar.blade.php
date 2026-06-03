@@ -32,6 +32,11 @@
                                 <i class="ti ti-building"></i><span>Perusahaan</span>
                             </a>
                         </li>
+                        <li class="{{ Route::is('employee-nik-configs.index') ? 'active' : '' }}">
+                            <a href="{{ route('employee-nik-configs.index') }}">
+                                <i class="ti ti-id"></i><span>Konfigurasi NIK</span>
+                            </a>
+                        </li>
                         <li class="{{ Route::is('sites.index') ? 'active' : '' }}">
                             <a href="{{ route('sites.index') }}">
                                 <i class="ti ti-box"></i><span>Site Project</span>
