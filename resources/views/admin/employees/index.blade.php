@@ -56,43 +56,13 @@
 
             <div class="card-body p-0">
                 <div class="tab-content border-top">
-                    <div class="tab-pane fade show active px-3 pt-3" id="company-pane-all" role="tabpanel">
-                        <div class="d-flex flex-wrap gap-2 mb-2">
-                            <button type="button" class="btn btn-sm btn-primary site-chip active" data-company-id="" data-site-id="">
-                                Semua Site
-                            </button>
-                            @foreach ($sites as $site)
-                                <button type="button" class="btn btn-sm btn-outline-primary site-chip"
-                                        data-company-id="{{ $site->company_id }}"
-                                        data-site-id="{{ $site->id }}">
-                                    {{ $site->name }}
-                                </button>
-                            @endforeach
-                        </div>
-                    </div>
-
+                    <div class="tab-pane fade show active" id="company-pane-all" role="tabpanel"></div>
                     @foreach ($companies as $company)
-                        <div class="tab-pane fade px-3 pt-3" id="company-pane-{{ $company->id }}" role="tabpanel">
-                            <div class="d-flex flex-wrap gap-2 mb-2">
-                                <button type="button" class="btn btn-sm btn-primary site-chip active"
-                                        data-company-id="{{ $company->id }}" data-site-id="">
-                                    Semua Site
-                                </button>
-                                @forelse ($company->sites as $site)
-                                    <button type="button" class="btn btn-sm btn-outline-primary site-chip"
-                                            data-company-id="{{ $company->id }}"
-                                            data-site-id="{{ $site->id }}">
-                                        {{ $site->name }}
-                                    </button>
-                                @empty
-                                    <span class="text-muted small">Belum ada site untuk company ini.</span>
-                                @endforelse
-                            </div>
-                        </div>
+                        <div class="tab-pane fade" id="company-pane-{{ $company->id }}" role="tabpanel"></div>
                     @endforeach
                 </div>
 
-                <div class="px-3 pb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="px-3 pt-3 pb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <small class="text-muted" id="activeFilterLabel"></small>
                     <button type="button" id="resetCompanyFilter" class="btn btn-sm btn-outline-secondary">
                         <i class="ti ti-refresh me-1"></i> Reset Filter
@@ -100,7 +70,6 @@
                 </div>
 
                 <input type="hidden" id="filter_company_id" value="">
-                <input type="hidden" id="filter_site_id" value="">
 
                 <div class="custom-datatable-filter table-responsive">
                     {{ $dataTable->table(['id' => 'employees-table']) }}
@@ -163,7 +132,6 @@ $(document).ready(function () {
     if (window.LaravelDataTables['employees-table']) {
         window.LaravelDataTables['employees-table'].on('preXhr.dt', function (e, settings, data) {
             data.company_id = $('#filter_company_id').val();
-            data.site_id    = $('#filter_site_id').val();
         });
     }
 
@@ -176,51 +144,26 @@ $(document).ready(function () {
 
     function renderActiveLabel() {
         var companyId = $('#filter_company_id').val();
-        var siteId    = $('#filter_site_id').val();
-        var parts = [];
         if (companyId) {
             var label = $('.company-tab[data-company-id="' + companyId + '"]').text().trim();
-            if (label) parts.push('Company: ' + label);
+            $('#activeFilterLabel').text(label ? 'Filter aktif → Company: ' + label : '');
+        } else {
+            $('#activeFilterLabel').text('');
         }
-        if (siteId) {
-            var siteLabel = $('.site-chip[data-site-id="' + siteId + '"]').first().text().trim();
-            if (siteLabel) parts.push('Site: ' + siteLabel);
-        }
-        $('#activeFilterLabel').text(parts.length ? 'Filter aktif → ' + parts.join(' • ') : '');
     }
 
     $('.company-tab').on('shown.bs.tab', function () {
         var companyId = $(this).data('company-id') || '';
         $('#filter_company_id').val(companyId);
-        $('#filter_site_id').val('');
-        var paneSelector = $(this).data('bs-target');
-        $(paneSelector).find('.site-chip').removeClass('btn-primary active').addClass('btn-outline-primary');
-        $(paneSelector).find('.site-chip[data-site-id=""]').addClass('btn-primary active').removeClass('btn-outline-primary');
-        reloadTable();
-    });
-
-    $(document).on('click', '.site-chip', function () {
-        var $btn = $(this);
-        var siteId = $btn.data('site-id') || '';
-
-        var $pane = $btn.closest('.tab-pane');
-        $pane.find('.site-chip').removeClass('btn-primary active').addClass('btn-outline-primary');
-        $btn.addClass('btn-primary active').removeClass('btn-outline-primary');
-
-        $('#filter_company_id').val($('.company-tab.active').data('company-id') || '');
-        $('#filter_site_id').val(siteId);
         reloadTable();
     });
 
     $('#resetCompanyFilter').on('click', function () {
         $('#filter_company_id').val('');
-        $('#filter_site_id').val('');
         $('.company-tab').removeClass('active');
         $('#company-tab-all').addClass('active');
         $('.tab-pane').removeClass('show active');
         $('#company-pane-all').addClass('show active');
-        $('.site-chip').removeClass('btn-primary active').addClass('btn-outline-primary');
-        $('#company-pane-all .site-chip[data-site-id=""]').addClass('btn-primary active').removeClass('btn-outline-primary');
         reloadTable();
     });
 
