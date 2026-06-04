@@ -75,17 +75,17 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="custom-datatable-filter table-responsive">
-                        <table class="table table-bordered data-table" style="font-size: 12px; table-layout: fixed; width: 100%;">
+                        <table class="table table-bordered data-table" style="font-size: 12px; width: 100%;">
                             <thead>
                                 <tr>
                                     <th style="text-align: center; vertical-align: middle; width: 40px;">
                                         <input type="checkbox" id="select-all" class="form-check-input">
                                     </th>
-                                    <th style="text-align: center; vertical-align: middle;">Tanggal Dibuat</th>
-                                    <th style="text-align: center; vertical-align: middle;">Template</th>
-                                    <th style="text-align: center; vertical-align: middle;">Nama</th>
-                                    <th style="text-align: center; vertical-align: middle;">Tanda Tangan</th>
-                                    <th style="text-align: center; vertical-align: middle; width: 150px;">Aksi</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 120px;">Tanggal Dibuat</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 25%;">Template</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 25%;">Nama</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 20%;">Tanda Tangan</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 120px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -113,6 +113,7 @@
         var table = $('.data-table').DataTable({
             processing: true,
             serverSide: true,
+            autoWidth: false,
             ajax: {
                 url: "{{ route('generates.index') }}",
                 type: "GET",
@@ -124,14 +125,13 @@
                 }
             },
             columns: [
-                { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
-                { data: 'created_at', name: 'created_at' },
-                { data: 'template', name: 'template' },
-                { data: 'name', name: 'name' },
-                { data: 'signature', name: 'signature' },
-                { data: 'action', name: 'action', orderable: false, searchable: false }
+                { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, width: '40px', className: 'text-center' },
+                { data: 'created_at', name: 'created_at', width: '120px', className: 'text-center' },
+                { data: 'template', name: 'template', width: '25%' },
+                { data: 'name', name: 'name', width: '25%' },
+                { data: 'signature', name: 'signature', width: '20%', className: 'text-center' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, width: '120px', className: 'text-center' }
             ],
-            scrollX: true,
             drawCallback: function() {
                 $('.data-table input[type="checkbox"]').each(function() {
                     if (selectedIds.includes($(this).val())) {

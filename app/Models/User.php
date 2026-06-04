@@ -53,11 +53,6 @@ class User extends Authenticatable
         return $this->hasOne(Profile::class)->withDefault();
     }
 
-    public function payroll()
-    {
-        return $this->hasOne(Payroll::class);
-    }
-
     public function leader()
     {
         return $this->belongsTo(User::class, 'leader_id');
@@ -81,25 +76,9 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    // Optional helper supaya langsung dapat semua task
-    public function allTaskPlanners()
-    {
-        return TaskPlanner::whereIn('site_id', $this->sites_leader->pluck('id'))->get();
-    }
-
     public function document()
     {
         return $this->hasMany(Document::class);
-    }
-
-    public function attendances()
-    {
-        return $this->hasMany(Attendance::class);
-    }
-
-    public function schedules()
-    {
-        return $this->hasMany(Schedule::class);
     }
 
     public function notificationSettings()

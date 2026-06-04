@@ -2,53 +2,25 @@
 
 use App\Http\Controllers\Applicant\SiteController as ApplicantSiteController;
 use App\Http\Controllers\ApplicantController;
-use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\ComponentTypeController;
 use App\Http\Controllers\CustomVariableController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DeductionTypeController;
-use App\Http\Controllers\FaceAttendanceController;
-use App\Http\Controllers\FindingReportController;
-use App\Http\Controllers\FloorController;
+use App\Http\Controllers\EmployeeNikConfigController;
 use App\Http\Controllers\GenerateController;
 use App\Http\Controllers\ImportController;
-use App\Http\Controllers\JobdeskController;
-use App\Http\Controllers\JobdeskPatrollsController;
-use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\LetterNumberConfigController;
-use App\Http\Controllers\EmployeeNikConfigController;
-use App\Http\Controllers\LoanController;
-use App\Http\Controllers\MinuteController;
-use App\Http\Controllers\OvertimeController;
-use App\Http\Controllers\OvertimeRequestController;
-use App\Http\Controllers\PayrollComponentController;
-use App\Http\Controllers\PayrollController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\PermitController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\ReportDailyController;
-use App\Http\Controllers\ReportPatrollController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\SecurityPatrollController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\StatusController;
-use App\Http\Controllers\TaskPlannerController;
-use App\Http\Controllers\TaxRateController;
-use App\Http\Controllers\TimeDeductionTypeController;
-use App\Http\Controllers\TypeLeaveController;
 use App\Http\Controllers\TypeLetterController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ValetController;
-use Cloudinary\Transformation\Rotate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +31,7 @@ Route::prefix('manage')->group(function () {
     Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('register', [RegisterController::class, 'register']);
 });
+
 Route::get('/career', [DashboardController::class, 'career'])->name('web-career');
 Route::get('/career/{id}/detail', [DashboardController::class, 'careerDetail'])->name('web-career-detail');
 
@@ -68,26 +41,13 @@ Route::middleware(['auth'])->prefix('account')->group(function () {
     Route::get('/tab-document-detail', [DashboardController::class, 'indexDocument'])->name('web-document');
 });
 
-Route::get('/face/account/register', [FaceAttendanceController::class, 'showFaceRegisterForm'])->name('face.account.register');
-Route::post('/face/account/store', [FaceAttendanceController::class, 'storeAccountAndFace'])->name('face.account.store');
-
-Route::get('/attendance-form', [FaceAttendanceController::class, 'showAttendanceForm'])->name('face.attendance.form');
-Route::post('/face-attendance', [FaceAttendanceController::class, 'processFaceAttendance'])->name('face.attendance.process');
-
 Route::middleware('auth')->group(function () {
-
-
     Route::post('/import/process', [ImportController::class, 'processImport'])->name('import.process');
     Route::post('/admins/import', [AdminController::class, 'import'])->name('admins.import');
     Route::post('/admins/export', [AdminController::class, 'export'])->name('admins.export');
     Route::get('/sites/export', [SiteController::class, 'export'])->name('sites.export');
     Route::post('/sites/import', [SiteController::class, 'import'])->name('sites.import');
-    Route::get('/employee/export', [ReportController::class, 'employeeExport'])->name('employee.export');
-    Route::get('/export/excel', [ReportController::class, 'exportToExcel'])->name('export.excel');
-    Route::get('/payroll/payslip/download/{id}', [PayrollController::class, 'downloadPayslip'])->name('payroll.downloadPayslip');
-    Route::post('/leaves/export', [LeaveController::class, 'export'])->name('leaves.export');
-    Route::post('/permits/export', [PermitController::class, 'export'])->name('permits.export');
-    Route::post('/overtimes/export', [OvertimeController::class, 'export'])->name('overtimes.export');
+    Route::get('/employee/export', [EmployeeController::class, 'export'])->name('employee.export');
 });
 
 Route::middleware(['auth'])->prefix('manage')->group(function () {
@@ -98,72 +58,29 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/comingsoon', [DashboardController::class, 'comingsoon'])->name('comingsoon');
     Route::get('/recuit', [DashboardController::class, 'recruit'])->name('recruit');
     Route::get('/activities', [DashboardController::class, 'activities'])->name('activities');
+
     Route::resource('roles', RoleController::class);
-    Route::resource('permissions', PermissionController::class);
     Route::resource('admins', AdminController::class);
     Route::resource('companies', CompanyController::class);
     Route::resource('sites', SiteController::class);
+
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('/employees/company/{company}', [EmployeeController::class, 'byCompany'])->name('employees.company');
     Route::post('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
 
     Route::get('/get-sites-by-company/{company_id}', [StatusController::class, 'getSitesByCompany'])->name('sites.by.company');
     Route::get('get-custom-variables/{letterId}', [StatusController::class, 'getCustomVariables'])->name('get.custom.variables');
     Route::get('/get-letters-by-site/{site_id}', [StatusController::class, 'getLettersBySite'])->name('letters.by.site');
     Route::resource('statuses', StatusController::class);
-    Route::resource('valets', ValetController::class);
 
     Route::resource('generates', GenerateController::class);
     Route::get('/generates/{generate}/pdf', [GenerateController::class, 'pdf'])->name('generates.pdf');
     Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');
     Route::post('/bulk-approve', [GenerateController::class, 'bulkApprove'])->name('generates.bulkApprove');
     Route::post('/bulk-delete', [GenerateController::class, 'bulkDelete'])->name('generates.bulkDelete');
-
-    Route::resource('attendances', AttendanceController::class);
-    Route::get('/attendances/filter', [AttendanceController::class, 'filter'])->name('attendances.filter');
-    Route::post('/attendances/update-attendance-status', [AttendanceController::class, 'updateAttendanceStatus'])->name('attendances.update.status');
-    Route::resource('overtimes', OvertimeController::class);
-    Route::resource('minutes', MinuteController::class);
-
-    Route::resource('leaves', LeaveController::class);
-    Route::resource('loans', LoanController::class);
-
-
-    Route::resource('permits', PermitController::class);
-    Route::get('/schedules', [ScheduleController::class, 'index'])->name('schedules.index');
-    Route::get('/schedules/{id}/show', [ScheduleController::class, 'show'])->name('schedules.show');
-    Route::post('/schedules/import', [ScheduleController::class, 'import'])->name('schedules.import');
-    Route::post('/schedules/shift/store', [ScheduleController::class, 'shiftStore'])->name('schedules.shift.store');
-    Route::put('/schedules/shift/{id}', [ScheduleController::class, 'shiftUpdate'])->name('schedules.shift.update');
-    Route::delete('/schedules/shift/{id}', [ScheduleController::class, 'shiftDestroy'])->name('schedules.shift.destroy');
-    Route::delete('/schedules/clean/{siteId}', [ScheduleController::class, 'clean'])->name('schedules.clean');
-
-    // task palnner
-    Route::get('/task-planner', [TaskPlannerController::class, 'index'])->name('tasks.index');
-    Route::get('/task-planner/{id}/show', [TaskPlannerController::class, 'show'])->name('tasks.show');
-    Route::post('/task-planners/store', [TaskPlannerController::class, 'store']);
-    Route::post('/task-planners/store/jobdesk-to-task', [TaskPlannerController::class, 'jobToTaskPlan'])->name('jobdesk-to-task.store');
-    Route::get('/task-planners/events/{site_id}', [TaskPlannerController::class, 'getEvents']);
-    Route::get('/task-planner/{id}/edit', [TaskPlannerController::class, 'edit']);
-    Route::post('/task-planners/update', [TaskPlannerController::class, 'update'])->name('jobdesk-to-task.update');
-    Route::post('/task-planner/jobdesk/store', [JobdeskController::class, 'store'])->name('tasks.jobdesk.store');
-    Route::delete('/task-planner/{id}', [TaskPlannerController::class, 'destroy'])->name('tasks.delete');
-    Route::post('/task-planner/import', [TaskPlannerController::class, 'import'])->name('tasks.import');
-
-    // jobdesk
-    Route::get('/jobdesk-patrolls', [JobdeskPatrollsController::class, 'index'])->name('jobdesk-patrolls.index');
-    Route::get('/jobdesk-patrolls/{id}', [JobdeskPatrollsController::class, 'show'])->name('jobdesk-patrolls.show');
-    Route::post('/jobdesk-patrolls/store', [JobdeskPatrollsController::class, 'addJob'])->name('jobdesk-patrolls.addJob');
-    Route::put('/jobdesk-patrolls/{id}/update-jobdesk', [JobdeskPatrollsController::class, 'update'])->name('jobdesk-patrolls.update');
-    Route::delete('/jobdesk-patrolls/{id}', [JobdeskPatrollsController::class, 'delete'])->name('jobdesk-patrolls.delete');
-
-    Route::post('/clean-duplicate-leaves', [LeaveController::class, 'cleanDuplicateLeaves'])->name('cleanDuplicateLeaves');
-    Route::resource('type_letters', TypeLetterController::class);
-    Route::resource('types', TypeLeaveController::class);
     Route::get('/letter/{id}/regenerate', [GenerateController::class, 'regenerate'])->name('letter-regenerate');
 
-    Route::resource('careers', CareerController::class);
-    Route::put('/careers/{id}/update-status', [CareerController::class, 'updateStatus'])->name('update-career');
-    Route::get('/careers/{id}/banner', [CareerController::class, 'banner'])->name('banner-career');
+    Route::resource('type_letters', TypeLetterController::class);
 
     Route::resource('letters', LetterController::class);
     Route::post('/letters/{letter}/duplicate', [LetterController::class, 'duplicate'])->name('letters.duplicate');
@@ -177,26 +94,9 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('custom-variables', CustomVariableController::class);
 
-    Route::resource('taxrates', TaxRateController::class);
-    Route::resource('payrollcomponents', PayrollComponentController::class);
-    Route::get('/payrolls/main', [PayrollController::class, 'main'])->name('payrolls.main');
-    Route::get('/payrolls/{id}/detail', [PayrollController::class, 'detailPayroll'])->name('payrolls.detail');
-    Route::put('/payrolls/{id}', [PayrollController::class, 'update'])->name('payrolls.update');
-    Route::post('/payrolls/site/update', [PayrollController::class, 'updatePayroll'])->name('payrolls.site.update');
-    Route::post('/payrolls/bulk-update', [PayrollController::class, 'bulkUpdate'])->name('payrolls.bulk-update');
-    Route::post('/payrolls/allowance/add', [ComponentTypeController::class, 'store'])->name('payrolls.allowance');
-    Route::post('/payrolls/deduction/add', [DeductionTypeController::class, 'store'])->name('payrolls.deduction');
-    // Route::post('/payrolls/time-deduction/add', [TimeDeductionTypeController::class, 'store'])->name('payrolls.time-deduction');
-
-    Route::get('/payrolls/overtime/request', [OvertimeRequestController::class, 'index'])->name('payrolls.overtime');
-    Route::patch('/overtimes/{overtime}/status', [OvertimeRequestController::class, 'updateStatus'])->name('overtimes.updateStatus');
-
-    Route::get('/payrolls/generate', [PayrollController::class, 'generateIndex'])->name('payrolls.generate');
-    Route::post('/payrolls/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
-    Route::get('/payrolls/generate/{id}/{period}', [PayrollController::class, 'generateDetail'])->name('payroll.generateDetail');
-    Route::delete('/payrolls/delete/{site_id}/{period}', [PayrollController::class, 'destroy'])->name('payroll.generate.destroy');
-    Route::get('/payroll/generate-payslip/{id}/{period}', [PayrollController::class, 'generatePayslip'])->name('payroll.generatePayslip');
-    Route::get('/payroll/payslip/{id}', [PayrollController::class, 'viewPayslip'])->name('payroll.viewPayslip');
+    Route::resource('careers', CareerController::class);
+    Route::put('/careers/{id}/update-status', [CareerController::class, 'updateStatus'])->name('update-career');
+    Route::get('/careers/{id}/banner', [CareerController::class, 'banner'])->name('banner-career');
 
     Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
     Route::get('/applicants/create', [ApplicantController::class, 'create'])->name('applicants.create');
@@ -228,47 +128,6 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
 
     Route::post('/save-signature', [SignatureController::class, 'store'])->name('save.signature');
     Route::delete('/delete-signature', [SignatureController::class, 'delete'])->name('delete.signature');
-
-    Route::get('/report/attendance', [ReportController::class, 'attendanceReport'])->name('attendance.report');
-
-    Route::get('/report/employee/view', [ReportController::class, 'employeeView'])->name('report.employee.view');
-    Route::get('/report/site/export', [ReportController::class, 'siteExport'])->name('report.site.export');
-    Route::get('/report/site/view', [ReportController::class, 'siteView'])->name('report.site.view');
-    Route::get('/export/active-users', [ReportController::class, 'exportActiveUser'])->name('export.active-users');
-    Route::get('/export/inactive-users', [ReportController::class, 'exportInactiveUser'])->name('export.inactive-users');
-
-    // report temuan
-    Route::get('/finding-Report', [FindingReportController::class, 'index'])->name('findingReport.index');
-    Route::put('/finding-Report/{id}', [FindingReportController::class, 'update'])->name('findingReport.update');
-    Route::delete('/finding-Report/{id}', [FindingReportController::class, 'destroy'])->name('findingReport.destroy');
-    Route::get('/finding-Report/export', [FindingReportController::class, 'export'])->name('findingReport.export');
-
-    // daily report
-    Route::get('/daily-report', [ReportDailyController::class, 'index'])->name('dailyReport.index');
-    Route::put('/daily-report/{id}', [ReportDailyController::class, 'update'])->name('dailyReport.update');
-    Route::delete('/daily-report/{id}', [ReportDailyController::class, 'destroy'])->name('dailyReport.destroy');
-    Route::get('/daily-report/export', [ReportDailyController::class, 'export'])->name('dailyReport.export');
-
-    // floor
-    Route::get('/floors', [FloorController::class, 'index'])->name('floors.index');
-    Route::post('floors', [FloorController::class, 'addFloor'])->name('floors.store');
-    Route::put('/floors/{id}', [FloorController::class, 'update'])->name('floors.update');
-    Route::delete('/floors/{id}', [FloorController::class, 'destroy'])->name('floors.destroy');
-    Route::get('/floors/export', [FloorController::class, 'export'])->name('floors.export');
-    Route::post('/floors/import', [FloorController::class, 'import'])->name('floors.import');
-
-    // security-patroll
-    Route::get('/security-patroll', [SecurityPatrollController::class, 'index'])->name('security-patroll.index');
-    Route::get('/security-patroll/{id}/showFloor', [SecurityPatrollController::class, 'showFloor'])->name('security-patroll.showFloor');
-    Route::get('/security-patroll/{id}/showTask', [SecurityPatrollController::class, 'showTask'])->name('security-patroll.showTask');
-    Route::get('/security-patroll/{id}/print', [SecurityPatrollController::class, 'exportAll'])->name('security-patroll.print');
-
-    // report patroll
-    Route::get('/patroll-report', [ReportPatrollController::class, 'index'])->name('patrollReport.index');
-    Route::get('/patroll-report/export', [ReportPatrollController::class, 'export'])->name('patrollReport.export');
-    Route::get('/patroll-report/{id}/print', [ReportPatrollController::class, 'printTodayReport'])->name('patrollReport.print');
-    Route::put('/patroll-report/{id}', [ReportPatrollController::class, 'update'])->name('patrollReport.update');
-    Route::delete('/patroll-report/{id}', [ReportPatrollController::class, 'destroy'])->name('patrollReport.destroy');
 });
 
 require __DIR__ . '/guest.php';

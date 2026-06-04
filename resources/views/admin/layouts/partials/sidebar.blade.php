@@ -47,10 +47,26 @@
                                 <i class="ti ti-users"></i><span>Admin</span>
                             </a>
                         </li>
-                        <li class="{{ Route::is('employees.index') ? 'active' : '' }}">
-                            <a href="{{ route('employees.index') }}">
+                        <li class="submenu">
+                            <a href="javascript:void(0);"
+                                class="{{ Route::is(['employees.index', 'employees.company']) ? 'active subdrop' : '' }}">
                                 <i class="ti ti-id-badge"></i><span>Data Pegawai</span>
+                                <span class="menu-arrow"></span>
                             </a>
+                            <ul>
+                                <li>
+                                    <a href="{{ route('employees.index') }}"
+                                        class="{{ Route::is('employees.index') ? 'active' : '' }}">Semua Pegawai</a>
+                                </li>
+                                @foreach(\App\Models\Company::orderBy('name')->get() as $__company)
+                                <li>
+                                    <a href="{{ route('employees.company', $__company->id) }}"
+                                        class="{{ Route::is('employees.company') && request()->route('company') == $__company->id ? 'active' : '' }}">
+                                        {{ $__company->name }}
+                                    </a>
+                                </li>
+                                @endforeach
+                            </ul>
                         </li>
                         <li class="{{ Route::is(['roles.index']) ? 'active' : '' }}">
                             <a href="{{ route('roles.index') }}">
