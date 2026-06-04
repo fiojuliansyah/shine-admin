@@ -94,8 +94,8 @@ class FabricLetterEditor {
             if (!self._autoPageLock) self._checkAutoPage(index, e.target);
             self.renderLayers();
         });
-        fc.on('selection:created', () => { self._syncToolbarFromSelection(); self.renderLayers(); });
-        fc.on('selection:updated', () => { self._syncToolbarFromSelection(); self.renderLayers(); });
+        fc.on('selection:created', (e) => { self._attachTextSelectionSync(e); self._syncToolbarFromSelection(); self.renderLayers(); });
+        fc.on('selection:updated', (e) => { self._attachTextSelectionSync(e); self._syncToolbarFromSelection(); self.renderLayers(); });
         fc.on('selection:cleared', () => { self._syncToolbarFromSelection(); self.renderLayers(); });
         wrapper.addEventListener('click', () => self.switchPage(self.pages.findIndex(p => p.id === index)));
 
@@ -424,7 +424,41 @@ class FabricLetterEditor {
         const fc = this.pages[this.currentPage].canvas;
         const obj = fc.getActiveObject();
         if (!obj) return;
-        if (obj.type === 'textbox' || obj.type === 'i-text') {
+        if (obj.type !== 'textbox' && obj.type !== 'i-text') return;
+
+        const isTextProp = ['fontWeight', 'fontStyle', 'underline', 'linethrough', 'overline',
+                            'fontFamily', 'fontSize', 'fill'].includes(prop);
+
+        const inEditWithSelection = obj.isEditing
+            && typeof obj.selectionStart === 'number'
+            && typeof obj.selectionEnd === 'number'
+            && obj.selectionEnd > obj.selectionStart;
+
+        if (isTextProp && inEditWithSelection) {
+            const start = obj.selectionStart;
+            const end = obj.selectionEnd;
+            let style = {};
+            if (prop === 'fontWeight') {
+                const cur = obj.getSelectionStyles(start, end) || [];
+                const allBold = cur.length > 0 && cur.every(s => s.fontWeight === 'bold');
+                style.fontWeight = allBold ? 'normal' : 'bold';
+            } else if (prop === 'fontStyle') {
+                const cur = obj.getSelectionStyles(start, end) || [];
+                const allItalic = cur.length > 0 && cur.every(s => s.fontStyle === 'italic');
+                style.fontStyle = allItalic ? 'normal' : 'italic';
+            } else if (prop === 'underline') {
+                const cur = obj.getSelectionStyles(start, end) || [];
+                const allUnder = cur.length > 0 && cur.every(s => s.underline === true);
+                style.underline = !allUnder;
+            } else if (prop === 'fontSize') {
+                style.fontSize = value;
+            } else if (prop === 'fontFamily') {
+                style.fontFamily = value;
+            } else if (prop === 'fill') {
+                style.fill = value;
+            }
+            obj.setSelectionStyles(style, start, end);
+        } else {
             if (prop === 'fontWeight') {
                 obj.set('fontWeight', obj.fontWeight === 'bold' ? 'normal' : 'bold');
             } else if (prop === 'fontStyle') {
@@ -434,7 +468,11 @@ class FabricLetterEditor {
             } else {
                 obj.set(prop, value);
             }
+            if (isTextProp && obj.styles) {
+                obj.removeStyle && obj.removeStyle(prop);
+            }
         }
+
         fc.renderAll();
         this._syncToolbarFromSelection();
     }
@@ -443,12 +481,36 @@ class FabricLetterEditor {
         const fc = this.pages[this.currentPage].canvas;
         const obj = fc.getActiveObject();
         if (!obj || (obj.type !== 'textbox' && obj.type !== 'i-text')) return;
+
+        let fontFamily = obj.fontFamily || 'Arial';
+        let fontSize = obj.fontSize || 14;
+        let fill = obj.fill || '#000000';
+        let isBold = obj.fontWeight === 'bold';
+        let isItalic = obj.fontStyle === 'italic';
+        let isUnderline = !!obj.underline;
+
+        if (obj.isEditing
+            && typeof obj.selectionStart === 'number'
+            && typeof obj.selectionEnd === 'number'
+            && obj.selectionEnd > obj.selectionStart) {
+            const styles = obj.getSelectionStyles(obj.selectionStart, obj.selectionEnd) || [];
+            if (styles.length > 0) {
+                const first = styles[0] || {};
+                if (first.fontFamily) fontFamily = first.fontFamily;
+                if (first.fontSize) fontSize = first.fontSize;
+                if (first.fill) fill = first.fill;
+                isBold = styles.every(s => s.fontWeight === 'bold');
+                isItalic = styles.every(s => s.fontStyle === 'italic');
+                isUnderline = styles.every(s => s.underline === true);
+            }
+        }
+
         const ff = document.getElementById('tbFontFamily');
         const fs = document.getElementById('tbFontSize');
         const tc = document.getElementById('tbColor');
-        if (ff) ff.value = obj.fontFamily || 'Arial';
-        if (fs) fs.value = obj.fontSize || 14;
-        if (tc) tc.value = obj.fill || '#000000';
+        if (ff) ff.value = fontFamily;
+        if (fs) fs.value = fontSize;
+        if (tc) tc.value = (typeof fill === 'string' && fill.startsWith('#')) ? fill : '#000000';
         const bold = document.getElementById('tbBold');
         const italic = document.getElementById('tbItalic');
         const underline = document.getElementById('tbUnderline');
@@ -456,9 +518,9 @@ class FabricLetterEditor {
         const alignCenter = document.getElementById('tbAlignCenter');
         const alignRight = document.getElementById('tbAlignRight');
         const alignJustify = document.getElementById('tbAlignJustify');
-        if (bold) bold.classList.toggle('active', obj.fontWeight === 'bold');
-        if (italic) italic.classList.toggle('active', obj.fontStyle === 'italic');
-        if (underline) underline.classList.toggle('active', !!obj.underline);
+        if (bold) bold.classList.toggle('active', isBold);
+        if (italic) italic.classList.toggle('active', isItalic);
+        if (underline) underline.classList.toggle('active', isUnderline);
         if (alignLeft) alignLeft.classList.toggle('active', obj.textAlign === 'left');
         if (alignCenter) alignCenter.classList.toggle('active', obj.textAlign === 'center');
         if (alignRight) alignRight.classList.toggle('active', obj.textAlign === 'right');
@@ -810,6 +872,69 @@ class FabricLetterEditor {
         this.renderLayers();
     }
 
+    _attachTextSelectionSync(e) {
+        const target = e && (e.target || (e.selected && e.selected[0]));
+        if (!target) return;
+        if (target.type !== 'textbox' && target.type !== 'i-text') return;
+        if (target._kiloSelSyncBound) return;
+        target._kiloSelSyncBound = true;
+        const self = this;
+        target.on('selection:changed', () => self._syncToolbarFromSelection());
+        target.on('editing:entered', () => self._syncToolbarFromSelection());
+        target.on('editing:exited', () => self._syncToolbarFromSelection());
+    }
+
+    _bindKeyboardShortcuts() {
+        const self = this;
+        document.addEventListener('keydown', (e) => {
+            const isMeta = e.ctrlKey || e.metaKey;
+            if (!isMeta) return;
+
+            const tag = (e.target && e.target.tagName) || '';
+            const isFormField = ['INPUT', 'SELECT', 'TEXTAREA'].includes(tag)
+                || (e.target && e.target.isContentEditable);
+
+            const fc = self.pages[self.currentPage] && self.pages[self.currentPage].canvas;
+            const active = fc ? fc.getActiveObject() : null;
+            const isEditingText = active
+                && (active.type === 'textbox' || active.type === 'i-text')
+                && active.isEditing;
+
+            const key = e.key.toLowerCase();
+
+            if (key === 'z' && !e.shiftKey) {
+                if (isFormField && !isEditingText) return;
+                e.preventDefault();
+                self.undo();
+                return;
+            }
+            if ((key === 'y') || (key === 'z' && e.shiftKey)) {
+                if (isFormField && !isEditingText) return;
+                e.preventDefault();
+                self.redo();
+                return;
+            }
+            if (key === 'b') {
+                if (!active || (active.type !== 'textbox' && active.type !== 'i-text')) return;
+                e.preventDefault();
+                self.applyFormat('fontWeight');
+                return;
+            }
+            if (key === 'i') {
+                if (!active || (active.type !== 'textbox' && active.type !== 'i-text')) return;
+                e.preventDefault();
+                self.applyFormat('fontStyle');
+                return;
+            }
+            if (key === 'u') {
+                if (!active || (active.type !== 'textbox' && active.type !== 'i-text')) return;
+                e.preventDefault();
+                self.applyFormat('underline');
+                return;
+            }
+        });
+    }
+
     _bindToolbar() {
         const self = this;
         const get = id => document.getElementById(id);
@@ -820,6 +945,17 @@ class FabricLetterEditor {
         get('tbRedo') && get('tbRedo').addEventListener('click', () => self.redo());
         get('tbAddPage') && get('tbAddPage').addEventListener('click', () => self.addPage());
         get('tbDeletePage') && get('tbDeletePage').addEventListener('click', () => self.deletePage());
+
+        get('tbBold') && get('tbBold').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbItalic') && get('tbItalic').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbUnderline') && get('tbUnderline').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbFontFamily') && get('tbFontFamily').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbFontSize') && get('tbFontSize').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbColor') && get('tbColor').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbAlignLeft') && get('tbAlignLeft').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbAlignCenter') && get('tbAlignCenter').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbAlignRight') && get('tbAlignRight').addEventListener('mousedown', (e) => e.preventDefault());
+        get('tbAlignJustify') && get('tbAlignJustify').addEventListener('mousedown', (e) => e.preventDefault());
 
         get('tbBold') && get('tbBold').addEventListener('click', () => self.applyFormat('fontWeight'));
         get('tbItalic') && get('tbItalic').addEventListener('click', () => self.applyFormat('fontStyle'));
@@ -850,5 +986,7 @@ class FabricLetterEditor {
         get('layerMoveDown') && get('layerMoveDown').addEventListener('click', () => self.sendBackwards());
         get('layerToFront') && get('layerToFront').addEventListener('click', () => self.bringToFront());
         get('layerToBack') && get('layerToBack').addEventListener('click', () => self.sendToBack());
+
+        self._bindKeyboardShortcuts();
     }
 }
