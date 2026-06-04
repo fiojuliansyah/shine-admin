@@ -244,4 +244,25 @@ class LetterController extends Controller
         return redirect()->back()
             ->with('success', 'Data Letter berhasil dihapus');
     }
+
+    /**
+     * Duplicate the specified letter template along with its custom variables.
+     */
+    public function duplicate(Letter $letter)
+    {
+        $newLetter = $letter->replicate();
+        $newLetter->title = $letter->title . ' (Copy)';
+        $newLetter->created_at = now();
+        $newLetter->updated_at = now();
+        $newLetter->save();
+
+        foreach ($letter->customVariables as $var) {
+            $newVar = $var->replicate();
+            $newVar->letter_id = $newLetter->id;
+            $newVar->save();
+        }
+
+        return redirect()->route('letters.index')
+            ->with('success', 'Template ' . $letter->title . ' berhasil diduplikasi');
+    }
 }

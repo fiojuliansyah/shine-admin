@@ -166,6 +166,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/careers/{id}/banner', [CareerController::class, 'banner'])->name('banner-career');
 
     Route::resource('letters', LetterController::class);
+    Route::post('/letters/{letter}/duplicate', [LetterController::class, 'duplicate'])->name('letters.duplicate');
     Route::get('/letters/{letter}/pdf', [LetterController::class, 'pdf'])->name('letters.pdf');
     Route::get('/letters/{letter}/print', [LetterController::class, 'printView'])->name('letters.print');
     Route::get('/letters/{letter}/number-preview', [LetterController::class, 'numberPreview'])->name('letters.number-preview');

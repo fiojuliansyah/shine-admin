@@ -35,7 +35,23 @@
                             <div class="text-start mb-0">
                                 <p class="mb-2"><strong>Email:</strong> <br> {{ $user->email }}</p>
                                 <p class="mb-2"><strong>No. Telp:</strong> <br> {{ $user->phone ?? '-' }}</p>
-                                <p class="mb-2"><strong>NIK Pelamar:</strong> <br> {{ $user->employee_nik ?? '-' }}</p>
+                                <p class="mb-2"><strong>NIK Pelamar:</strong> <br> {{ $user->nik ?? '-' }}</p>
+                                <p class="mb-2">
+                                    <strong>NIK Karyawan:</strong> <br>
+                                    @if ($user->employee_nik)
+                                        <span class="badge bg-success-transparent text-success font-monospace">{{ $user->employee_nik }}</span>
+                                    @else
+                                        <span class="text-muted">Belum di-generate</span>
+                                    @endif
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Status Karyawan:</strong> <br>
+                                    @if ($user->is_employee)
+                                        <span class="badge bg-success">Karyawan Aktif</span>
+                                    @else
+                                        <span class="badge bg-warning text-dark">Belum Aktif</span>
+                                    @endif
+                                </p>
                                 <p class="mb-0"><strong>No. NPWP:</strong> <br> {{ $user->profile?->npwp_number ?? '-' }}
                                 </p>
                             </div>
@@ -115,6 +131,10 @@
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="ti ti-refresh me-1"></i> Update Data
                                 </button>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="ti ti-info-circle me-1"></i>
+                                    NIK Karyawan akan di-generate otomatis berdasarkan konfigurasi Company saat data diupdate.
+                                </small>
                             </form>
                         </div>
                     </div>

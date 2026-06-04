@@ -6,6 +6,7 @@ use App\DataTables\ApplicantsDataTable;
 use App\Models\Applicant;
 use App\Models\Career;
 use App\Models\Document;
+use App\Models\EmployeeNikConfig;
 use App\Models\Site;
 use App\Models\Status;
 use App\Models\User;
@@ -151,16 +152,45 @@ class ApplicantController extends Controller
             if ($request->role_name) {
                 $applicant->user->syncRoles([$request->role_name]);
             }
+
+            // 3. Generate NIK Karyawan & set is_employee = 1
+            //    Pakai konfigurasi NIK milik company dari site terpilih.
+            $siteId = $request->site_id ?? $applicant->user->site_id;
+            if ($siteId) {
+                $site = Site::with('company')->find($siteId);
+                if ($site && $site->company) {
+                    $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);
+                    if (!$nikConfig) {
+                        return redirect()->back()->with('error',
+                            'Status diperbarui, tetapi Company "' . $site->company->name . '" belum memiliki konfigurasi NIK Karyawan. ' .
+                            'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
+                    }
+
+                    $startDate = $applicant->user->profile?->join_date
+                        ?? optional($applicant->created_at)->toDateString()
+                        ?? now()->toDateString();
+
+                    // Refresh roles cache supaya kode_jabatan ikut role baru.
+                    $applicant->user->load('roles');
+
+                    $employeeNIK = $nikConfig->generateNik($applicant->user, $startDate);
+
+                    $applicant->user->update([
+                        'employee_nik' => $employeeNIK,
+                        'is_employee'  => 1,
+                    ]);
+                }
+            }
         }
 
         try {
             $applicant->load(['status', 'career']);
             $applicant->notify(new ApplicantStatusNotification($applicant));
         } catch (\Exception $e) {
-            return redirect()->back()->with('success', 'Data diperbarui (termasuk Site), tapi notifikasi gagal.');
+            return redirect()->back()->with('success', 'Data diperbarui (termasuk Site & NIK), tapi notifikasi gagal.');
         }
 
-        return redirect()->back()->with('success', 'Status, Site, dan Role berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Status, Site, Role, dan NIK Karyawan berhasil diperbarui.');
     }
 
     public function resetAllQr()
