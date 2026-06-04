@@ -50,17 +50,13 @@
             </div>
             <div class="card-body p-0">
                 <div class="custom-datatable-filter table-responsive">
-                    <table class="table table-bordered data-table" style="font-size: 12px; width: 100%;">
+                    <table class="table table-bordered data-table" style="font-size: 11px; width: 100%;">
                         <thead>
                             <tr>
-                                <th style="text-align: center; vertical-align: middle; width: 50px;">No</th>
-                                <th style="text-align: center; vertical-align: middle; width: 20%;">Nama / NIK</th>
-                                <th style="text-align: center; vertical-align: middle; width: 15%;">Site</th>
-                                <th style="text-align: center; vertical-align: middle; width: 15%;">Jabatan</th>
-                                <th style="text-align: center; vertical-align: middle; width: 15%;">Tempat / Tgl Lahir</th>
-                                <th style="text-align: center; vertical-align: middle;">Alamat</th>
-                                <th style="text-align: center; vertical-align: middle; width: 100px;">Tgl Masuk</th>
-                                <th style="text-align: center; vertical-align: middle; width: 80px;">Status</th>
+                                <th style="text-align: center; vertical-align: middle; width: 40px;">NO</th>
+                                @foreach($columns as $col)
+                                    <th style="text-align: center; vertical-align: middle; white-space: nowrap;">{{ $col['label'] }}</th>
+                                @endforeach
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -116,28 +112,27 @@
 $(document).ready(function () {
     $('.select2').select2();
 
+    var columns = [
+        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, width: '40px', className: 'text-center' },
+        @foreach($columns as $col)
+        { data: '{{ $col['key'] }}', name: '{{ $col['key'] }}', defaultContent: '-' },
+        @endforeach
+    ];
+
     var table = $('.data-table').DataTable({
         processing: true,
         serverSide: true,
         autoWidth: false,
+        scrollX: true,
         ajax: {
             url: "{{ route('employees.company', $company->id) }}",
             type: "GET",
             data: function (d) {
-                d.site_id    = $('#siteFilter').val();
-                d.status     = $('#statusFilter').val();
+                d.site_id = $('#siteFilter').val();
+                d.status  = $('#statusFilter').val();
             }
         },
-        columns: [
-            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, width: '50px', className: 'text-center' },
-            { data: 'nama',      name: 'nama',      width: '20%' },
-            { data: 'site',      name: 'site',      width: '15%', className: 'text-center' },
-            { data: 'jabatan',   name: 'jabatan',   width: '15%', className: 'text-center', orderable: false },
-            { data: 'ttl',       name: 'ttl',       width: '15%', className: 'text-center', orderable: false, searchable: false },
-            { data: 'alamat',    name: 'alamat',    className: 'text-center', orderable: false, searchable: false },
-            { data: 'join_date', name: 'join_date', width: '100px', className: 'text-center', orderable: false, searchable: false },
-            { data: 'status',    name: 'status',    width: '80px', className: 'text-center', orderable: false, searchable: false },
-        ],
+        columns: columns,
     });
 
     $('#siteFilter, #statusFilter').on('change', function () {
