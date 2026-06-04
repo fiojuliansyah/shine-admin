@@ -61,7 +61,7 @@
                                 @foreach(\App\Models\Company::orderBy('name')->get() as $__company)
                                 <li>
                                     <a href="{{ route('employees.company', $__company->id) }}"
-                                        class="{{ Route::is('employees.company') && request()->route('company') == $__company->id ? 'active' : '' }}">
+                                        class="{{ Route::is('employees.company') && optional(request()->route('company'))->id == $__company->id ? 'active' : '' }}">
                                         {{ $__company->name }}
                                     </a>
                                 </li>
