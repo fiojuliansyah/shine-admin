@@ -1,3 +1,18 @@
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Tab') return;
+    const active = document.activeElement;
+    if (!active || active.tagName !== 'TEXTAREA') return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const tabStr = '\u00a0\u00a0\u00a0\u00a0';
+    const start = active.selectionStart;
+    const end = active.selectionEnd;
+    const val = active.value;
+    active.value = val.substring(0, start) + tabStr + val.substring(end);
+    active.selectionStart = active.selectionEnd = start + tabStr.length;
+    active.dispatchEvent(new Event('input', { bubbles: true }));
+}, true);
+
 class FabricLetterEditor {
     constructor() {
         this.pages = [];
@@ -6,6 +21,7 @@ class FabricLetterEditor {
         this.CANVAS_H = 1123;
         this.MAX_HISTORY = 30;
         this._autoPageLock = false;
+        this._mode = 'select'; // 'select' | 'textbox'
     }
 
     init(savedData) {
@@ -34,9 +50,27 @@ class FabricLetterEditor {
 
     _buildPageContainer(index) {
         const container = document.getElementById('canvasContainer');
+
+        const grid = document.createElement('div');
+        grid.id = 'page-grid-' + index;
+        grid.className = 'canvas-with-ruler';
+
+        const corner = document.createElement('div');
+        corner.className = 'ruler-corner';
+
+        const rulerH = document.createElement('div');
+        rulerH.className = 'ruler-h';
+        rulerH.id = 'ruler-h-' + index;
+        rulerH.style.width = this.CANVAS_W + 'px';
+
+        const rulerV = document.createElement('div');
+        rulerV.className = 'ruler-v';
+        rulerV.id = 'ruler-v-' + index;
+        rulerV.style.height = this.CANVAS_H + 'px';
+
         const wrapper = document.createElement('div');
         wrapper.id = 'page-wrapper-' + index;
-        wrapper.className = 'canvas-page-wrapper';
+        wrapper.className = 'ruler-canvas-wrap';
         wrapper.style.cssText = 'position:relative;display:inline-block;';
 
         const canvasEl = document.createElement('canvas');
@@ -48,7 +82,14 @@ class FabricLetterEditor {
         rulerOverlay.style.cssText = 'position:absolute;top:0;left:0;width:' + this.CANVAS_W + 'px;height:' + this.CANVAS_H + 'px;pointer-events:none;overflow:hidden;';
         wrapper.appendChild(rulerOverlay);
 
-        container.appendChild(wrapper);
+        grid.appendChild(corner);
+        grid.appendChild(rulerH);
+        grid.appendChild(rulerV);
+        grid.appendChild(wrapper);
+        container.appendChild(grid);
+
+        this._drawRulerH(rulerH, this.CANVAS_W);
+        this._drawRulerV(rulerV, this.CANVAS_H);
 
         const fc = new fabric.Canvas('fabricCanvas-' + index, {
             width: this.CANVAS_W,
@@ -97,9 +138,170 @@ class FabricLetterEditor {
         fc.on('selection:created', (e) => { self._attachTextSelectionSync(e); self._syncToolbarFromSelection(); self.renderLayers(); });
         fc.on('selection:updated', (e) => { self._attachTextSelectionSync(e); self._syncToolbarFromSelection(); self.renderLayers(); });
         fc.on('selection:cleared', () => { self._syncToolbarFromSelection(); self.renderLayers(); });
+
+        fc.on('text:editing:entered', (e) => {
+            const textarea = fc.upperCanvasEl && fc.upperCanvasEl.parentNode
+                ? fc.upperCanvasEl.parentNode.querySelector('textarea')
+                : null;
+            if (textarea && !textarea._kiloTabBound) {
+                textarea._kiloTabBound = true;
+                textarea.addEventListener('keydown', (ev) => {
+                    if (ev.key !== 'Tab') return;
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const obj = fc.getActiveObject();
+                    if (!obj || !obj.isEditing) return;
+                    const tabStr = '    ';
+                    const start = obj.selectionStart;
+                    const end = obj.selectionEnd;
+                    const text = obj.text || '';
+                    obj.insertChars(tabStr, null, start, end);
+                    obj.selectionStart = start + tabStr.length;
+                    obj.selectionEnd = start + tabStr.length;
+                    fc.renderAll();
+                }, true);
+            }
+        });
+
+        fc.on('mouse:down', (e) => {
+            if (self._mode === 'textbox') {
+                const pointer = fc.getPointer(e.e);
+                self._addTextboxAt(index, pointer.x, pointer.y);
+                self.setMode('select');
+                return;
+            }
+
+            // Word-like: klik di area kosong langsung buat paragraph baru selebar halaman
+            if (self._mode === 'select' && !e.target) {
+                const pointer = fc.getPointer(e.e);
+                const page = self.pages[index];
+                if (!page) return;
+                const left = page.margins.left;
+                const width = self.CANVAS_W - page.margins.left - page.margins.right;
+                const top = Math.max(page.margins.top, pointer.y);
+                const tb = new fabric.Textbox('', {
+                    left,
+                    top,
+                    width,
+                    fontSize: 14,
+                    fontFamily: 'Arial',
+                    fill: '#000000',
+                    padding: 0,
+                    borderColor: 'transparent',
+                    cornerColor: 'transparent',
+                    hasControls: false,
+                    hasBorders: false,
+                });
+                self._ensureLayerMeta(tb);
+                fc.add(tb);
+                fc.setActiveObject(tb);
+                fc.renderAll();
+                tb.enterEditing();
+                tb.on('editing:exited', () => {
+                    if (!tb.text || tb.text.trim() === '') {
+                        fc.remove(tb);
+                        fc.renderAll();
+                    } else {
+                        tb.set({ hasControls: true, hasBorders: true });
+                        fc.renderAll();
+                    }
+                });
+            }
+        });
+
         wrapper.addEventListener('click', () => self.switchPage(self.pages.findIndex(p => p.id === index)));
 
         return fc;
+    }
+
+    _drawRulerH(ruler, width) {
+        ruler.innerHTML = '';
+        // 96 DPI: 1cm = 37.8px
+        const PX_PER_CM = 37.8;
+        const totalCm = Math.ceil(width / PX_PER_CM);
+        for (let i = 0; i <= totalCm; i++) {
+            const x = Math.round(i * PX_PER_CM);
+            if (x > width) break;
+            const line = document.createElement('div');
+            line.className = 'ruler-tick-line';
+            const isMajor = i % 1 === 0;
+            line.style.cssText = `left:${x}px;top:${isMajor ? 10 : 14}px;width:1px;height:${isMajor ? 10 : 6}px;`;
+            ruler.appendChild(line);
+            if (i > 0 && i % 2 === 0) {
+                const label = document.createElement('div');
+                label.className = 'ruler-tick';
+                label.style.cssText = `left:${x + 2}px;top:1px;`;
+                label.textContent = i + 'cm';
+                ruler.appendChild(label);
+            }
+            // Half-cm ticks
+            const xHalf = Math.round((i + 0.5) * PX_PER_CM);
+            if (xHalf < width) {
+                const half = document.createElement('div');
+                half.className = 'ruler-tick-line';
+                half.style.cssText = `left:${xHalf}px;top:14px;width:1px;height:6px;`;
+                ruler.appendChild(half);
+            }
+        }
+    }
+
+    _drawRulerV(ruler, height) {
+        ruler.innerHTML = '';
+        const PX_PER_CM = 37.8;
+        const totalCm = Math.ceil(height / PX_PER_CM);
+        for (let i = 0; i <= totalCm; i++) {
+            const y = Math.round(i * PX_PER_CM);
+            if (y > height) break;
+            const line = document.createElement('div');
+            line.className = 'ruler-tick-line';
+            line.style.cssText = `top:${y}px;left:${10}px;height:1px;width:10px;`;
+            ruler.appendChild(line);
+            if (i > 0 && i % 2 === 0) {
+                const label = document.createElement('div');
+                label.className = 'ruler-tick';
+                label.style.cssText = `top:${y + 2}px;left:1px;writing-mode:vertical-rl;transform:rotate(180deg);`;
+                label.textContent = i + 'cm';
+                ruler.appendChild(label);
+            }
+            const yHalf = Math.round((i + 0.5) * PX_PER_CM);
+            if (yHalf < height) {
+                const half = document.createElement('div');
+                half.className = 'ruler-tick-line';
+                half.style.cssText = `top:${yHalf}px;left:14px;height:1px;width:6px;`;
+                ruler.appendChild(half);
+            }
+        }
+    }
+
+    setMode(mode) {
+        this._mode = mode;
+        const arrowBtn = document.getElementById('tbArrow');
+        const textboxBtn = document.getElementById('tbAddTextbox');
+        if (arrowBtn) arrowBtn.classList.toggle('active', mode === 'select');
+        if (textboxBtn) textboxBtn.classList.toggle('active', mode === 'textbox');
+        const page = this.pages[this.currentPage];
+        if (page) {
+            page.canvas.defaultCursor = mode === 'textbox' ? 'text' : 'default';
+            page.canvas.hoverCursor = mode === 'textbox' ? 'text' : 'move';
+        }
+    }
+
+    _addTextboxAt(pageIndex, x, y) {
+        const page = this.pages[pageIndex];
+        if (!page) return;
+        const tb = new fabric.Textbox('Ketik teks di sini...', {
+            left: Math.max(page.margins.left, x),
+            top: Math.max(page.margins.top, y),
+            width: 300,
+            fontSize: 14,
+            fontFamily: 'Arial',
+            fill: '#000000',
+        });
+        page.canvas.add(tb);
+        page.canvas.setActiveObject(tb);
+        page.canvas.renderAll();
+        tb.enterEditing();
+        tb.selectAll();
     }
 
     _initRulerOverlay(overlay, margins, pageIndex) {
@@ -269,8 +471,8 @@ class FabricLetterEditor {
         const index = this.currentPage;
         const page = this.pages[index];
         page.canvas.dispose();
-        const wrapper = document.getElementById('page-wrapper-' + page.id);
-        if (wrapper) wrapper.remove();
+        const grid = document.getElementById('page-grid-' + page.id);
+        if (grid) grid.remove();
         this.pages.splice(index, 1);
         const newIndex = Math.max(0, index - 1);
         this.currentPage = -1;
@@ -285,8 +487,8 @@ class FabricLetterEditor {
             const w = document.getElementById('page-wrapper-' + p.id);
             if (w) w.classList.toggle('active-page', i === index);
         });
-        const wrapper = document.getElementById('page-wrapper-' + this.pages[index].id);
-        if (wrapper) wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const grid = document.getElementById('page-grid-' + this.pages[index].id);
+        if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         this.renderThumbs();
         this.renderLayers();
     }
@@ -429,12 +631,16 @@ class FabricLetterEditor {
         const isTextProp = ['fontWeight', 'fontStyle', 'underline', 'linethrough', 'overline',
                             'fontFamily', 'fontSize', 'fill'].includes(prop);
 
+        const isAlign = prop === 'textAlign';
+
         const inEditWithSelection = obj.isEditing
             && typeof obj.selectionStart === 'number'
             && typeof obj.selectionEnd === 'number'
             && obj.selectionEnd > obj.selectionStart;
 
-        if (isTextProp && inEditWithSelection) {
+        if (isAlign) {
+            obj.set('textAlign', value);
+        } else if (isTextProp && inEditWithSelection) {
             const start = obj.selectionStart;
             const end = obj.selectionEnd;
             let style = {};
@@ -475,6 +681,97 @@ class FabricLetterEditor {
 
         fc.renderAll();
         this._syncToolbarFromSelection();
+    }
+
+    _applyAlignToSelection(obj, align, fc) {
+        const fullText = obj.text || '';
+        const start = obj.selectionStart;
+        const end = obj.selectionEnd;
+
+        // Find line boundaries for selection
+        // We split by lines and figure out which lines are touched by [start, end)
+        const lines = obj._textLines || obj.text.split('\n');
+        let charIndex = 0;
+        const lineMeta = [];
+        for (let i = 0; i < lines.length; i++) {
+            const lineLen = lines[i].length;
+            lineMeta.push({ start: charIndex, end: charIndex + lineLen, text: lines[i] });
+            charIndex += lineLen + 1; // +1 for newline
+        }
+
+        // Which lines are in selection?
+        const selectedLines = lineMeta.filter(l => l.end > start && l.start < end);
+        if (selectedLines.length === 0) {
+            obj.set('textAlign', align);
+            fc.renderAll();
+            return;
+        }
+
+        const firstSelLine = selectedLines[0];
+        const lastSelLine = selectedLines[selectedLines.length - 1];
+
+        // Split full text into 3 segments by line boundaries
+        const beforeText = fullText.substring(0, firstSelLine.start).replace(/\n$/, '');
+        const selText = fullText.substring(firstSelLine.start, lastSelLine.end);
+        const afterText = fullText.substring(lastSelLine.end).replace(/^(\n)/, '');
+
+        // Helper to extract styles for a char range
+        const extractStyles = (charStart, charEnd) => {
+            const result = {};
+            for (let i = charStart; i < charEnd; i++) {
+                const s = obj.getStyleAtPosition ? obj.getStyleAtPosition(i) : {};
+                if (s && Object.keys(s).length > 0) {
+                    result[i - charStart] = s;
+                }
+            }
+            return result;
+        };
+
+        const baseProps = {
+            left: obj.left,
+            top: obj.top,
+            width: obj.width,
+            fontSize: obj.fontSize,
+            fontFamily: obj.fontFamily,
+            fill: obj.fill,
+            fontWeight: obj.fontWeight,
+            fontStyle: obj.fontStyle,
+            underline: obj.underline,
+            lineHeight: obj.lineHeight,
+        };
+
+        const page = this.pages[this.currentPage];
+        const objIndex = fc.getObjects().indexOf(obj);
+        let currentTop = obj.top;
+
+        fc.remove(obj);
+
+        const addSegment = (text, textAlign, charOffset) => {
+            if (!text) return null;
+            const styles = extractStyles(charOffset, charOffset + text.length);
+            const tb = new fabric.Textbox(text, {
+                ...baseProps,
+                top: currentTop,
+                textAlign,
+                styles,
+            });
+            this._ensureLayerMeta(tb);
+            fc.add(tb);
+            currentTop += tb.getScaledHeight();
+            return tb;
+        };
+
+        let lastAdded = null;
+        if (beforeText) lastAdded = addSegment(beforeText, obj.textAlign || 'left', 0);
+        const selTb = addSegment(selText, align, firstSelLine.start);
+        if (selTb) lastAdded = selTb;
+        if (afterText) lastAdded = addSegment(afterText, obj.textAlign || 'left', lastSelLine.end);
+
+        if (lastAdded) {
+            fc.setActiveObject(lastAdded);
+        }
+        fc.renderAll();
+        this.renderLayers();
     }
 
     _syncToolbarFromSelection() {
@@ -888,8 +1185,6 @@ class FabricLetterEditor {
         const self = this;
         document.addEventListener('keydown', (e) => {
             const isMeta = e.ctrlKey || e.metaKey;
-            if (!isMeta) return;
-
             const tag = (e.target && e.target.tagName) || '';
             const isFormField = ['INPUT', 'SELECT', 'TEXTAREA'].includes(tag)
                 || (e.target && e.target.isContentEditable);
@@ -900,33 +1195,76 @@ class FabricLetterEditor {
                 && (active.type === 'textbox' || active.type === 'i-text')
                 && active.isEditing;
 
-            const key = e.key.toLowerCase();
+            const key = e.key;
+            const keyLower = key.toLowerCase();
 
-            if (key === 'z' && !e.shiftKey) {
+            // Delete / Backspace — delete selected object (not while editing text)
+            if ((key === 'Delete' || key === 'Backspace') && !isEditingText && !isFormField) {
+                e.preventDefault();
+                self.deleteSelected();
+                return;
+            }
+
+            // V — switch to select mode
+            if (key === 'v' && !isMeta && !isEditingText && !isFormField) {
+                self.setMode('select');
+                return;
+            }
+
+            // T — switch to textbox mode
+            if (key === 't' && !isMeta && !isEditingText && !isFormField) {
+                self.setMode('textbox');
+                return;
+            }
+
+            // Escape — cancel textbox mode
+            if (key === 'Escape' && self._mode === 'textbox') {
+                self.setMode('select');
+                return;
+            }
+
+            // Tab — insert tab spaces saat editing textbox
+            if (key === 'Tab' && isEditingText) {
+                e.preventDefault();
+                const tabStr = '    '; // 4 spasi
+                const text = active.text || '';
+                const start = active.selectionStart;
+                const end = active.selectionEnd;
+                const newText = text.substring(0, start) + tabStr + text.substring(end);
+                active.set('text', newText);
+                active.selectionStart = start + tabStr.length;
+                active.selectionEnd = start + tabStr.length;
+                fc.renderAll();
+                return;
+            }
+
+            if (!isMeta) return;
+
+            if (keyLower === 'z' && !e.shiftKey) {
                 if (isFormField && !isEditingText) return;
                 e.preventDefault();
                 self.undo();
                 return;
             }
-            if ((key === 'y') || (key === 'z' && e.shiftKey)) {
+            if ((keyLower === 'y') || (keyLower === 'z' && e.shiftKey)) {
                 if (isFormField && !isEditingText) return;
                 e.preventDefault();
                 self.redo();
                 return;
             }
-            if (key === 'b') {
+            if (keyLower === 'b') {
                 if (!active || (active.type !== 'textbox' && active.type !== 'i-text')) return;
                 e.preventDefault();
                 self.applyFormat('fontWeight');
                 return;
             }
-            if (key === 'i') {
+            if (keyLower === 'i') {
                 if (!active || (active.type !== 'textbox' && active.type !== 'i-text')) return;
                 e.preventDefault();
                 self.applyFormat('fontStyle');
                 return;
             }
-            if (key === 'u') {
+            if (keyLower === 'u') {
                 if (!active || (active.type !== 'textbox' && active.type !== 'i-text')) return;
                 e.preventDefault();
                 self.applyFormat('underline');
@@ -938,6 +1276,9 @@ class FabricLetterEditor {
     _bindToolbar() {
         const self = this;
         const get = id => document.getElementById(id);
+
+        get('tbArrow') && get('tbArrow').addEventListener('click', () => self.setMode('select'));
+        get('tbDeleteObj') && get('tbDeleteObj').addEventListener('click', () => self.deleteSelected());
 
         get('tbAddText') && get('tbAddText').addEventListener('click', () => self.addText());
         get('tbDelete') && get('tbDelete').addEventListener('click', () => self.deleteSelected());
@@ -971,10 +1312,10 @@ class FabricLetterEditor {
             self.applyFormat('fill', this.value);
         });
 
-        get('tbAlignLeft') && get('tbAlignLeft').addEventListener('click', () => self.applyFormat('textAlign', 'left'));
-        get('tbAlignCenter') && get('tbAlignCenter').addEventListener('click', () => self.applyFormat('textAlign', 'center'));
-        get('tbAlignRight') && get('tbAlignRight').addEventListener('click', () => self.applyFormat('textAlign', 'right'));
-        get('tbAlignJustify') && get('tbAlignJustify').addEventListener('click', () => self.applyFormat('textAlign', 'justify'));
+        get('tbAlignLeft') && get('tbAlignLeft').addEventListener('mousedown', (e) => { e.preventDefault(); self.applyFormat('textAlign', 'left'); });
+        get('tbAlignCenter') && get('tbAlignCenter').addEventListener('mousedown', (e) => { e.preventDefault(); self.applyFormat('textAlign', 'center'); });
+        get('tbAlignRight') && get('tbAlignRight').addEventListener('mousedown', (e) => { e.preventDefault(); self.applyFormat('textAlign', 'right'); });
+        get('tbAlignJustify') && get('tbAlignJustify').addEventListener('mousedown', (e) => { e.preventDefault(); self.applyFormat('textAlign', 'justify'); });
 
         get('tbAddImage') && get('tbAddImage').addEventListener('click', () => get('tbImageInput').click());
         get('tbImageInput') && get('tbImageInput').addEventListener('change', function() {

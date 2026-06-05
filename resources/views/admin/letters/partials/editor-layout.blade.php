@@ -103,6 +103,34 @@
         .canvas-page-wrapper.active-page { border-color: #0d6efd; }
         .canvas-page-label { font-size: 11px; color: #888; margin-bottom: 4px; text-align: left; }
 
+        /* Ruler visual */
+        .canvas-with-ruler {
+            display: inline-grid;
+            grid-template-columns: 20px auto;
+            grid-template-rows: 20px auto;
+            margin-bottom: 24px;
+        }
+        .ruler-corner { background: #d8dde6; grid-column:1; grid-row:1; }
+        .ruler-h {
+            grid-column: 2; grid-row: 1; height: 20px;
+            background: #e8ebf0; border-bottom: 1px solid #bbb;
+            position: relative; overflow: hidden;
+        }
+        .ruler-v {
+            grid-column: 1; grid-row: 2; width: 20px;
+            background: #e8ebf0; border-right: 1px solid #bbb;
+            position: relative; overflow: hidden;
+        }
+        .ruler-canvas-wrap {
+            grid-column: 2; grid-row: 2;
+            position: relative; display: inline-block;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+            border: 2px solid transparent; transition: border-color .15s; cursor: pointer;
+        }
+        .ruler-canvas-wrap.active-page { border-color: #0d6efd; }
+        .ruler-tick { position: absolute; color: #666; font-size: 8px; line-height: 1; user-select: none; }
+        .ruler-tick-line { position: absolute; background: #999; }
+
         /* Right panel: variable list */
         #editor-vars {
             width: 220px; flex-shrink: 0; background: #fff;
