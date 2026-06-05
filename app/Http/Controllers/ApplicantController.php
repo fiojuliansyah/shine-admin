@@ -193,6 +193,21 @@ class ApplicantController extends Controller
         return redirect()->back()->with('success', 'Status, Site, Role, dan NIK Karyawan berhasil diperbarui.');
     }
 
+    public function setEmployee(Request $request, $id)
+    {
+        $applicant = Applicant::findOrFail($id);
+
+        if (!$applicant->user) {
+            return redirect()->back()->with('error', 'User tidak ditemukan.');
+        }
+
+        $applicant->user->update([
+            'is_employee' => 1,
+        ]);
+
+        return redirect()->back()->with('success', $applicant->user->name . ' berhasil dijadikan karyawan.');
+    }
+
     public function resetAllQr()
     {
         try {

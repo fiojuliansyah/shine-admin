@@ -136,6 +136,17 @@
                                     NIK Karyawan akan di-generate otomatis berdasarkan konfigurasi Company saat data diupdate.
                                 </small>
                             </form>
+
+                            @if (!$user->is_employee)
+                                <hr>
+                                <form action="{{ route('applicants.set-employee', $applicant->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success w-100"
+                                        onclick="return confirm('Jadikan {{ $user->name }} sebagai karyawan aktif?')">
+                                        <i class="ti ti-user-check me-1"></i> Jadikan Karyawan
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>
