@@ -131,9 +131,15 @@ class FabricLetterEditor {
         fc.on('object:moving', (e) => {
             self._constrainObject(e.target, margins);
         });
+        let _autoPageTimer = null;
         fc.on('text:changed', (e) => {
-            if (!self._autoPageLock) self._checkAutoPage(index, e.target);
             self.renderLayers();
+            if (self._autoPageLock) return;
+            if (_autoPageTimer) clearTimeout(_autoPageTimer);
+            _autoPageTimer = setTimeout(() => {
+                _autoPageTimer = null;
+                if (!self._autoPageLock) self._checkAutoPage(index, e.target);
+            }, 300);
         });
         fc.on('selection:created', (e) => { self._attachTextSelectionSync(e); self._syncToolbarFromSelection(); self.renderLayers(); });
         fc.on('selection:updated', (e) => { self._attachTextSelectionSync(e); self._syncToolbarFromSelection(); self.renderLayers(); });
@@ -401,54 +407,112 @@ class FabricLetterEditor {
         const page = this.pages[pageIndex];
         if (!page) return;
         const fc = page.canvas;
-        const MARGIN = 40;
-        const THRESHOLD = this.CANVAS_H - MARGIN;
+        const THRESHOLD = this.CANVAS_H - page.margins.bottom;
 
-        const objBottom = changedObj.top + changedObj.getScaledHeight();
+        // Force re-render to get accurate dimensions
+        changedObj._clearCache && changedObj._clearCache();
+        changedObj.initDimensions && changedObj.initDimensions();
+
+        const objBottom = changedObj.top + changedObj.height * (changedObj.scaleY || 1);
         if (objBottom <= THRESHOLD) return;
+
+        const isText = changedObj.type === 'textbox' || changedObj.type === 'i-text';
+        if (!isText) {
+            // Non-text: just move to next page
+            this._autoPageLock = true;
+            const nextPageIndex = pageIndex + 1;
+            if (!this.pages[nextPageIndex]) {
+                this._buildPageContainer(nextPageIndex);
+                this.renderThumbs();
+            }
+            const nextPage = this.pages[nextPageIndex];
+            const nextFc = nextPage.canvas;
+            const lastObj = nextFc.getObjects().filter(o => !o._isRuler).slice(-1)[0];
+            const insertTop = lastObj ? lastObj.top + lastObj.height + 4 : nextPage.margins.top;
+            fc.remove(changedObj);
+            const cloned = fabric.util.object.clone(changedObj);
+            cloned._layerId = changedObj._layerId;
+            cloned._layerName = changedObj._layerName;
+            cloned.set({ top: insertTop });
+            nextFc.add(cloned);
+            fc.renderAll();
+            nextFc.renderAll();
+            this._autoPageLock = false;
+            this.switchPage(nextPageIndex);
+            this.renderThumbs();
+            return;
+        }
+
+        // Text: split by lines
+        const textLines = changedObj._textLines;
+        if (!textLines || textLines.length <= 1) return;
+
+        // Calculate per-line height
+        const totalHeight = changedObj.height * (changedObj.scaleY || 1);
+        const lineHeight = totalHeight / textLines.length;
+
+        let splitLineIndex = -1;
+        for (let i = 0; i < textLines.length; i++) {
+            const lineBottom = changedObj.top + (i + 1) * lineHeight;
+            if (lineBottom > THRESHOLD) {
+                splitLineIndex = i;
+                break;
+            }
+        }
+
+        if (splitLineIndex <= 0) return;
 
         this._autoPageLock = true;
 
-        const overflowObjs = fc.getObjects().filter(obj => {
-            return (obj.top + obj.getScaledHeight()) > THRESHOLD;
-        });
-
-        if (overflowObjs.length === 0) { this._autoPageLock = false; return; }
-
         const nextPageIndex = pageIndex + 1;
-        let nextPage = this.pages[nextPageIndex];
-
-        if (!nextPage) {
+        if (!this.pages[nextPageIndex]) {
             this._buildPageContainer(nextPageIndex);
-            nextPage = this.pages[nextPageIndex];
             this.renderThumbs();
         }
-
+        const nextPage = this.pages[nextPageIndex];
         const nextFc = nextPage.canvas;
-        const existingTops = nextFc.getObjects().map(o => o.top);
-        const lowestExisting = existingTops.length > 0 ? Math.max(...existingTops) : 0;
-        const lastObj = nextFc.getObjects().slice(-1)[0];
-        let insertTop = lastObj ? lastObj.top + lastObj.getScaledHeight() + 10 : 40;
+        const lastObj = nextFc.getObjects().filter(o => !o._isRuler).slice(-1)[0];
+        const insertTop = lastObj ? lastObj.top + lastObj.height * (lastObj.scaleY || 1) + 4 : nextPage.margins.top;
 
-        overflowObjs.forEach(obj => {
-            fc.remove(obj);
-            const cloned = fabric.util.object.clone(obj);
-            cloned._layerId = obj._layerId;
-            cloned._layerName = obj._layerName;
-            const overflowAmount = obj.top - THRESHOLD;
-            cloned.set({ top: Math.max(40, insertTop), left: obj.left });
-            insertTop += cloned.getScaledHeight() + 10;
-            nextFc.add(cloned);
-        });
+        const allLines = textLines.map(l => Array.isArray(l) ? l.join('') : String(l));
+        const topText = allLines.slice(0, splitLineIndex).join('\n');
+        const bottomText = allLines.slice(splitLineIndex).join('\n');
 
-        fc.discardActiveObject();
+        const wasEditing = changedObj.isEditing;
+        if (wasEditing) changedObj.exitEditing();
+
+        changedObj.set({ text: topText });
+        changedObj._clearCache && changedObj._clearCache();
+        changedObj.initDimensions && changedObj.initDimensions();
         fc.renderAll();
-        nextFc.discardActiveObject();
+
+        const overflowTb = new fabric.Textbox(bottomText, {
+            left: changedObj.left,
+            top: insertTop,
+            width: changedObj.width,
+            fontSize: changedObj.fontSize,
+            fontFamily: changedObj.fontFamily,
+            fill: changedObj.fill,
+            fontWeight: changedObj.fontWeight,
+            fontStyle: changedObj.fontStyle,
+            underline: changedObj.underline,
+            textAlign: changedObj.textAlign,
+            lineHeight: changedObj.lineHeight,
+        });
+        this._ensureLayerMeta(overflowTb);
+        nextFc.add(overflowTb);
         nextFc.renderAll();
 
-        this._autoPageLock = false;
+        if (wasEditing) {
+            fc.setActiveObject(changedObj);
+            changedObj.enterEditing();
+            changedObj.selectionStart = topText.length;
+            changedObj.selectionEnd = topText.length;
+            fc.renderAll();
+        }
 
-        this.switchPage(nextPageIndex);
+        this._autoPageLock = false;
+        this.renderLayers();
         this.renderThumbs();
     }
 
@@ -639,7 +703,11 @@ class FabricLetterEditor {
             && obj.selectionEnd > obj.selectionStart;
 
         if (isAlign) {
-            obj.set('textAlign', value);
+            if (inEditWithSelection) {
+                this._applyAlignToSelection(obj, value, fc);
+            } else {
+                obj.set('textAlign', value);
+            }
         } else if (isTextProp && inEditWithSelection) {
             const start = obj.selectionStart;
             const end = obj.selectionEnd;

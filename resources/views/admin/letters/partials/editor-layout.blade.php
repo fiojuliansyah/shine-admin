@@ -15,15 +15,15 @@
 
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-        html, body { height: 100%; margin: 0; padding: 0; background: #f0f2f5; font-family: Arial, sans-serif; }
+        html, body { height: 100%; margin: 0; padding: 0; background: #f0f2f5; font-family: Arial, sans-serif; overflow: hidden; }
 
-        #editor-shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        #editor-shell { display: flex; flex-direction: column; height: 100vh; }
 
         /* Top bar */
         #editor-topbar {
             display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
             background: #fff; border-bottom: 1px solid #dee2e6;
-            padding: 6px 12px; flex-shrink: 0; z-index: 100;
+            padding: 6px 12px; flex-shrink: 0; z-index: 100; position: relative;
         }
         #editor-topbar .topbar-title {
             font-weight: 700; font-size: 15px; color: #0d6efd; margin-right: 8px; white-space: nowrap;
@@ -34,7 +34,7 @@
         #editor-topbar input[type=color] { width: 32px; height: 32px; padding: 2px; border: 1px solid #dee2e6; border-radius: 4px; cursor: pointer; }
 
         /* Body: sidebar + canvas area */
-        #editor-body { display: flex; flex: 1; overflow: hidden; }
+        #editor-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 
         /* Left sidebar: form fields + page thumbs */
         #editor-sidebar {
@@ -91,7 +91,7 @@
 
         /* Canvas area */
         #editor-canvas-area {
-            flex: 1; overflow: auto; background: #eceef4;
+            flex: 1; min-height: 0; overflow: auto; background: #eceef4;
             display: flex; flex-direction: column; align-items: center;
             padding: 24px 24px 48px;
         }
@@ -150,7 +150,7 @@
         #editor-actions {
             background: #fff; border-top: 1px solid #dee2e6;
             padding: 8px 16px; display: flex; align-items: center; justify-content: flex-end;
-            gap: 8px; flex-shrink: 0;
+            gap: 8px; flex-shrink: 0; z-index: 100;
         }
     </style>
 </head>
