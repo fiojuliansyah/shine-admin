@@ -71,7 +71,8 @@ class EmployeesDataTable extends DataTable
     {
         $query = $model->newQuery()
             ->with(['profile', 'roles', 'site'])
-            ->where('is_employee', 1);
+            ->where('is_employee', 1)
+            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'));
 
         if (request()->filled('site_id')) {
             $query->where('site_id', request('site_id'));
