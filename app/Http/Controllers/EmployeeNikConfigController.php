@@ -54,7 +54,9 @@ class EmployeeNikConfigController extends Controller
                     ->update(['is_default' => false]);
             }
 
-            unset($data['current_number']);
+            if (array_key_exists('current_number', $data) && $data['current_number'] === null) {
+                unset($data['current_number']);
+            }
             $employeeNikConfig->update($data);
         });
 
@@ -113,6 +115,7 @@ class EmployeeNikConfigController extends Controller
             'prefix'       => 'nullable|string|max:50',
             'padding'      => 'required|integer|min:1|max:10',
             'start_number' => 'required|integer|min:1',
+            'current_number' => 'nullable|integer|min:0',
             'is_default'   => 'nullable|boolean',
             'description'  => 'nullable|string|max:500',
         ];

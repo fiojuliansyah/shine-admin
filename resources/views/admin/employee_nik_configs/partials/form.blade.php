@@ -38,6 +38,14 @@
             required min="1" value="1">
     </div>
 
+    @if ($isEdit ?? false)
+    <div class="col-md-4">
+        <label class="form-label fw-bold">Current Number</label>
+        <input type="number" name="current_number" class="form-control" min="0">
+        <div class="form-text">Nomor terakhir yang sudah di-generate. Ubah jika ingin reset urutan.</div>
+    </div>
+    @endif
+
     <div class="col-md-12">
         <label class="form-label fw-bold">Keterangan</label>
         <textarea name="description" class="form-control" rows="2" placeholder="Opsional"></textarea>

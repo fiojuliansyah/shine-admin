@@ -91,6 +91,7 @@
                                             data-prefix="{{ $config->prefix }}"
                                             data-padding="{{ $config->padding }}"
                                             data-start-number="{{ $config->start_number }}"
+                                            data-current-number="{{ $config->current_number ?? 0 }}"
                                             data-is-default="{{ $config->is_default ? 1 : 0 }}"
                                             data-description="{{ $config->description }}">
                                             <i class="ti ti-edit"></i>
@@ -275,6 +276,7 @@ $(document).ready(function () {
         $form.find('[name="prefix"]').val($btn.data('prefix'));
         $form.find('[name="padding"]').val($btn.data('padding'));
         $form.find('[name="start_number"]').val($btn.data('start-number'));
+        $form.find('[name="current_number"]').val($btn.data('current-number'));
         $form.find('[name="description"]').val($btn.data('description'));
         $form.find('[name="is_default"]').prop('checked', $btn.data('is-default') == 1);
         $('#modalEdit').modal('show');
