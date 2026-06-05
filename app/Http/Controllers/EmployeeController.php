@@ -32,7 +32,6 @@ class EmployeeController extends Controller
         if ($request->ajax()) {
             $query = User::with(['profile', 'roles', 'site.company'])
                 ->where('is_employee', 1)
-                ->where('is_admin', 0)
                 ->whereHas('site', fn($q) => $q->where('company_id', $company->id));
 
             if ($request->filled('site_id')) {
