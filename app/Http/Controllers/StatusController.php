@@ -216,15 +216,18 @@ class StatusController extends Controller
 
             $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
 
-            $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
+            $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
             if (!$letter) return;
             $typeLetter = $letter->type;
-            $currentNumber = $typeLetter?->number ?? 0;
-            $startNumber = $letter->numberConfig?->start_number ?? 1;
-            // Cast currentNumber to integer jika string
-            $currentNumberInt = (int) $currentNumber;
-            $newNumber = max($currentNumberInt + 1, $startNumber);
-            $typeLetter?->update(['number' => $newNumber]);
+
+            if ($letter->numberConfig) {
+                $newNumber = $letter->numberConfig->nextSequence();
+            } else {
+                $currentNumberInt = (int) ($typeLetter?->number ?? 0);
+                $startNumber = $letter->numberConfig?->start_number ?? 1;
+                $newNumber = max($currentNumberInt + 1, $startNumber);
+                $typeLetter?->update(['number' => $newNumber]);
+            }
 
             $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
                 ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
@@ -301,17 +304,18 @@ class StatusController extends Controller
 
             $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
 
-            $letter = Letter::with('type', 'site', 'numberConfig')->find($request->letter_id);
+            $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
             $typeLetter = $letter->type;
 
-            $currentNumber = $typeLetter->number ?? 0;
-            $startNumber = $letter->numberConfig?->start_number ?? 1;
-            // Cast currentNumber to integer jika string
-            $currentNumberInt = (int) $currentNumber;
-            $newNumber = max($currentNumberInt + 1, $startNumber);
-
-            if ($typeLetter) {
-                $typeLetter->update(['number' => $newNumber]);
+            if ($letter->numberConfig) {
+                $newNumber = $letter->numberConfig->nextSequence();
+            } else {
+                $currentNumberInt = (int) ($typeLetter->number ?? 0);
+                $startNumber = $letter->numberConfig?->start_number ?? 1;
+                $newNumber = max($currentNumberInt + 1, $startNumber);
+                if ($typeLetter) {
+                    $typeLetter->update(['number' => $newNumber]);
+                }
             }
 
             $letterNumber = ($letter->letter_number_config_id || $letter->number_format)

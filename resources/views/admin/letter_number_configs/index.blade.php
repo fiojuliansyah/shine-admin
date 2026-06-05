@@ -37,6 +37,8 @@
                                 <th>Prefix</th>
                                 <th>Perusahaan</th>
                                 <th>Digit Urut</th>
+                                <th>Current</th>
+                                <th>Bergandengan</th>
                                 <th>Preview</th>
                                 <th>Keterangan</th>
                                 <th>Aksi</th>
@@ -51,15 +53,23 @@
                                 <td>{{ $config->prefix ?? '-' }}</td>
                                 <td>{{ $config->company ? $config->company->name . ' (' . ($config->company->unique_id ?? '-') . ')' : '-' }}</td>
                                 <td>{{ $config->padding }}</td>
+                                <td>{{ $config->current_number ?? '-' }}</td>
+                                <td>
+                                    @if ($config->sharedCounter)
+                                        <span class="badge bg-info-transparent text-info">{{ $config->sharedCounter->name }}</span>
+                                    @else
+                                        <span class="text-muted small">-</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="badge bg-primary-subtle text-primary">
-                                        {{ $config->generateNumber(1) }}
+                                        {{ $config->previewNumber() }}
                                     </span>
                                 </td>
                                 <td>{{ $config->description ?? '-' }}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary"
-                                        onclick="editConfig({{ $config->id }}, '{{ addslashes($config->name) }}', '{{ addslashes($config->format) }}', '{{ addslashes($config->prefix ?? '') }}', {{ $config->padding }}, {{ $config->start_number ?? 1 }}, '{{ addslashes($config->description ?? '') }}', {{ $config->company_id ?? 'null' }})">
+                                        onclick="editConfig({{ $config->id }}, '{{ addslashes($config->name) }}', '{{ addslashes($config->format) }}', '{{ addslashes($config->prefix ?? '') }}', {{ $config->padding }}, {{ $config->start_number ?? 1 }}, {{ $config->current_number ?? 'null' }}, '{{ addslashes($config->description ?? '') }}', {{ $config->company_id ?? 'null' }}, {{ $config->shared_counter_id ?? 'null' }})">
                                         <i class="ti ti-edit"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-outline-danger"
@@ -125,7 +135,7 @@
             <form action="{{ route('letter-number-configs.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                     @include('admin.letter_number_configs.partials.form', ['companies' => $companies])
+                     @include('admin.letter_number_configs.partials.form', ['companies' => $companies, 'configs' => $configs, 'isEdit' => false])
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -148,7 +158,7 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body p-4">
-                     @include('admin.letter_number_configs.partials.form', ['isEdit' => true, 'companies' => $companies])
+                     @include('admin.letter_number_configs.partials.form', ['isEdit' => true, 'companies' => $companies, 'configs' => $configs, 'currentConfigId' => null])
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -185,7 +195,7 @@
 
 @push('js')
 <script>
-    function editConfig(id, name, format, prefix, padding, start_number, description, company_id) {
+    function editConfig(id, name, format, prefix, padding, start_number, current_number, description, company_id, shared_counter_id) {
         const form = document.getElementById('editForm');
         form.action = '/manage/letter-number-configs/' + id;
         form.querySelector('[name="name"]').value = name;
@@ -193,11 +203,18 @@
         form.querySelector('[name="prefix"]').value = prefix;
         form.querySelector('[name="padding"]').value = padding;
         form.querySelector('[name="start_number"]').value = start_number;
+        form.querySelector('[name="current_number"]').value = current_number ?? '';
         form.querySelector('[name="description"]').value = description;
         if (company_id) {
             form.querySelector('[name="company_id"]').value = company_id;
         } else {
             form.querySelector('[name="company_id"]').value = '';
+        }
+        const sharedSelect = form.querySelector('[name="shared_counter_id"]');
+        if (sharedSelect) {
+            sharedSelect.value = shared_counter_id ?? '';
+            const ownOption = sharedSelect.querySelector('option[value="' + id + '"]');
+            if (ownOption) ownOption.disabled = true;
         }
         updatePreview('editPreview', format, prefix, padding);
         new bootstrap.Modal(document.getElementById('modalEdit')).show();

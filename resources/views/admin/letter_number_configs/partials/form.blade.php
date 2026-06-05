@@ -18,7 +18,7 @@
         <select name="company_id" class="form-select">
             <option value="">-- Pilih Perusahaan --</option>
             @foreach($companies as $company)
-                <option value="{{ $company->id }}" 
+                <option value="{{ $company->id }}"
                     data-company-code="{{ $company->unique_id ?? strtoupper(substr($company->name, 0, 3)) }}"
                     {{ old('company_id', isset($config) ? $config->company_id : null) == $company->id ? 'selected' : '' }}>
                     {{ $company->name }} ({{ $company->unique_id ?? '-' }})
@@ -38,6 +38,31 @@
         <label class="form-label fw-bold">Mulai Dari Nomor <span class="text-danger">*</span></label>
         <input type="number" name="start_number" class="form-control" min="1" value="{{ old('start_number', 1) }}" required>
         <div class="form-text">Nomor urut pertama saat surat diterbitkan</div>
+    </div>
+    @if ($isEdit ?? false)
+    <div class="col-md-4">
+        <label class="form-label fw-bold">Current Number</label>
+        <input type="number" name="current_number" class="form-control" min="0" value="{{ old('current_number') }}">
+        <div class="form-text">Nomor terakhir yang sudah di-generate. Kosongkan jika tidak ingin mengubah.</div>
+    </div>
+    @endif
+    <div class="{{ ($isEdit ?? false) ? 'col-md-4' : 'col-md-8' }}">
+        <label class="form-label fw-bold">Bergandengan Dengan</label>
+        <select name="shared_counter_id" class="form-select">
+            <option value="">-- Counter Sendiri --</option>
+            @foreach($configs ?? [] as $otherConfig)
+                @if (!isset($currentConfigId) || $otherConfig->id != $currentConfigId)
+                    <option value="{{ $otherConfig->id }}"
+                        {{ old('shared_counter_id') == $otherConfig->id ? 'selected' : '' }}>
+                        {{ $otherConfig->name }}
+                        @if ($otherConfig->company)
+                            ({{ $otherConfig->company->name }})
+                        @endif
+                    </option>
+                @endif
+            @endforeach
+        </select>
+        <div class="form-text">Jika dipilih, nomor urut akan mengikuti counter konfigurasi yang dipilih.</div>
     </div>
 </div>
 <div class="mb-3">
