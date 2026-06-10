@@ -16,6 +16,7 @@ use App\Notifications\ApplicantStatusNotification;
 use Carbon\Carbon;
 use DataTables;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -206,63 +207,67 @@ class StatusController extends Controller
         }
 
         Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
-            $applicant->user->update([
-                'site_id' => $site_id,
-            ]);
+            DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig) {
+                $applicant->user->update([
+                    'site_id' => $site_id,
+                ]);
 
-            $applicant->update([
-                'done' => 'document-digital'
-            ]);
+                $applicant->update([
+                    'done' => 'document-digital'
+                ]);
 
-            $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
+                $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
+                if (!$letter) return;
+                $typeLetter = $letter->type;
 
-            $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
-            if (!$letter) return;
-            $typeLetter = $letter->type;
+                if ($letter->numberConfig) {
+                    $newNumber = $letter->numberConfig->nextSequence();
+                } else {
+                    $currentNumberInt = (int) ($typeLetter?->number ?? 0);
+                    $startNumber = $letter->numberConfig?->start_number ?? 1;
+                    $newNumber = max($currentNumberInt + 1, $startNumber);
+                    $typeLetter?->update(['number' => $newNumber]);
+                }
 
-            if ($letter->numberConfig) {
-                $newNumber = $letter->numberConfig->nextSequence();
-            } else {
-                $currentNumberInt = (int) ($typeLetter?->number ?? 0);
-                $startNumber = $letter->numberConfig?->start_number ?? 1;
-                $newNumber = max($currentNumberInt + 1, $startNumber);
-                $typeLetter?->update(['number' => $newNumber]);
-            }
+                $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
+                    ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
+                    : ($request->letter_number
+                        ? str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT) . '/' . $request->letter_number
+                        : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
 
-            $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
-                ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
-                : ($request->letter_number
-                    ? str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT) . '/' . $request->letter_number
-                    : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
+                $generatedLetter = Generate::create([
+                    'letter_id'        => $request->letter_id,
+                    'letter_number'    => $letterNumber,
+                    'sequence_number'  => $newNumber,
+                    'romawi'           => $this->getRomawi(date('m')),
+                    'year'             => date('Y'),
+                    'start_date'       => $request->start_date,
+                    'end_date'         => $request->end_date,
+                    'user_id'          => $applicant->user_id,
+                    'site_id'          => $site_id,
+                    'second_party'     => $applicant->user?->name,
+                    'description'      => 'Auto generated from Bulk Offering',
+                ]);
 
-            $generatedLetter = Generate::create([
-                'letter_id'        => $request->letter_id,
-                'letter_number'    => $letterNumber,
-                'sequence_number'  => $newNumber,
-                'romawi'           => $this->getRomawi(date('m')),
-                'year'             => date('Y'),
-                'start_date'       => $request->start_date,
-                'end_date'         => $request->end_date,
-                'user_id'          => $applicant->user_id,
-                'site_id'          => $site_id,
-                'second_party'     => $applicant->user?->name,
-                'description'      => 'Auto generated from Bulk Offering',
-            ]);
+                // Simpan Value Variable Kustom
+                if ($request->has('custom_values')) {
+                    foreach ($request->custom_values as $varId => $val) {
+                        \App\Models\ValueVariable::create([
+                            'generate_id'        => $generatedLetter->id, // Sesuaikan foreign key di tabel Anda
+                            'custom_variable_id' => $varId,
+                            'value'              => $val
+                        ]);
+                    }
+                }
 
-            // Simpan Value Variable Kustom
-            if ($request->has('custom_values')) {
-                foreach ($request->custom_values as $varId => $val) {
-                    \App\Models\ValueVariable::create([
-                        'generate_id'        => $generatedLetter->id, // Sesuaikan foreign key di tabel Anda
-                        'custom_variable_id' => $varId,
-                        'value'              => $val
+                // Idempoten: jangan bakar nomor urut kalau user sudah punya NIK.
+                if (empty($applicant->user->employee_nik)) {
+                    $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
+                    $applicant->user->update([
+                        'employee_nik' => $employeeNIK,
                     ]);
                 }
-            }
-
-            $applicant->user->update([
-                'employee_nik' => $employeeNIK,
-            ]);
+            });
         });
 
         return redirect()->back()->with('success', 'Kandidat berhasil dibuatkan dokumen digital.');
@@ -293,65 +298,69 @@ class StatusController extends Controller
         }
 
         Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
-            $applicant->user->update([
-                'site_id' => $site_id,
-                'is_employee' => 1
-            ]);
+            DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig) {
+                $applicant->user->update([
+                    'site_id' => $site_id,
+                    'is_employee' => 1
+                ]);
 
-            $applicant->update([
-                'done' => 'done'
-            ]);
+                $applicant->update([
+                    'done' => 'done'
+                ]);
 
-            $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
+                $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
+                $typeLetter = $letter->type;
 
-            $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
-            $typeLetter = $letter->type;
-
-            if ($letter->numberConfig) {
-                $newNumber = $letter->numberConfig->nextSequence();
-            } else {
-                $currentNumberInt = (int) ($typeLetter->number ?? 0);
-                $startNumber = $letter->numberConfig?->start_number ?? 1;
-                $newNumber = max($currentNumberInt + 1, $startNumber);
-                if ($typeLetter) {
-                    $typeLetter->update(['number' => $newNumber]);
+                if ($letter->numberConfig) {
+                    $newNumber = $letter->numberConfig->nextSequence();
+                } else {
+                    $currentNumberInt = (int) ($typeLetter->number ?? 0);
+                    $startNumber = $letter->numberConfig?->start_number ?? 1;
+                    $newNumber = max($currentNumberInt + 1, $startNumber);
+                    if ($typeLetter) {
+                        $typeLetter->update(['number' => $newNumber]);
+                    }
                 }
-            }
 
-            $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
-                ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
-                : ($request->letter_number
-                    ? str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT) . '/' . $request->letter_number
-                    : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
+                $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
+                    ? $letter->generateLetterNumber($newNumber, $site, $applicant->user)
+                    : ($request->letter_number
+                        ? str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT) . '/' . $request->letter_number
+                        : str_pad($newNumber, $letter->number_padding ?? 3, '0', STR_PAD_LEFT));
 
-            $generatedLetter = Generate::create([
-                'letter_id'        => $request->letter_id,
-                'letter_number'    => $letterNumber,
-                'sequence_number'  => $newNumber,
-                'romawi'           => $this->getRomawi(date('m')),
-                'year'             => date('Y'),
-                'start_date'       => $request->start_date,
-                'end_date'         => $request->end_date,
-                'user_id'          => $applicant->user_id,
-                'site_id'          => $site_id,
-                'second_party'     => $applicant->user->name,
-                'description'      => 'Auto generated from Bulk Offering',
-            ]);
+                $generatedLetter = Generate::create([
+                    'letter_id'        => $request->letter_id,
+                    'letter_number'    => $letterNumber,
+                    'sequence_number'  => $newNumber,
+                    'romawi'           => $this->getRomawi(date('m')),
+                    'year'             => date('Y'),
+                    'start_date'       => $request->start_date,
+                    'end_date'         => $request->end_date,
+                    'user_id'          => $applicant->user_id,
+                    'site_id'          => $site_id,
+                    'second_party'     => $applicant->user->name,
+                    'description'      => 'Auto generated from Bulk Offering',
+                ]);
 
-            // Simpan Value Variable Kustom
-            if ($request->has('custom_values')) {
-                foreach ($request->custom_values as $varId => $val) {
-                    \App\Models\ValueVariable::create([
-                        'generate_id'        => $generatedLetter->id, // Gunakan ID dari record generates yang baru dibuat
-                        'custom_variable_id' => $varId,
-                        'value'              => $val
+                // Simpan Value Variable Kustom
+                if ($request->has('custom_values')) {
+                    foreach ($request->custom_values as $varId => $val) {
+                        \App\Models\ValueVariable::create([
+                            'generate_id'        => $generatedLetter->id, // Gunakan ID dari record generates yang baru dibuat
+                            'custom_variable_id' => $varId,
+                            'value'              => $val
+                        ]);
+                    }
+                }
+
+                // Idempoten: jangan bakar nomor urut kalau user sudah punya NIK.
+                if (empty($applicant->user->employee_nik)) {
+                    $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
+                    $applicant->user->update([
+                        'employee_nik' => $employeeNIK,
                     ]);
                 }
-            }
-
-            $applicant->user->update([
-                'employee_nik' => $employeeNIK,
-            ]);
+            });
         });
 
         return redirect()->back()->with('success', 'Kandidat berhasil dikonversi menjadi karyawan.');

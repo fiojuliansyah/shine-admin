@@ -14,6 +14,7 @@ use App\Notifications\ApplicantStatusNotification;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Spatie\Permission\Models\Role;
 
@@ -173,12 +174,21 @@ class ApplicantController extends Controller
                     // Refresh roles cache supaya kode_jabatan ikut role baru.
                     $applicant->user->load('roles');
 
-                    $employeeNIK = $nikConfig->generateNik($applicant->user, $startDate);
+                    // Idempoten: jangan bakar nomor urut kalau user sudah punya NIK.
+                    if (!empty($applicant->user->employee_nik)) {
+                        $applicant->user->update([
+                            'is_employee' => 1,
+                        ]);
+                    } else {
+                        DB::transaction(function () use ($nikConfig, $applicant, $startDate) {
+                            $employeeNIK = $nikConfig->generateNik($applicant->user, $startDate);
 
-                    $applicant->user->update([
-                        'employee_nik' => $employeeNIK,
-                        'is_employee'  => 1,
-                    ]);
+                            $applicant->user->update([
+                                'employee_nik' => $employeeNIK,
+                                'is_employee'  => 1,
+                            ]);
+                        });
+                    }
                 }
             }
         }
