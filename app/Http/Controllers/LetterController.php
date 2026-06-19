@@ -61,6 +61,8 @@ class LetterController extends Controller
         $letter->number_format = $request->number_format;
         $letter->number_prefix = $request->number_prefix;
         $letter->number_padding = $request->number_padding ?? 3;
+        $letter->require_hrd_signature = $request->boolean('require_hrd_signature');
+        $letter->require_employee_signature = $request->boolean('require_employee_signature');
         
         // Debug before save
         \Log::info('Letter before save:', [
@@ -201,6 +203,8 @@ class LetterController extends Controller
         $letter->number_format = $request->number_format;
         $letter->number_prefix = $request->number_prefix;
         $letter->number_padding = $request->number_padding ?? 3;
+        $letter->require_hrd_signature = $request->boolean('require_hrd_signature');
+        $letter->require_employee_signature = $request->boolean('require_employee_signature');
         
         // Debug after update, before save
         \Log::info('Letter after update, before save:', [

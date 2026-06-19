@@ -14,6 +14,8 @@ class Letter extends Model
 
     protected $casts = [
         'number_padding' => 'integer',
+        'require_hrd_signature' => 'boolean',
+        'require_employee_signature' => 'boolean',
     ];
 
     public function numberConfig()

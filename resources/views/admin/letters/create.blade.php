@@ -71,6 +71,19 @@
             @endforeach
         </select>
     </div>
+    <div class="mb-2">
+        <label>Tanda Tangan</label>
+        <div class="form-check">
+            <input type="hidden" name="require_hrd_signature" value="0">
+            <input class="form-check-input" type="checkbox" name="require_hrd_signature" value="1" id="requireHrdSignature" checked>
+            <label class="form-check-label" for="requireHrdSignature" style="font-weight:400;">Perlu Tanda Tangan HRD</label>
+        </div>
+        <div class="form-check">
+            <input type="hidden" name="require_employee_signature" value="0">
+            <input class="form-check-input" type="checkbox" name="require_employee_signature" value="1" id="requireEmployeeSignature" checked>
+            <label class="form-check-label" for="requireEmployeeSignature" style="font-weight:400;">Perlu Tanda Tangan Employee</label>
+        </div>
+    </div>
     <input type="hidden" name="description" id="descriptionHidden">
 </form>
 @endsection

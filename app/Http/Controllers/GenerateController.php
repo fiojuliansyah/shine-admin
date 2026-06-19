@@ -83,18 +83,40 @@ class GenerateController extends Controller
                     return $row->user->name . '<br>' . $row->user->employee_nik;
                 })
                 ->addColumn('signature', function ($row) {
-                    $hrdStatus = $row->esign === null ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>' : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
-                    $employeeStatus = $row->second_party_esign === null ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>' : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
-                    return '
-                    <div class="row">
-                        <div class="col-4">Employee</div>
-                        <div class="col-8">: ' . $employeeStatus . '</div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-4">HRD</div>
-                        <div class="col-8">: ' . $hrdStatus . '</div>
-                    </div>';
+                    $requireHrd = $row->letter->require_hrd_signature ?? true;
+                    $requireEmployee = $row->letter->require_employee_signature ?? true;
+
+                    if (!$requireHrd && !$requireEmployee) {
+                        return '<span class="badge bg-secondary">Tidak Perlu Tanda Tangan</span>';
+                    }
+
+                    $rows = '';
+                    if ($requireEmployee) {
+                        $employeeStatus = $row->second_party_esign === null
+                            ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>'
+                            : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
+                        $rows .= '
+                        <div class="row">
+                            <div class="col-4">Employee</div>
+                            <div class="col-8">: ' . $employeeStatus . '</div>
+                        </div>';
+                    }
+
+                    if ($requireHrd) {
+                        $hrdStatus = $row->esign === null
+                            ? '<span class="badge bg-danger">Belum Tertanda Tangan</span>'
+                            : '<span class="badge bg-success">Sudah Tertanda Tangan</span>';
+                        if ($rows !== '') {
+                            $rows .= '<br>';
+                        }
+                        $rows .= '
+                        <div class="row">
+                            <div class="col-4">HRD</div>
+                            <div class="col-8">: ' . $hrdStatus . '</div>
+                        </div>';
+                    }
+
+                    return $rows;
                 })
                 ->addColumn('action', function ($row) {
                     return view('admin.generates.partials.actions', compact('row'))->render();
