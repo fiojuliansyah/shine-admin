@@ -140,14 +140,26 @@ class GenerateController extends Controller
         }
     
         $ids = explode(',', $ids);
-    
-        $deleted = Generate::whereIn('id', $ids)->delete();
-    
-        if ($deleted) {
-            return redirect()->back()->with('success', 'Data yang dipilih berhasil dihapus.');
-        } else {
+
+        $generates = Generate::whereIn('id', $ids)->get();
+
+        if ($generates->isEmpty()) {
             return redirect()->back()->with('error', 'Tidak ada data yang dihapus.');
         }
+
+        foreach ($generates as $generate) {
+            $generate->delete();
+        }
+
+        return redirect()->back()->with('success', 'Data yang dipilih berhasil dihapus. Nomor surat dan NIK karyawan telah direset.');
+    }
+
+    public function destroy(Generate $generate)
+    {
+        $generate->delete();
+
+        return redirect()->route('generates.index')
+            ->with('success', 'Surat berhasil dihapus. Nomor surat dan NIK karyawan telah direset.');
     }
 
     public function show(Generate $generate)
