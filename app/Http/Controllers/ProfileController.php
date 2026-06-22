@@ -61,7 +61,7 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $profileData = $request->only([
-            'address', 'gender', 'birth_place', 'birth_date', 'mother_name', 
+            'address', 'rt_rw', 'kelurahan', 'kecamatan', 'gender', 'birth_place', 'birth_date', 'mother_name', 
             'npwp_number', 'marriage_status', 'bank_name', 'account_name', 
             'account_number', 'resign_date'
         ]);

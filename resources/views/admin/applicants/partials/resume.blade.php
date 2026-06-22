@@ -42,6 +42,20 @@
                 </div>
                 <label class="mt-3">Alamat</label>
                 <input type="text" class="form-control mb-3" value="{{ $row->user->profile['address'] ?? 'N/A' }}" disabled>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>RT/RW</label>
+                        <input type="text" class="form-control" value="{{ $row->user->profile['rt_rw'] ?? 'N/A' }}" disabled>
+                    </div>
+                    <div class="col">
+                        <label>Kelurahan/Desa</label>
+                        <input type="text" class="form-control" value="{{ $row->user->profile['kelurahan'] ?? 'N/A' }}" disabled>
+                    </div>
+                    <div class="col">
+                        <label>Kecamatan</label>
+                        <input type="text" class="form-control" value="{{ $row->user->profile['kecamatan'] ?? 'N/A' }}" disabled>
+                    </div>
+                </div>
                 <label>NPWP</label>
                 <input type="text" class="form-control mb-3" value="{{ $row->user->profile['npwp_number'] ?? 'N/A' }}" disabled>
                 <label>Status Pernikahan</label>

@@ -42,4 +42,9 @@ return [
         'url' => env('MIDTRANS_URL', 'https://app.sandbox.midtrans.com/snap/v1/transactions')
     ],
 
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+    ],
+
 ];

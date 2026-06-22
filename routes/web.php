@@ -16,6 +16,7 @@ use App\Http\Controllers\LetterController;
 use App\Http\Controllers\LetterNumberConfigController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\KtpOcrController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SiteController;
@@ -129,6 +130,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
 
     Route::post('/save-signature', [SignatureController::class, 'store'])->name('save.signature');
     Route::delete('/delete-signature', [SignatureController::class, 'delete'])->name('delete.signature');
+
+    Route::post('/ktp-ocr/openai', [KtpOcrController::class, 'openai'])->name('ktp-ocr.openai');
 });
 
 require __DIR__ . '/guest.php';

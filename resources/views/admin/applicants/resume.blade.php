@@ -210,6 +210,20 @@
                                     <p class="fw-bold">{{ $user->profile->current_address ?? '-' }}</p>
                                 </div>
                             </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="text-muted small">RT/RW</label>
+                                    <p class="fw-bold">{{ $user->profile->rt_rw ?? '-' }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Kelurahan/Desa</label>
+                                    <p class="fw-bold">{{ $user->profile->kelurahan ?? '-' }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Kecamatan</label>
+                                    <p class="fw-bold">{{ $user->profile->kecamatan ?? '-' }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

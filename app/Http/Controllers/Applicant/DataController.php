@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Applicant;
 
-use Carbon\Carbon;
-use App\Models\Site;
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use App\Models\Applicant;
 use App\Models\Career;
-use App\Models\Letter;
 use App\Models\Document;
 use App\Models\Generate;
-use App\Models\Applicant;
+use App\Models\Letter;
+use App\Models\Profile;
+use App\Models\Site;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class DataController extends Controller
 {
@@ -569,7 +570,11 @@ class DataController extends Controller
             'name'       => 'required|string|max:255',
             'birth_place'=> 'nullable|string|max:100',
             'birth_date' => 'nullable|string',
+            'gender'     => 'nullable|string|max:20',
             'address'    => 'nullable|string',
+            'rt_rw'      => 'nullable|string|max:20',
+            'kelurahan'  => 'nullable|string|max:100',
+            'kecamatan'  => 'nullable|string|max:100',
         ]);
 
         $user = Auth::user();
@@ -584,7 +589,11 @@ class DataController extends Controller
             [
                 'birth_place' => $request->birth_place,
                 'birth_date'  => $request->birth_date,
+                'gender'      => $request->gender,
                 'address'     => $request->address,
+                'rt_rw'       => $request->rt_rw,
+                'kelurahan'   => $request->kelurahan,
+                'kecamatan'   => $request->kecamatan,
             ]
         );
 
@@ -626,6 +635,9 @@ class DataController extends Controller
         $profileData = $request->only([
             'address',
             'current_address',
+            'rt_rw',
+            'kelurahan',
+            'kecamatan',
             'gender',
             'birth_place',
             'birth_date',

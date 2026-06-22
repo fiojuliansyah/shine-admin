@@ -111,6 +111,9 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
         $profileData = $request->only([
             'address',
+            'rt_rw',
+            'kelurahan',
+            'kecamatan',
             'gender',
             'birth_place',
             'birth_date',

@@ -187,6 +187,18 @@
                                     <span class="text-muted d-block small">Alamat KTP</span>
                                     <h6 class="fw-medium mb-0">{{ $user->profile->address ?? '-' }}</h6>
                                 </div>
+                                <div class="col-md-2">
+                                    <span class="text-muted d-block small">RT/RW</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->rt_rw ?? '-' }}</h6>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="text-muted d-block small">Kelurahan/Desa</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->kelurahan ?? '-' }}</h6>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="text-muted d-block small">Kecamatan</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->kecamatan ?? '-' }}</h6>
+                                </div>
                                 <div class="col-md-6">
                                     <span class="text-muted d-block small">Alamat Domisili</span>
                                     <h6 class="fw-medium mb-0">{{ $user->profile->current_address ?? '-' }}</h6>
@@ -629,14 +641,43 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Alamat KTP<span class="text-danger"> *</span></label>
-                                    <input type="text" name="address" class="form-control"
+                                    <input type="text" name="address" id="ktpAddress" class="form-control"
                                         value="{{ $user->profile?->address }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">RT/RW</label>
+                                    <input type="text" name="rt_rw" class="form-control"
+                                        value="{{ $user->profile?->rt_rw }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Kelurahan/Desa</label>
+                                    <input type="text" name="kelurahan" class="form-control"
+                                        value="{{ $user->profile?->kelurahan }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Kecamatan</label>
+                                    <input type="text" name="kecamatan" class="form-control"
+                                        value="{{ $user->profile?->kecamatan }}">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="sameAsKtp">
+                                    <label class="form-check-label" for="sameAsKtp">
+                                        Alamat domisili sama dengan alamat KTP
+                                    </label>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Alamat Domisili<span class="text-danger"> *</span></label>
-                                    <input type="text" name="current_address" class="form-control"
+                                    <input type="text" name="current_address" id="currentAddress" class="form-control"
                                         value="{{ $user->profile?->current_address }}">
                                 </div>
                             </div>
@@ -897,6 +938,30 @@
             $('#is_security').on('change', function() {
                 toggleSecurityFields();
             });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            var ktp = $('#ktpAddress');
+            var domisili = $('#currentAddress');
+            var checkbox = $('#sameAsKtp');
+
+            function syncAddress() {
+                if (checkbox.is(':checked')) {
+                    domisili.val(ktp.val()).prop('readonly', true);
+                } else {
+                    domisili.prop('readonly', false);
+                }
+            }
+
+            if (ktp.val() && ktp.val() === domisili.val()) {
+                checkbox.prop('checked', true);
+                domisili.prop('readonly', true);
+            }
+
+            checkbox.on('change', syncAddress);
+            ktp.on('input', syncAddress);
         });
     </script>
 @endpush
