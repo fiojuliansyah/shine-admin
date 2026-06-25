@@ -101,6 +101,7 @@
     function submitForm() {
         const hasObjects = editor.pages.some(p => p.canvas.getObjects().length > 0);
         if (!hasObjects) { alert('Konten surat tidak boleh kosong.'); return; }
+        editor.markClean();
         document.getElementById('descriptionHidden').value = editor.serializeAll();
         document.getElementById('letterForm').submit();
     }

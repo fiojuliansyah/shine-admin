@@ -171,6 +171,14 @@
             <option>Verdana</option>
         </select>
         <input type="number" id="tbFontSize" class="form-control form-control-sm" style="width:60px" value="14" min="6" max="96">
+        <select id="tbLineHeight" class="form-select form-select-sm" style="width:92px" title="Jarak Baris">
+            <option value="1">1.0</option>
+            <option value="1.16" selected>1.15</option>
+            <option value="1.5">1.5</option>
+            <option value="2">2.0</option>
+            <option value="2.5">2.5</option>
+            <option value="3">3.0</option>
+        </select>
         <div class="vr"></div>
         <button type="button" id="tbBold" class="btn btn-sm btn-outline-secondary fw-bold" title="Bold">B</button>
         <button type="button" id="tbItalic" class="btn btn-sm btn-outline-secondary fst-italic" title="Italic">I</button>
@@ -282,7 +290,7 @@
 
     {{-- BOTTOM ACTION BAR --}}
     <div id="editor-actions">
-        <a href="{{ route('letters.index') }}" class="btn btn-light btn-sm px-4" target="_self">
+        <a href="{{ route('letters.index') }}" class="btn btn-light btn-sm px-4" target="_self" data-confirm-leave>
             <i class="ti ti-arrow-left me-1"></i>Kembali
         </a>
         @yield('action-buttons')

@@ -1,17 +1,11 @@
-document.addEventListener('keydown', function(e) {
-    if (e.key !== 'Tab') return;
-    const active = document.activeElement;
-    if (!active || active.tagName !== 'TEXTAREA') return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    const tabStr = '\u00a0\u00a0\u00a0\u00a0';
-    const start = active.selectionStart;
-    const end = active.selectionEnd;
-    const val = active.value;
-    active.value = val.substring(0, start) + tabStr + val.substring(end);
-    active.selectionStart = active.selectionEnd = start + tabStr.length;
-    active.dispatchEvent(new Event('input', { bubbles: true }));
-}, true);
+if (typeof fabric !== 'undefined') {
+    // Render teks lebih tajam (hindari blur): matikan object caching pada teks
+    fabric.Object.prototype.objectCaching = false;
+    fabric.Textbox.prototype.objectCaching = false;
+    fabric.IText.prototype.objectCaching = false;
+    fabric.Text.prototype.objectCaching = false;
+    fabric.devicePixelRatio = window.devicePixelRatio || 1;
+}
 
 class FabricLetterEditor {
     constructor() {
@@ -22,6 +16,8 @@ class FabricLetterEditor {
         this.MAX_HISTORY = 30;
         this._autoPageLock = false;
         this._mode = 'select'; // 'select' | 'textbox'
+        this.TAB_STR = '\u00a0\u00a0\u00a0\u00a0'; // 4 non-breaking spaces (tab seperti Word)
+        this._dirty = false;
     }
 
     init(savedData) {
@@ -46,6 +42,37 @@ class FabricLetterEditor {
         this.renderThumbs();
         this.renderLayers();
         this._bindToolbar();
+        this._bindDirtyGuard();
+    }
+
+    _bindDirtyGuard() {
+        const self = this;
+        this._dirty = false;
+        window.addEventListener('beforeunload', (e) => {
+            if (!self._dirty || self._allowLeave) return;
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        });
+        document.querySelectorAll('a[data-confirm-leave]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                if (self._dirty && !self._allowLeave) {
+                    if (!confirm('Perubahan belum disimpan akan hilang. Tetap keluar?')) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        });
+    }
+
+    markDirty() {
+        if (this._loading) return;
+        this._dirty = true;
+    }
+
+    markClean() {
+        this._dirty = false;
+        this._allowLeave = true;
     }
 
     _buildPageContainer(index) {
@@ -95,6 +122,8 @@ class FabricLetterEditor {
             width: this.CANVAS_W,
             height: this.CANVAS_H,
             backgroundColor: '#fff',
+            enableRetinaScaling: true,
+            imageSmoothingEnabled: true,
         });
 
         const margins = { top: 60, bottom: 60, left: 60, right: 60 };
@@ -116,14 +145,17 @@ class FabricLetterEditor {
         fc.on('object:added', (e) => {
             self._ensureLayerMeta(e.target);
             saveHistory();
+            self.markDirty();
             self.renderLayers();
         });
         fc.on('object:removed', () => {
             saveHistory();
+            self.markDirty();
             self.renderLayers();
         });
         fc.on('object:modified', (e) => {
             saveHistory();
+            self.markDirty();
             self._constrainObject(e.target, margins);
             if (!self._autoPageLock) self._checkAutoPage(index, e.target);
             self.renderLayers();
@@ -133,6 +165,7 @@ class FabricLetterEditor {
         });
         let _autoPageTimer = null;
         fc.on('text:changed', (e) => {
+            self.markDirty();
             self.renderLayers();
             if (self._autoPageLock) return;
             if (_autoPageTimer) clearTimeout(_autoPageTimer);
@@ -157,13 +190,13 @@ class FabricLetterEditor {
                     ev.stopPropagation();
                     const obj = fc.getActiveObject();
                     if (!obj || !obj.isEditing) return;
-                    const tabStr = '    ';
-                    const start = obj.selectionStart;
-                    const end = obj.selectionEnd;
-                    const text = obj.text || '';
+                    const tabStr = self.TAB_STR || '    ';
+                    const start = Math.min(obj.selectionStart, obj.selectionEnd);
+                    const end = Math.max(obj.selectionStart, obj.selectionEnd);
                     obj.insertChars(tabStr, null, start, end);
                     obj.selectionStart = start + tabStr.length;
                     obj.selectionEnd = start + tabStr.length;
+                    obj.hiddenTextarea && (obj.hiddenTextarea.value = obj.text);
                     fc.renderAll();
                 }, true);
             }
@@ -573,6 +606,8 @@ class FabricLetterEditor {
 
     loadFromJSON(data) {
         const self = this;
+        self._loading = true;
+        let pending = data.pages.length;
         data.pages.forEach((pageData, i) => {
             const fc = self.pages[i].canvas;
             fc.loadFromJSON(pageData.canvasJSON, () => {
@@ -580,6 +615,11 @@ class FabricLetterEditor {
                 self._drawRuler(fc);
                 fc.renderAll();
                 if (i === self.currentPage) self.renderLayers();
+                pending--;
+                if (pending <= 0) {
+                    self._loading = false;
+                    self._dirty = false;
+                }
             });
         });
     }
@@ -686,6 +726,28 @@ class FabricLetterEditor {
         fc.renderAll();
     }
 
+    _rememberSelection() {
+        const page = this.pages[this.currentPage];
+        if (!page) return;
+        const obj = page.canvas.getActiveObject();
+        if (!obj || (obj.type !== 'textbox' && obj.type !== 'i-text')) {
+            this._savedSelection = null;
+            return;
+        }
+        if (obj.isEditing
+            && typeof obj.selectionStart === 'number'
+            && typeof obj.selectionEnd === 'number'
+            && obj.selectionEnd > obj.selectionStart) {
+            this._savedSelection = {
+                obj,
+                start: obj.selectionStart,
+                end: obj.selectionEnd,
+            };
+        } else {
+            this._savedSelection = null;
+        }
+    }
+
     applyFormat(prop, value) {
         const fc = this.pages[this.currentPage].canvas;
         const obj = fc.getActiveObject();
@@ -696,21 +758,34 @@ class FabricLetterEditor {
                             'fontFamily', 'fontSize', 'fill'].includes(prop);
 
         const isAlign = prop === 'textAlign';
+        const isWholeObjectProp = prop === 'lineHeight';
 
-        const inEditWithSelection = obj.isEditing
+        let inEditWithSelection = obj.isEditing
             && typeof obj.selectionStart === 'number'
             && typeof obj.selectionEnd === 'number'
             && obj.selectionEnd > obj.selectionStart;
 
-        if (isAlign) {
+        // Jika seleksi hilang karena fokus pindah ke kontrol toolbar, pulihkan
+        // seleksi yang sempat disimpan agar format diterapkan ke teks terpilih.
+        let selStart = obj.selectionStart;
+        let selEnd = obj.selectionEnd;
+        if (!inEditWithSelection && this._savedSelection && this._savedSelection.obj === obj) {
+            selStart = this._savedSelection.start;
+            selEnd = this._savedSelection.end;
+            inEditWithSelection = true;
+        }
+
+        if (isWholeObjectProp) {
+            obj.set(prop, value);
+        } else if (isAlign) {
             if (inEditWithSelection) {
                 this._applyAlignToSelection(obj, value, fc);
             } else {
                 obj.set('textAlign', value);
             }
         } else if (isTextProp && inEditWithSelection) {
-            const start = obj.selectionStart;
-            const end = obj.selectionEnd;
+            const start = selStart;
+            const end = selEnd;
             let style = {};
             if (prop === 'fontWeight') {
                 const cur = obj.getSelectionStyles(start, end) || [];
@@ -747,6 +822,7 @@ class FabricLetterEditor {
             }
         }
 
+        obj._clearCache && obj._clearCache();
         fc.renderAll();
         this._syncToolbarFromSelection();
     }
@@ -873,9 +949,11 @@ class FabricLetterEditor {
         const ff = document.getElementById('tbFontFamily');
         const fs = document.getElementById('tbFontSize');
         const tc = document.getElementById('tbColor');
+        const lh = document.getElementById('tbLineHeight');
         if (ff) ff.value = fontFamily;
         if (fs) fs.value = fontSize;
         if (tc) tc.value = (typeof fill === 'string' && fill.startsWith('#')) ? fill : '#000000';
+        if (lh) lh.value = (obj.lineHeight != null ? obj.lineHeight : 1.16);
         const bold = document.getElementById('tbBold');
         const italic = document.getElementById('tbItalic');
         const underline = document.getElementById('tbUnderline');
@@ -1291,21 +1369,6 @@ class FabricLetterEditor {
                 return;
             }
 
-            // Tab — insert tab spaces saat editing textbox
-            if (key === 'Tab' && isEditingText) {
-                e.preventDefault();
-                const tabStr = '    '; // 4 spasi
-                const text = active.text || '';
-                const start = active.selectionStart;
-                const end = active.selectionEnd;
-                const newText = text.substring(0, start) + tabStr + text.substring(end);
-                active.set('text', newText);
-                active.selectionStart = start + tabStr.length;
-                active.selectionEnd = start + tabStr.length;
-                fc.renderAll();
-                return;
-            }
-
             if (!isMeta) return;
 
             if (keyLower === 'z' && !e.shiftKey) {
@@ -1358,13 +1421,20 @@ class FabricLetterEditor {
         get('tbBold') && get('tbBold').addEventListener('mousedown', (e) => e.preventDefault());
         get('tbItalic') && get('tbItalic').addEventListener('mousedown', (e) => e.preventDefault());
         get('tbUnderline') && get('tbUnderline').addEventListener('mousedown', (e) => e.preventDefault());
-        get('tbFontFamily') && get('tbFontFamily').addEventListener('mousedown', (e) => e.preventDefault());
-        get('tbFontSize') && get('tbFontSize').addEventListener('mousedown', (e) => e.preventDefault());
-        get('tbColor') && get('tbColor').addEventListener('mousedown', (e) => e.preventDefault());
         get('tbAlignLeft') && get('tbAlignLeft').addEventListener('mousedown', (e) => e.preventDefault());
         get('tbAlignCenter') && get('tbAlignCenter').addEventListener('mousedown', (e) => e.preventDefault());
         get('tbAlignRight') && get('tbAlignRight').addEventListener('mousedown', (e) => e.preventDefault());
         get('tbAlignJustify') && get('tbAlignJustify').addEventListener('mousedown', (e) => e.preventDefault());
+
+        // Font family, font size, dan color adalah elemen form yang harus bisa
+        // diklik/dibuka. Jangan preventDefault mousedown-nya. Sebagai gantinya,
+        // simpan seleksi teks aktif sebelum fokus berpindah ke kontrol toolbar.
+        ['tbFontFamily', 'tbFontSize', 'tbColor'].forEach(id => {
+            const el = get(id);
+            if (!el) return;
+            el.addEventListener('pointerdown', () => self._rememberSelection());
+            el.addEventListener('focus', () => self._rememberSelection());
+        });
 
         get('tbBold') && get('tbBold').addEventListener('click', () => self.applyFormat('fontWeight'));
         get('tbItalic') && get('tbItalic').addEventListener('click', () => self.applyFormat('fontStyle'));
@@ -1374,10 +1444,17 @@ class FabricLetterEditor {
             self.applyFormat('fontFamily', this.value);
         });
         get('tbFontSize') && get('tbFontSize').addEventListener('change', function() {
-            self.applyFormat('fontSize', parseInt(this.value));
+            const v = parseInt(this.value);
+            if (!isNaN(v)) self.applyFormat('fontSize', v);
         });
         get('tbColor') && get('tbColor').addEventListener('input', function() {
             self.applyFormat('fill', this.value);
+        });
+
+        get('tbLineHeight') && get('tbLineHeight').addEventListener('pointerdown', () => self._rememberSelection());
+        get('tbLineHeight') && get('tbLineHeight').addEventListener('change', function() {
+            const v = parseFloat(this.value);
+            if (!isNaN(v)) self.applyFormat('lineHeight', v);
         });
 
         get('tbAlignLeft') && get('tbAlignLeft').addEventListener('mousedown', (e) => { e.preventDefault(); self.applyFormat('textAlign', 'left'); });
