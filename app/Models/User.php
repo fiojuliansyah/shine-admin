@@ -90,4 +90,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Applicant::class);
     }
+
+    public function generates()
+    {
+        return $this->hasMany(Generate::class, 'user_id');
+    }
+
+    public function latestGenerate()
+    {
+        return $this->hasOne(Generate::class, 'user_id')->latestOfMany();
+    }
 }

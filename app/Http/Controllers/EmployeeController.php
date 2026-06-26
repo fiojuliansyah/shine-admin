@@ -30,7 +30,7 @@ class EmployeeController extends Controller
         $columns = EmployeeColumnConfig::getColumns($company->short_name ?? $company->name);
 
         if ($request->ajax()) {
-            $query = User::with(['profile', 'roles', 'site.company'])
+            $query = User::with(['profile', 'roles', 'site.company', 'latestGenerate.letter.numberConfig', 'latestGenerate.letter.type', 'latestGenerate.site.company'])
                 ->where('is_employee', 1)
                 ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'))
                 ->whereHas('site', fn($q) => $q->where('company_id', $company->id));
@@ -78,6 +78,7 @@ class EmployeeController extends Controller
             'phone'          => e($row->phone ?? '-'),
             'nik'            => e($row->nik ?? '-'),
             'employee_nik'   => e($row->employee_nik ?? '-'),
+            'no_surat', 'no_srt' => e($row->latestGenerate?->formatted_letter_number ?? '-'),
             'company_name'   => e($row->site->company->name ?? '-'),
             'area'           => e($row->site->name ?? '-'),
             'klien'          => e($row->site->client_name ?? '-'),

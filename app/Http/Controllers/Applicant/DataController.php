@@ -639,6 +639,7 @@ class DataController extends Controller
             'kelurahan',
             'kecamatan',
             'gender',
+            'religion',
             'birth_place',
             'birth_date',
             'mother_name',

@@ -151,6 +151,7 @@ class EmployeeColumnConfig
             ['key' => 'area',            'label' => 'AREA'],
             ['key' => 'birth_place',     'label' => 'TEMPAT LAHIR'],
             ['key' => 'birth_date',      'label' => 'TGL LAHIR'],
+            ['key' => 'religion',        'label' => 'AGAMA'],
             ['key' => 'address',         'label' => 'ALAMAT'],
             ['key' => 'join_date',       'label' => 'TGL MASUK'],
             ['key' => 'resign_date',     'label' => 'TGL RESIGN'],

@@ -526,6 +526,19 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
+                                    <label class="form-label">Agama<span class="text-danger"> *</span></label>
+                                    <select class="form-select" name="religion">
+                                        <option disabled {{ $user->profile?->religion ? '' : 'selected' }}>Pilih Agama</option>
+                                        @foreach (['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'] as $rel)
+                                            <option value="{{ $rel }}"
+                                                {{ $user->profile?->religion == $rel ? 'selected' : '' }}>
+                                                {{ $rel }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
                                     <label class="form-label">Status Pernikahan<span class="text-danger"> *</span></label>
                                     <select class="form-select" name="marriage_status">
                                         <option disabled selected>Pilih</option>
