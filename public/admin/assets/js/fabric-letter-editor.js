@@ -650,15 +650,7 @@ class FabricLetterEditor {
                 const json = p.canvas.toJSON(['_isRuler', 'excludeFromExport', '_layerId', '_layerName']);
                 json.objects = (json.objects || []).filter(o => !o._isRuler);
 
-                const overlay = document.getElementById('ruler-overlay-' + p.id);
-                if (overlay) overlay.style.display = 'none';
-                p.canvas.discardActiveObject();
-                p.canvas.renderAll();
-                const pageImage = p.canvas.toDataURL({ format: 'png', multiplier: 1 });
-                if (overlay) overlay.style.display = '';
-                p.canvas.renderAll();
-
-                return { id: p.id, canvasJSON: json, pageImage };
+                return { id: p.id, canvasJSON: json };
             })
         };
         return JSON.stringify(data);
