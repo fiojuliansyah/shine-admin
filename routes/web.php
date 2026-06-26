@@ -83,6 +83,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
 
     Route::resource('type_letters', TypeLetterController::class);
 
+    Route::post('/letters/import', [LetterController::class, 'import'])->name('letters.import');
     Route::resource('letters', LetterController::class);
     Route::post('/letters/{letter}/duplicate', [LetterController::class, 'duplicate'])->name('letters.duplicate');
     Route::get('/letters/{letter}/pdf', [LetterController::class, 'pdf'])->name('letters.pdf');

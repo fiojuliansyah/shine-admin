@@ -11,6 +11,10 @@ use App\DataTables\LettersDataTable;
 use App\Models\CustomVariable;
 use App\Models\LetterNumberConfig;
 use Barryvdh\DomPDF\Facade\Pdf;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Element\TextRun;
+use PhpOffice\PhpWord\Element\Text;
+use PhpOffice\PhpWord\Element\TextBreak;
 
 class LetterController extends Controller
 {
@@ -235,6 +239,245 @@ class LetterController extends Controller
 
         return redirect()->route('letters.index')
                         ->with('success', 'Letter ' . $letter->title . ' dan variabel kustom berhasil diubah');
+    }
+
+    /**
+     * Import a .docx file and convert it into a Fabric.js editor template.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'site_id' => 'required',
+            'type_letter_id' => 'required',
+            'title' => 'required|string|max:255',
+            'docx' => 'required|file|mimes:docx|max:10240',
+        ]);
+
+        try {
+            $description = $this->convertDocxToFabric($request->file('docx')->getRealPath());
+        } catch (\Throwable $e) {
+            \Log::error('Letter DOCX import failed: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Gagal memproses file DOCX: ' . $e->getMessage());
+        }
+
+        $letter = new Letter;
+        $letter->site_id = $request->site_id;
+        $letter->title = $request->title;
+        $letter->type_letter_id = $request->type_letter_id;
+        $letter->description = $description;
+        $letter->number_format = '{no}/{kode_tipe}/{romawi}/{tahun}';
+        $letter->number_padding = 3;
+        $letter->require_hrd_signature = $request->boolean('require_hrd_signature');
+        $letter->require_employee_signature = $request->boolean('require_employee_signature');
+        $letter->save();
+
+        return redirect()->route('letters.edit', $letter->id)
+            ->with('success', 'Template "' . $letter->title . '" berhasil diimpor dari DOCX. Silakan periksa lalu simpan.');
+    }
+
+    /**
+     * Convert a .docx document into Fabric.js canvas JSON (one textbox per paragraph),
+     * paginating onto A4-sized pages (794 x 1123 px) with 60px margins.
+     */
+    protected function convertDocxToFabric(string $path): string
+    {
+        $phpWord = IOFactory::load($path);
+
+        $CANVAS_W = 794;
+        $CANVAS_H = 1123;
+        $MARGIN = 60;
+        $CONTENT_W = $CANVAS_W - ($MARGIN * 2);
+        $MAX_Y = $CANVAS_H - $MARGIN;
+
+        $pages = [];
+        $objects = [];
+        $cursorY = $MARGIN;
+
+        $flushPage = function () use (&$pages, &$objects, &$cursorY, $MARGIN) {
+            $pages[] = [
+                'id' => count($pages),
+                'canvasJSON' => [
+                    'version' => '5.3.1',
+                    'objects' => $objects,
+                    'background' => '#fff',
+                ],
+                'pageImage' => null,
+            ];
+            $objects = [];
+            $cursorY = $MARGIN;
+        };
+
+        foreach ($phpWord->getSections() as $section) {
+            foreach ($section->getElements() as $element) {
+                $paragraphs = $this->extractParagraph($element);
+
+                foreach ($paragraphs as $para) {
+                    $text = $para['text'];
+                    $fontSize = $para['fontSize'];
+                    $isEmpty = trim($text) === '';
+
+                    // Tinggi baris mengikuti render Fabric: fontSize * lineHeight.
+                    $lineHeightFactor = 1.16;
+                    $lineHeightPx = $fontSize * $lineHeightFactor;
+
+                    // Estimasi jumlah baris (wrap + line break eksplisit).
+                    $charsPerLine = max(1, (int) floor($CONTENT_W / ($fontSize * 0.55)));
+                    $longestLine = 0;
+                    foreach (explode("\n", $text) as $ln) {
+                        $longestLine = max($longestLine, mb_strlen($ln));
+                    }
+                    $explicitBreaks = substr_count($text, "\n");
+                    $wrapLines = $isEmpty ? 1 : max(1, (int) ceil($longestLine / $charsPerLine));
+                    $lineCount = $wrapLines + $explicitBreaks;
+
+                    // Paragraf kosong cukup setengah baris agar tidak longkap-longkap.
+                    $blockHeight = $isEmpty
+                        ? round($lineHeightPx * 0.5)
+                        : ($lineCount * $lineHeightPx);
+
+                    if ($cursorY + $blockHeight > $MAX_Y && count($objects) > 0) {
+                        $flushPage();
+                    }
+
+                    // Rata kanan & kiri (justify) dibuat rapat ke kiri sesuai permintaan.
+                    $align = $para['align'] === 'justify' ? 'left' : $para['align'];
+
+                    $objects[] = [
+                        'type' => 'textbox',
+                        'version' => '5.3.1',
+                        'left' => $MARGIN,
+                        'top' => $cursorY,
+                        'width' => $CONTENT_W,
+                        'text' => $text === '' ? ' ' : $text,
+                        'fontSize' => $fontSize,
+                        'fontFamily' => $para['fontFamily'],
+                        'fontWeight' => $para['bold'] ? 'bold' : 'normal',
+                        'fontStyle' => $para['italic'] ? 'italic' : 'normal',
+                        'underline' => $para['underline'],
+                        'fill' => $para['color'],
+                        'textAlign' => $align,
+                        'lineHeight' => $lineHeightFactor,
+                        'padding' => 0,
+                        'styles' => [],
+                    ];
+
+                    $cursorY += $blockHeight;
+                }
+            }
+        }
+
+        $flushPage();
+
+        return json_encode(['pages' => $pages]);
+    }
+
+    /**
+     * Normalize a PhpWord element into one or more paragraph descriptors.
+     */
+    protected function extractParagraph($element): array
+    {
+        $defaults = [
+            'text' => '',
+            'fontSize' => 14,
+            'bold' => false,
+            'italic' => false,
+            'underline' => false,
+            'align' => 'left',
+            'color' => '#000000',
+            'fontFamily' => 'Arial',
+        ];
+
+        if ($element instanceof TextBreak) {
+            return [$defaults];
+        }
+
+        if ($element instanceof Text) {
+            return [array_merge($defaults, $this->readRunStyle($element), [
+                'text' => $element->getText() ?? '',
+                'align' => $this->readParagraphAlign($element),
+            ])];
+        }
+
+        if ($element instanceof TextRun) {
+            $text = '';
+            $style = [];
+            foreach ($element->getElements() as $child) {
+                if ($child instanceof Text) {
+                    $text .= $child->getText() ?? '';
+                    if (empty($style)) {
+                        $style = $this->readRunStyle($child);
+                    }
+                } elseif ($child instanceof TextBreak) {
+                    $text .= "\n";
+                }
+            }
+            return [array_merge($defaults, $style, [
+                'text' => $text,
+                'align' => $this->readParagraphAlign($element),
+            ])];
+        }
+
+        // Tabel: ratakan tiap baris jadi satu paragraf, antar sel dipisah tab.
+        if ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+            $rows = [];
+            foreach ($element->getRows() as $row) {
+                $cells = [];
+                foreach ($row->getCells() as $cell) {
+                    $cellText = '';
+                    foreach ($cell->getElements() as $cellEl) {
+                        foreach ($this->extractParagraph($cellEl) as $p) {
+                            $cellText .= $p['text'] . ' ';
+                        }
+                    }
+                    $cells[] = trim($cellText);
+                }
+                $rows[] = array_merge($defaults, ['text' => implode("\t", $cells)]);
+            }
+            return $rows ?: [$defaults];
+        }
+
+        return [$defaults];
+    }
+
+    protected function readRunStyle($element): array
+    {
+        $style = [];
+        $fontStyle = method_exists($element, 'getFontStyle') ? $element->getFontStyle() : null;
+        if ($fontStyle && is_object($fontStyle)) {
+            $size = $fontStyle->getSize();
+            if ($size) {
+                // PhpWord menyimpan ukuran dalam poin; petakan poin ke px editor.
+                $style['fontSize'] = (int) round($size);
+            }
+            if ($fontStyle->isBold()) $style['bold'] = true;
+            if ($fontStyle->isItalic()) $style['italic'] = true;
+            $underline = $fontStyle->getUnderline();
+            if ($underline && $underline !== 'none') $style['underline'] = true;
+            $name = $fontStyle->getName();
+            if ($name) $style['fontFamily'] = $name;
+            $color = $fontStyle->getColor();
+            if ($color) $style['color'] = '#' . ltrim($color, '#');
+        }
+        return $style;
+    }
+
+    protected function readParagraphAlign($element): string
+    {
+        $map = [
+            'left' => 'left', 'start' => 'left',
+            'right' => 'right', 'end' => 'right',
+            'center' => 'center',
+            'both' => 'justify', 'justify' => 'justify',
+        ];
+        $paraStyle = method_exists($element, 'getParagraphStyle') ? $element->getParagraphStyle() : null;
+        if ($paraStyle && is_object($paraStyle) && method_exists($paraStyle, 'getAlignment')) {
+            $align = $paraStyle->getAlignment();
+            if ($align && isset($map[$align])) {
+                return $map[$align];
+            }
+        }
+        return 'left';
     }
 
     /**

@@ -52,7 +52,7 @@
         </div>
     @endforeach
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="/admin/assets/js/fabric-5.5.2.min.js"></script>
 <script>
     const pages = @json($pages);
 

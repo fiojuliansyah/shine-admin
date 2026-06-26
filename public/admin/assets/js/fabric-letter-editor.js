@@ -1,9 +1,7 @@
 if (typeof fabric !== 'undefined') {
-    // Render teks lebih tajam (hindari blur): matikan object caching pada teks
-    fabric.Object.prototype.objectCaching = false;
-    fabric.Textbox.prototype.objectCaching = false;
-    fabric.IText.prototype.objectCaching = false;
-    fabric.Text.prototype.objectCaching = false;
+    // Ketajaman teks ditangani lewat enableRetinaScaling per-canvas.
+    // CATATAN: jangan matikan objectCaching pada teks — di fabric 5.3.1 hal itu
+    // memicu bug "textBaseline 'alphabetical'" dan crash saat render.
     fabric.devicePixelRatio = window.devicePixelRatio || 1;
 }
 
@@ -21,17 +19,16 @@ class FabricLetterEditor {
     }
 
     init(savedData) {
+        console.info('[LetterEditor] init v4 — data length:', savedData ? savedData.length : 0);
         if (savedData && savedData.trim() !== '') {
-            try {
-                const parsed = JSON.parse(savedData);
-                if (parsed.pages && Array.isArray(parsed.pages)) {
-                    parsed.pages.forEach((_, i) => this._buildPageContainer(i));
-                    this.loadFromJSON(parsed);
-                } else {
-                    this._buildPageContainer(0);
-                    this.convertFromHTML(savedData);
-                }
-            } catch (e) {
+            let parsed = this._parseSavedData(savedData);
+
+            if (parsed && parsed.pages && Array.isArray(parsed.pages)) {
+                console.info('[LetterEditor] loading fabric pages:', parsed.pages.length);
+                parsed.pages.forEach((_, i) => this._buildPageContainer(i));
+                this.loadFromJSON(parsed);
+            } else {
+                console.warn('[LetterEditor] data bukan format fabric pages, fallback ke teks.');
                 this._buildPageContainer(0);
                 this.convertFromHTML(savedData);
             }
@@ -43,6 +40,25 @@ class FabricLetterEditor {
         this.renderLayers();
         this._bindToolbar();
         this._bindDirtyGuard();
+    }
+
+    /**
+     * Parse data tersimpan dengan toleransi: menangani JSON ganda-encode
+     * (string di dalam string) yang bisa membuat editor salah menampilkan
+     * teks JSON mentah alih-alih merender halaman.
+     */
+    _parseSavedData(savedData) {
+        let value = savedData;
+        for (let i = 0; i < 3; i++) {
+            if (typeof value !== 'string') break;
+            try {
+                value = JSON.parse(value);
+            } catch (e) {
+                console.error('[LetterEditor] JSON.parse gagal:', e.message);
+                return null;
+            }
+        }
+        return (typeof value === 'object') ? value : null;
     }
 
     _bindDirtyGuard() {
@@ -611,8 +627,12 @@ class FabricLetterEditor {
         data.pages.forEach((pageData, i) => {
             const fc = self.pages[i].canvas;
             fc.loadFromJSON(pageData.canvasJSON, () => {
-                fc.getObjects().forEach(o => self._ensureLayerMeta(o));
-                self._drawRuler(fc);
+                try {
+                    fc.getObjects().forEach(o => self._ensureLayerMeta(o));
+                    self._drawRuler(fc);
+                } catch (err) {
+                    console.error('loadFromJSON post-process error:', err);
+                }
                 fc.renderAll();
                 if (i === self.currentPage) self.renderLayers();
                 pending--;
@@ -1014,6 +1034,12 @@ class FabricLetterEditor {
 
     _ensureLayerMeta(obj) {
         if (!obj) return;
+        // Textbox hasil impor bisa tidak punya properti `styles`. Tanpa ini,
+        // Fabric 5.5.x crash di stylesToArray saat toJSON()/toObject().
+        const isText = obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text';
+        if (isText && (obj.styles === undefined || obj.styles === null)) {
+            obj.styles = {};
+        }
         if (!obj._layerId) {
             obj._layerId = 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
         }

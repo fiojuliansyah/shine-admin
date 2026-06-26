@@ -336,8 +336,8 @@
 
 <script src="/admin/assets/js/jquery-3.7.1.min.js"></script>
 <script src="/admin/assets/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-<script src="/admin/assets/js/fabric-letter-editor.js"></script>
+<script src="/admin/assets/js/fabric-5.5.2.min.js?v={{ filemtime(public_path('admin/assets/js/fabric-5.5.2.min.js')) }}"></script>
+<script src="/admin/assets/js/fabric-letter-editor.js?v={{ filemtime(public_path('admin/assets/js/fabric-letter-editor.js')) }}"></script>
 <script>
     const UPLOAD_IMAGE_URL = '{{ route("letters.upload-image") }}';
     const editor = new FabricLetterEditor();
