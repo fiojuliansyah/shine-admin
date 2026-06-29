@@ -3,6 +3,32 @@ if (typeof fabric !== 'undefined') {
     // CATATAN: jangan matikan objectCaching pada teks — di fabric 5.3.1 hal itu
     // memicu bug "textBaseline 'alphabetical'" dan crash saat render.
     fabric.devicePixelRatio = window.devicePixelRatio || 1;
+
+    if (fabric.Text && fabric.Text.prototype) {
+        fabric.Text.prototype.enlargeSpaces = function () {
+            for (var i, e, l, k, n, t, b, a = 0, c = this._textLines.length; a < c; a++) {
+                if (a === c - 1 || this.isEndOfWrapping(a)) continue;
+                k = 0;
+                n = this._textLines[a];
+                e = this.getLineWidth(a);
+                if (e < this.width && (t = this.textLines[a].match(this._reSpacesAndTabs))) {
+                    i = t.length;
+                    l = (this.width - e) / i;
+                    for (var h = 0, m = n.length; h <= m; h++) {
+                        b = this.__charBounds[a][h];
+                        if (this._reSpaceAndTab.test(n[h])) {
+                            b.width += l;
+                            b.kernedWidth += l;
+                            b.left += k;
+                            k += l;
+                        } else {
+                            b.left += k;
+                        }
+                    }
+                }
+            }
+        };
+    }
 }
 
 class FabricLetterEditor {
