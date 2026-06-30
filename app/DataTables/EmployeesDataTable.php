@@ -62,6 +62,13 @@ class EmployeesDataTable extends DataTable
                     ? '<span class="badge bg-danger">Resign</span>'
                     : '<span class="badge bg-success">Aktif</span>';
             })
+            ->addColumn('no_surat', function ($row) {
+                $interviewGenerate = $row->generates?
+                    ->whereHas('letter.type', fn($q) => $q->where('name', 'Interview'))
+                    ->sortByDesc('created_at')
+                    ->first();
+                return e($interviewGenerate?->formatted_letter_number ?? '-');
+            })
 
             ->rawColumns(['nama', 'status'])
             ->setRowId('id');
@@ -70,9 +77,10 @@ class EmployeesDataTable extends DataTable
     public function query(User $model): QueryBuilder
     {
         $query = $model->newQuery()
-            ->with(['profile', 'roles', 'site'])
+            ->with(['profile' => fn($q) => $q->select('user_id', 'birth_place', 'birth_date', 'address', 'rt_rw', 'kelurahan', 'kecamatan', 'join_date', 'resign_date'), 'roles', 'site', 'generates.letter.type'])
             ->where('is_employee', 1)
-            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'));
+            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'))
+            ->whereHas('generates.letter.type', fn($q) => $q->where('name', 'Interview'));
 
         if (request()->filled('site_id')) {
             $query->where('site_id', request('site_id'));
@@ -111,6 +119,7 @@ class EmployeesDataTable extends DataTable
             Column::make('alamat')->title('Alamat')->orderable(false)->searchable(false),
             Column::make('join_date')->title('Tgl Masuk')->orderable(false)->searchable(false),
             Column::make('status')->title('Status')->orderable(false)->searchable(false),
+            Column::make('no_surat')->title('No Surat Interview')->orderable(false)->searchable(false),
         ];
     }
 
