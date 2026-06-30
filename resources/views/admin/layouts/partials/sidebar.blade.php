@@ -96,6 +96,11 @@
                                 <i class="ti ti-timeline-event-text"></i><span>Tingkatan</span>
                             </a>
                         </li>
+                        <li class="{{ Route::is('salary-settings.index') ? 'active' : '' }}">
+                            <a href="{{ route('salary-settings.index') }}">
+                                <i class="ti ti-coin"></i><span>Pengaturan Gaji</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 <li class="menu-title"><span>DOKUMEN DIGITAL</span></li>
