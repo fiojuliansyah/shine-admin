@@ -42,6 +42,10 @@
                         <input type="text" class="form-control" id="name-{{ $row->id }}" name="name" value="{{ $row->name }}" required>
                     </div>
                     <div class="mb-3">
+                        <label for="area-{{ $row->id }}" class="form-label">Area</label>
+                        <input type="text" class="form-control" id="area-{{ $row->id }}" name="area" value="{{ $row->area }}" placeholder="Contoh: Jakarta">
+                    </div>
+                    <div class="mb-3">
                         <label for="description-{{ $row->id }}" class="form-label">Deskripsi Project</label>
                         <input type="text" class="form-control" id="description-{{ $row->id }}" name="description" value="{{ $row->description }}">
                     </div>

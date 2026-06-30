@@ -207,6 +207,9 @@ class GenerateController extends Controller
         $handphone = $generate->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
         $area = strtoupper($generate->user->site->name ?? 'belum ada area');
+        $area_project = $generate->user->site->area ?? 'belum ada area';
+        $nik_ktp = $generate->user->nik ?? 'belum ada NIK KTP';
+        $jenis_kelamin = $generate->user->profile->gender ?? 'belum ada Jenis Kelamin';
         $nama_client = $generate->user->site->client_name ?? 'belum ada area';
         $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
         $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
@@ -281,16 +284,16 @@ class GenerateController extends Controller
 
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
-            '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[ttl]', '[alamat]', '[handphone]',
-            '[no_karyawan]', '[lokasi_project]', '[nama_client]', '[jabatan_client]', '[jabatan]',
+            '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[nik_ktp]', '[jenis_kelamin]', '[ttl]', '[alamat]', '[handphone]',
+            '[no_karyawan]', '[lokasi_project]', '[area]', '[nama_client]', '[jabatan_client]', '[jabatan]',
             '[esign]', '[gaji]', '[tunjangan]', '[komisi]', '[potongan]', '[nama_kontak]',
             '[no_kontak]', '[alamat_kontak]', '[hubungan]'
         ];
 
         $replace = [
             $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
-            $pihak_2, $sign_2, $nama_karyawan, $ttl, $alamat, $handphone,
-            $no_karyawan, $area, $nama_client, $jabatan_client, $jabatan,
+            $pihak_2, $sign_2, $nama_karyawan, $nik_ktp, $jenis_kelamin, $ttl, $alamat, $handphone,
+            $no_karyawan, $area, $area_project, $nama_client, $jabatan_client, $jabatan,
             $esign, $gaji, $tunjangan, $komisi, $potongan, $nama_kontak,
             $no_kontak, $alamat_kontak, $hubungan
         ];
@@ -328,6 +331,9 @@ class GenerateController extends Controller
         $handphone = $generate->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
         $area = strtoupper($generate->user->site->name ?? 'belum ada area');
+        $area_project = $generate->user->site->area ?? 'belum ada area';
+        $nik_ktp = $generate->user->nik ?? 'belum ada NIK KTP';
+        $jenis_kelamin = $generate->user->profile->gender ?? 'belum ada Jenis Kelamin';
         $nama_client = $generate->user->site->client_name ?? 'belum ada area';
         $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
         $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
@@ -358,8 +364,8 @@ class GenerateController extends Controller
         $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->locale('id')->translatedFormat('j F Y') : 'belum ada data';
         $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->locale('id')->translatedFormat('j F Y') : 'Sampai dengan Selesai';
 
-        $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]','[komisi]','[potongan]','[nama_kontak]','[no_kontak]','[alamat_kontak]','[hubungan]'];
-        $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$ttl,$alamat,$handphone,$no_karyawan,$area,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan,$komisi,$potongan,$nama_kontak,$no_kontak,$alamat_kontak,$hubungan];
+        $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[nik_ktp]','[jenis_kelamin]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[area]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]','[komisi]','[potongan]','[nama_kontak]','[no_kontak]','[alamat_kontak]','[hubungan]'];
+        $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$nik_ktp,$jenis_kelamin,$ttl,$alamat,$handphone,$no_karyawan,$area,$area_project,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan,$komisi,$potongan,$nama_kontak,$no_kontak,$alamat_kontak,$hubungan];
 
         $customValues = \App\Models\ValueVariable::where('generate_id', $generate->id)->with('customVariable')->get();
         foreach ($customValues as $cv) {
@@ -414,6 +420,9 @@ class GenerateController extends Controller
         $handphone = $generate->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
         $area = strtoupper($generate->user->site->name ?? 'belum ada area');
+        $area_project = $generate->user->site->area ?? 'belum ada area';
+        $nik_ktp = $generate->user->nik ?? 'belum ada NIK KTP';
+        $jenis_kelamin = $generate->user->profile->gender ?? 'belum ada Jenis Kelamin';
         $nama_client = $generate->user->site->client_name ?? 'belum ada area';
         $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
         $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
@@ -483,16 +492,16 @@ class GenerateController extends Controller
 
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
-            '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[ttl]', '[alamat]', '[handphone]',
-            '[no_karyawan]', '[lokasi_project]', '[nama_client]', '[jabatan_client]', '[jabatan]',
+            '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[nik_ktp]', '[jenis_kelamin]', '[ttl]', '[alamat]', '[handphone]',
+            '[no_karyawan]', '[lokasi_project]', '[area]', '[nama_client]', '[jabatan_client]', '[jabatan]',
             '[esign]', '[gaji]', '[tunjangan]', '[komisi]', '[potongan]', '[nama_kontak]',
             '[no_kontak]', '[alamat_kontak]', '[hubungan]'
         ];
 
         $replace = [
             $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
-            $pihak_2, $sign_2, $nama_karyawan, $ttl, $alamat, $handphone,
-            $no_karyawan, $area, $nama_client, $jabatan_client, $jabatan,
+            $pihak_2, $sign_2, $nama_karyawan, $nik_ktp, $jenis_kelamin, $ttl, $alamat, $handphone,
+            $no_karyawan, $area, $area_project, $nama_client, $jabatan_client, $jabatan,
             $esign, $gaji, $tunjangan, $komisi, $potongan, $nama_kontak,
             $no_kontak, $alamat_kontak, $hubungan
         ];

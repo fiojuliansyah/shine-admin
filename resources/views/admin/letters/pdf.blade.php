@@ -20,7 +20,6 @@
             position: absolute;
             white-space: pre-wrap;
             word-break: break-word;
-            overflow: hidden;
         }
         .html-content {
             padding: 60px 80px;
@@ -39,6 +38,71 @@
         @php
             $pageImagePath = $page['pageImagePath'] ?? null;
             $objects = $page['canvasJSON']['objects'] ?? [];
+
+            // Reflow: setelah variabel diganti nilai sebenarnya (mis. nama project /
+            // jabatan yang panjang), teks bisa membungkus ke beberapa baris dan
+            // menimpa objek di bawahnya. Kita estimasi tinggi teks lalu dorong
+            // objek yang tumpang tindih ke bawah agar tidak bertabrakan.
+            if (!($pageImagePath && file_exists($pageImagePath)) && is_array($objects) && count($objects)) {
+                $estimateHeight = function ($obj) {
+                    $scaleY     = $obj['scaleY'] ?? 1;
+                    $scaleX     = $obj['scaleX'] ?? 1;
+                    $type       = $obj['type'] ?? '';
+                    if (!in_array($type, ['textbox', 'i-text', 'text'])) {
+                        return ($obj['height'] ?? 0) * $scaleY;
+                    }
+                    $text       = $obj['text'] ?? '';
+                    if (str_starts_with($text, 'data:image/')) {
+                        return ($obj['height'] ?? 0) * $scaleY;
+                    }
+                    $fontSize   = $obj['fontSize'] ?? 14;
+                    $lineHeight = $obj['lineHeight'] ?? 1.16;
+                    $boxWidth   = max(1, ($obj['width'] ?? 200) * $scaleX);
+                    // perkiraan lebar rata-rata karakter ~ 0.5 * fontSize
+                    $charW      = max(1, $fontSize * 0.5);
+                    $perLine    = max(1, (int) floor($boxWidth / $charW));
+                    $lines      = 0;
+                    foreach (preg_split('/\r\n|\r|\n/', $text) as $paragraph) {
+                        $len = max(1, mb_strlen($paragraph));
+                        $lines += (int) ceil($len / $perLine);
+                    }
+                    $lines = max(1, $lines);
+                    return $lines * $fontSize * $lineHeight * $scaleY;
+                };
+
+                // urutkan referensi berdasar posisi atas
+                usort($objects, function ($a, $b) {
+                    return ($a['top'] ?? 0) <=> ($b['top'] ?? 0);
+                });
+
+                $gap = 4;
+                $count = count($objects);
+                for ($i = 0; $i < $count; $i++) {
+                    $upper       = $objects[$i];
+                    $upperTop    = $upper['top'] ?? 0;
+                    $upperLeft   = $upper['left'] ?? 0;
+                    $upperRight  = $upperLeft + (($upper['width'] ?? 200) * ($upper['scaleX'] ?? 1));
+                    $upperBottom = $upperTop + $estimateHeight($upper);
+
+                    for ($j = $i + 1; $j < $count; $j++) {
+                        $lowerTop   = $objects[$j]['top'] ?? 0;
+                        $lowerLeft  = $objects[$j]['left'] ?? 0;
+                        $lowerRight = $lowerLeft + (($objects[$j]['width'] ?? 200) * ($objects[$j]['scaleX'] ?? 1));
+
+                        // hanya geser bila benar-benar bertumpuk secara horizontal
+                        $overlapX = $lowerLeft < $upperRight - 2 && $upperLeft < $lowerRight - 2;
+                        if (!$overlapX) continue;
+
+                        if ($lowerTop < $upperBottom) {
+                            $objects[$j]['top'] = $upperBottom + $gap;
+                        }
+                    }
+
+                    usort($objects, function ($a, $b) {
+                        return ($a['top'] ?? 0) <=> ($b['top'] ?? 0);
+                    });
+                }
+            }
         @endphp
         <div class="page">
             @if($pageImagePath && file_exists($pageImagePath))
@@ -86,7 +150,7 @@
                                 left:{{ $adjustLeft }}px;
                                 top:{{ $adjustTop }}px;
                                 width:{{ $width }}px;
-                                @if($height) height:{{ $height }}px; @endif
+                                min-height:{{ $height ?: 0 }}px;
                                 font-size:{{ $fontSize }}px;
                                 font-family:{{ $fontFamily }},Arial,sans-serif;
                                 color:{{ $fill }};

@@ -56,6 +56,47 @@
 <script>
     const pages = @json($pages);
 
+    // Setelah teks variabel diganti dengan nilai sebenarnya (mis. nama project /
+    // jabatan yang panjang), sebuah textbox bisa membesar ke beberapa baris dan
+    // menimpa objek di bawahnya. Fungsi ini mendorong objek yang tumpang tindih
+    // ke bawah secara otomatis sehingga tata letak tetap rapi.
+    function reflowOverlaps(fc) {
+        const GAP = 4;
+        let objects = fc.getObjects().filter(function (o) {
+            return o.visible !== false && !o.excludeFromExport;
+        });
+
+        // Urutkan dari atas ke bawah.
+        objects.sort(function (a, b) { return a.top - b.top; });
+
+        const horizontallyOverlap = function (a, b) {
+            const aL = a.left;
+            const aR = a.left + a.getScaledWidth();
+            const bL = b.left;
+            const bR = b.left + b.getScaledWidth();
+            // beri sedikit toleransi agar kolom yang benar-benar terpisah tidak ikut tergeser
+            return aL < bR - 2 && bL < aR - 2;
+        };
+
+        for (let i = 0; i < objects.length; i++) {
+            const upper = objects[i];
+            const upperBottom = upper.top + upper.getScaledHeight();
+            for (let j = i + 1; j < objects.length; j++) {
+                const lower = objects[j];
+                if (lower.top >= upperBottom) continue;
+                if (!horizontallyOverlap(upper, lower)) continue;
+                const newTop = upperBottom + GAP;
+                if (newTop > lower.top) {
+                    lower.set({ top: newTop });
+                    lower.setCoords();
+                }
+            }
+            // re-sort sisanya karena posisi berubah
+            objects.sort(function (a, b) { return a.top - b.top; });
+        }
+        fc.renderAll();
+    }
+
     pages.forEach(function(pageData, i) {
         const fc = new fabric.Canvas('printCanvas-' + i, {
             width: 794,
@@ -67,6 +108,7 @@
             fc.getObjects().forEach(function(obj) {
                 obj.set({ selectable: false, evented: false, hoverCursor: 'default' });
             });
+            reflowOverlaps(fc);
             fc.renderAll();
         });
     });

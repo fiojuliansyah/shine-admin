@@ -845,6 +845,18 @@ class FabricLetterEditor {
                 style.fill = value;
             }
             obj.setSelectionStyles(style, start, end);
+
+            // Jika seleksi mencakup seluruh teks, terapkan juga pada level objek
+            // dan bersihkan style per-karakter. Tanpa ini, fontFamily default objek
+            // tetap (mis. Arial) sehingga saat draft dibuka ulang teks bisa kembali
+            // ke font lama.
+            const wholeText = start === 0 && end >= (obj.text ? obj.text.length : 0);
+            if (wholeText) {
+                Object.keys(style).forEach((p) => {
+                    obj.set(p, style[p]);
+                    this._stripCharStyleProp(obj, p);
+                });
+            }
         } else {
             if (prop === 'fontWeight') {
                 obj.set('fontWeight', obj.fontWeight === 'bold' ? 'normal' : 'bold');
@@ -856,13 +868,32 @@ class FabricLetterEditor {
                 obj.set(prop, value);
             }
             if (isTextProp && obj.styles) {
-                obj.removeStyle && obj.removeStyle(prop);
+                this._stripCharStyleProp(obj, prop);
             }
         }
 
         obj._clearCache && obj._clearCache();
         fc.renderAll();
         this._syncToolbarFromSelection();
+    }
+
+    _stripCharStyleProp(obj, prop) {
+        if (!obj || !obj.styles) return;
+        Object.keys(obj.styles).forEach((lineKey) => {
+            const line = obj.styles[lineKey];
+            if (!line) return;
+            Object.keys(line).forEach((charKey) => {
+                if (line[charKey] && Object.prototype.hasOwnProperty.call(line[charKey], prop)) {
+                    delete line[charKey][prop];
+                }
+                if (line[charKey] && Object.keys(line[charKey]).length === 0) {
+                    delete line[charKey];
+                }
+            });
+            if (Object.keys(line).length === 0) {
+                delete obj.styles[lineKey];
+            }
+        });
     }
 
     _applyAlignToSelection(obj, align, fc) {

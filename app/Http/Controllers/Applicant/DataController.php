@@ -163,6 +163,7 @@ class DataController extends Controller
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
         $lokasi_project = $eletter->site->name ?? 'belum ada area';
+        $area = $eletter->site->area ?? 'belum ada area';
         $nama_client = $eletter->site->client_name ?? 'belum ada area';
         $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
         $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
@@ -202,14 +203,14 @@ class DataController extends Controller
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
             '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[jenis_kelamin]', '[nik_ktp]', '[ttl]', 
-            '[alamat]', '[handphone]', '[no_karyawan]', '[lokasi_project]', '[nama_client]', '[jabatan_client]', '[jabatan]', '[esign]', 
+            '[alamat]', '[handphone]', '[no_karyawan]', '[lokasi_project]', '[area]', '[nama_client]', '[jabatan_client]', '[jabatan]', '[esign]', 
             '[gaji]', '[tunjangan]'
         ];
 
         $replace = [
             $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
             $pihak_2, $sign_2, $nama_karyawan, $jenis_kelamin, $nik_ktp, $ttl, 
-            $alamat, $handphone, $no_karyawan, $lokasi_project, $nama_client, $jabatan_client, $jabatan, $esign, 
+            $alamat, $handphone, $no_karyawan, $lokasi_project, $area, $nama_client, $jabatan_client, $jabatan, $esign, 
             $gaji, $tunjangan
         ];
 
@@ -256,6 +257,7 @@ class DataController extends Controller
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
         $lokasi_project = $eletter->site->name ?? 'belum ada area';
+        $area = $eletter->site->area ?? 'belum ada area';
         $nama_client = $eletter->site->client_name ?? 'belum ada area';
         $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
         $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
@@ -286,14 +288,14 @@ class DataController extends Controller
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
             '[pihak_2]', '[sign_2]', '[nama_karyawan]', '[jenis_kelamin]', '[nik_ktp]', '[ttl]',
-            '[alamat]', '[handphone]', '[no_karyawan]', '[lokasi_project]', '[nama_client]',
+            '[alamat]', '[handphone]', '[no_karyawan]', '[lokasi_project]', '[area]', '[nama_client]',
             '[jabatan_client]', '[jabatan]', '[esign]', '[gaji]', '[tunjangan]'
         ];
 
         $replace = [
             $no_surat, $tgl_surat, $romawi, $tahun, $hari, $mulai, $selesai,
             $pihak_2, $sign_2, $nama_karyawan, $jenis_kelamin, $nik_ktp, $ttl,
-            $alamat, $handphone, $no_karyawan, $lokasi_project, $nama_client,
+            $alamat, $handphone, $no_karyawan, $lokasi_project, $area, $nama_client,
             $jabatan_client, $jabatan, $esign, $gaji, $tunjangan
         ];
 
@@ -360,6 +362,7 @@ class DataController extends Controller
         $handphone = $eletter->user->phone ?? 'belum ada no handphone';
         $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
         $lokasi_project = $eletter->site->name ?? 'belum ada area';
+        $area = $eletter->site->area ?? 'belum ada area';
         $nama_client = $eletter->site->client_name ?? 'belum ada area';
         $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
         $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
@@ -386,8 +389,8 @@ class DataController extends Controller
         $mulai = isset($eletter->start_date) ? Carbon::parse($eletter->start_date)->format('d-m-Y') : 'belum ada data';
         $selesai = isset($eletter->end_date) ? Carbon::parse($eletter->end_date)->format('d-m-Y') : 'belum ada data';
 
-        $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[jenis_kelamin]','[nik_ktp]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]'];
-        $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$jenis_kelamin,$nik_ktp,$ttl,$alamat,$handphone,$no_karyawan,$lokasi_project,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan];
+        $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[jenis_kelamin]','[nik_ktp]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[area]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]'];
+        $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$jenis_kelamin,$nik_ktp,$ttl,$alamat,$handphone,$no_karyawan,$lokasi_project,$area,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan];
 
         $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)->with('customVariable')->get();
         foreach ($customValues as $cv) {

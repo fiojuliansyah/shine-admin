@@ -265,6 +265,8 @@
             <h6 class="mt-3">PEGAWAI</h6>
             <button class="var-btn" onclick="insertVar('[no_karyawan]')">No Karyawan <code>[no_karyawan]</code></button>
             <button class="var-btn" onclick="insertVar('[nama_karyawan]')">Nama <code>[nama_karyawan]</code></button>
+            <button class="var-btn" onclick="insertVar('[nik_ktp]')">NIK KTP <code>[nik_ktp]</code></button>
+            <button class="var-btn" onclick="insertVar('[jenis_kelamin]')">Jenis Kelamin <code>[jenis_kelamin]</code></button>
             <button class="var-btn" onclick="insertVar('[ttl]')">TTL <code>[ttl]</code></button>
             <button class="var-btn" onclick="insertVar('[alamat]')">Alamat <code>[alamat]</code></button>
             <button class="var-btn" onclick="insertVar('[handphone]')">No HP <code>[handphone]</code></button>
@@ -272,6 +274,7 @@
 
             <h6 class="mt-3">LOKASI PROJECT</h6>
             <button class="var-btn" onclick="insertVar('[lokasi_project]')">Lokasi <code>[lokasi_project]</code></button>
+            <button class="var-btn" onclick="insertVar('[area]')">Area <code>[area]</code></button>
             <button class="var-btn" onclick="insertVar('[nama_client]')">Nama Client <code>[nama_client]</code></button>
             <button class="var-btn" onclick="insertVar('[jabatan_client]')">Jabatan Client <code>[jabatan_client]</code></button>
             <button class="var-btn" onclick="insertVar('[area_description]')">Deskripsi <code>[area_description]</code></button>

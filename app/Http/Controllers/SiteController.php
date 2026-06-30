@@ -25,6 +25,7 @@ class SiteController extends Controller
         $site = new Site;
         $site->company_id = $request->company_id;
         $site->name = $request->name;
+        $site->area = $request->area;
         $site->description = $request->description;
         $site->lat = $request->lat;
         $site->long = $request->long;
@@ -51,6 +52,7 @@ class SiteController extends Controller
         $site = Site::findOrFail($id);
         $site->company_id = $request->company_id;
         $site->name = $request->name;
+        $site->area = $request->area;
         $site->description = $request->description;
         $site->lat = $request->lat;
         $site->long = $request->long;
