@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Hash;
 class DataController extends Controller
 {
     use \App\Traits\PdfPageImageTrait;
+    use \App\Traits\SalaryVariableTrait;
     public function registrationForm()
     {
         return view('website.registration-form');
@@ -214,6 +215,10 @@ class DataController extends Controller
             $gaji, $tunjangan
         ];
 
+        [$salarySearch, $salaryReplace] = $this->buildSalaryVariables($eletter->user);
+        $search = array_merge($search, $salarySearch);
+        $replace = array_merge($replace, $salaryReplace);
+
         $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)
             ->with('customVariable')
             ->get();
@@ -298,6 +303,10 @@ class DataController extends Controller
             $alamat, $handphone, $no_karyawan, $lokasi_project, $area, $nama_client,
             $jabatan_client, $jabatan, $esign, $gaji, $tunjangan
         ];
+
+        [$salarySearch, $salaryReplace] = $this->buildSalaryVariables($eletter->user);
+        $search = array_merge($search, $salarySearch);
+        $replace = array_merge($replace, $salaryReplace);
 
         $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)
             ->with('customVariable')->get();
@@ -391,6 +400,10 @@ class DataController extends Controller
 
         $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[jenis_kelamin]','[nik_ktp]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[area]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]'];
         $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$jenis_kelamin,$nik_ktp,$ttl,$alamat,$handphone,$no_karyawan,$lokasi_project,$area,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan];
+
+        [$salarySearch, $salaryReplace] = $this->buildSalaryVariables($eletter->user);
+        $search = array_merge($search, $salarySearch);
+        $replace = array_merge($replace, $salaryReplace);
 
         $customValues = \App\Models\ValueVariable::where('generate_id', $eletter->id)->with('customVariable')->get();
         foreach ($customValues as $cv) {

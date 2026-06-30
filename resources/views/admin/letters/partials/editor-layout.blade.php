@@ -285,6 +285,16 @@
             <button class="var-btn" onclick="insertVar('[komisi]')">Komisi <code>[komisi]</code></button>
             <button class="var-btn" onclick="insertVar('[potongan]')">Potongan <code>[potongan]</code></button>
 
+            <h6 class="mt-3">PENGATURAN GAJI</h6>
+            <button class="var-btn" onclick="insertVar('[gaji_pokok]')">Gaji Pokok <code>[gaji_pokok]</code></button>
+            <button class="var-btn" onclick="insertVar('[tunj_jabatan]')">Tunj. Jabatan <code>[tunj_jabatan]</code></button>
+            <button class="var-btn" onclick="insertVar('[tunj_kehadiran]')">Tunj. Kehadiran <code>[tunj_kehadiran]</code></button>
+            <button class="var-btn" onclick="insertVar('[tunj_komunikasi]')">Tunj. Komunikasi <code>[tunj_komunikasi]</code></button>
+            <button class="var-btn" onclick="insertVar('[tunj_makan]')">Tunj. Makan <code>[tunj_makan]</code></button>
+            <button class="var-btn" onclick="insertVar('[tunj_transport]')">Tunj. Transport <code>[tunj_transport]</code></button>
+            <button class="var-btn" onclick="insertVar('[tunj_lembur_tetap]')">Tunj. Lembur Tetap <code>[tunj_lembur_tetap]</code></button>
+            <button class="var-btn" onclick="insertVar('[tunj_other_non_fix]')">Tunj. Other Non Fix <code>[tunj_other_non_fix]</code></button>
+
             <h6 class="mt-3" id="customVarHeading" style="display:none">KUSTOM</h6>
             <div id="customVarButtons"></div>
         </div>

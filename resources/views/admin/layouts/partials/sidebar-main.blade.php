@@ -132,6 +132,11 @@
                                         Lembur</a></li>
                             </ul>
                         </li>
+                        <li class="{{ Route::is(['salary-settings.index']) ? 'active' : '' }}">
+                            <a href="{{ route('salary-settings.index') }}">
+                                <i class="ti ti-coin"></i><span>Pengaturan Gaji</span>
+                            </a>
+                        </li>
                         {{-- <li class="{{ Route::is(['loans.index']) ? 'active' : '' }}">
                             <a href="{{ route('loans.index') }}">
                                 <i class="ti ti-credit-card"></i><span>Pinjaman</span>

@@ -10,6 +10,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomVariableController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeNikConfigController;
+use App\Http\Controllers\SalarySettingController;
 use App\Http\Controllers\GenerateController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\LetterController;
@@ -93,6 +94,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::resource('letter-number-configs', LetterNumberConfigController::class);
     Route::post('/employee-nik-configs/preview', [EmployeeNikConfigController::class, 'preview'])->name('employee-nik-configs.preview');
     Route::resource('employee-nik-configs', EmployeeNikConfigController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('salary-settings', SalarySettingController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('custom-variables', CustomVariableController::class);
 

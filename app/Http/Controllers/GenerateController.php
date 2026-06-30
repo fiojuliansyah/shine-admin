@@ -15,6 +15,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class GenerateController extends Controller
 {
     use \App\Traits\PdfPageImageTrait;
+    use \App\Traits\SalaryVariableTrait;
     public function index()
     {
         $types = TypeLetter::with('letters')->get();
@@ -298,6 +299,10 @@ class GenerateController extends Controller
             $no_kontak, $alamat_kontak, $hubungan
         ];
 
+        [$salarySearch, $salaryReplace] = $this->buildSalaryVariables($generate->user);
+        $search = array_merge($search, $salarySearch);
+        $replace = array_merge($replace, $salaryReplace);
+
         $customValues = \App\Models\ValueVariable::where('generate_id', $generate->id)
             ->with('customVariable')
             ->get();
@@ -366,6 +371,10 @@ class GenerateController extends Controller
 
         $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[nik_ktp]','[jenis_kelamin]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[area]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]','[komisi]','[potongan]','[nama_kontak]','[no_kontak]','[alamat_kontak]','[hubungan]'];
         $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$nik_ktp,$jenis_kelamin,$ttl,$alamat,$handphone,$no_karyawan,$area,$area_project,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan,$komisi,$potongan,$nama_kontak,$no_kontak,$alamat_kontak,$hubungan];
+
+        [$salarySearch, $salaryReplace] = $this->buildSalaryVariables($generate->user);
+        $search = array_merge($search, $salarySearch);
+        $replace = array_merge($replace, $salaryReplace);
 
         $customValues = \App\Models\ValueVariable::where('generate_id', $generate->id)->with('customVariable')->get();
         foreach ($customValues as $cv) {
@@ -505,6 +514,10 @@ class GenerateController extends Controller
             $esign, $gaji, $tunjangan, $komisi, $potongan, $nama_kontak,
             $no_kontak, $alamat_kontak, $hubungan
         ];
+
+        [$salarySearch, $salaryReplace] = $this->buildSalaryVariables($generate->user);
+        $search = array_merge($search, $salarySearch);
+        $replace = array_merge($replace, $salaryReplace);
 
         $customValues = \App\Models\ValueVariable::where('generate_id', $generate->id)
             ->with('customVariable')

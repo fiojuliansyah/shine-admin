@@ -53,6 +53,11 @@ class User extends Authenticatable
         return $this->hasOne(Profile::class)->withDefault();
     }
 
+    public function salarySetting()
+    {
+        return $this->hasOne(SalarySetting::class);
+    }
+
     public function leader()
     {
         return $this->belongsTo(User::class, 'leader_id');

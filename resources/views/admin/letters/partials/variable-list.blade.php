@@ -59,6 +59,20 @@
                         </div>
                     </div>
 
+                    <div class="col-md-4 border-top pt-3">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">PENGATURAN GAJI</h6>
+                        <div class="list-group list-group-flush">
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[gaji_pokok]')">Gaji Pokok <code>[gaji_pokok]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunj_jabatan]')">Tunjangan Jabatan <code>[tunj_jabatan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunj_kehadiran]')">Tunjangan Kehadiran <code>[tunj_kehadiran]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunj_komunikasi]')">Tunjangan Komunikasi <code>[tunj_komunikasi]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunj_makan]')">Tunjangan Makan <code>[tunj_makan]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunj_transport]')">Tunjangan Transport <code>[tunj_transport]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunj_lembur_tetap]')">Tunjangan Lembur Tetap <code>[tunj_lembur_tetap]</code> <i class="ti ti-copy"></i></button>
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="copyVar('[tunj_other_non_fix]')">Tunjangan Other Non Fix <code>[tunj_other_non_fix]</code> <i class="ti ti-copy"></i></button>
+                        </div>
+                    </div>
+
 
                     <div class="col-md-12 border-top pt-3">
                         <h6 class="fw-bold border-bottom pb-2 mb-3 text-danger">VARIABEL KUSTOM ANDA</h6>
