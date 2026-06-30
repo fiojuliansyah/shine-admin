@@ -75,7 +75,7 @@ class EmployeeController extends Controller
         $interviewGenerate = null;
         if ($row->generates) {
             $interviewGenerate = $row->generates
-                ->filter(fn($gen) => $gen->letter && $gen->letter->type && $gen->letter->type->name === 'Interview')
+                ->filter(fn($gen) => $gen->letter && $gen->letter->type && $gen->letter->type->name === 'INTERVIEW')
                 ->sortByDesc('created_at')
                 ->first();
         }
