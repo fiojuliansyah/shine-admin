@@ -63,10 +63,13 @@ class EmployeesDataTable extends DataTable
                     : '<span class="badge bg-success">Aktif</span>';
             })
             ->addColumn('no_surat', function ($row) {
-                $interviewGenerate = $row->generates?
-                    ->whereHas('letter.type', fn($q) => $q->where('name', 'Interview'))
-                    ->sortByDesc('created_at')
-                    ->first();
+                $interviewGenerate = null;
+                if ($row->generates) {
+                    $interviewGenerate = $row->generates
+                        ->filter(fn($gen) => $gen->letter && $gen->letter->type && $gen->letter->type->name === 'Interview')
+                        ->sortByDesc('created_at')
+                        ->first();
+                }
                 return e($interviewGenerate?->formatted_letter_number ?? '-');
             })
 
