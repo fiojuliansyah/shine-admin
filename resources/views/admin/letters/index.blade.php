@@ -21,7 +21,25 @@
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
                 <div class="d-flex align-items-center flex-wrap mb-1">
                     <button type="button" class="btn btn-outline-primary mb-2 me-2" data-bs-toggle="modal" data-bs-target="#importDocxModal"><i class="ti ti-file-import me-1"></i>Import DOCX</button>
-                    <a href="{{ route('letters.create') }}" target="_blank" class="btn btn-primary mb-2"><i class="ti ti-square-rounded-plus me-1"></i>Buat Template</a>
+                    <div class="dropdown mb-2">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="ti ti-square-rounded-plus me-1"></i>Buat Template
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('letters.create', ['editor' => 'canvas']) }}" target="_blank">
+                                    <i class="ti ti-layout-board me-2"></i>Editor Canvas
+                                    <small class="d-block text-muted">Tata letak bebas (drag &amp; drop)</small>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('letters.create', ['editor' => 'text']) }}" target="_blank">
+                                    <i class="ti ti-file-text me-2"></i>Editor Teks
+                                    <small class="d-block text-muted">Seperti Word (rich text)</small>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>

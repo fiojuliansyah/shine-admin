@@ -22,6 +22,7 @@
             word-break: break-word;
         }
         .html-content {
+            position: relative;
             padding: 60px 80px;
             line-height: 1.6;
             font-family: Arial, sans-serif;
@@ -29,6 +30,11 @@
         }
         .html-content table { width: 100%; border-collapse: collapse; }
         .html-content td, .html-content th { border: 1px solid #ccc; padding: 6px 8px; }
+        .html-content .floating-box { position: absolute; box-sizing: border-box; padding: 8px; }
+        .html-content .floating-box .fb-drag,
+        .html-content .floating-box .fb-resize { display: none; }
+        .html-content .floating-image { border: none; background: transparent; padding: 0; }
+        .html-content .floating-image img { display: block; width: 100%; height: auto; }
     </style>
 </head>
 <body>

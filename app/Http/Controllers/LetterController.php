@@ -33,12 +33,14 @@ class LetterController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $sites = Site::all();
         $types = TypeLetter::all();
         $numberConfigs = LetterNumberConfig::latest()->get();
-        return view('admin.letters.create', compact('sites', 'types', 'numberConfigs'));
+        $editor = $request->query('editor') === 'text' ? 'text' : 'canvas';
+        $view = $editor === 'text' ? 'admin.letters.create-text' : 'admin.letters.create';
+        return view($view, compact('sites', 'types', 'numberConfigs'));
     }
 
     /**
@@ -61,6 +63,7 @@ class LetterController extends Controller
         $letter->title = $request->title;
         $letter->type_letter_id = $request->type_letter_id;
         $letter->description = $request->description;
+        $letter->editor_type = $request->editor_type === 'text' ? 'text' : 'canvas';
         $letter->letter_number_config_id = $request->letter_number_config_id ?: null;
         $letter->number_format = $request->number_format;
         $letter->number_prefix = $request->number_prefix;
@@ -100,14 +103,29 @@ class LetterController extends Controller
         $customVariable = CustomVariable::where('letter_id', $letter->id)->first();
         $types = TypeLetter::all();
         $numberConfigs = LetterNumberConfig::latest()->get();
-        return view('admin.letters.edit', compact('letter', 'sites', 'types', 'customVariable', 'numberConfigs'));
+        $view = ($letter->editor_type ?? 'canvas') === 'text' ? 'admin.letters.edit-text' : 'admin.letters.edit';
+        return view($view, compact('letter', 'sites', 'types', 'customVariable', 'numberConfigs'));
     }
 
     public function uploadImage(Request $request)
     {
-        $request->validate(['image' => 'required|image|max:5120']);
-        $path = $request->file('image')->store('letter-images', 'public');
-        return response()->json(['url' => asset('storage/' . $path)]);
+        $request->validate([
+            'image' => 'nullable|image|max:5120',
+            'file'  => 'nullable|image|max:5120',
+        ]);
+
+        $file = $request->file('image') ?? $request->file('file');
+        if (!$file) {
+            return response()->json(['error' => 'No image uploaded'], 422);
+        }
+
+        $path = $file->store('letter-images', 'public');
+        $url = asset('storage/' . $path);
+
+        return response()->json([
+            'url' => $url,
+            'location' => $url,
+        ]);
     }
 
     public function show(Letter $letter)
