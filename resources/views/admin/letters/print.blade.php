@@ -1,3 +1,4 @@
+@php $preview = request()->boolean('preview'); @endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -30,6 +31,11 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.18);
             margin-bottom: 24px;
         }
+        @if($preview)
+        html, body { background: #eceef4; }
+        #controls { display: none !important; }
+        #canvas-area { margin-top: 0; padding: 16px; }
+        @endif
         @media print {
             #controls { display: none !important; }
             html, body { background: #fff; }
@@ -40,11 +46,13 @@
     </style>
 </head>
 <body>
+@unless($preview)
 <div id="controls">
     <span style="font-weight:700;color:#0d6efd;">{{ $title ?? 'Surat' }}</span>
     <button class="btn-print" onclick="window.print()">&#128438; Print / Save PDF</button>
     <button class="btn-close" onclick="window.close()">Tutup</button>
 </div>
+@endunless
 <div id="canvas-area">
     @foreach($pages as $i => $page)
         <div class="page-wrapper">
@@ -55,6 +63,26 @@
 <script src="/admin/assets/js/fabric-5.5.2.min.js"></script>
 <script>
     const pages = @json($pages);
+    const PREVIEW_MODE = {{ $preview ? 'true' : 'false' }};
+
+    // Pada mode preview (di dalam iframe halaman detail), lebar canvas tetap
+    // 794px bisa melebihi lebar iframe. Skalakan setiap halaman agar pas.
+    function fitPreview() {
+        if (!PREVIEW_MODE) return;
+        const area = document.getElementById('canvas-area');
+        const style = getComputedStyle(area);
+        const avail = area.clientWidth
+            - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        const scale = Math.min(1, avail / 794);
+        document.querySelectorAll('.page-wrapper').forEach(function (wrap) {
+            wrap.style.transformOrigin = 'top center';
+            wrap.style.transform = 'scale(' + scale + ')';
+            wrap.style.width = '794px';
+            wrap.style.height = '1123px';
+            wrap.style.marginBottom = (24 - 1123 * (1 - scale)) + 'px';
+        });
+    }
+    window.addEventListener('resize', fitPreview);
 
     // Setelah teks variabel diganti dengan nilai sebenarnya (mis. nama project /
     // jabatan yang panjang), sebuah textbox bisa membesar ke beberapa baris dan
@@ -110,6 +138,7 @@
             });
             reflowOverlaps(fc);
             fc.renderAll();
+            fitPreview();
         });
     });
 </script>

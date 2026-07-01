@@ -27,7 +27,7 @@
         <div class="card border-0 shadow-sm" style="height: calc(100vh - 180px); min-height: 600px;">
             <div class="card-body p-0" style="height:100%;">
                 <iframe
-                    src="{{ route('letters.print', $letter->id) }}"
+                    src="{{ route('letters.print', ['letter' => $letter->id, 'preview' => 1]) }}"
                     style="width:100%; height:100%; border:none; border-radius: 0 0 8px 8px;"
                     title="{{ $letter->title }}"
                 ></iframe>
