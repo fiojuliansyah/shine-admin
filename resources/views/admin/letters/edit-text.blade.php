@@ -86,6 +86,15 @@
                 onAction: function () { insertFloatImage(editor); },
             });
             editor.on('init', function () { initFloatingBoxes(editor); });
+            editor.on('keydown', function (e) {
+                if (e.key !== 'Tab') return;
+                e.preventDefault();
+                if (e.shiftKey) {
+                    outdentAtCursor(editor);
+                } else {
+                    editor.insertContent('&nbsp;&nbsp;&nbsp;&nbsp;');
+                }
+            });
         },
     });
 

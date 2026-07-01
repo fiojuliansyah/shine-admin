@@ -1,5 +1,29 @@
 let varCount = 0;
 
+// Shift+Tab: hapus hingga 4 spasi non-breaking tepat sebelum kursor,
+// hanya di titik kursor (tidak menggeser seluruh baris/paragraf).
+function outdentAtCursor(editor) {
+    const rng = editor.selection.getRng();
+    if (!rng.collapsed) return;
+    const node = rng.startContainer;
+    if (node.nodeType !== 3) return;
+    let offset = rng.startOffset;
+    const text = node.nodeValue;
+    let removed = 0;
+    while (removed < 4 && offset > 0) {
+        const ch = text.charAt(offset - 1);
+        if (ch !== '\u00a0' && ch !== ' ') break;
+        offset--;
+        removed++;
+    }
+    if (removed === 0) return;
+    node.nodeValue = text.slice(0, offset) + text.slice(rng.startOffset);
+    const newRng = editor.dom.createRng();
+    newRng.setStart(node, offset);
+    newRng.setEnd(node, offset);
+    editor.selection.setRng(newRng);
+}
+
 function addNewVariable() {
     const name = document.getElementById('var_name').value.trim();
     const codeInput = document.getElementById('var_code').value.trim();
