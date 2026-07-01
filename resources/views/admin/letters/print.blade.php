@@ -30,7 +30,9 @@
             background: #fff;
             box-shadow: 0 2px 12px rgba(0,0,0,0.18);
             margin-bottom: 24px;
+            overflow: hidden;
         }
+        .page-inner { transform-origin: top left; }
         @if($preview)
         html, body { background: #eceef4; }
         #controls { display: none !important; }
@@ -40,8 +42,9 @@
             #controls { display: none !important; }
             html, body { background: #fff; }
             #canvas-area { margin-top: 0; padding: 0; }
-            .page-wrapper { box-shadow: none; margin-bottom: 0; page-break-after: always; }
+            .page-wrapper { box-shadow: none; margin-bottom: 0; page-break-after: always; overflow: visible; }
             .page-wrapper:last-child { page-break-after: avoid; }
+            .page-inner { transform: none !important; }
         }
     </style>
 </head>
@@ -55,8 +58,10 @@
 @endunless
 <div id="canvas-area">
     @foreach($pages as $i => $page)
-        <div class="page-wrapper">
-            <canvas id="printCanvas-{{ $i }}" width="794" height="1123"></canvas>
+        <div class="page-wrapper" style="width:794px;height:1123px;">
+            <div class="page-inner">
+                <canvas id="printCanvas-{{ $i }}" width="794" height="1123"></canvas>
+            </div>
         </div>
     @endforeach
 </div>
@@ -64,22 +69,23 @@
 <script>
     const pages = @json($pages);
     const PREVIEW_MODE = {{ $preview ? 'true' : 'false' }};
+    const PAGE_W = 794, PAGE_H = 1123;
 
     // Pada mode preview (di dalam iframe halaman detail), lebar canvas tetap
-    // 794px bisa melebihi lebar iframe. Skalakan setiap halaman agar pas.
+    // 794px bisa melebihi lebar iframe. Skalakan tiap halaman agar pas tanpa
+    // mengubah tata letak objek (persis seperti di editor).
     function fitPreview() {
         if (!PREVIEW_MODE) return;
         const area = document.getElementById('canvas-area');
         const style = getComputedStyle(area);
         const avail = area.clientWidth
             - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-        const scale = Math.min(1, avail / 794);
+        const scale = Math.min(1, avail / PAGE_W);
         document.querySelectorAll('.page-wrapper').forEach(function (wrap) {
-            wrap.style.transformOrigin = 'top center';
-            wrap.style.transform = 'scale(' + scale + ')';
-            wrap.style.width = '794px';
-            wrap.style.height = '1123px';
-            wrap.style.marginBottom = (24 - 1123 * (1 - scale)) + 'px';
+            wrap.style.width = (PAGE_W * scale) + 'px';
+            wrap.style.height = (PAGE_H * scale) + 'px';
+            const inner = wrap.querySelector('.page-inner');
+            inner.style.transform = 'scale(' + scale + ')';
         });
     }
     window.addEventListener('resize', fitPreview);
@@ -136,7 +142,7 @@
             fc.getObjects().forEach(function(obj) {
                 obj.set({ selectable: false, evented: false, hoverCursor: 'default' });
             });
-            reflowOverlaps(fc);
+            if (!PREVIEW_MODE) reflowOverlaps(fc);
             fc.renderAll();
             fitPreview();
         });
