@@ -155,13 +155,12 @@ class LetterController extends Controller
 
     public function numberPreview(Letter $letter)
     {
-        $letter->load('type', 'numberConfig');
-        $typeLetter = $letter->type;
-        $currentNumber = ($typeLetter->number ?? 0) + 1;
+        $letter->load('type', 'numberConfig.sharedCounter');
 
         if ($letter->letter_number_config_id && $letter->numberConfig) {
-            $preview = $letter->numberConfig->generateNumber($currentNumber, null, null, $letter);
+            $preview = $letter->numberConfig->previewNumber(null, null, $letter);
         } elseif ($letter->number_format) {
+            $currentNumber = ($letter->type->number ?? 0) + 1;
             $preview = $letter->generateLetterNumber($currentNumber);
         } else {
             $preview = null;
