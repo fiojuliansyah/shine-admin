@@ -95,6 +95,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::post('/employee-nik-configs/preview', [EmployeeNikConfigController::class, 'preview'])->name('employee-nik-configs.preview');
     Route::resource('employee-nik-configs', EmployeeNikConfigController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+    Route::post('/salary-settings/export', [SalarySettingController::class, 'export'])->name('salary-settings.export');
+    Route::post('/salary-settings/import', [SalarySettingController::class, 'import'])->name('salary-settings.import');
     Route::resource('salary-settings', SalarySettingController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('custom-variables', CustomVariableController::class);

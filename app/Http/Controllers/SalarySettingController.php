@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Site;
 use App\Models\SalarySetting;
+use App\Exports\SalarySettingsExport;
+use App\Imports\SalarySettingsImport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SalarySettingController extends Controller
 {
@@ -76,6 +79,42 @@ class SalarySettingController extends Controller
 
         return redirect()->route('salary-settings.index')
             ->with('success', 'Pengaturan gaji berhasil dihapus.');
+    }
+
+    public function export(Request $request)
+    {
+        $siteId   = $request->site_id ?: null;
+        $siteName = $siteId ? (Site::find($siteId)?->name ?? 'Site') : 'Semua Site';
+        $filename = 'Pengaturan Gaji - ' . $siteName . ' - ' . date('d-m-Y') . '.xlsx';
+
+        return Excel::download(new SalarySettingsExport($siteId), $filename);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file'    => 'required|file|mimes:xlsx,xls,csv',
+            'site_id' => 'nullable|exists:sites,id',
+        ]);
+
+        $siteId = $request->site_id ?: null;
+        $import = new SalarySettingsImport($siteId);
+
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (\Throwable $e) {
+            return redirect()->route('salary-settings.index')
+                ->with('error', 'Gagal mengimpor file: ' . $e->getMessage());
+        }
+
+        $message = "Import selesai. {$import->getImported()} data gaji diperbarui.";
+        if ($import->getSkipped() > 0) {
+            $niks = implode(', ', array_slice($import->getSkippedNiks(), 0, 10));
+            $more = $import->getSkipped() > 10 ? ' ...' : '';
+            $message .= " {$import->getSkipped()} baris dilewati (NIK tidak ditemukan: {$niks}{$more}).";
+        }
+
+        return redirect()->route('salary-settings.index')->with('success', $message);
     }
 
     private function validateData(Request $request, $ignoreId = null): array

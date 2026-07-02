@@ -28,7 +28,13 @@
                     </ol>
                 </nav>
             </div>
-            <div class="d-flex my-xl-auto right-content align-items-center">
+            <div class="d-flex my-xl-auto right-content align-items-center gap-2">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalExport">
+                    <i class="ti ti-file-export me-1"></i>Export
+                </button>
+                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalImport">
+                    <i class="ti ti-file-import me-1"></i>Import
+                </button>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
                     <i class="ti ti-plus me-1"></i>Tambah Pengaturan Gaji
                 </button>
@@ -147,6 +153,78 @@
                     @endforeach
                 </div>
                 <small class="text-muted d-block mt-2">Gunakan variabel ini di template surat. Nilainya otomatis diformat Rupiah (mis. Rp 1.500.000).</small>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Export --}}
+    <div class="modal fade" id="modalExport" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Export Pengaturan Gaji</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('salary-settings.export') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Filter Site</label>
+                            <select name="site_id" class="form-select">
+                                <option value="">Semua Site</option>
+                                @foreach ($sites as $site)
+                                    <option value="{{ $site->id }}" {{ request('site_id') == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">Kosongkan untuk export semua site. Semua karyawan disertakan meski belum punya pengaturan gaji.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success"><i class="ti ti-download me-1"></i>Download Excel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Import --}}
+    <div class="modal fade" id="modalImport" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Import Pengaturan Gaji</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('salary-settings.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Batasi ke Site (opsional)</label>
+                            <select name="site_id" class="form-select">
+                                <option value="">Semua Site</option>
+                                @foreach ($sites as $site)
+                                    <option value="{{ $site->id }}" {{ request('site_id') == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">Jika dipilih, hanya karyawan pada site tersebut yang akan diperbarui.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">File Excel</label>
+                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                            <div class="form-text">
+                                Gunakan file hasil Export sebagai template. Pencocokan karyawan berdasarkan kolom <strong>NIK Karyawan</strong>.
+                            </div>
+                        </div>
+                        <div class="alert alert-light border small mb-0">
+                            Urutan kolom: <code>No, NIK Karyawan, Nama, Site, Gaji Pokok, Tunjangan Jabatan, Tunjangan Kehadiran, Tunjangan Komunikasi, Tunjangan Makan, Tunjangan Transport, Tunjangan Lembur Tetap, Tunjangan Other Non Fix</code>. Baris pertama (header) diabaikan.
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success"><i class="ti ti-upload me-1"></i>Import</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
