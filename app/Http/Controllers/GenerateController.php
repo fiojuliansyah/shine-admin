@@ -7,9 +7,13 @@ use App\Models\Site;
 use App\Models\Letter;
 use App\Models\Generate;
 use App\Models\TypeLetter;
+use App\Exports\GenerateTemplateExport;
+use App\Imports\GenerateTemplateImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class GenerateController extends Controller
@@ -183,6 +187,48 @@ class GenerateController extends Controller
 
         return redirect()->route('generates.index')
             ->with('success', 'Surat berhasil dihapus. Nomor surat dan NIK karyawan telah direset.');
+    }
+
+    public function exportTemplate(Request $request)
+    {
+        $request->validate([
+            'letter_id' => 'required|exists:letters,id',
+        ]);
+
+        $letter = Letter::with('customVariables')->findOrFail($request->letter_id);
+        $filename = 'Template - ' . Str::slug($letter->title, ' ') . ' - ' . date('d-m-Y') . '.xlsx';
+
+        return Excel::download(new GenerateTemplateExport($letter), $filename);
+    }
+
+    public function importTemplate(Request $request)
+    {
+        $request->validate([
+            'letter_id' => 'required|exists:letters,id',
+            'site_id'   => 'nullable|exists:sites,id',
+            'file'      => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+
+        $letter = Letter::with('type', 'site', 'customVariables', 'numberConfig.sharedCounter')
+            ->findOrFail($request->letter_id);
+
+        $import = new GenerateTemplateImport($letter, $request->site_id ?: null);
+
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (\Throwable $e) {
+            return redirect()->route('generates.index')
+                ->with('error', 'Gagal mengimpor file: ' . $e->getMessage());
+        }
+
+        $message = "Import selesai. {$import->getCreated()} surat terbit dibuat.";
+        if ($import->getSkipped() > 0) {
+            $niks = implode(', ', array_slice($import->getSkippedNiks(), 0, 10));
+            $more = $import->getSkipped() > 10 ? ' ...' : '';
+            $message .= " {$import->getSkipped()} baris dilewati (NIK karyawan tidak ditemukan: {$niks}{$more}).";
+        }
+
+        return redirect()->route('generates.index')->with('success', $message);
     }
 
     public function show(Generate $generate)

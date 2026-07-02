@@ -4,6 +4,11 @@
         <i class="fas fa-cloud-upload-alt"></i>
         Import
     </button>
+    <button type="button" class="btn btn-success me-2 mb-2 mb-sm-0 btn-block waves-effect waves-light"
+        data-bs-toggle="modal" data-bs-target="#templateModal">
+        <i class="fas fa-file-excel"></i>
+        Export / Import Template
+    </button>
     <div class="btn-group me-2 mb-2 mb-sm-0">
         <button type="button"
             class="btn btn-primary waves-light waves-effect dropdown-toggle"

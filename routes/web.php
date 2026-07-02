@@ -75,6 +75,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::get('/get-letters-by-site/{site_id}', [StatusController::class, 'getLettersBySite'])->name('letters.by.site');
     Route::resource('statuses', StatusController::class);
 
+    Route::post('/generates/export-template', [GenerateController::class, 'exportTemplate'])->name('generates.export-template');
+    Route::post('/generates/import-template', [GenerateController::class, 'importTemplate'])->name('generates.import-template');
     Route::resource('generates', GenerateController::class);
     Route::get('/generates/{generate}/pdf', [GenerateController::class, 'pdf'])->name('generates.pdf');
     Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');

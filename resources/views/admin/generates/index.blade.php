@@ -257,4 +257,25 @@
         });
     });
 </script>
+
+<script>
+    (function () {
+        const tplSelect = document.getElementById('templateSelect');
+        if (!tplSelect) return;
+
+        const exportId = document.getElementById('exportLetterId');
+        const importId = document.getElementById('importLetterId');
+        const exportBtn = document.getElementById('exportTemplateBtn');
+        const importBtn = document.getElementById('importTemplateBtn');
+
+        tplSelect.addEventListener('change', function () {
+            const val = this.value;
+            if (exportId) exportId.value = val;
+            if (importId) importId.value = val;
+            const disabled = !val;
+            if (exportBtn) exportBtn.disabled = disabled;
+            if (importBtn) importBtn.disabled = disabled;
+        });
+    })();
+</script>
 @endpush
