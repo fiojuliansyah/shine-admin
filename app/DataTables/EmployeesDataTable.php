@@ -63,17 +63,33 @@ class EmployeesDataTable extends DataTable
                     : '<span class="badge bg-success">Aktif</span>';
             })
             ->addColumn('no_surat', function ($row) {
-                $interviewGenerate = null;
+                $generate = null;
                 if ($row->generates) {
-                    $interviewGenerate = $row->generates
-                        ->filter(fn($gen) => $gen->letter && $gen->letter->type && $gen->letter->type->name === 'Interview')
+                    $generate = $row->generates
+                        ->filter(fn($gen) => $gen->letter && $gen->letter->type)
                         ->sortByDesc('created_at')
                         ->first();
                 }
-                return e($interviewGenerate?->formatted_letter_number ?? '-');
+                if (!$generate) {
+                    return '-';
+                }
+                $category = $generate->letter->type->name ?? null;
+                $number = $generate->formatted_letter_number ?? null;
+                if (!$number) {
+                    return '-';
+                }
+                return $category
+                    ? e($number) . '<br><small class="text-muted">' . e($category) . '</small>'
+                    : e($number);
             })
 
-            ->rawColumns(['nama', 'status'])
+            ->addColumn('resume', function ($row) {
+                return '<a href="' . route('users.resume', $row->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
+                            <i class="ti ti-file-description me-1"></i> Resume
+                        </a>';
+            })
+
+            ->rawColumns(['nama', 'status', 'no_surat', 'resume'])
             ->setRowId('id');
     }
 
@@ -82,8 +98,7 @@ class EmployeesDataTable extends DataTable
         $query = $model->newQuery()
             ->with(['profile' => fn($q) => $q->select('user_id', 'birth_place', 'birth_date', 'address', 'rt_rw', 'kelurahan', 'kecamatan', 'join_date', 'resign_date'), 'roles', 'site', 'generates.letter.type'])
             ->where('is_employee', 1)
-            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'))
-            ->whereHas('generates.letter.type', fn($q) => $q->where('name', 'Interview'));
+            ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'));
 
         if (request()->filled('site_id')) {
             $query->where('site_id', request('site_id'));
@@ -122,7 +137,8 @@ class EmployeesDataTable extends DataTable
             Column::make('alamat')->title('Alamat')->orderable(false)->searchable(false),
             Column::make('join_date')->title('Tgl Masuk')->orderable(false)->searchable(false),
             Column::make('status')->title('Status')->orderable(false)->searchable(false),
-            Column::make('no_surat')->title('No Surat Interview')->orderable(false)->searchable(false),
+            Column::make('no_surat')->title('No Surat')->orderable(false)->searchable(false),
+            Column::make('resume')->title('Resume')->orderable(false)->searchable(false),
         ];
     }
 

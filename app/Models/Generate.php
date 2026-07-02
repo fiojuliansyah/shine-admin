@@ -95,19 +95,25 @@ class Generate extends Model
 
     public function getFormattedLetterNumberAttribute(): ?string
     {
+        $stored = $this->letter_number;
+
+        if ($stored !== null && $stored !== '' && !$this->looksLikeRawFormat($stored)) {
+            return $stored;
+        }
+
         if (!$this->sequence_number) {
-            return $this->letter_number;
+            return $stored;
         }
 
         $letter = $this->letter;
         if (!$letter) {
-            return $this->letter_number;
+            return $stored;
         }
 
         $letter->loadMissing('type', 'numberConfig');
 
         if (!$letter->letter_number_config_id && !$letter->number_format) {
-            return $this->letter_number;
+            return $stored;
         }
 
         $site = $this->site ?: ($letter->site ?? null);
@@ -120,6 +126,17 @@ class Generate extends Model
             $user->loadMissing('roles');
         }
 
-        return $letter->generateLetterNumber($this->sequence_number, $site, $user);
+        $computed = $letter->generateLetterNumber($this->sequence_number, $site, $user);
+
+        if ($this->looksLikeRawFormat($computed)) {
+            return $stored;
+        }
+
+        return $computed;
+    }
+
+    protected function looksLikeRawFormat(?string $value): bool
+    {
+        return $value !== null && str_contains($value, '{') && str_contains($value, '}');
     }
 }
