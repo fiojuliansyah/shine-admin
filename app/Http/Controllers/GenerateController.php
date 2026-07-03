@@ -144,6 +144,7 @@ class GenerateController extends Controller
             return redirect()->back()->with('error', 'Tanda tangan digital Anda belum ada.');
         }
 
+        $esign = $this->convertEsignToBase64($esign);
 
         $ids = explode(',', $ids);
     
@@ -157,6 +158,21 @@ class GenerateController extends Controller
         }
     }
     
+
+    private function convertEsignToBase64(string $esign): string
+    {
+        $esign = trim($esign);
+
+        if (str_starts_with($esign, 'data:image/')) {
+            return $esign;
+        }
+
+        if (str_contains($esign, '<svg')) {
+            return 'data:image/svg+xml;base64,' . base64_encode($esign);
+        }
+
+        return $esign;
+    }
 
     public function bulkDelete(Request $request)
     {
