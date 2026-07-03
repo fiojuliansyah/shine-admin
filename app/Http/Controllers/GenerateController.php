@@ -193,12 +193,18 @@ class GenerateController extends Controller
     {
         $request->validate([
             'letter_id' => 'required|exists:letters,id',
+            'site_id'   => 'nullable|exists:sites,id',
         ]);
 
         $letter = Letter::with('customVariables')->findOrFail($request->letter_id);
+        $withEmployees = !$request->boolean('empty_template');
+
         $filename = 'Template - ' . Str::slug($letter->title, ' ') . ' - ' . date('d-m-Y') . '.xlsx';
 
-        return Excel::download(new GenerateTemplateExport($letter), $filename);
+        return Excel::download(
+            new GenerateTemplateExport($letter, $request->site_id ?: null, $withEmployees),
+            $filename
+        );
     }
 
     public function importTemplate(Request $request)

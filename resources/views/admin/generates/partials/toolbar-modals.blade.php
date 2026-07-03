@@ -86,10 +86,25 @@
 
                 <div class="tab-content">
                     <div id="tplExportTab" class="tab-pane fade show active">
-                        <p class="text-muted small mb-3">Unduh file Excel kosong sesuai template terpilih, isi datanya, lalu import kembali.</p>
+                        <p class="text-muted small mb-3">Unduh file Excel sesuai template terpilih. Kolom otomatis (nama, jabatan, gaji, dll) terisi dari data karyawan sebagai referensi; kolom input & kustom dikosongkan untuk diisi, lalu import kembali.</p>
                         <form action="{{ route('generates.export-template') }}" method="POST">
                             @csrf
                             <input type="hidden" name="letter_id" id="exportLetterId">
+                            <div class="mb-3">
+                                <label for="exportSite" class="col-form-label">Filter Site</label>
+                                <select name="site_id" id="exportSite" class="form-select">
+                                    <option value="">Semua Site</option>
+                                    @foreach ($sites as $site)
+                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="empty_template" value="1" id="emptyTemplate">
+                                <label class="form-check-label" for="emptyTemplate">
+                                    Template kosong (hanya header, tanpa data karyawan)
+                                </label>
+                            </div>
                             <button type="submit" class="btn btn-success w-100" id="exportTemplateBtn" disabled>
                                 <i class="fas fa-download me-1"></i> Download Template
                             </button>

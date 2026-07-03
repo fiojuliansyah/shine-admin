@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\User;
 use App\Models\Letter;
 use App\Traits\GenerateTemplateColumns;
 use Maatwebsite\Excel\Concerns\FromArray;
@@ -16,17 +17,41 @@ class GenerateTemplateExport implements FromArray, WithHeadings, WithStyles, Wit
     use GenerateTemplateColumns;
 
     protected Letter $letter;
+    protected $siteId;
+    protected bool $withEmployees;
     protected array $columns;
 
-    public function __construct(Letter $letter)
+    public function __construct(Letter $letter, $siteId = null, bool $withEmployees = true)
     {
         $this->letter = $letter->loadMissing('customVariables');
+        $this->siteId = $siteId ?: null;
+        $this->withEmployees = $withEmployees;
         $this->columns = $this->buildTemplateColumns($this->letter);
     }
 
     public function array(): array
     {
-        return [];
+        if (!$this->withEmployees) {
+            return [];
+        }
+
+        $query = User::with(['profile', 'site', 'roles', 'salarySetting'])
+            ->where('is_employee', 1)
+            ->orderBy('name');
+
+        if ($this->siteId) {
+            $query->where('site_id', $this->siteId);
+        }
+
+        return $query->get()->map(function ($user) {
+            return array_map(function ($col) use ($user) {
+                return match ($col['type']) {
+                    'nik'  => (string) ($user->employee_nik ?? ''),
+                    'auto' => $this->resolveAutoValue($col['key'], $user),
+                    default => '',
+                };
+            }, $this->columns);
+        })->values()->toArray();
     }
 
     public function headings(): array
