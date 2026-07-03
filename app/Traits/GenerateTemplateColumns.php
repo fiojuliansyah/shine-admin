@@ -52,14 +52,15 @@ trait GenerateTemplateColumns
             '[tunjangan]'      => ['mode' => 'auto', 'column' => null, 'label' => 'Tunjangan'],
             '[komisi]'         => ['mode' => 'auto', 'column' => null, 'label' => 'Komisi'],
             '[potongan]'       => ['mode' => 'auto', 'column' => null, 'label' => 'Potongan'],
-            '[gaji_pokok]'         => ['mode' => 'auto', 'column' => null, 'label' => 'Gaji Pokok'],
-            '[tunj_jabatan]'       => ['mode' => 'auto', 'column' => null, 'label' => 'Tunj. Jabatan'],
-            '[tunj_kehadiran]'     => ['mode' => 'auto', 'column' => null, 'label' => 'Tunj. Kehadiran'],
-            '[tunj_komunikasi]'    => ['mode' => 'auto', 'column' => null, 'label' => 'Tunj. Komunikasi'],
-            '[tunj_makan]'         => ['mode' => 'auto', 'column' => null, 'label' => 'Tunj. Makan'],
-            '[tunj_transport]'     => ['mode' => 'auto', 'column' => null, 'label' => 'Tunj. Transport'],
-            '[tunj_lembur_tetap]'  => ['mode' => 'auto', 'column' => null, 'label' => 'Tunj. Lembur Tetap'],
-            '[tunj_other_non_fix]' => ['mode' => 'auto', 'column' => null, 'label' => 'Tunj. Other Non Fix'],
+            // Pengaturan gaji: bisa diisi/diedit dan akan meng-update SalarySetting karyawan saat import.
+            '[gaji_pokok]'         => ['mode' => 'salary', 'column' => 'gaji_pokok',         'label' => 'Gaji Pokok'],
+            '[tunj_jabatan]'       => ['mode' => 'salary', 'column' => 'tunj_jabatan',       'label' => 'Tunj. Jabatan'],
+            '[tunj_kehadiran]'     => ['mode' => 'salary', 'column' => 'tunj_kehadiran',     'label' => 'Tunj. Kehadiran'],
+            '[tunj_komunikasi]'    => ['mode' => 'salary', 'column' => 'tunj_komunikasi',    'label' => 'Tunj. Komunikasi'],
+            '[tunj_makan]'         => ['mode' => 'salary', 'column' => 'tunj_makan',         'label' => 'Tunj. Makan'],
+            '[tunj_transport]'     => ['mode' => 'salary', 'column' => 'tunj_transport',     'label' => 'Tunj. Transport'],
+            '[tunj_lembur_tetap]'  => ['mode' => 'salary', 'column' => 'tunj_lembur_tetap',  'label' => 'Tunj. Lembur Tetap'],
+            '[tunj_other_non_fix]' => ['mode' => 'salary', 'column' => 'tunj_other_non_fix', 'label' => 'Tunj. Other Non Fix'],
         ];
     }
 
@@ -97,6 +98,13 @@ trait GenerateTemplateColumns
             if ($meta['mode'] === 'input') {
                 $columns[] = [
                     'type'  => 'fixed',
+                    'label' => $meta['label'],
+                    'key'   => $meta['column'],
+                ];
+            } elseif ($meta['mode'] === 'salary') {
+                // Pengaturan gaji: bisa diisi & akan meng-update SalarySetting saat import.
+                $columns[] = [
+                    'type'  => 'salary',
                     'label' => $meta['label'],
                     'key'   => $meta['column'],
                 ];
@@ -206,6 +214,35 @@ trait GenerateTemplateColumns
                 // komisi, potongan -> baru terisi saat penerbitan.
                 return '';
         }
+    }
+
+    /**
+     * Nilai awal kolom pengaturan gaji (angka polos agar mudah diedit & di-parse balik).
+     */
+    protected function resolveSalaryValue(string $field, \App\Models\User $user): string
+    {
+        $setting = $user->salarySetting;
+        if (!$setting) {
+            return '0';
+        }
+
+        return (string) (int) round((float) ($setting->{$field} ?? 0));
+    }
+
+    /**
+     * Parse angka dari input excel (mendukung format Rupiah "Rp 1.500.000", "1.234,50").
+     */
+    protected function parseNumber($value): float
+    {
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        $clean = preg_replace('/[^0-9,.\-]/', '', (string) $value);
+        $clean = str_replace('.', '', $clean);
+        $clean = str_replace(',', '.', $clean);
+
+        return is_numeric($clean) ? (float) $clean : 0.0;
     }
 
     /**

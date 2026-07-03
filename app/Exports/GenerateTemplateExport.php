@@ -46,9 +46,10 @@ class GenerateTemplateExport implements FromArray, WithHeadings, WithStyles, Wit
         return $query->get()->map(function ($user) {
             return array_map(function ($col) use ($user) {
                 return match ($col['type']) {
-                    'nik'  => (string) ($user->employee_nik ?? ''),
-                    'auto' => $this->resolveAutoValue($col['key'], $user),
-                    default => '',
+                    'nik'    => (string) ($user->employee_nik ?? ''),
+                    'auto'   => $this->resolveAutoValue($col['key'], $user),
+                    'salary' => $this->resolveSalaryValue($col['key'], $user),
+                    default  => '',
                 };
             }, $this->columns);
         })->values()->toArray();

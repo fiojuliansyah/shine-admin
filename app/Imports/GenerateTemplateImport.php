@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Letter;
 use App\Models\Generate;
 use App\Models\ValueVariable;
+use App\Models\SalarySetting;
 use App\Models\LetterNumberConfig;
 use App\Traits\GenerateTemplateColumns;
 use Illuminate\Support\Collection;
@@ -23,6 +24,7 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
 
     protected int $created = 0;
     protected int $skipped = 0;
+    protected int $salaryUpdated = 0;
     protected array $skippedNiks = [];
 
     public function __construct(Letter $letter, $siteId = null)
@@ -87,6 +89,19 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
                     ]);
                 }
 
+                // Update pengaturan gaji karyawan sesuai data yang diimport.
+                $salaryData = [];
+                foreach ($values['salary'] ?? [] as $field => $value) {
+                    if ($value === null || $value === '') {
+                        continue;
+                    }
+                    $salaryData[$field] = $this->parseNumber($value);
+                }
+                if (!empty($salaryData)) {
+                    SalarySetting::updateOrCreate(['user_id' => $user->id], $salaryData);
+                    $this->salaryUpdated++;
+                }
+
                 $this->created++;
             });
         }
@@ -97,7 +112,7 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
      */
     protected function mapRow(Collection $row): array
     {
-        $result = ['nik' => [], 'fixed' => [], 'custom' => []];
+        $result = ['nik' => [], 'fixed' => [], 'custom' => [], 'salary' => []];
 
         foreach ($this->columns as $index => $col) {
             $raw = $row[$index] ?? null;
@@ -109,6 +124,8 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
                 $result['fixed'][$col['key']] = $value;
             } elseif ($col['type'] === 'custom') {
                 $result['custom'][$col['key']] = $value;
+            } elseif ($col['type'] === 'salary') {
+                $result['salary'][$col['key']] = $value;
             }
         }
 
@@ -149,6 +166,11 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
     public function getSkipped(): int
     {
         return $this->skipped;
+    }
+
+    public function getSalaryUpdated(): int
+    {
+        return $this->salaryUpdated;
     }
 
     public function getSkippedNiks(): array

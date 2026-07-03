@@ -228,6 +228,9 @@ class GenerateController extends Controller
         }
 
         $message = "Import selesai. {$import->getCreated()} surat terbit dibuat.";
+        if ($import->getSalaryUpdated() > 0) {
+            $message .= " {$import->getSalaryUpdated()} pengaturan gaji karyawan diperbarui.";
+        }
         if ($import->getSkipped() > 0) {
             $niks = implode(', ', array_slice($import->getSkippedNiks(), 0, 10));
             $more = $import->getSkipped() > 10 ? ' ...' : '';
