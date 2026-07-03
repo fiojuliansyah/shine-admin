@@ -30,7 +30,7 @@ class EmployeeController extends Controller
         $columns = EmployeeColumnConfig::getColumns($company->short_name ?? $company->name);
 
         if ($request->ajax()) {
-            $query = User::with(['profile', 'roles', 'site.company', 'latestGenerate.letter.numberConfig', 'latestGenerate.letter.type', 'latestGenerate.site.company', 'generates.letter.type'])
+            $query = User::with(['profile', 'roles', 'site.company', 'applicants', 'latestGenerate.letter.numberConfig', 'latestGenerate.letter.type', 'latestGenerate.site.company', 'generates.letter.type'])
                 ->where('is_employee', 1)
                 ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'))
                 ->whereHas('site', fn($q) => $q->where('company_id', $company->id));
@@ -61,7 +61,13 @@ class EmployeeController extends Controller
             }
 
             $dt->addColumn('aksi', function ($row) {
-                return '<a href="' . route('users.resume', $row->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
+                $applicant = $row->applicants->first();
+
+                if (!$applicant) {
+                    return '<span class="text-muted">-</span>';
+                }
+
+                return '<a href="' . route('applicants.resume', $applicant->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
                             <i class="ti ti-file-description me-1"></i> Resume
                         </a>';
             });
