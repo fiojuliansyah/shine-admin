@@ -194,8 +194,17 @@
                     <h5 class="modal-title" id="signaturemodalTitle">Tanda Tangan Anda</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    {!! Auth::user()->profile ? Auth::user()->profile->esign : 'Profil tidak ditemukan' !!}
+                <div class="modal-body text-center">
+                    @php $currentEsign = Auth::user()->profile?->esign; @endphp
+                    @if($currentEsign)
+                        @if(str_starts_with($currentEsign, 'data:image/'))
+                            <img src="{{ $currentEsign }}" alt="Tanda Tangan" style="max-width:100%;max-height:200px;object-fit:contain;">
+                        @else
+                            {!! $currentEsign !!}
+                        @endif
+                    @else
+                        Profil tidak ditemukan
+                    @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

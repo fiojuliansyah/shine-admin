@@ -236,7 +236,7 @@
             return;
         }
 
-        const signatureData = signaturePad.toDataURL('image/svg+xml');
+        const signatureData = signaturePad.toDataURL('image/png');
         document.getElementById('signatureInput').value = signatureData;
 
     });

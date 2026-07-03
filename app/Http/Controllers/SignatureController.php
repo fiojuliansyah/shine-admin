@@ -15,37 +15,44 @@ class SignatureController extends Controller
             'signature_file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $svgContent = null;
+        $esign = null;
 
         // Skenario 1: Jika user Upload File
         if ($request->hasFile('signature_file')) {
             $file = $request->file('signature_file');
-            $type = $file->getClientOriginalExtension();
-            $data = file_get_contents($file->getRealPath());
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
 
-            // Membungkus Image ke dalam SVG agar format kolom esign tetap SVG
-            $svgContent = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="150 text-align="center"">
-                            <image xlink:href="' . $base64 . '" height="100%" width="100%" />
-                        </svg>';
-        } 
-        // Skenario 2: Jika user Menggambar di Canvas
+            // Ubah gambar apapun menjadi PNG base64 agar konsisten.
+            $image = @imagecreatefromstring(file_get_contents($file->getRealPath()));
+
+            if ($image === false) {
+                return back()->with('error', 'File tanda tangan tidak valid.');
+            }
+
+            imagesavealpha($image, true);
+
+            ob_start();
+            imagepng($image);
+            $pngData = ob_get_clean();
+            imagedestroy($image);
+
+            $esign = 'data:image/png;base64,' . base64_encode($pngData);
+        }
+        // Skenario 2: Jika user Menggambar di Canvas (PNG base64 dari signature_pad)
         elseif ($request->filled('signature')) {
             $signatureData = $request->input('signature');
-            
-            if (strpos($signatureData, 'data:image/svg+xml;base64,') !== false) {
-                $base64Data = substr($signatureData, strlen('data:image/svg+xml;base64,'));
-                $svgContent = base64_decode($base64Data);
+
+            if (strpos($signatureData, 'data:image/png;base64,') !== false) {
+                $esign = $signatureData;
             }
         }
 
-        if (!$svgContent) {
+        if (!$esign) {
             return back()->with('error', 'Mohon buat tanda tangan atau upload file.');
         }
 
         // Simpan ke database
         $profile = Auth::user()->profile ?? new Profile(['user_id' => Auth::id()]);
-        $profile->esign = $svgContent;
+        $profile->esign = $esign;
         $profile->save();
 
         return redirect()->back()->with('success', 'Tanda tangan berhasil diperbarui!');

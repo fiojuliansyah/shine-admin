@@ -163,12 +163,25 @@ class GenerateController extends Controller
     {
         $esign = trim($esign);
 
+        // Tanda tangan sudah berupa PNG base64 data URI, simpan apa adanya.
         if (str_starts_with($esign, 'data:image/')) {
             return $esign;
         }
 
-        if (str_contains($esign, '<svg')) {
-            return 'data:image/svg+xml;base64,' . base64_encode($esign);
+        // Kompatibilitas data lama: markup SVG mentah dirasterisasi ke PNG base64.
+        if (str_contains($esign, '<svg') && extension_loaded('imagick')) {
+            try {
+                $imagick = new \Imagick();
+                $imagick->setBackgroundColor(new \ImagickPixel('transparent'));
+                $imagick->readImageBlob($esign);
+                $imagick->setImageFormat('png');
+                $png = $imagick->getImageBlob();
+                $imagick->clear();
+
+                return 'data:image/png;base64,' . base64_encode($png);
+            } catch (\Exception $e) {
+                return $esign;
+            }
         }
 
         return $esign;
