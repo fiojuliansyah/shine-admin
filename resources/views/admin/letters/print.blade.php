@@ -82,7 +82,7 @@
     @if(!$isFabric)
         @php
             $descHtml = preg_replace_callback(
-                '/(data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+\/=]+)/',
+                '/(data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+\/=]+)/',
                 function ($matches) {
                     return '<img src="' . $matches[1] . '" style="max-width:150px;max-height:80px;object-fit:contain;">';
                 },
