@@ -107,6 +107,10 @@ trait GenerateTemplateColumns
         $text = strip_tags($text);
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5);
 
+        // Normalisasi non-breaking space (&nbsp; -> 0xA0) dari editor teks
+        // menjadi spasi biasa agar token seperti "[ mulai ]" tetap terdeteksi.
+        $text = str_replace(["\xC2\xA0", "\xA0"], ' ', $text);
+
         return $text;
     }
 
