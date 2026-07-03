@@ -60,7 +60,13 @@ class EmployeeController extends Controller
                 });
             }
 
-            $dt->rawColumns(['status']);
+            $dt->addColumn('aksi', function ($row) {
+                return '<a href="' . route('users.resume', $row->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
+                            <i class="ti ti-file-description me-1"></i> Resume
+                        </a>';
+            });
+
+            $dt->rawColumns(['status', 'aksi']);
 
             return $dt->make(true);
         }

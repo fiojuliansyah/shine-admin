@@ -87,10 +87,22 @@ trait GenerateTemplateColumns
             'key'   => 'employee_nik',
         ];
 
+        // Kolom referensi Nama Karyawan agar mudah dikenali (diabaikan saat import).
+        $columns[] = [
+            'type'  => 'auto',
+            'label' => 'Nama Karyawan (referensi)',
+            'key'   => '[nama_karyawan]',
+        ];
+
         $content = $this->templatePlainText($letter->description ?? '');
 
         // Variabel tetap: hanya yang benar-benar dipakai di template.
         foreach ($this->fixedVariableMap() as $token => $meta) {
+            // Nama karyawan sudah selalu ada sebagai kolom referensi di atas.
+            if ($token === '[nama_karyawan]') {
+                continue;
+            }
+
             if (!$this->tokenUsed($content, $token)) {
                 continue;
             }

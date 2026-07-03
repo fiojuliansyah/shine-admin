@@ -57,6 +57,7 @@
                                 @foreach($columns as $col)
                                     <th style="text-align: center; vertical-align: middle; white-space: nowrap;">{{ $col['label'] }}</th>
                                 @endforeach
+                                <th style="text-align: center; vertical-align: middle; white-space: nowrap;">AKSI</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -117,6 +118,7 @@ $(document).ready(function () {
         @foreach($columns as $col)
         { data: '{{ $col['key'] }}', name: '{{ $col['key'] }}', defaultContent: '-' },
         @endforeach
+        { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' },
     ];
 
     var table = $('.data-table').DataTable({
