@@ -127,10 +127,31 @@ class DataController extends Controller
                     });
                 });
             })
+            // 3. Untuk surat yang HANYA butuh tanda tangan HRD (tanpa tanda tangan
+            //    employee), sembunyikan dari applicant selama HRD belum approve /
+            //    tanda tangan (esign masih kosong).
+            ->where(function ($query) {
+                $query->whereDoesntHave('letter', function ($q) {
+                    $q->where('require_hrd_signature', true)
+                      ->where('require_employee_signature', false);
+                })
+                ->orWhere(function ($q) {
+                    $q->whereNotNull('esign')
+                      ->where('esign', '!=', '');
+                });
+            })
             ->orderBy('created_at', 'DESC')
             ->get();
         
         return view('website.letters.index', compact('histories'));
+    }
+
+    private function hrdSignaturePending(Generate $eletter): bool
+    {
+        return $eletter->letter
+            && $eletter->letter->require_hrd_signature
+            && !$eletter->letter->require_employee_signature
+            && empty($eletter->esign);
     }
 
     public function letterDetail($id)
@@ -138,11 +159,18 @@ class DataController extends Controller
         $user = Auth::user();
 
         $eletter = Generate::where('id', $id)
+            ->with('letter')
             ->orderBy('created_at', 'DESC')
             ->first();
 
         if (!$eletter) {
             return redirect()->back()->with('error', 'Belum ada surat digital untuk Anda.');
+        }
+
+        // Surat yang hanya butuh tanda tangan HRD belum boleh dibuka applicant
+        // selama HRD belum approve / tanda tangan (esign masih kosong).
+        if ($this->hrdSignaturePending($eletter)) {
+            return redirect()->route('web.applicants.letter')->with('error', 'Surat belum tersedia. Menunggu persetujuan HRD.');
         }
 
         $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
@@ -237,10 +265,14 @@ class DataController extends Controller
 
     public function letterPdf($id)
     {
-        $eletter = Generate::where('id', $id)->first();
+        $eletter = Generate::where('id', $id)->with('letter')->first();
 
         if (!$eletter) {
             abort(404);
+        }
+
+        if ($this->hrdSignaturePending($eletter)) {
+            abort(403, 'Surat belum tersedia. Menunggu persetujuan HRD.');
         }
 
         $user = $eletter->user;
@@ -350,8 +382,12 @@ class DataController extends Controller
 
     public function letterPrint($id)
     {
-        $eletter = Generate::where('id', $id)->first();
+        $eletter = Generate::where('id', $id)->with('letter')->first();
         if (!$eletter) abort(404);
+
+        if ($this->hrdSignaturePending($eletter)) {
+            abort(403, 'Surat belum tersedia. Menunggu persetujuan HRD.');
+        }
 
         $user = $eletter->user;
         $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
