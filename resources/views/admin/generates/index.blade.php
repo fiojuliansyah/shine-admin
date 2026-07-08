@@ -54,19 +54,9 @@
                             </select>
                         </div>
             
-                        <!-- Type Filter -->
-                        <div class="me-3">
-                            <select name="type_id" id="typeFilter" class="form-control select2">
-                                <option value="">Select Type</option>
-                                <option value="none" {{ isset($filters['type_id']) && $filters['type_id'] === 'none' ? 'selected' : '' }}>Tanpa Tipe</option>
-                                @foreach($types as $type)
-                                    <option value="{{ $type->id }}" {{ isset($filters['type_id']) && $filters['type_id'] == $type->id ? 'selected' : '' }}>
-                                        {{ $type->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        
+                        <!-- Preserve folder type context -->
+                        <input type="hidden" name="type_id" id="typeFilter" value="{{ $filters['type_id'] ?? '' }}">
+
                         <!-- Date Range Filters -->
                         <div class="me-3">
                             <div class="input-icon-end position-relative">
