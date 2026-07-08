@@ -123,6 +123,7 @@ class AdminController extends Controller
             'bank_name',
             'account_name',
             'account_number',
+            'join_date',
             'resign_date'
         ]);
 

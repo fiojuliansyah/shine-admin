@@ -63,7 +63,7 @@ class ProfileController extends Controller
         $profileData = $request->only([
             'address', 'rt_rw', 'kelurahan', 'kecamatan', 'gender', 'birth_place', 'birth_date', 'mother_name', 
             'npwp_number', 'marriage_status', 'bank_name', 'account_name', 
-            'account_number', 'resign_date'
+            'account_number', 'join_date', 'resign_date'
         ]);
 
         if ($request->hasFile('avatar')) {
