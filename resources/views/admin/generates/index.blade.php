@@ -97,14 +97,37 @@
                                     <th style="text-align: center; vertical-align: middle; width: 40px;">
                                         <input type="checkbox" id="select-all" class="form-check-input">
                                     </th>
-                                    <th style="text-align: center; vertical-align: middle; width: 110px;">Tanggal Dibuat</th>
+                                    <th style="text-align: center; vertical-align: middle;">No</th>
                                     <th style="text-align: center; vertical-align: middle;">No Surat</th>
-                                    <th style="text-align: center; vertical-align: middle;">Nama / NIK</th>
-                                    <th style="text-align: center; vertical-align: middle;">Site</th>
+                                    <th style="text-align: center; vertical-align: middle;">NIK Karyawan</th>
+                                    <th style="text-align: center; vertical-align: middle;">Nama Perusahaan</th>
+                                    <th style="text-align: center; vertical-align: middle;">Tgl Pembuatan</th>
+                                    <th style="text-align: center; vertical-align: middle;">Bulan Pembuatan</th>
+                                    <th style="text-align: center; vertical-align: middle;">Tahun Pembuatan</th>
+                                    <th style="text-align: center; vertical-align: middle;">Nama</th>
+                                    <th style="text-align: center; vertical-align: middle;">Email</th>
+                                    <th style="text-align: center; vertical-align: middle;">Ibu Kandung</th>
+                                    <th style="text-align: center; vertical-align: middle;">Tempat Lahir</th>
+                                    <th style="text-align: center; vertical-align: middle;">Tanggal Lahir</th>
+                                    <th style="text-align: center; vertical-align: middle;">Jenis Kelamin</th>
+                                    <th style="text-align: center; vertical-align: middle;">No KTP</th>
+                                    <th style="text-align: center; vertical-align: middle;">No KK</th>
+                                    <th style="text-align: center; vertical-align: middle;">No NPWP</th>
+                                    <th style="text-align: center; vertical-align: middle;">Alamat KTP</th>
+                                    <th style="text-align: center; vertical-align: middle;">No Handphone</th>
+                                    <th style="text-align: center; vertical-align: middle;">Agama</th>
+                                    <th style="text-align: center; vertical-align: middle;">Status Pernikahan</th>
                                     <th style="text-align: center; vertical-align: middle;">Jabatan</th>
-                                    <th style="text-align: center; vertical-align: middle;">Tempat/Tgl Lahir</th>
-                                    <th style="text-align: center; vertical-align: middle;">Alamat</th>
-                                    <th style="text-align: center; vertical-align: middle;">Template</th>
+                                    <th style="text-align: center; vertical-align: middle;">Site Project</th>
+                                    <th style="text-align: center; vertical-align: middle;">Nama Client</th>
+                                    <th style="text-align: center; vertical-align: middle;">Jabatan Client</th>
+                                    <th style="text-align: center; vertical-align: middle;">Tgl Join</th>
+                                    <th style="text-align: center; vertical-align: middle;">Bulan Join</th>
+                                    <th style="text-align: center; vertical-align: middle;">Tahun Join</th>
+                                    <th style="text-align: center; vertical-align: middle;">Nama Bank</th>
+                                    <th style="text-align: center; vertical-align: middle;">Nama Rekening</th>
+                                    <th style="text-align: center; vertical-align: middle;">No Rekening</th>
+                                    <th style="text-align: center; vertical-align: middle;">Variabel Tambahan</th>
                                     <th style="text-align: center; vertical-align: middle; width: 180px;">Tanda Tangan</th>
                                     <th style="text-align: center; vertical-align: middle; width: 100px;">Aksi</th>
                                 </tr>
@@ -145,16 +168,40 @@
                     d.end_date = $('#endDate').val();
                 }
             },
+            scrollX: true,
             columns: [
                 { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, width: '40px', className: 'text-center' },
-                { data: 'created_at', name: 'created_at', width: '110px', className: 'text-center' },
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'no_surat', name: 'no_surat', orderable: false },
+                { data: 'nik_karyawan', name: 'nik_karyawan', orderable: false },
+                { data: 'nama_perusahaan', name: 'nama_perusahaan', orderable: false, searchable: false },
+                { data: 'tgl_surat', name: 'tgl_surat', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'bulan_surat', name: 'bulan_surat', orderable: false, searchable: false },
+                { data: 'tahun_surat', name: 'tahun_surat', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'nama', name: 'nama' },
-                { data: 'site', name: 'site' },
-                { data: 'jabatan', name: 'jabatan', orderable: false },
-                { data: 'ttl', name: 'ttl', orderable: false, searchable: false },
-                { data: 'alamat', name: 'alamat', orderable: false, searchable: false },
-                { data: 'template', name: 'template' },
+                { data: 'email', name: 'email', orderable: false, searchable: false },
+                { data: 'ibu_kandung', name: 'ibu_kandung', orderable: false, searchable: false },
+                { data: 'tempat_lahir', name: 'tempat_lahir', orderable: false, searchable: false },
+                { data: 'tanggal_lahir', name: 'tanggal_lahir', orderable: false, searchable: false },
+                { data: 'jenis_kelamin', name: 'jenis_kelamin', orderable: false, searchable: false },
+                { data: 'no_ktp', name: 'no_ktp', orderable: false, searchable: false },
+                { data: 'no_kk', name: 'no_kk', orderable: false, searchable: false },
+                { data: 'no_npwp', name: 'no_npwp', orderable: false, searchable: false },
+                { data: 'alamat_ktp', name: 'alamat_ktp', orderable: false, searchable: false },
+                { data: 'no_handphone', name: 'no_handphone', orderable: false, searchable: false },
+                { data: 'agama', name: 'agama', orderable: false, searchable: false },
+                { data: 'status_pernikahan', name: 'status_pernikahan', orderable: false, searchable: false },
+                { data: 'jabatan', name: 'jabatan', orderable: false, searchable: false },
+                { data: 'site_project', name: 'site_project', orderable: false, searchable: false },
+                { data: 'nama_client', name: 'nama_client', orderable: false, searchable: false },
+                { data: 'jabatan_client', name: 'jabatan_client', orderable: false, searchable: false },
+                { data: 'tgl_join', name: 'tgl_join', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'bulan_join', name: 'bulan_join', orderable: false, searchable: false },
+                { data: 'tahun_join', name: 'tahun_join', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'nama_bank', name: 'nama_bank', orderable: false, searchable: false },
+                { data: 'nama_rekening', name: 'nama_rekening', orderable: false, searchable: false },
+                { data: 'no_rekening', name: 'no_rekening', orderable: false, searchable: false },
+                { data: 'variabel_tambahan', name: 'variabel_tambahan', orderable: false, searchable: false },
                 { data: 'signature', name: 'signature', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, width: '100px', className: 'text-center' }
             ],

@@ -46,10 +46,11 @@ class GenerateController extends Controller
         if (request()->ajax()) {
             $generates = Generate::with([
                     'letter.type',
-                    'site',
+                    'site.company',
                     'user.profile',
                     'user.roles',
-                    'user.site',
+                    'user.site.company',
+                    'valueVariables.customVariable',
                 ])
                 ->orderBy('created_at', 'DESC')
                 // Search filter
@@ -96,38 +97,59 @@ class GenerateController extends Controller
                 });
     
             return DataTables::of($generates)
+                ->addIndexColumn()
                 ->addColumn('checkbox', function ($row) {
                     return '<input type="checkbox" class="generate-checkbox" value="' . $row->id . '">';
                 })
-                ->addColumn('created_at', function ($row) {
-                    return $row->created_at->format('d M Y');
-                })
                 ->addColumn('no_surat', function ($row) {
-                    $number = $row->formatted_letter_number ?? null;
-                    $type = $row->letter && $row->letter->type ? $row->letter->type->name : null;
-                    if (!$number) {
-                        return '<span class="text-muted">Belum ada no surat</span>' . ($type ? '<br><small class="text-muted">' . e($type) . '</small>' : '');
-                    }
-                    return e($number) . ($type ? '<br><small class="text-muted">' . e($type) . '</small>' : '');
+                    return e($row->formatted_letter_number ?? '-');
                 })
-                ->addColumn('template', function ($row) {
-                    return e($row->letter->title ?? '-') . '<br><small class="text-muted">' . e($row->letter && $row->letter->type ? $row->letter->type->name : 'No Type') . '</small>';
+                ->addColumn('nik_karyawan', function ($row) {
+                    return e($row->user->employee_nik ?? '-');
+                })
+                ->addColumn('nama_perusahaan', function ($row) {
+                    $company = $row->user->site->company->name
+                        ?? $row->site->company->name
+                        ?? null;
+                    return e($company ?: '-');
+                })
+                ->addColumn('tgl_surat', function ($row) {
+                    return $row->created_at ? $row->created_at->translatedFormat('d') : '-';
+                })
+                ->addColumn('bulan_surat', function ($row) {
+                    return $row->created_at ? $row->created_at->locale('id')->translatedFormat('F') : '-';
+                })
+                ->addColumn('tahun_surat', function ($row) {
+                    return $row->created_at ? $row->created_at->translatedFormat('Y') : '-';
                 })
                 ->addColumn('nama', function ($row) {
-                    return '<strong>' . e($row->user->name ?? '-') . '</strong><br><small class="text-muted">' . e($row->user->employee_nik ?? '-') . '</small>';
+                    return e($row->user->name ?? '-');
                 })
-                ->addColumn('site', function ($row) {
-                    return e($row->user->site->name ?? $row->site->name ?? '-');
+                ->addColumn('email', function ($row) {
+                    return e($row->user->email ?? '-');
                 })
-                ->addColumn('jabatan', function ($row) {
-                    return e($row->user && $row->user->roles->isNotEmpty() ? $row->user->roles->pluck('name')->implode(', ') : '-');
+                ->addColumn('ibu_kandung', function ($row) {
+                    return e($row->user->profile->mother_name ?? '-');
                 })
-                ->addColumn('ttl', function ($row) {
-                    $bp = $row->user->profile->birth_place ?? '-';
-                    $bd = $row->user->profile->birth_date ?? '-';
-                    return e($bp . ', ' . $bd);
+                ->addColumn('tempat_lahir', function ($row) {
+                    return e($row->user->profile->birth_place ?? '-');
                 })
-                ->addColumn('alamat', function ($row) {
+                ->addColumn('tanggal_lahir', function ($row) {
+                    return e($row->user->profile->birth_date ?? '-');
+                })
+                ->addColumn('jenis_kelamin', function ($row) {
+                    return e($row->user->profile->gender ?? '-');
+                })
+                ->addColumn('no_ktp', function ($row) {
+                    return e($row->user->nik ?? '-');
+                })
+                ->addColumn('no_kk', function ($row) {
+                    return e($row->user->profile->kk_number ?? '-');
+                })
+                ->addColumn('no_npwp', function ($row) {
+                    return e($row->user->profile->npwp_number ?? '-');
+                })
+                ->addColumn('alamat_ktp', function ($row) {
                     $parts = array_filter([
                         $row->user->profile->address    ?? null,
                         $row->user->profile->rt_rw      ?? null,
@@ -135,6 +157,58 @@ class GenerateController extends Controller
                         $row->user->profile->kecamatan  ? 'Kec. ' . $row->user->profile->kecamatan : null,
                     ]);
                     return e(implode(', ', $parts) ?: '-');
+                })
+                ->addColumn('no_handphone', function ($row) {
+                    return e($row->user->phone ?? '-');
+                })
+                ->addColumn('agama', function ($row) {
+                    return e($row->user->profile->religion ?? '-');
+                })
+                ->addColumn('status_pernikahan', function ($row) {
+                    return e($row->user->profile->marriage_status ?? '-');
+                })
+                ->addColumn('jabatan', function ($row) {
+                    return e($row->user && $row->user->roles->isNotEmpty() ? $row->user->roles->pluck('name')->implode(', ') : '-');
+                })
+                ->addColumn('site_project', function ($row) {
+                    return e($row->user->site->name ?? $row->site->name ?? '-');
+                })
+                ->addColumn('nama_client', function ($row) {
+                    return e($row->user->site->client_name ?? $row->site->client_name ?? '-');
+                })
+                ->addColumn('jabatan_client', function ($row) {
+                    return e($row->user->site->client_position ?? $row->site->client_position ?? '-');
+                })
+                ->addColumn('tgl_join', function ($row) {
+                    $join = $row->user->profile->join_date ?? null;
+                    return $join ? e(\Illuminate\Support\Carbon::parse($join)->translatedFormat('d')) : '-';
+                })
+                ->addColumn('bulan_join', function ($row) {
+                    $join = $row->user->profile->join_date ?? null;
+                    return $join ? e(\Illuminate\Support\Carbon::parse($join)->locale('id')->translatedFormat('F')) : '-';
+                })
+                ->addColumn('tahun_join', function ($row) {
+                    $join = $row->user->profile->join_date ?? null;
+                    return $join ? e(\Illuminate\Support\Carbon::parse($join)->translatedFormat('Y')) : '-';
+                })
+                ->addColumn('nama_bank', function ($row) {
+                    return e($row->user->profile->bank_name ?? '-');
+                })
+                ->addColumn('nama_rekening', function ($row) {
+                    return e($row->user->profile->account_name ?? '-');
+                })
+                ->addColumn('no_rekening', function ($row) {
+                    return e($row->user->profile->account_number ?? '-');
+                })
+                ->addColumn('variabel_tambahan', function ($row) {
+                    if ($row->valueVariables->isEmpty()) {
+                        return '-';
+                    }
+                    $items = $row->valueVariables
+                        ->filter(fn($cv) => $cv->customVariable)
+                        ->map(fn($cv) => '<strong>' . e($cv->customVariable->variable) . '</strong>: ' . e($cv->value))
+                        ->implode('<br>');
+                    return $items ?: '-';
                 })
                 ->addColumn('signature', function ($row) {
                     $requireHrd = $row->letter->require_hrd_signature ?? true;
@@ -175,7 +249,7 @@ class GenerateController extends Controller
                 ->addColumn('action', function ($row) {
                     return view('admin.generates.partials.actions', compact('row'))->render();
                 })
-                ->rawColumns(['action', 'checkbox', 'signature', 'template', 'nama', 'no_surat'])
+                ->rawColumns(['action', 'checkbox', 'signature', 'variabel_tambahan'])
                 ->make(true);
         }
     

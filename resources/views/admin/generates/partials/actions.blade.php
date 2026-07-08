@@ -4,8 +4,21 @@
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $row->id }}">
         <li>
-            <!-- Edit Button -->
-            <a href="{{ route('generates.show', $row->id) }}" class="dropdown-item">Lihat</a>
+            <a href="{{ route('generates.show', $row->id) }}" class="dropdown-item">
+                <i class="ti ti-file-text me-1"></i> Lihat Surat
+            </a>
         </li>
+        @if ($row->user)
+            <li>
+                <a href="{{ route('users.resume', $row->user_id) }}" target="_blank" class="dropdown-item">
+                    <i class="ti ti-file-description me-1"></i> Lihat Resume
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('users.account', $row->user_id) }}" target="_blank" class="dropdown-item">
+                    <i class="ti ti-edit me-1"></i> Edit Profil
+                </a>
+            </li>
+        @endif
     </ul>
 </div>

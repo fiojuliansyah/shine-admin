@@ -93,6 +93,11 @@ class Generate extends Model
         return $this->belongsTo(Site::class);
     }
 
+    public function valueVariables()
+    {
+        return $this->hasMany(ValueVariable::class, 'generate_id');
+    }
+
     public function getFormattedLetterNumberAttribute(): ?string
     {
         $stored = $this->letter_number;
