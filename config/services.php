@@ -47,4 +47,10 @@ return [
         'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
     ],
 
+    'paddleocr' => [
+        'url' => env('PADDLEOCR_URL'),
+        'token' => env('PADDLEOCR_TOKEN'),
+        'timeout' => (int) env('PADDLEOCR_TIMEOUT', 60),
+    ],
+
 ];

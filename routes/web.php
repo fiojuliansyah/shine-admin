@@ -142,6 +142,7 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
     Route::delete('/delete-signature', [SignatureController::class, 'delete'])->name('delete.signature');
 
     Route::post('/ktp-ocr/openai', [KtpOcrController::class, 'openai'])->name('ktp-ocr.openai');
+    Route::post('/ktp-ocr/paddle', [KtpOcrController::class, 'paddle'])->name('ktp-ocr.paddle');
 });
 
 require __DIR__ . '/guest.php';

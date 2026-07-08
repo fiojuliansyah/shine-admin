@@ -775,6 +775,7 @@
                             <label class="form-label fw-semibold mb-1">Metode Scan</label>
                             <select id="ktpMethod" class="form-select">
                                 <option value="local">OCR Sekarang (Polygon - di perangkat)</option>
+                                <option value="paddle">PaddleOCR (server)</option>
                                 <option value="openai">OpenAI Vision (akurasi tinggi)</option>
                             </select>
                         </div>
@@ -782,6 +783,10 @@
                     <div id="ktpInfoLocal" class="alert alert-info py-2 fs-12">
                         Unggah foto/scan KTP, sesuaikan kotak polygon agar pas di tiap field, lalu klik
                         <strong>Mulai Scan</strong>. Proses OCR berjalan di perangkat Anda.
+                    </div>
+                    <div id="ktpInfoPaddle" class="alert alert-secondary py-2 fs-12 d-none">
+                        Gambar KTP dikirim ke server PaddleOCR untuk dibaca, lalu hasil teksnya dipetakan otomatis
+                        ke tiap field. Polygon tidak dipakai. Klik <strong>Mulai Scan</strong> setelah mengunggah gambar.
                     </div>
                     <div id="ktpInfoOpenai" class="alert alert-warning py-2 fs-12 d-none">
                         Gambar KTP dikirim ke server lalu diteruskan ke OpenAI untuk dibaca. Polygon tidak
@@ -897,7 +902,9 @@
             var polygonPanel = document.getElementById('ktpPolygonPanel');
             var infoLocal = document.getElementById('ktpInfoLocal');
             var infoOpenai = document.getElementById('ktpInfoOpenai');
+            var infoPaddle = document.getElementById('ktpInfoPaddle');
             var openaiUrl = '{{ route('ktp-ocr.openai') }}';
+            var paddleUrl = '{{ route('ktp-ocr.paddle') }}';
             var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             var editor = null;
@@ -906,10 +913,12 @@
             var lastResult = null;
 
             function applyMethodUi() {
-                var isOpenai = methodSel.value === 'openai';
-                polygonPanel.classList.toggle('d-none', isOpenai);
-                infoLocal.classList.toggle('d-none', isOpenai);
-                infoOpenai.classList.toggle('d-none', !isOpenai);
+                var method = methodSel.value;
+                var isLocal = method === 'local';
+                polygonPanel.classList.toggle('d-none', !isLocal);
+                infoLocal.classList.toggle('d-none', !isLocal);
+                infoOpenai.classList.toggle('d-none', method !== 'openai');
+                if (infoPaddle) infoPaddle.classList.toggle('d-none', method !== 'paddle');
             }
             methodSel.addEventListener('change', applyMethodUi);
             applyMethodUi();
@@ -1000,16 +1009,16 @@
                 });
             }
 
-            function runOpenaiScan() {
+            function runServerScan(url, label) {
                 if (!currentFile) { alert('Unggah gambar KTP terlebih dahulu.'); return; }
                 scanBtn.disabled = true;
                 applyBtn.disabled = true;
-                setProgress(20, 'Mengirim ke OpenAI...');
+                setProgress(20, 'Mengirim ke ' + label + '...');
 
                 var fd = new FormData();
                 fd.append('image', currentFile);
 
-                fetch(openaiUrl, {
+                fetch(url, {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                     body: fd
@@ -1019,19 +1028,21 @@
                         return json;
                     });
                 }).then(function (json) {
+                    lastResult = json;
                     fillResults(json.mapped || {});
                     setProgress(100, 'Selesai');
                     scanBtn.disabled = false;
                     applyBtn.disabled = false;
                 }).catch(function (err) {
                     setProgress(0, 'Gagal');
-                    alert(err.message || 'OpenAI gagal');
+                    alert(err.message || (label + ' gagal'));
                     scanBtn.disabled = false;
                 });
             }
 
             scanBtn.addEventListener('click', function () {
-                if (methodSel.value === 'openai') runOpenaiScan();
+                if (methodSel.value === 'openai') runServerScan(openaiUrl, 'OpenAI');
+                else if (methodSel.value === 'paddle') runServerScan(paddleUrl, 'PaddleOCR');
                 else runLocalScan();
             });
 
