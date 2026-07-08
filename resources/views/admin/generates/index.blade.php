@@ -83,8 +83,11 @@
                             <button type="button" id="filterButton" class="btn btn-primary me-2">
                                 <i class="ti ti-filter me-1"></i> Filter
                             </button>
-                            <a href="{{ route('generates.index', array_filter(['type_id' => $filters['type_id'] ?? null])) }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('generates.index', array_filter(['type_id' => $filters['type_id'] ?? null])) }}" class="btn btn-outline-secondary me-2">
                                 <i class="ti ti-refresh me-1"></i> Reset
+                            </a>
+                            <a href="#" id="exportButton" class="btn btn-success">
+                                <i class="ti ti-file-export me-1"></i> Export
                             </a>
                         </div>
                     </form>
@@ -221,6 +224,17 @@
 
         $('#filterButton').on('click', function() {
             table.ajax.reload();
+        });
+
+        $('#exportButton').on('click', function(e) {
+            e.preventDefault();
+            var params = $.param({
+                site_id: $('#siteFilter').val() || '',
+                type_id: $('#typeFilter').val() || '',
+                start_date: $('#startDate').val() || '',
+                end_date: $('#endDate').val() || ''
+            });
+            window.location.href = "{{ route('generates.export') }}?" + params;
         });
 
         $('#siteFilter, #typeFilter').change(function() {

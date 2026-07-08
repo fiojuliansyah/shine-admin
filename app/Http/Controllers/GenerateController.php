@@ -298,6 +298,30 @@ class GenerateController extends Controller
     }
     
 
+    public function export(Request $request)
+    {
+        $startDate = $request->start_date ?: null;
+        $endDate = $request->end_date ?: null;
+        $siteId = $request->site_id ?: null;
+        $typeId = $request->type_id ?: null;
+
+        $range = '';
+        if ($startDate && $endDate) {
+            $range = ' - ' . date('d-m-Y', strtotime($startDate)) . ' sd ' . date('d-m-Y', strtotime($endDate));
+        } elseif ($startDate) {
+            $range = ' - sejak ' . date('d-m-Y', strtotime($startDate));
+        } elseif ($endDate) {
+            $range = ' - sampai ' . date('d-m-Y', strtotime($endDate));
+        }
+
+        $filename = 'Surat Terbit' . $range . ' - ' . date('d-m-Y') . '.xlsx';
+
+        return Excel::download(
+            new \App\Exports\GeneratesExport($startDate, $endDate, $siteId, $typeId),
+            $filename
+        );
+    }
+
     public function bulkApprove(Request $request)
     {
         $esign = $request->esign;
