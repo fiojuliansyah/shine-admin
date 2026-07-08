@@ -16,4 +16,9 @@ class CustomVariable extends Model
     {
         return $this->hasMany(ValueVariable::class);
     }
+
+    public function letter()
+    {
+        return $this->belongsTo(Letter::class);
+    }
 }
