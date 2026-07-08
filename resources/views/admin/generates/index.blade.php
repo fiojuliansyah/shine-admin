@@ -69,7 +69,7 @@
                             </div>
                         </div>
                         
-                        <div class="mb-2">
+                        <div class="d-flex align-items-center">
                             <button type="button" id="filterButton" class="btn btn-primary me-2">
                                 <i class="ti ti-filter me-1"></i> Filter
                             </button>
