@@ -97,11 +97,16 @@
                                     <th style="text-align: center; vertical-align: middle; width: 40px;">
                                         <input type="checkbox" id="select-all" class="form-check-input">
                                     </th>
-                                    <th style="text-align: center; vertical-align: middle; width: 120px;">Tanggal Dibuat</th>
-                                    <th style="text-align: center; vertical-align: middle; width: 25%;">Template</th>
-                                    <th style="text-align: center; vertical-align: middle; width: 25%;">Nama</th>
-                                    <th style="text-align: center; vertical-align: middle; width: 20%;">Tanda Tangan</th>
-                                    <th style="text-align: center; vertical-align: middle; width: 120px;">Aksi</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 110px;">Tanggal Dibuat</th>
+                                    <th style="text-align: center; vertical-align: middle;">No Surat</th>
+                                    <th style="text-align: center; vertical-align: middle;">Nama / NIK</th>
+                                    <th style="text-align: center; vertical-align: middle;">Site</th>
+                                    <th style="text-align: center; vertical-align: middle;">Jabatan</th>
+                                    <th style="text-align: center; vertical-align: middle;">Tempat/Tgl Lahir</th>
+                                    <th style="text-align: center; vertical-align: middle;">Alamat</th>
+                                    <th style="text-align: center; vertical-align: middle;">Template</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 180px;">Tanda Tangan</th>
+                                    <th style="text-align: center; vertical-align: middle; width: 100px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -142,11 +147,16 @@
             },
             columns: [
                 { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, width: '40px', className: 'text-center' },
-                { data: 'created_at', name: 'created_at', width: '120px', className: 'text-center' },
-                { data: 'template', name: 'template', width: '25%' },
-                { data: 'name', name: 'name', width: '25%' },
-                { data: 'signature', name: 'signature', width: '20%', className: 'text-center' },
-                { data: 'action', name: 'action', orderable: false, searchable: false, width: '120px', className: 'text-center' }
+                { data: 'created_at', name: 'created_at', width: '110px', className: 'text-center' },
+                { data: 'no_surat', name: 'no_surat', orderable: false },
+                { data: 'nama', name: 'nama' },
+                { data: 'site', name: 'site' },
+                { data: 'jabatan', name: 'jabatan', orderable: false },
+                { data: 'ttl', name: 'ttl', orderable: false, searchable: false },
+                { data: 'alamat', name: 'alamat', orderable: false, searchable: false },
+                { data: 'template', name: 'template' },
+                { data: 'signature', name: 'signature', orderable: false, searchable: false, className: 'text-center' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, width: '100px', className: 'text-center' }
             ],
             drawCallback: function() {
                 $('.data-table input[type="checkbox"]').each(function() {

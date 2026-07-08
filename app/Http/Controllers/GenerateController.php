@@ -44,7 +44,13 @@ class GenerateController extends Controller
         ];
     
         if (request()->ajax()) {
-            $generates = Generate::with('letter.type', 'site', 'user') 
+            $generates = Generate::with([
+                    'letter.type',
+                    'site',
+                    'user.profile',
+                    'user.roles',
+                    'user.site',
+                ])
                 ->orderBy('created_at', 'DESC')
                 // Search filter
                 ->when(request('search')['value'], function ($query) {
@@ -96,11 +102,39 @@ class GenerateController extends Controller
                 ->addColumn('created_at', function ($row) {
                     return $row->created_at->format('d M Y');
                 })
-                ->addColumn('template', function ($row) {
-                    return $row->letter->title . '<br>' . ($row->letter->type ? $row->letter->type->name : 'No Type');
+                ->addColumn('no_surat', function ($row) {
+                    $number = $row->formatted_letter_number ?? null;
+                    $type = $row->letter && $row->letter->type ? $row->letter->type->name : null;
+                    if (!$number) {
+                        return '<span class="text-muted">Belum ada no surat</span>' . ($type ? '<br><small class="text-muted">' . e($type) . '</small>' : '');
+                    }
+                    return e($number) . ($type ? '<br><small class="text-muted">' . e($type) . '</small>' : '');
                 })
-                ->addColumn('name', function ($row) {
-                    return $row->user->name . '<br>' . $row->user->employee_nik;
+                ->addColumn('template', function ($row) {
+                    return e($row->letter->title ?? '-') . '<br><small class="text-muted">' . e($row->letter && $row->letter->type ? $row->letter->type->name : 'No Type') . '</small>';
+                })
+                ->addColumn('nama', function ($row) {
+                    return '<strong>' . e($row->user->name ?? '-') . '</strong><br><small class="text-muted">' . e($row->user->employee_nik ?? '-') . '</small>';
+                })
+                ->addColumn('site', function ($row) {
+                    return e($row->user->site->name ?? $row->site->name ?? '-');
+                })
+                ->addColumn('jabatan', function ($row) {
+                    return e($row->user && $row->user->roles->isNotEmpty() ? $row->user->roles->pluck('name')->implode(', ') : '-');
+                })
+                ->addColumn('ttl', function ($row) {
+                    $bp = $row->user->profile->birth_place ?? '-';
+                    $bd = $row->user->profile->birth_date ?? '-';
+                    return e($bp . ', ' . $bd);
+                })
+                ->addColumn('alamat', function ($row) {
+                    $parts = array_filter([
+                        $row->user->profile->address    ?? null,
+                        $row->user->profile->rt_rw      ?? null,
+                        $row->user->profile->kelurahan  ? 'Kel. ' . $row->user->profile->kelurahan : null,
+                        $row->user->profile->kecamatan  ? 'Kec. ' . $row->user->profile->kecamatan : null,
+                    ]);
+                    return e(implode(', ', $parts) ?: '-');
                 })
                 ->addColumn('signature', function ($row) {
                     $requireHrd = $row->letter->require_hrd_signature ?? true;
@@ -141,7 +175,7 @@ class GenerateController extends Controller
                 ->addColumn('action', function ($row) {
                     return view('admin.generates.partials.actions', compact('row'))->render();
                 })
-                ->rawColumns(['action', 'checkbox', 'signature', 'template', 'name'])
+                ->rawColumns(['action', 'checkbox', 'signature', 'template', 'nama', 'no_surat'])
                 ->make(true);
         }
     
