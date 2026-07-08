@@ -24,7 +24,6 @@
                             <label class="form-label fw-semibold">Metode Scan</label>
                             <select id="ocr-method" class="form-select">
                                 <option value="local">OCR Sekarang (Polygon - di perangkat)</option>
-                                <option value="paddle">PaddleOCR (server)</option>
                                 <option value="openai">OpenAI Vision (akurasi tinggi)</option>
                             </select>
                         </div>
@@ -153,7 +152,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnSave     = document.getElementById('btn-save-template');
 
     const openaiUrl = '{{ route('applicant.profiles.ocr-openai') }}';
-    const paddleUrl = '{{ route('applicant.profiles.ocr-paddle') }}';
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     let editor = null;
@@ -267,17 +265,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function runServerScan(url, label) {
+    function runOpenaiScan() {
         if (!currentFile) { alert('Unggah gambar KTP terlebih dahulu.'); return; }
         loader.style.display = 'block';
         progressBar.style.width = '30%';
-        statusText.textContent = 'Mengirim ke ' + label + '...';
+        statusText.textContent = 'Mengirim ke OpenAI...';
         btnScan.disabled = true;
 
         const fd = new FormData();
         fd.append('image', currentFile);
 
-        fetch(url, {
+        fetch(openaiUrl, {
             method: 'POST',
             headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
             body: fd
@@ -287,13 +285,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 return json;
             });
         }).then(function (json) {
-            rawText.value = json.raw ? json.raw : JSON.stringify(json.mapped, null, 2);
+            rawText.value = JSON.stringify(json.mapped, null, 2);
             rawTextBox.style.display = 'block';
             fillResults(json.mapped || {});
             progressBar.style.width = '100%';
             statusText.textContent = 'Selesai!';
         }).catch(function (err) {
-            alert(err.message || (label + ' gagal'));
+            alert(err.message || 'OpenAI gagal');
         }).finally(function () {
             loader.style.display = 'none';
             btnScan.disabled = false;
@@ -301,8 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     btnScan.addEventListener('click', function () {
-        if (methodSel.value === 'openai') runServerScan(openaiUrl, 'OpenAI');
-        else if (methodSel.value === 'paddle') runServerScan(paddleUrl, 'PaddleOCR');
+        if (methodSel.value === 'openai') runOpenaiScan();
         else runLocalScan();
     });
 
