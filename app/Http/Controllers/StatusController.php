@@ -212,6 +212,14 @@ class StatusController extends Controller
                     'site_id' => $site_id,
                 ]);
 
+                $applicant->user->profile()->updateOrCreate(
+                    ['user_id' => $applicant->user_id],
+                    array_filter([
+                        'join_date'   => $request->start_date,
+                        'resign_date' => $request->end_date,
+                    ], fn($v) => !is_null($v))
+                );
+
                 $applicant->update([
                     'done' => 'document-digital'
                 ]);

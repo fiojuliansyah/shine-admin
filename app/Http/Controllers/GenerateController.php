@@ -213,7 +213,7 @@ class GenerateController extends Controller
                 })
                 ->addColumn('tgl_join', function ($row) {
                     $join = $row->user->profile->join_date ?? null;
-                    return $join ? e(\Illuminate\Support\Carbon::parse($join)->translatedFormat('d')) : '-';
+                    return $join ? e(date('d', strtotime($join))) : '-';
                 })
                 ->addColumn('bulan_join', function ($row) {
                     $join = $row->user->profile->join_date ?? null;
@@ -221,7 +221,7 @@ class GenerateController extends Controller
                 })
                 ->addColumn('tahun_join', function ($row) {
                     $join = $row->user->profile->join_date ?? null;
-                    return $join ? e(\Illuminate\Support\Carbon::parse($join)->translatedFormat('Y')) : '-';
+                    return $join ? e(date('Y', strtotime($join))) : '-';
                 })
                 ->addColumn('nama_bank', function ($row) {
                     return e($row->user->profile->bank_name ?? '-');
