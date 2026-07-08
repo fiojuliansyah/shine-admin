@@ -304,6 +304,14 @@ class StatusController extends Controller
                     'is_employee' => 1
                 ]);
 
+                $applicant->user->profile()->updateOrCreate(
+                    ['user_id' => $applicant->user_id],
+                    [
+                        'join_date'   => $request->start_date,
+                        'resign_date' => $request->end_date,
+                    ]
+                );
+
                 $applicant->update([
                     'done' => 'done'
                 ]);
