@@ -7,6 +7,7 @@ use App\Models\Site;
 use App\Models\Letter;
 use App\Models\Generate;
 use App\Models\TypeLetter;
+use App\Models\CustomVariable;
 use App\Exports\GenerateTemplateExport;
 use App\Imports\GenerateTemplateImport;
 use Illuminate\Http\Request;
@@ -30,6 +31,35 @@ class GenerateController extends Controller
         return view('admin.generates.folders', compact('types', 'uncategorizedCount'));
     }
 
+    private function resolveCustomVariableColumns($typeId = null)
+    {
+        $query = CustomVariable::query()
+            ->select('variable', 'name')
+            ->whereNotNull('variable')
+            ->where('variable', '!=', '');
+
+        if ($typeId === 'none') {
+            $query->whereHas('letter', function ($q) {
+                $q->whereNull('type_letter_id');
+            });
+        } elseif ($typeId) {
+            $query->whereHas('letter', function ($q) use ($typeId) {
+                $q->where('type_letter_id', $typeId);
+            });
+        }
+
+        return $query->get()
+            ->unique('variable')
+            ->values()
+            ->map(function ($cv) {
+                return [
+                    'variable' => $cv->variable,
+                    'name' => $cv->name ?: $cv->variable,
+                    'key' => 'cv_' . preg_replace('/[^A-Za-z0-9_]/', '_', $cv->variable),
+                ];
+            });
+    }
+
     public function index()
     {
         $types = TypeLetter::with('letters')->get();
@@ -43,6 +73,8 @@ class GenerateController extends Controller
             'end_date' => request('end_date'),
         ];
     
+        $customVarColumns = $this->resolveCustomVariableColumns(request('type_id'));
+
         if (request()->ajax()) {
             $generates = Generate::with([
                     'letter.type',
@@ -96,7 +128,7 @@ class GenerateController extends Controller
                     return $query->where('created_at', '<=', request('end_date') . ' 23:59:59');
                 });
     
-            return DataTables::of($generates)
+            $dataTable = DataTables::of($generates)
                 ->addIndexColumn()
                 ->addColumn('checkbox', function ($row) {
                     return '<input type="checkbox" class="generate-checkbox" value="' . $row->id . '">';
@@ -200,16 +232,6 @@ class GenerateController extends Controller
                 ->addColumn('no_rekening', function ($row) {
                     return e($row->user->profile->account_number ?? '-');
                 })
-                ->addColumn('variabel_tambahan', function ($row) {
-                    if ($row->valueVariables->isEmpty()) {
-                        return '-';
-                    }
-                    $items = $row->valueVariables
-                        ->filter(fn($cv) => $cv->customVariable)
-                        ->map(fn($cv) => '<strong>' . e($cv->customVariable->variable) . '</strong>: ' . e($cv->value))
-                        ->implode('<br>');
-                    return $items ?: '-';
-                })
                 ->addColumn('signature', function ($row) {
                     $requireHrd = $row->letter->require_hrd_signature ?? true;
                     $requireEmployee = $row->letter->require_employee_signature ?? true;
@@ -248,8 +270,19 @@ class GenerateController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     return view('admin.generates.partials.actions', compact('row'))->render();
-                })
-                ->rawColumns(['action', 'checkbox', 'signature', 'variabel_tambahan'])
+                });
+
+            foreach ($customVarColumns as $col) {
+                $variable = $col['variable'];
+                $dataTable->addColumn($col['key'], function ($row) use ($variable) {
+                    $value = $row->valueVariables
+                        ->first(fn($cv) => $cv->customVariable && $cv->customVariable->variable === $variable);
+                    return e($value->value ?? '-');
+                });
+            }
+
+            return $dataTable
+                ->rawColumns(['action', 'checkbox', 'signature'])
                 ->make(true);
         }
     
@@ -261,7 +294,7 @@ class GenerateController extends Controller
             $currentType = 'none';
         }
 
-        return view('admin.generates.index', compact('letters', 'sites', 'types', 'filters', 'currentType'));
+        return view('admin.generates.index', compact('letters', 'sites', 'types', 'filters', 'currentType', 'customVarColumns'));
     }
     
 

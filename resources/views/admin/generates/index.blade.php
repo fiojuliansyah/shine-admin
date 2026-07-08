@@ -127,7 +127,9 @@
                                     <th style="text-align: center; vertical-align: middle;">Nama Bank</th>
                                     <th style="text-align: center; vertical-align: middle;">Nama Rekening</th>
                                     <th style="text-align: center; vertical-align: middle;">No Rekening</th>
-                                    <th style="text-align: center; vertical-align: middle;">Variabel Tambahan</th>
+                                    @foreach ($customVarColumns as $col)
+                                        <th style="text-align: center; vertical-align: middle;">{{ $col['name'] }}</th>
+                                    @endforeach
                                     <th style="text-align: center; vertical-align: middle; width: 180px;">Tanda Tangan</th>
                                     <th style="text-align: center; vertical-align: middle; width: 100px;">Aksi</th>
                                 </tr>
@@ -201,7 +203,9 @@
                 { data: 'nama_bank', name: 'nama_bank', orderable: false, searchable: false },
                 { data: 'nama_rekening', name: 'nama_rekening', orderable: false, searchable: false },
                 { data: 'no_rekening', name: 'no_rekening', orderable: false, searchable: false },
-                { data: 'variabel_tambahan', name: 'variabel_tambahan', orderable: false, searchable: false },
+                @foreach ($customVarColumns as $col)
+                { data: '{{ $col['key'] }}', name: '{{ $col['key'] }}', orderable: false, searchable: false },
+                @endforeach
                 { data: 'signature', name: 'signature', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, width: '100px', className: 'text-center' }
             ],
