@@ -77,7 +77,8 @@ Route::middleware(['auth'])->prefix('manage')->group(function () {
 
     Route::post('/generates/export-template', [GenerateController::class, 'exportTemplate'])->name('generates.export-template');
     Route::post('/generates/import-template', [GenerateController::class, 'importTemplate'])->name('generates.import-template');
-    Route::resource('generates', GenerateController::class);
+        Route::get('/generate-folders', [GenerateController::class, 'folders'])->name('generates.folders');
+        Route::resource('generates', GenerateController::class);
     Route::get('/generates/{generate}/pdf', [GenerateController::class, 'pdf'])->name('generates.pdf');
     Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');
     Route::post('/bulk-approve', [GenerateController::class, 'bulkApprove'])->name('generates.bulkApprove');

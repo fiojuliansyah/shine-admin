@@ -106,8 +106,8 @@
                 <li class="menu-title"><span>DOKUMEN DIGITAL</span></li>
                 <li>
                     <ul>
-                        <li class="{{ Route::is('generates.index') ? 'active' : '' }}">
-                            <a href="{{ route('generates.index') }}">
+                        <li class="{{ Route::is(['generates.folders', 'generates.index']) ? 'active' : '' }}">
+                            <a href="{{ route('generates.folders') }}">
                                 <i class="ti ti ti-edit"></i><span>Surat Terbit</span>
                             </a>
                         </li>

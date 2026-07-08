@@ -20,6 +20,16 @@ class GenerateController extends Controller
 {
     use \App\Traits\PdfPageImageTrait;
     use \App\Traits\SalaryVariableTrait;
+    public function folders()
+    {
+        $types = TypeLetter::withCount('generates')->orderBy('name')->get();
+        $uncategorizedCount = Generate::whereHas('letter', function ($q) {
+            $q->whereNull('type_letter_id');
+        })->count();
+
+        return view('admin.generates.folders', compact('types', 'uncategorizedCount'));
+    }
+
     public function index()
     {
         $types = TypeLetter::with('letters')->get();
@@ -54,7 +64,12 @@ class GenerateController extends Controller
                     return $query->where('site_id', request('site_id'));
                 })
                 // Type filter
-                ->when(request('type_id'), function ($query) {
+                ->when(request('type_id') === 'none', function ($query) {
+                    return $query->whereHas('letter', function ($q) {
+                        $q->whereNull('type_letter_id');
+                    });
+                })
+                ->when(request('type_id') && request('type_id') !== 'none', function ($query) {
                     $typeId = request('type_id');
                     return $query->whereHas('letter', function ($q) use ($typeId) {
                         $q->where('type_letter_id', $typeId);
@@ -131,7 +146,14 @@ class GenerateController extends Controller
         }
     
         // Pass filters to the view
-        return view('admin.generates.index', compact('letters', 'sites', 'types', 'filters'));
+        $currentType = null;
+        if (request('type_id') && request('type_id') !== 'none') {
+            $currentType = TypeLetter::find(request('type_id'));
+        } elseif (request('type_id') === 'none') {
+            $currentType = 'none';
+        }
+
+        return view('admin.generates.index', compact('letters', 'sites', 'types', 'filters', 'currentType'));
     }
     
 

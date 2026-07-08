@@ -59,13 +59,13 @@
                         </li>
                         <li class="submenu">
                             <a href="javascript:void(0);"
-                                class="{{ Route::is(['generates.index', 'type_letters.index', 'letters.index', 'letter-number-configs.index']) ? 'active subdrop' : '' }}"">
+                                class="{{ Route::is(['generates.index', 'generates.folders', 'type_letters.index', 'letters.index', 'letter-number-configs.index']) ? 'active subdrop' : '' }}"">
                                 <i class="ti ti-edit"></i><span>Digital Letter</span>
                                 <span class="menu-arrow"></span>
                             </a>
                             <ul>
-                                <li><a href="{{ route('generates.index') }}"
-                                        class="{{ Route::is('generates.index') ? 'active' : '' }}">Buat Letter</a></li>
+                                <li><a href="{{ route('generates.folders') }}"
+                                        class="{{ Route::is(['generates.folders', 'generates.index']) ? 'active' : '' }}">Buat Letter</a></li>
                                 <li><a href="{{ route('letters.index') }}"
                                         class="{{ Route::is(['letters.index', 'type_letters.index']) ? 'active' : '' }}">Buat Template</a></li>
                                 <li><a href="{{ route('letter-number-configs.index') }}"

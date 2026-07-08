@@ -13,4 +13,16 @@ class TypeLetter extends Model
     {
         return $this->hasMany(Letter::class);
     }
+
+    public function generates()
+    {
+        return $this->hasManyThrough(
+            Generate::class,
+            Letter::class,
+            'type_letter_id',
+            'letter_id',
+            'id',
+            'id'
+        );
+    }
 }

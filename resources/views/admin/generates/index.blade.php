@@ -6,18 +6,33 @@
             <!-- Breadcrumb -->
             <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
                 <div class="my-auto mb-2">
-                    <h2 class="mb-1">Surat Terbit</h2>
+                    @php
+                        $folderName = $currentType === 'none'
+                            ? 'Tanpa Tipe'
+                            : ($currentType ? $currentType->name : null);
+                    @endphp
+                    <h2 class="mb-1">{{ $folderName ? 'Surat Terbit - ' . $folderName : 'Surat Terbit' }}</h2>
                     <nav>
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item">
-                                <a href="index.html"><i class="ti ti-smart-home"></i></a>
+                                <a href="{{ route('dashboard') }}"><i class="ti ti-smart-home"></i></a>
                             </li>
                             <li class="breadcrumb-item">HR</li>
-                            <li class="breadcrumb-item active" aria-current="page">Surat Terbit</li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('generates.folders') }}">Surat Terbit</a>
+                            </li>
+                            @if ($folderName)
+                                <li class="breadcrumb-item active" aria-current="page">{{ $folderName }}</li>
+                            @endif
                         </ol>
                     </nav>
                 </div>
-                @include('admin.generates.partials.toolbar-mains')
+                <div class="d-flex align-items-center flex-wrap">
+                    <a href="{{ route('generates.folders') }}" class="btn btn-outline-secondary me-2 mb-2">
+                        <i class="ti ti-arrow-left me-1"></i> Kembali ke Folder
+                    </a>
+                    @include('admin.generates.partials.toolbar-mains')
+                </div>
             </div>
             <!-- /Breadcrumb -->
             
@@ -43,6 +58,7 @@
                         <div class="me-3">
                             <select name="type_id" id="typeFilter" class="form-control select2">
                                 <option value="">Select Type</option>
+                                <option value="none" {{ isset($filters['type_id']) && $filters['type_id'] === 'none' ? 'selected' : '' }}>Tanpa Tipe</option>
                                 @foreach($types as $type)
                                     <option value="{{ $type->id }}" {{ isset($filters['type_id']) && $filters['type_id'] == $type->id ? 'selected' : '' }}>
                                         {{ $type->name }}
@@ -67,7 +83,7 @@
                             <button type="button" id="filterButton" class="btn btn-primary me-2">
                                 <i class="ti ti-filter me-1"></i> Filter
                             </button>
-                            <a href="{{ route('generates.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('generates.index', array_filter(['type_id' => $filters['type_id'] ?? null])) }}" class="btn btn-outline-secondary">
                                 <i class="ti ti-refresh me-1"></i> Reset
                             </a>
                         </div>
