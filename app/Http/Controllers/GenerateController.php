@@ -443,9 +443,17 @@ class GenerateController extends Controller
                 ->with('error', 'Gagal mengimpor file: ' . $e->getMessage());
         }
 
+        if ($import->getTotalRows() === 0) {
+            return redirect()->route('generates.index')
+                ->with('error', 'File tidak berisi data. Pastikan file diisi minimal 1 baris di bawah header, atau jangan centang "Template kosong" saat export.');
+        }
+
         $message = "Import selesai. {$import->getCreated()} surat terbit dibuat.";
         if ($import->getSalaryUpdated() > 0) {
             $message .= " {$import->getSalaryUpdated()} pengaturan gaji karyawan diperbarui.";
+        }
+        if ($import->getEmptyNikRows() > 0) {
+            $message .= " {$import->getEmptyNikRows()} baris dilewati (kolom NIK Karyawan kosong).";
         }
         if ($import->getSkipped() > 0) {
             $niks = implode(', ', array_slice($import->getSkippedNiks(), 0, 10));
@@ -453,7 +461,8 @@ class GenerateController extends Controller
             $message .= " {$import->getSkipped()} baris dilewati (NIK karyawan tidak ditemukan: {$niks}{$more}).";
         }
 
-        return redirect()->route('generates.index')->with('success', $message);
+        $flash = $import->getCreated() > 0 ? 'success' : 'warning';
+        return redirect()->route('generates.index')->with($flash, $message);
     }
 
     public function show(Generate $generate)

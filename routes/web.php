@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/employee/export', [EmployeeController::class, 'export'])->name('employee.export');
 });
 
-Route::middleware(['auth'])->prefix('manage')->group(function () {
+Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/whatsapp-config', [DashboardController::class, 'whatsappConfig'])->name('whatsapp.config');
     Route::get('/whatsapp-status', [DashboardController::class, 'getWhatsappStatus'])->name('whatsapp.status');

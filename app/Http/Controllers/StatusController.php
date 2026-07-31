@@ -98,6 +98,15 @@ class StatusController extends Controller
                 ->addColumn('action', function ($row) {
                     return view('admin.statuses.partials.show-actions', compact('row'))->render();
                 })
+                ->filterColumn('employee', function ($query, $keyword) {
+                    $query->whereHas('user', fn ($q) => $q->where('employee_nik', 'like', "%{$keyword}%"));
+                })
+                ->filterColumn('name', function ($query, $keyword) {
+                    $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$keyword}%"));
+                })
+                ->filterColumn('career', function ($query, $keyword) {
+                    $query->whereHas('career', fn ($q) => $q->where('name', 'like', "%{$keyword}%"));
+                })
                 ->rawColumns(['action', 'progress', 'resume', 'checkbox', 'role'])
                 ->make(true);
         }

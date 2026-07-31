@@ -25,6 +25,8 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
     protected int $created = 0;
     protected int $skipped = 0;
     protected int $salaryUpdated = 0;
+    protected int $emptyNikRows = 0;
+    protected int $totalRows = 0;
     protected array $skippedNiks = [];
 
     public function __construct(Letter $letter, $siteId = null)
@@ -37,14 +39,26 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
+            if ($row->filter(fn ($v) => $v !== null && $v !== '')->isEmpty()) {
+                continue;
+            }
+
+            $this->totalRows++;
             $values = $this->mapRow($row);
 
             $employeeNik = trim((string) ($values['nik']['employee_nik'] ?? ''));
+            if (is_numeric($employeeNik)) {
+                $employeeNik = (string) (int) $employeeNik;
+            }
             if ($employeeNik === '') {
+                $this->emptyNikRows++;
                 continue;
             }
 
             $userQuery = User::where('employee_nik', $employeeNik);
+            if (!$userQuery->exists()) {
+                $userQuery = User::whereRaw('CAST(employee_nik AS UNSIGNED) = ?', [(int) $employeeNik]);
+            }
             if ($this->siteId) {
                 $userQuery->where('site_id', $this->siteId);
             }
@@ -176,5 +190,15 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
     public function getSkippedNiks(): array
     {
         return $this->skippedNiks;
+    }
+
+    public function getEmptyNikRows(): int
+    {
+        return $this->emptyNikRows;
+    }
+
+    public function getTotalRows(): int
+    {
+        return $this->totalRows;
     }
 }

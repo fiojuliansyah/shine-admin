@@ -280,9 +280,9 @@ $(function () {
             { data: 'employee', name: 'employee' },
             { data: 'name', name: 'name' },
             { data: 'career', name: 'career' },
-            { data: 'role', name: 'role' },
-            { data: 'progress', name: 'progress' },
-            { data: 'resume', name: 'resume' },
+            { data: 'role', name: 'role', searchable: false },
+            { data: 'progress', name: 'progress', searchable: false },
+            { data: 'resume', name: 'resume', searchable: false },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ],
         scrollX: true
