@@ -10,8 +10,8 @@ class CheckViewMobilePermission
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && !Auth::user()->can('view-mobile')) {
-            return redirect('/mobile/login');
+        if (Auth::check() && ! Auth::user()->can('view-mobile')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengakses fitur ini.');
         }
 
         return $next($request);

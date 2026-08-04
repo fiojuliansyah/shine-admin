@@ -10,8 +10,8 @@ class CheckViewDesktopPermission
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && !Auth::user()->can('view-desktop')) {
-            return redirect()->route('mobile.home');
+        if (Auth::check() && ! Auth::user()->can('view-desktop')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengakses dashboard manage.');
         }
 
         return $next($request);

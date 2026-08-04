@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class MobileLoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = 'mobile/home'; 
+    protected $redirectTo = '/';
 
     public function __construct()
     {
@@ -22,7 +22,7 @@ class MobileLoginController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            return redirect()->route('mobile.home');
+            return redirect('/');
         }
 
         return view('admin.mobiles.auth.login');
@@ -44,6 +44,7 @@ class MobileLoginController extends Controller
         $login = request()->input('login');
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'employee_nik';
         request()->merge([$field => $login]);
+
         return $field;
     }
 
@@ -54,7 +55,7 @@ class MobileLoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        if (!$user->can('view-mobile')) {
+        if (! $user->can('view-mobile')) {
             return redirect('/');
         }
     }
@@ -66,7 +67,7 @@ class MobileLoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('mobile.login'); // Mengarahkan ke halaman login mobile
+        return redirect()->route('login');
     }
 
     protected function sendFailedLoginResponse(Request $request)
