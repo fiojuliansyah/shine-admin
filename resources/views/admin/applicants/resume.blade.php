@@ -103,8 +103,8 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Pilih Site area Project</label>
-                                    <select class="form-select" name="site_id" required>
-                                        <option value="" disabled>Pilih area Project</option>
+                                    <select class="form-select select2-site" name="site_id" required>
+                                        <option value="">Pilih area Project</option>
                                         @foreach ($sites as $site)
                                             <option value="{{ $site->id }}"
                                                 {{ ($applicant->user && $applicant->user->site_id == $site->id) ? 'selected' : '' }}>
@@ -354,3 +354,12 @@
         </div>
     </div>
 @endsection
+
+@push('js')
+    <script>
+        $('.select2-site').select2({
+            placeholder: 'Pilih area Project',
+            width: '100%'
+        });
+    </script>
+@endpush
