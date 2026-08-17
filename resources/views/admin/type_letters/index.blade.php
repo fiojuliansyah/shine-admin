@@ -62,12 +62,6 @@
                         <input type="text" name="code" class="form-control" placeholder="Contoh: SPK, PKWT">
                         <div class="form-text">Digunakan sebagai token <code>{kode_tipe}</code> pada nomor surat.</div>
                     </div>
-                    <div class="mb-3 form-check">
-                        <input type="hidden" name="auto_generate_nik" value="0">
-                        <input type="checkbox" class="form-check-input" id="auto_generate_nik_create" name="auto_generate_nik" value="1">
-                        <label class="form-check-label" for="auto_generate_nik_create">Generate otomatis NIK Karyawan</label>
-                        <div class="form-text">Jika dicentang, saat perpindahan status memakai kategori ini, NIK Karyawan akan dibuat otomatis.</div>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>

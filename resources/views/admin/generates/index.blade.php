@@ -92,9 +92,7 @@
                                     </th>
                                     <th style="text-align: center; vertical-align: middle;">No</th>
                                     <th style="text-align: center; vertical-align: middle;">No Surat</th>
-                                    @if ($showNik)
                                     <th style="text-align: center; vertical-align: middle;">NIK Karyawan</th>
-                                    @endif
                                     <th style="text-align: center; vertical-align: middle;">Nama Perusahaan</th>
                                     <th style="text-align: center; vertical-align: middle;">Tgl Pembuatan</th>
                                     <th style="text-align: center; vertical-align: middle;">Bulan Pembuatan</th>
@@ -170,9 +168,7 @@
                 { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, width: '40px', className: 'text-center' },
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'no_surat', name: 'no_surat', orderable: false },
-                @if ($showNik)
                 { data: 'nik_karyawan', name: 'nik_karyawan', orderable: false },
-                @endif
                 { data: 'nama_perusahaan', name: 'nama_perusahaan', orderable: false, searchable: false },
                 { data: 'tgl_surat', name: 'tgl_surat', orderable: false, searchable: false, className: 'text-center' },
                 { data: 'bulan_surat', name: 'bulan_surat', orderable: false, searchable: false },

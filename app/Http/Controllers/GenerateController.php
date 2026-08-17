@@ -294,9 +294,7 @@ class GenerateController extends Controller
             $currentType = 'none';
         }
 
-        $showNik = !($currentType instanceof TypeLetter) || (bool) $currentType->auto_generate_nik;
-
-        return view('admin.generates.index', compact('letters', 'sites', 'types', 'filters', 'currentType', 'customVarColumns', 'showNik'));
+        return view('admin.generates.index', compact('letters', 'sites', 'types', 'filters', 'currentType', 'customVarColumns'));
     }
     
 
