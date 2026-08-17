@@ -118,7 +118,8 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Gaji</label>
-                            <input type="text" class="form-control" name="salary">
+                            <input type="number" min="0" class="form-control" name="salary">
+                            <small class="form-text text-muted">Kosongkan atau isi 0 jika tidak ingin ditampilkan.</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Jumlah Pelamar</label>
