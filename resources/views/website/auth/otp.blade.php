@@ -1,0 +1,63 @@
+@extends('website.layouts.guest')
+
+@section('content')
+<div class="main-wrapper">
+    <div class="container-fuild">
+        <div class="w-100 overflow-hidden position-relative flex-wrap d-block vh-100">
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 bg-primary">
+                        <div>
+                            <img src="/admin/assets/img/system-cover.png" alt="Img">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7 col-md-12 col-sm-12">
+                    <div class="row justify-content-center align-items-center vh-100 overflow-auto flex-wrap ">
+                        <div class="col-md-7 mx-auto vh-100">
+                            <form action="{{ route('applicant-otp-verify') }}" method="POST" class="vh-100">
+                                @csrf
+                                <div class="vh-100 d-flex flex-column justify-content-between p-4 pb-0">
+                                    <div class=" mx-auto mb-5 text-center">
+                                        <img src="/admin/assets/img/logo-dark-ciptakarir.svg" class="img-fluid" alt="Logo" width="150">
+                                    </div>
+                                    <div class="">
+                                        <div class="text-center mb-3">
+                                            <h2 class="mb-2">Verifikasi OTP</h2>
+                                            <p class="mb-0">Masukkan kode OTP 6 digit yang telah dikirim ke WhatsApp Anda.</p>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Kode OTP</label>
+                                            <div class="input-group">
+                                                <input type="text" name="otp" inputmode="numeric" maxlength="6" class="form-control border-end-0" placeholder="123456" required autofocus>
+                                                <span class="input-group-text border-start-0">
+                                                    <i class="ti ti-lock"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <button type="submit" class="btn btn-primary w-100">Verifikasi</button>
+                                        </div>
+                                        <div class="text-center">
+                                            <h6 class="fw-normal text-dark mb-0">Tidak menerima kode?
+                                                <a href="{{ route('applicant-forgot') }}" class="hover-a">Kirim Ulang</a>
+                                            </h6>
+                                        </div>
+                                    </div>
+                                    <div class="mt-5 pb-4 text-center">
+                                        <p class="mb-0 text-gray-9">Copyright &copy; 2026 - Cipta Karir</p>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@include('website.auth.partials.alert-modal')
+@endsection

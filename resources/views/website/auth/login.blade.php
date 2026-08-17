@@ -52,6 +52,7 @@
                                                     <label for="remember_me" class="form-check-label mt-0">Ingat saya</label>
                                                 </div>
                                             </div>
+                                            <a href="{{ route('applicant-forgot') }}" class="hover-a">Lupa Password?</a>
                                         </div>
 
                                         <div class="mb-3">
