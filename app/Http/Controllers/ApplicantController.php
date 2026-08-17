@@ -156,8 +156,10 @@ class ApplicantController extends Controller
 
             // 3. Generate NIK Karyawan & set is_employee = 1
             //    Pakai konfigurasi NIK milik company dari site terpilih.
+            //    Hanya jika checkbox "Generate NIK otomatis" dicentang.
+            $autoGenerateNik = $request->boolean('auto_generate_nik');
             $siteId = $request->site_id ?? $applicant->user->site_id;
-            if ($siteId) {
+            if ($autoGenerateNik && $siteId) {
                 $site = Site::with('company')->find($siteId);
                 if ($site && $site->company) {
                     $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);

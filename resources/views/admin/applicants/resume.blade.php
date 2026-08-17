@@ -128,12 +128,18 @@
                                     </select>
                                 </div>
 
+                                <div class="mb-3 form-check">
+                                    <input type="hidden" name="auto_generate_nik" value="0">
+                                    <input type="checkbox" class="form-check-input" id="auto_generate_nik_resume" name="auto_generate_nik" value="1" {{ $user->employee_nik ? '' : 'checked' }}>
+                                    <label class="form-check-label" for="auto_generate_nik_resume">Generate NIK Karyawan otomatis</label>
+                                </div>
+
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="ti ti-refresh me-1"></i> Update Data
                                 </button>
                                 <small class="text-muted d-block mt-2">
                                     <i class="ti ti-info-circle me-1"></i>
-                                    NIK Karyawan akan di-generate otomatis berdasarkan konfigurasi Company saat data diupdate.
+                                    Jika dicentang, NIK Karyawan dibuat otomatis berdasarkan konfigurasi Company saat data diupdate.
                                 </small>
                             </form>
 
