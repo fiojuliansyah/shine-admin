@@ -35,6 +35,7 @@ class TypeLetterController extends Controller
         TypeLetter::create([
             'name' => $request->name,
             'code' => strtoupper($request->code),
+            'auto_generate_nik' => $request->boolean('auto_generate_nik'),
         ]);
 
         return redirect()->route('type_letters.index')
@@ -85,6 +86,7 @@ class TypeLetterController extends Controller
         $typeLetter->update([
             'name' => $request->name,
             'code' => strtoupper($request->code),
+            'auto_generate_nik' => $request->boolean('auto_generate_nik'),
         ]);
 
         return redirect()->route('type_letters.index')

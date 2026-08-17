@@ -208,15 +208,21 @@ class StatusController extends Controller
             return redirect()->back()->with('error', 'Site/Company tidak valid.');
         }
 
-        $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);
-        if (!$nikConfig) {
-            return redirect()->back()->with('error',
-                'Company "' . $site->company->name . '" belum memiliki konfigurasi NIK Karyawan. ' .
-                'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
+        $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
+        $autoGenerateNik = (bool) ($letter?->type?->auto_generate_nik);
+
+        $nikConfig = null;
+        if ($autoGenerateNik) {
+            $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);
+            if (!$nikConfig) {
+                return redirect()->back()->with('error',
+                    'Company "' . $site->company->name . '" belum memiliki konfigurasi NIK Karyawan. ' .
+                    'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
+            }
         }
 
-        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
-            DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig) {
+        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig, $letter, $autoGenerateNik) {
+            DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig, $letter, $autoGenerateNik) {
                 $applicant->user->update([
                     'site_id' => $site_id,
                 ]);
@@ -233,7 +239,6 @@ class StatusController extends Controller
                     'done' => 'document-digital'
                 ]);
 
-                $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
                 if (!$letter) return;
                 $typeLetter = $letter->type;
 
@@ -278,7 +283,7 @@ class StatusController extends Controller
                 }
 
                 // Idempoten: jangan bakar nomor urut kalau user sudah punya NIK.
-                if (empty($applicant->user->employee_nik)) {
+                if ($autoGenerateNik && $nikConfig && empty($applicant->user->employee_nik)) {
                     $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
                     $applicant->user->update([
                         'employee_nik' => $employeeNIK,
@@ -307,15 +312,21 @@ class StatusController extends Controller
             return redirect()->back()->with('error', 'Site/Company tidak valid.');
         }
 
-        $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);
-        if (!$nikConfig) {
-            return redirect()->back()->with('error',
-                'Company "' . $site->company->name . '" belum memiliki konfigurasi NIK Karyawan. ' .
-                'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
+        $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
+        $autoGenerateNik = (bool) ($letter?->type?->auto_generate_nik);
+
+        $nikConfig = null;
+        if ($autoGenerateNik) {
+            $nikConfig = EmployeeNikConfig::defaultForCompany($site->company_id);
+            if (!$nikConfig) {
+                return redirect()->back()->with('error',
+                    'Company "' . $site->company->name . '" belum memiliki konfigurasi NIK Karyawan. ' .
+                    'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
+            }
         }
 
-        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
-            DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig) {
+        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig, $letter, $autoGenerateNik) {
+            DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig, $letter, $autoGenerateNik) {
                 $applicant->user->update([
                     'site_id' => $site_id,
                     'is_employee' => 1
@@ -333,7 +344,6 @@ class StatusController extends Controller
                     'done' => 'done'
                 ]);
 
-                $letter = Letter::with('type', 'site', 'numberConfig.sharedCounter')->find($request->letter_id);
                 $typeLetter = $letter->type;
 
                 if ($letter->numberConfig) {
@@ -379,7 +389,7 @@ class StatusController extends Controller
                 }
 
                 // Idempoten: jangan bakar nomor urut kalau user sudah punya NIK.
-                if (empty($applicant->user->employee_nik)) {
+                if ($autoGenerateNik && $nikConfig && empty($applicant->user->employee_nik)) {
                     $employeeNIK = $nikConfig->generateNik($applicant->user, $request->start_date);
                     $applicant->user->update([
                         'employee_nik' => $employeeNIK,
