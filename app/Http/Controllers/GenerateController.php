@@ -428,7 +428,7 @@ class GenerateController extends Controller
         $request->validate([
             'letter_id' => 'required|exists:letters,id',
             'site_id'   => 'nullable|exists:sites,id',
-            'file'      => 'required|file|mimes:xlsx,xls,csv',
+            'file'      => 'required|file|mimes:xlsx,xls,csv,zip,txt|extensions:xlsx,xls,csv',
         ]);
 
         $letter = Letter::with('type', 'site', 'customVariables', 'numberConfig.sharedCounter')
