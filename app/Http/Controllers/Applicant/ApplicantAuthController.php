@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ApplicantAuthController extends Controller
@@ -112,17 +113,16 @@ class ApplicantAuthController extends Controller
         $phone = $this->normalizePhone($request->phone);
         $user = User::where('phone', $request->phone)->orWhere('phone', $phone)->first();
 
-        if (!$user) {
+        if (!$user || !$user->email) {
             return back()->with('error', 'Nomor WhatsApp tidak terdaftar.')->withInput();
         }
 
         $otp = (string) random_int(100000, 999999);
-        $request->session()->put('reset_otp', [
-            'user_id' => $user->id,
-            'code' => Hash::make($otp),
-            'expires_at' => now()->addMinutes(10)->timestamp,
-            'attempts' => 0,
-        ]);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($otp), 'created_at' => now()]
+        );
 
         $message = "🔐 *RESET PASSWORD* 🔐\n\nKode OTP Anda: *{$otp}*\n\nKode berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.\n\n*Tim HR Ciptakarir*";
 
@@ -130,12 +130,14 @@ class ApplicantAuthController extends Controller
             return back()->with('error', 'Gagal mengirim OTP. Coba lagi nanti.')->withInput();
         }
 
+        $request->session()->put('reset_email', $user->email);
+
         return redirect()->route('applicant-otp')->with('success', 'Kode OTP telah dikirim ke WhatsApp Anda.');
     }
 
     public function showOtpForm(Request $request)
     {
-        if (!$request->session()->has('reset_otp')) {
+        if (!$request->session()->has('reset_email')) {
             return redirect()->route('applicant-forgot');
         }
         return view('website.auth.otp');
@@ -145,25 +147,25 @@ class ApplicantAuthController extends Controller
     {
         $request->validate(['otp' => 'required|string'], ['otp.required' => 'Kode OTP wajib diisi.']);
 
-        $data = $request->session()->get('reset_otp');
-        if (!$data || now()->timestamp > $data['expires_at']) {
-            $request->session()->forget('reset_otp');
+        $email = $request->session()->get('reset_email');
+        if (!$email) {
+            return redirect()->route('applicant-forgot');
+        }
+
+        $row = DB::table('password_reset_tokens')->where('email', $email)->first();
+        if (!$row || now()->diffInMinutes($row->created_at) > 10) {
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
+            $request->session()->forget('reset_email');
             return redirect()->route('applicant-forgot')->with('error', 'Kode OTP kedaluwarsa. Silakan minta ulang.');
         }
 
-        if ($data['attempts'] >= 5) {
-            $request->session()->forget('reset_otp');
-            return redirect()->route('applicant-forgot')->with('error', 'Terlalu banyak percobaan. Silakan minta ulang.');
-        }
-
-        if (!Hash::check($request->otp, $data['code'])) {
-            $data['attempts']++;
-            $request->session()->put('reset_otp', $data);
+        if (!Hash::check($request->otp, $row->token)) {
             return back()->with('error', 'Kode OTP salah.');
         }
 
-        $request->session()->put('reset_verified', $data['user_id']);
-        $request->session()->forget('reset_otp');
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+        $request->session()->put('reset_verified', $email);
+        $request->session()->forget('reset_email');
 
         return redirect()->route('applicant-reset');
     }
@@ -186,12 +188,12 @@ class ApplicantAuthController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        $userId = $request->session()->get('reset_verified');
-        if (!$userId) {
+        $email = $request->session()->get('reset_verified');
+        if (!$email) {
             return redirect()->route('applicant-forgot');
         }
 
-        User::whereKey($userId)->update(['password' => Hash::make($request->password)]);
+        User::where('email', $email)->update(['password' => Hash::make($request->password)]);
         $request->session()->forget('reset_verified');
 
         return redirect()->route('applicant-login')->with('success', 'Password berhasil diperbarui. Silakan masuk.');

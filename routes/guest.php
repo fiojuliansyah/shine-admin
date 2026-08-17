@@ -17,9 +17,9 @@ Route::prefix('applicant')->group(function () {
     Route::post('/register', [ApplicantAuthController::class, 'storeRegister'])->name('applicant-register-store');
 
     Route::get('/forgot-password', [ApplicantAuthController::class, 'showForgotForm'])->name('applicant-forgot');
-    Route::post('/forgot-password', [ApplicantAuthController::class, 'sendOtp'])->name('applicant-forgot-send');
+    Route::post('/forgot-password', [ApplicantAuthController::class, 'sendOtp'])->middleware('throttle:5,1')->name('applicant-forgot-send');
     Route::get('/verify-otp', [ApplicantAuthController::class, 'showOtpForm'])->name('applicant-otp');
-    Route::post('/verify-otp', [ApplicantAuthController::class, 'verifyOtp'])->name('applicant-otp-verify');
+    Route::post('/verify-otp', [ApplicantAuthController::class, 'verifyOtp'])->middleware('throttle:5,1')->name('applicant-otp-verify');
     Route::get('/reset-password', [ApplicantAuthController::class, 'showResetForm'])->name('applicant-reset');
     Route::post('/reset-password', [ApplicantAuthController::class, 'resetPassword'])->name('applicant-reset-store');
 });

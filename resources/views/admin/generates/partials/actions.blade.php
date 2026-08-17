@@ -9,11 +9,14 @@
             </a>
         </li>
         @if ($row->user)
-            <li>
-                <a href="{{ route('users.resume', $row->user_id) }}" target="_blank" class="dropdown-item">
-                    <i class="ti ti-file-description me-1"></i> Lihat Resume
-                </a>
-            </li>
+            @php($applicant = $row->user->applicants()->latest('id')->first())
+            @if ($applicant)
+                <li>
+                    <a href="{{ route('applicants.resume', $applicant->id) }}" target="_blank" class="dropdown-item">
+                        <i class="ti ti-file-description me-1"></i> Lihat Resume
+                    </a>
+                </li>
+            @endif
             <li>
                 <a href="{{ route('users.account', $row->user_id) }}" target="_blank" class="dropdown-item">
                     <i class="ti ti-edit me-1"></i> Edit Profil
