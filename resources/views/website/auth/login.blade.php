@@ -52,7 +52,9 @@
                                                     <label for="remember_me" class="form-check-label mt-0">Ingat saya</label>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('applicant-forgot') }}" class="hover-a">Lupa Password?</a>
+                                            @if(!empty($waConnected))
+                                                <a href="{{ route('applicant-forgot') }}" class="hover-a">Lupa Password?</a>
+                                            @endif
                                         </div>
 
                                         <div class="mb-3">

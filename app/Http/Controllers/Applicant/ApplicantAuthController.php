@@ -19,7 +19,27 @@ class ApplicantAuthController extends Controller
      */
     public function showLoginForm()
     {
-        return view('website.auth.login');
+        return view('website.auth.login', ['waConnected' => $this->isWhatsappConnected()]);
+    }
+
+    private function isWhatsappConnected(): bool
+    {
+        return \Illuminate\Support\Facades\Cache::remember('fonnte_connected', 60, function () {
+            $token = env('FONNTE_TOKEN');
+            if (!$token) {
+                return false;
+            }
+            try {
+                $data = Http::withHeaders(['Authorization' => $token])
+                    ->timeout(15)
+                    ->post('https://api.fonnte.com/qr', ['type' => 'qr'])
+                    ->json();
+                return ($data['reason'] ?? null) === 'device already connect'
+                    || ($data['status'] ?? null) === 'connected';
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
     }
 
     public function showRegisterForm()
