@@ -19,7 +19,7 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithHeadings
             return collect();
         }
 
-        return User::with(['profile', 'site.company', 'roles', 'leader'])
+        return User::with(['profile', 'site.company', 'roles'])
             ->where('is_employee', 1)
             ->when($this->siteId, fn ($query) => $query->where('site_id', $this->siteId))
             ->get()
@@ -47,7 +47,7 @@ class EmployeeDataExport implements FromCollection, ShouldAutoSize, WithHeadings
                     $profile->address,
                     $profile->religion,
                     $profile->marriage_status,
-                    $user->leader?->employee_nik,
+                    $profile->manager,
                     $date($profile->join_date),
                     $date($profile->end_date),
                     $date($profile->mutation_date),

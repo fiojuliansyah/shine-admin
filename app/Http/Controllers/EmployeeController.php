@@ -169,7 +169,15 @@ class EmployeeController extends Controller
 
         $request->session()->forget('employee_import_result');
 
-        return back()->with('success', "Import berhasil: {$import->created} pegawai baru, {$import->updated} pegawai diperbarui.");
+        $message = "Import berhasil: {$import->created} pegawai baru, {$import->updated} pegawai diperbarui.";
+        if ($import->sitesCreated) {
+            $message .= " {$import->sitesCreated} site baru dibuat.";
+        }
+        if ($import->rolesCreated) {
+            $message .= " {$import->rolesCreated} jabatan baru dibuat.";
+        }
+
+        return back()->with('success', $message);
     }
 
     public function importResult(Request $request)

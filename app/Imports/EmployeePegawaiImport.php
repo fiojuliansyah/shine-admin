@@ -20,6 +20,10 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
 
     public int $updated = 0;
 
+    public int $sitesCreated = 0;
+
+    public int $rolesCreated = 0;
+
     public array $rowErrors = [];
 
     public int $totalRows = 0;
@@ -69,8 +73,6 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
     private function validateRows(Collection $rows): array
     {
         $prepared = [];
-        $seenNik = [];
-        $seenEmail = [];
 
         foreach ($rows as $index => $row) {
             $line = $index + 2;
@@ -103,15 +105,6 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 $this->addError($line, $who, 'EMAIL', "EMAIL {$email} atas nama {$who} tidak valid");
             }
 
-            if ($nik !== '' && isset($seenNik[$nik])) {
-                $this->addError($line, $who, 'NIK KARYAWAN', "NIK {$nik} atas nama {$who} duplikat dengan baris {$seenNik[$nik]}");
-            }
-            if ($email !== '' && isset($seenEmail[$email])) {
-                $this->addError($line, $who, 'EMAIL', "EMAIL {$email} atas nama {$who} duplikat dengan baris {$seenEmail[$email]}");
-            }
-            $seenNik[$nik] = $seenNik[$nik] ?? $line;
-            $seenEmail[$email] = $seenEmail[$email] ?? $line;
-
             $company = null;
             if ($companyCode === '') {
                 $this->addError($line, $who, 'PT', "PT atas nama {$who} kosong");
@@ -129,38 +122,15 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 $this->addError($line, $who, 'PROJECT', "SITE atas nama {$who} kosong");
             } elseif ($company) {
                 $site = Site::where('company_id', $company->id)->where('name', $project)->first();
-                if (! $site) {
-                    $this->addError($line, $who, 'PROJECT', "SITE {$project} belum dibuat pada PT {$companyCode}");
-                }
             }
 
-            $role = null;
             if ($roleCode === '') {
                 $this->addError($line, $who, 'JABATAN', "JABATAN atas nama {$who} kosong");
-            } else {
-                $role = Role::where('code', $roleCode)->orWhere('name', $roleCode)->first();
-                if (! $role) {
-                    $this->addError($line, $who, 'JABATAN', "JABATAN {$roleCode} belum dibuat");
-                }
             }
 
             $dates = [];
             foreach (self::DATE_FIELDS as $key) {
                 $dates[$key] = $this->date($data[$key] ?? null);
-            }
-
-            $managerRef = $this->str($data['manager'] ?? null);
-            $leaderId = null;
-            if ($managerRef !== '') {
-                $leader = User::where('employee_nik', $managerRef)
-                    ->orWhere('email', strtolower($managerRef))
-                    ->orWhere('name', $managerRef)
-                    ->first();
-                if (! $leader) {
-                    $this->addError($line, $who, 'MANAGER', "MANAGER {$managerRef} atas nama {$who} tidak ditemukan");
-                } else {
-                    $leaderId = $leader->id;
-                }
             }
 
             if (count($this->rowErrors) > $errorsBefore) {
@@ -173,9 +143,9 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 'name' => $name,
                 'email' => $email,
                 'nik' => $nik,
-                'site' => $site,
-                'role' => $role,
-                'leader_id' => $leaderId,
+                'company' => $company,
+                'project' => $project,
+                'role_code' => $roleCode,
             ];
         }
 
@@ -186,9 +156,16 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
     {
         foreach ($prepared as $item) {
             $data = $item['data'];
-            $site = $item['site'];
+            $area = $this->str($data['area_wilayah'] ?? null) ?: null;
 
-            if ($area = $this->str($data['area_wilayah'] ?? null)) {
+            $site = Site::firstOrCreate(
+                ['company_id' => $item['company']->id, 'name' => $item['project']],
+                ['area' => $area]
+            );
+
+            if ($site->wasRecentlyCreated) {
+                $this->sitesCreated++;
+            } elseif ($area) {
                 $site->update(['area' => $area]);
             }
 
@@ -199,11 +176,14 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 'nik' => $this->str($data['no_nik_ktp'] ?? null) ?: null,
                 'phone' => $this->str($data['handphone'] ?? null) ?: null,
                 'site_id' => $site->id,
-                'leader_id' => $item['leader_id'],
                 'is_employee' => 1,
             ];
 
-            $user = User::where('employee_nik', $item['nik'])->orWhere('email', $item['email'])->first();
+            $user = User::where('employee_nik', $item['nik'])
+                ->orWhere('email', $item['email'])
+                ->orWhere('name', $item['name'])
+                ->latest('updated_at')
+                ->first();
 
             if ($user) {
                 $user->fill($payload)->save();
@@ -214,7 +194,20 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 $this->created++;
             }
 
-            $user->syncRoles([$item['role']]);
+            $role = Role::where('guard_name', 'web')
+                ->where(fn ($q) => $q->where('code', $item['role_code'])->orWhere('name', $item['role_code']))
+                ->first();
+
+            if (! $role) {
+                $role = Role::create([
+                    'name' => $item['role_code'],
+                    'code' => strtoupper($item['role_code']),
+                    'guard_name' => 'web',
+                ]);
+                $this->rolesCreated++;
+            }
+
+            $user->syncRoles([$role]);
 
             $isResign = strtoupper($this->str($data['status'] ?? '')) === 'RESIGN';
 
@@ -231,6 +224,7 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                     'address' => $this->str($data['alamat_ktp'] ?? null) ?: null,
                     'religion' => $this->str($data['agama'] ?? null) ?: null,
                     'marriage_status' => $this->str($data['status_pernikahan'] ?? null) ?: null,
+                    'manager' => $this->str($data['manager'] ?? null) ?: null,
                     'join_date' => $item['dates']['join_date'],
                     'end_date' => $item['dates']['end_date'],
                     'mutation_date' => $item['dates']['tgl_mutasi'],

@@ -60,10 +60,11 @@
                         <ul class="mb-0 ps-3">
                             <li class="mb-2">Wajib: PT, NIK Karyawan, Nama, Email, Jabatan, dan Project.</li>
                             <li class="mb-2">PT menggunakan kode perusahaan dan Jabatan menggunakan kode jabatan.</li>
-                            <li class="mb-2">Project harus sesuai nama site pada perusahaan.</li>
+                            <li class="mb-2">Project akan dibuat otomatis jika belum ada, area diisi dari kolom Area/Wilayah.</li>
+                            <li class="mb-2">Jabatan akan dibuat otomatis jika belum ada.</li>
                             <li class="mb-2">Status kosong dianggap <strong>ACTIVE</strong>; isi <strong>RESIGN</strong> untuk pegawai resign.</li>
                             <li class="mb-2">Tanggal menggunakan format <strong>dd-mm-yyyy</strong>.</li>
-                            <li>Manager dapat diisi NIK Karyawan, email, atau nama pegawai.</li>
+                            <li>Manager diisi bebas (nama/NIK/email), disimpan pada profil pegawai.</li>
                         </ul>
                     </div>
                 </div>
