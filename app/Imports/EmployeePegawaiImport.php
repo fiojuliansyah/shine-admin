@@ -179,11 +179,13 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 'is_employee' => 1,
             ];
 
-            $user = User::where('employee_nik', $item['nik'])
-                ->orWhere('email', $item['email'])
-                ->orWhere('name', $item['name'])
-                ->latest('updated_at')
-                ->first();
+            $user = User::where('email', $item['email'])->first()
+                ?? User::where('employee_nik', $item['nik'])->first()
+                ?? User::where('name', $item['name'])->whereNull('email')->first();
+
+            if ($user && User::where('employee_nik', $item['nik'])->where('id', '!=', $user->id)->exists()) {
+                unset($payload['employee_nik']);
+            }
 
             if ($user) {
                 $user->fill($payload)->save();
