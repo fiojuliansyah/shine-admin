@@ -49,7 +49,7 @@
                         </li>
                         <li class="submenu">
                             <a href="javascript:void(0);"
-                                class="{{ Route::is(['employees.index', 'employees.company']) ? 'active subdrop' : '' }}">
+                                class="{{ Route::is(['employees.index', 'employees.company', 'employees.import.form']) ? 'active subdrop' : '' }}">
                                 <i class="ti ti-id-badge"></i><span>Data Pegawai</span>
                                 <span class="menu-arrow"></span>
                             </a>
@@ -57,6 +57,10 @@
                                 <li>
                                     <a href="{{ route('employees.index') }}"
                                         class="{{ Route::is('employees.index') ? 'active' : '' }}">Semua Pegawai</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('employees.import.form') }}"
+                                        class="{{ Route::is('employees.import.form') ? 'active' : '' }}">Import Data Pegawai</a>
                                 </li>
                                 @foreach(\App\Models\Company::orderBy('name')->get() as $__company)
                                 <li>

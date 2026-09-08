@@ -1,29 +1,27 @@
 <?php
 
-use App\Http\Controllers\Applicant\SiteController as ApplicantSiteController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicantController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomVariableController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeNikConfigController;
-use App\Http\Controllers\SalarySettingController;
 use App\Http\Controllers\GenerateController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\KtpOcrController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\LetterNumberConfigController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\KtpOcrController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SalarySettingController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TypeLetterController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('manage')->group(function () {
@@ -67,6 +65,11 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::resource('sites', SiteController::class);
 
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('/employees/import', [EmployeeController::class, 'importForm'])->name('employees.import.form');
+    Route::post('/employees/import', [EmployeeController::class, 'import'])->name('employees.import');
+    Route::get('/employees/import/template', [EmployeeController::class, 'importTemplate'])->name('employees.import.template');
+    Route::get('/employees/import/result', [EmployeeController::class, 'importResult'])->name('employees.import.result');
+    Route::get('/employees/import/result/pdf', [EmployeeController::class, 'importResultPdf'])->name('employees.import.result.pdf');
     Route::get('/employees/company/{company}', [EmployeeController::class, 'byCompany'])->name('employees.company');
     Route::post('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
 
@@ -77,9 +80,9 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
 
     Route::post('/generates/export-template', [GenerateController::class, 'exportTemplate'])->name('generates.export-template');
     Route::post('/generates/import-template', [GenerateController::class, 'importTemplate'])->name('generates.import-template');
-        Route::get('/generate-folders', [GenerateController::class, 'folders'])->name('generates.folders');
-        Route::get('/generates-export', [GenerateController::class, 'export'])->name('generates.export');
-        Route::resource('generates', GenerateController::class);
+    Route::get('/generate-folders', [GenerateController::class, 'folders'])->name('generates.folders');
+    Route::get('/generates-export', [GenerateController::class, 'export'])->name('generates.export');
+    Route::resource('generates', GenerateController::class);
     Route::get('/generates/{generate}/pdf', [GenerateController::class, 'pdf'])->name('generates.pdf');
     Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');
     Route::post('/bulk-approve', [GenerateController::class, 'bulkApprove'])->name('generates.bulkApprove');
@@ -144,4 +147,4 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::post('/ktp-ocr/openai', [KtpOcrController::class, 'openai'])->name('ktp-ocr.openai');
 });
 
-require __DIR__ . '/guest.php';
+require __DIR__.'/guest.php';

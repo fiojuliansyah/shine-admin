@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('leader_id')->nullable();
             $table->string('department_id')->nullable();
             $table->string('is_employee')->nullable();
+            $table->string('is_admin')->nullable();
             $table->longtext('profile_qr')->nullable();
             $table->rememberToken();
             $table->timestamps();
