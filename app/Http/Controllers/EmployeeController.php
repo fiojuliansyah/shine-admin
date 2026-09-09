@@ -11,11 +11,16 @@ use App\Models\User;
 use App\Support\EmployeeColumnConfig;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class EmployeeController extends Controller
 {
+    private const IMPORT_CHUNK = 100;
+
     public function index(EmployeesDataTable $dataTable)
     {
         $companies = Company::with(['sites' => function ($q) {
@@ -153,33 +158,141 @@ class EmployeeController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
         ]);
 
-        set_time_limit(0);
+        $rows = Excel::toArray(new EmployeePegawaiImport, $request->file('file'))[0] ?? [];
+
+        $token = (string) Str::uuid();
+        Cache::put("employee_import:{$token}", [
+            'rows' => $rows,
+            'fileName' => $request->file('file')->getClientOriginalName(),
+            'at' => now()->format('d-m-Y H:i'),
+            'prepared' => [],
+            'rowErrors' => [],
+            'totalRows' => 0,
+            'created' => 0,
+            'updated' => 0,
+            'sitesCreated' => 0,
+            'rolesCreated' => 0,
+        ], now()->addHours(2));
+
+        return response()->json([
+            'token' => $token,
+            'total' => count($rows),
+            'chunk' => self::IMPORT_CHUNK,
+        ]);
+    }
+
+    public function importValidateChunk(Request $request)
+    {
+        $request->validate([
+            'token' => ['required', 'string'],
+            'offset' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $key = 'employee_import:'.$request->string('token');
+        $state = Cache::get($key);
+
+        if (! $state) {
+            return response()->json(['message' => 'Sesi import kedaluwarsa. Silakan upload ulang.'], 410);
+        }
+
+        $offset = $request->integer('offset');
+        $slice = array_slice($state['rows'], $offset, self::IMPORT_CHUNK, true);
 
         $import = new EmployeePegawaiImport;
-        Excel::import($import, $request->file('file'));
+        $import->totalRows = $state['totalRows'];
+        $import->rowErrors = $state['rowErrors'];
 
-        if ($import->failed()) {
-            $request->session()->put('employee_import_result', [
-                'rowErrors' => $import->rowErrors,
-                'totalRows' => $import->totalRows,
-                'fileName' => $request->file('file')->getClientOriginalName(),
-                'at' => now()->format('d-m-Y H:i'),
-            ]);
+        $prepared = $import->validateRows($slice);
 
-            return redirect()->route('employees.import.result');
+        $state['prepared'] = array_merge($state['prepared'], $prepared);
+        $state['rowErrors'] = $import->rowErrors;
+        $state['totalRows'] = $import->totalRows;
+        Cache::put($key, $state, now()->addHours(2));
+
+        $next = $offset + self::IMPORT_CHUNK;
+        $done = $next >= count($state['rows']);
+
+        return response()->json([
+            'phase' => 'validate',
+            'offset' => min($next, count($state['rows'])),
+            'total' => count($state['rows']),
+            'done' => $done,
+            'errorCount' => count($state['rowErrors']),
+            'validRows' => count($state['prepared']),
+        ]);
+    }
+
+    public function importPersistChunk(Request $request)
+    {
+        $request->validate([
+            'token' => ['required', 'string'],
+            'offset' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $key = 'employee_import:'.$request->string('token');
+        $state = Cache::get($key);
+
+        if (! $state) {
+            return response()->json(['message' => 'Sesi import kedaluwarsa. Silakan upload ulang.'], 410);
         }
 
-        $request->session()->forget('employee_import_result');
-
-        $message = "Import berhasil: {$import->created} pegawai baru, {$import->updated} pegawai diperbarui.";
-        if ($import->sitesCreated) {
-            $message .= " {$import->sitesCreated} site baru dibuat.";
-        }
-        if ($import->rolesCreated) {
-            $message .= " {$import->rolesCreated} jabatan baru dibuat.";
+        if ($state['rowErrors']) {
+            return response()->json(['message' => 'Terdapat data yang tidak valid.'], 422);
         }
 
-        return back()->with('success', $message);
+        $offset = $request->integer('offset');
+        $slice = array_slice($state['prepared'], $offset, self::IMPORT_CHUNK);
+
+        $import = new EmployeePegawaiImport;
+        DB::transaction(fn () => $import->persist($slice));
+
+        $state['created'] += $import->created;
+        $state['updated'] += $import->updated;
+        $state['sitesCreated'] += $import->sitesCreated;
+        $state['rolesCreated'] += $import->rolesCreated;
+        Cache::put($key, $state, now()->addHours(2));
+
+        $next = $offset + self::IMPORT_CHUNK;
+        $done = $next >= count($state['prepared']);
+
+        if ($done) {
+            $request->session()->forget('employee_import_result');
+            Cache::forget($key);
+        }
+
+        return response()->json([
+            'phase' => 'persist',
+            'offset' => min($next, count($state['prepared'])),
+            'total' => count($state['prepared']),
+            'done' => $done,
+            'created' => $state['created'],
+            'updated' => $state['updated'],
+            'sitesCreated' => $state['sitesCreated'],
+            'rolesCreated' => $state['rolesCreated'],
+        ]);
+    }
+
+    public function importStoreResult(Request $request)
+    {
+        $request->validate(['token' => ['required', 'string']]);
+
+        $key = 'employee_import:'.$request->string('token');
+        $state = Cache::get($key);
+
+        if (! $state) {
+            return response()->json(['message' => 'Sesi import kedaluwarsa.'], 410);
+        }
+
+        $request->session()->put('employee_import_result', [
+            'rowErrors' => $state['rowErrors'],
+            'totalRows' => $state['totalRows'],
+            'fileName' => $state['fileName'],
+            'at' => $state['at'],
+        ]);
+
+        Cache::forget($key);
+
+        return response()->json(['redirect' => route('employees.import.result')]);
     }
 
     public function importResult(Request $request)

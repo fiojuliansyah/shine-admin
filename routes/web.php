@@ -67,6 +67,9 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
     Route::get('/employees/import', [EmployeeController::class, 'importForm'])->name('employees.import.form');
     Route::post('/employees/import', [EmployeeController::class, 'import'])->name('employees.import');
+    Route::post('/employees/import/validate', [EmployeeController::class, 'importValidateChunk'])->name('employees.import.validate');
+    Route::post('/employees/import/persist', [EmployeeController::class, 'importPersistChunk'])->name('employees.import.persist');
+    Route::post('/employees/import/store-result', [EmployeeController::class, 'importStoreResult'])->name('employees.import.store-result');
     Route::get('/employees/import/template', [EmployeeController::class, 'importTemplate'])->name('employees.import.template');
     Route::get('/employees/import/result', [EmployeeController::class, 'importResult'])->name('employees.import.result');
     Route::get('/employees/import/result/pdf', [EmployeeController::class, 'importResultPdf'])->name('employees.import.result.pdf');

@@ -6,15 +6,12 @@ use App\Models\Company;
 use App\Models\Profile;
 use App\Models\Site;
 use App\Models\User;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Spatie\Permission\Models\Role;
 
-class EmployeePegawaiImport implements ToCollection, WithHeadingRow
+class EmployeePegawaiImport implements WithHeadingRow
 {
     public int $created = 0;
 
@@ -27,8 +24,6 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
     public array $rowErrors = [];
 
     public int $totalRows = 0;
-
-    private bool $processed = false;
 
     private const HEADERS = [
         'status', 'pt', 'nik_karyawan', 'nama', 'email', 'handphone',
@@ -44,25 +39,12 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
         'tanggal_lahir', 'join_date', 'end_date', 'tgl_mutasi', 'tgl_resign',
     ];
 
-    public function collection(Collection $rows): void
+    public function collection(\Illuminate\Support\Collection $rows): void
     {
-        if ($this->processed) {
-            return;
-        }
-        $this->processed = true;
-
         $prepared = $this->validateRows($rows);
-
-        if ($this->rowErrors) {
-            return;
+        if (! $this->rowErrors) {
+            $this->persist($prepared);
         }
-
-        DB::transaction(fn () => $this->persist($prepared));
-    }
-
-    public function failed(): bool
-    {
-        return (bool) $this->rowErrors;
     }
 
     public static function headers(): array
@@ -70,13 +52,22 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
         return self::HEADERS;
     }
 
-    private function validateRows(Collection $rows): array
+    public function failed(): bool
+    {
+        return (bool) $this->rowErrors;
+    }
+
+    /**
+     * Validate a chunk of rows without touching the database writes.
+     * Array keys must be the original zero-based row indexes.
+     */
+    public function validateRows(iterable $rows): array
     {
         $prepared = [];
 
         foreach ($rows as $index => $row) {
             $line = $index + 2;
-            $data = $row->toArray();
+            $data = is_array($row) ? $row : $row->toArray();
 
             $nik = $this->str($data['nik_karyawan'] ?? null);
             $email = strtolower($this->str($data['email'] ?? null));
@@ -117,11 +108,8 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 }
             }
 
-            $site = null;
             if ($project === '') {
                 $this->addError($line, $who, 'PROJECT', "SITE atas nama {$who} kosong");
-            } elseif ($company) {
-                $site = Site::where('company_id', $company->id)->where('name', $project)->first();
             }
 
             if ($roleCode === '') {
@@ -143,7 +131,7 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
                 'name' => $name,
                 'email' => $email,
                 'nik' => $nik,
-                'company' => $company,
+                'company_id' => $company->id,
                 'project' => $project,
                 'role_code' => $roleCode,
             ];
@@ -152,14 +140,14 @@ class EmployeePegawaiImport implements ToCollection, WithHeadingRow
         return $prepared;
     }
 
-    private function persist(array $prepared): void
+    public function persist(array $prepared): void
     {
         foreach ($prepared as $item) {
             $data = $item['data'];
             $area = $this->str($data['area_wilayah'] ?? null) ?: null;
 
             $site = Site::firstOrCreate(
-                ['company_id' => $item['company']->id, 'name' => $item['project']],
+                ['company_id' => $item['company_id'], 'name' => $item['project']],
                 ['area' => $area]
             );
 
