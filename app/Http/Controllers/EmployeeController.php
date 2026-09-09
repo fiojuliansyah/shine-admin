@@ -153,6 +153,8 @@ class EmployeeController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
         ]);
 
+        set_time_limit(0);
+
         $import = new EmployeePegawaiImport;
         Excel::import($import, $request->file('file'));
 
