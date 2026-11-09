@@ -26,7 +26,7 @@ class ReportDailyDataTable extends DataTable
             ->addColumn('date', function ($row) {
                 //     // Carbon otomatis bisa format hari dalam bahasa Inggris
                 //     // Untuk bahasa Indonesia bisa pakai locale
-                return \Carbon\Carbon::parse($row->date)->locale('id')->isoFormat('dddd Y-M-d'); // Senin, Selasa, ...
+                return \Carbon\Carbon::parse($row->date)->locale('id')->isoFormat('dddd, DD-MM-YYYY'); // Senin, Selasa, ...
             })
 
             ->addColumn('user', function ($row) {

@@ -33,7 +33,7 @@
             @foreach($reports as $index => $report)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $report->created_at->format('d/m/Y') }}</td>
+                    <td>{{ $report->created_at->format('d-m-Y') }}</td>
                     <td>
                         @if($report->image_url)
                             @php

@@ -23,7 +23,7 @@ class FindingsReportDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('date', function ($row) {
-                return $row->date ? \Carbon\Carbon::parse($row->date)->format('d M Y') : '-';
+                return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '-';
             })
             ->addColumn('user', function ($row) {
                 return optional($row->user)->name ?? '';

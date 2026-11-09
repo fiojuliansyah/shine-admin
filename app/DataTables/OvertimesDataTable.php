@@ -19,7 +19,7 @@ class OvertimesDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('date', function ($row) {
-                return optional($row->attendance->date)->format('d M Y') ?? '';
+                return optional($row->attendance->date)->format('d-m-Y') ?? '';
             })
             ->addColumn('user', function ($row) {
                 return optional($row->attendance->user)->name ?? '';

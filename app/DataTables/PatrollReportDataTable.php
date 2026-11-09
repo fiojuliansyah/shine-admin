@@ -23,7 +23,7 @@ class PatrollReportDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('date', function ($row) {
-                return Carbon::parse($row->created_at)->format('d-M-Y H:i:s') ?? '-';
+                return Carbon::parse($row->created_at)->format('d-m-Y H:i:s') ?? '-';
             })
             ->addColumn('user_id', function ($row) {
                 return $row->user->name ?? '-';

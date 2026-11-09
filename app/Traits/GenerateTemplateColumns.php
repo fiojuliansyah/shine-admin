@@ -20,8 +20,8 @@ trait GenerateTemplateColumns
         return [
             // Variabel input per-surat (disimpan ke record Generate saat import).
             '[pihak_2]'       => ['mode' => 'input', 'column' => 'second_party',     'label' => 'Pihak Kedua / Nama'],
-            '[mulai]'         => ['mode' => 'input', 'column' => 'start_date',       'label' => 'Tanggal Mulai (YYYY-MM-DD)'],
-            '[selesai]'       => ['mode' => 'input', 'column' => 'end_date',         'label' => 'Tanggal Selesai (YYYY-MM-DD)'],
+            '[mulai]'         => ['mode' => 'input', 'column' => 'start_date',       'label' => 'Tanggal Mulai (DD-MM-YYYY)'],
+            '[selesai]'       => ['mode' => 'input', 'column' => 'end_date',         'label' => 'Tanggal Selesai (DD-MM-YYYY)'],
             '[hari]'          => ['mode' => 'input', 'column' => 'day',              'label' => 'Hari'],
             '[nama_kontak]'   => ['mode' => 'input', 'column' => 'emergency_name',   'label' => 'Nama Kontak Darurat'],
             '[no_kontak]'     => ['mode' => 'input', 'column' => 'emergency_number', 'label' => 'No. Kontak Darurat'],

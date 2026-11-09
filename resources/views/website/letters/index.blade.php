@@ -50,7 +50,7 @@
                                                     </div>
                                                 </td>
                                                 <td>{{ $history->site->name ?? '-' }}</td>
-                                                <td>{{ $history->created_at->format('d M Y') }}</td>
+                                                <td>{{ $history->created_at->format('d-m-Y') }}</td>
                                                 <td>
                                                     @if($history->second_party_esign)
                                                         <span class="badge bg-success-transparent text-success border-0">

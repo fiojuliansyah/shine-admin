@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\DataTables\LettersDataTable;
 use App\Models\CustomVariable;
 use App\Models\LetterNumberConfig;
+use App\Services\FileStorage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Element\TextRun;
@@ -119,8 +120,7 @@ class LetterController extends Controller
             return response()->json(['error' => 'No image uploaded'], 422);
         }
 
-        $path = $file->store('letter-images', 'public');
-        $url = asset('storage/' . $path);
+        $url = FileStorage::upload($file, 'letter-images')['url'];
 
         return response()->json([
             'url' => $url,

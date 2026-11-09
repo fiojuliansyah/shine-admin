@@ -19,8 +19,8 @@ class PermitsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('date', function ($row) {
-                $start = optional($row->start_date)->format('d M Y') ?? '';
-                $end = optional($row->end_date)->format('d M Y') ?? '';
+                $start = optional($row->start_date)->format('d-m-Y') ?? '';
+                $end = optional($row->end_date)->format('d-m-Y') ?? '';
                 return $start . ' - ' . $end;
             })
             ->addColumn('user', function ($row) {

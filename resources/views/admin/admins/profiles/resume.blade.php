@@ -105,7 +105,7 @@
                                     <div class="row mb-7">
                                         <label class="col-lg-4 fw-semibold text-muted">Tempat, Tanggal lahir</label>
                                         <div class="col-lg-8 fv-row">
-                                            <span class="fw-semibold text-gray-800 fs-6">{{ $user->profile['birth_place'] ?? '' }}, {{ $user->profile['birth_date'] ?? '' }}</span>
+                                            <span class="fw-semibold text-gray-800 fs-6">{{ $user->profile['birth_place'] ?? '' }}, {{ format_tanggal($user->profile?->birth_date, '') }}</span>
                                         </div>
                                     </div>
                                     <div class="row mb-7">

@@ -116,6 +116,18 @@ class EmployeePegawaiImport implements WithHeadingRow
                 $this->addError($line, $who, 'JABATAN', "JABATAN atas nama {$who} kosong");
             }
 
+            $ktp = $this->digits($data['no_nik_ktp'] ?? null);
+            if ($ktp === '') {
+                $this->addError($line, $who, 'NO NIK KTP', "NIK KTP atas nama {$who} kosong");
+            } elseif (! preg_match('/^\d{16}$/', $ktp)) {
+                $this->addError($line, $who, 'NO NIK KTP', $this->sixteenDigitMessage('NIK KTP', $ktp, $who));
+            }
+
+            $kk = $this->digits($data['no_kk'] ?? null);
+            if ($kk !== '' && ! preg_match('/^\d{16}$/', $kk)) {
+                $this->addError($line, $who, 'NO KK', $this->sixteenDigitMessage('No KK', $kk, $who));
+            }
+
             $dates = [];
             foreach (self::DATE_FIELDS as $key) {
                 $dates[$key] = $this->date($data[$key] ?? null);
@@ -161,7 +173,7 @@ class EmployeePegawaiImport implements WithHeadingRow
                 'name' => $item['name'],
                 'email' => $item['email'],
                 'employee_nik' => $item['nik'],
-                'nik' => $this->str($data['no_nik_ktp'] ?? null) ?: null,
+                'nik' => $this->digits($data['no_nik_ktp'] ?? null) ?: null,
                 'phone' => $this->str($data['handphone'] ?? null) ?: null,
                 'site_id' => $site->id,
                 'is_employee' => 1,
@@ -210,7 +222,7 @@ class EmployeePegawaiImport implements WithHeadingRow
                     'birth_date' => $item['dates']['tanggal_lahir'],
                     'gender' => $this->normalizeGender($data['jenis_kelamin'] ?? null),
                     'npwp_number' => $this->str($data['no_npwp'] ?? null) ?: null,
-                    'no_kk' => $this->str($data['no_kk'] ?? null) ?: null,
+                    'no_kk' => $this->digits($data['no_kk'] ?? null) ?: null,
                     'address' => $this->str($data['alamat_ktp'] ?? null) ?: null,
                     'religion' => $this->str($data['agama'] ?? null) ?: null,
                     'marriage_status' => $this->str($data['status_pernikahan'] ?? null) ?: null,
@@ -243,6 +255,22 @@ class EmployeePegawaiImport implements WithHeadingRow
     private function str($value): string
     {
         return trim((string) ($value ?? ''));
+    }
+
+    /** Nomor identitas tanpa spasi / titik / strip. */
+    private function digits($value): string
+    {
+        return preg_replace('/[\s.\-]+/', '', $this->str($value));
+    }
+
+    private function sixteenDigitMessage(string $label, string $value, string $who): string
+    {
+        // Sel berformat angka di Excel terbaca seperti "3.2012345678912E+15" dan digit terakhirnya sudah hilang.
+        if (stripos($value, 'E+') !== false) {
+            return "{$label} atas nama {$who} terbaca sebagai angka ({$value}); ubah format kolom menjadi Teks di Excel lalu ketik ulang 16 digitnya";
+        }
+
+        return "{$label} {$value} atas nama {$who} harus 16 digit (sekarang ".strlen($value).' digit)';
     }
 
     private function date($value): ?string

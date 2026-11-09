@@ -99,14 +99,14 @@ class SiteController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv'
         ]);
 
-        Excel::import(new SiteImport($request->company_id), $request->file('file')->store('files'));
+        Excel::import(new SiteImport($request->company_id), $request->file('file'));
 
         return redirect()->back()->with('success', 'Import berhasil!');
     }
 
     public function export()
     {
-        $filename = 'sites_' . date('d-M-Y') . '.xlsx';
+        $filename = 'sites_' . date('d-m-Y') . '.xlsx';
         return Excel::download(new SiteExport, $filename);
     }
 

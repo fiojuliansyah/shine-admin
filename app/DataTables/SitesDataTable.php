@@ -16,12 +16,19 @@ class SitesDataTable extends DataTable
 {
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
+        $companies = Company::all();
+
         return (new EloquentDataTable($query))
             ->addColumn('company', function ($row) {
                 return $row->company->name ?? '-';
             })
-            ->addColumn('action', function ($row) {
-                $companies = Company::all();
+            ->filterColumn('company', function ($query, $keyword) {
+                $query->whereHas('company', fn ($q) => $q->where('name', 'like', "%{$keyword}%"));
+            })
+            ->orderColumn('company', function ($query, $order) {
+                $query->orderBy(Company::select('name')->whereColumn('companies.id', 'sites.company_id'), $order);
+            })
+            ->addColumn('action', function ($row) use ($companies) {
                 return view('admin.sites.partials.actions', compact('row', 'companies'))->render();
             })
             ->rawColumns(['action'])

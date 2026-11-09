@@ -7,7 +7,7 @@ use App\Models\Company;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\DataTables\CompaniesDataTable;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use App\Services\FileStorage;
 
 class CompanyController extends Controller
 {
@@ -23,9 +23,7 @@ class CompanyController extends Controller
             'logo' => 'max:3000',
         ]); 
         
-        $cloudinaryImage = $request->file('logo')->storeOnCloudinary('companies_logo');
-        $url = $cloudinaryImage->getSecurePath();
-        $public_id = $cloudinaryImage->getPublicId();
+        $logo = FileStorage::upload($request->file('logo'), 'companies_logo');
 
         $lastCompany = Company::orderBy('id', 'desc')->first();
         $nextId = $lastCompany ? $lastCompany->id + 1 : 1;
@@ -37,8 +35,8 @@ class CompanyController extends Controller
         $company->name = $request->name;
         $company->unique_id = $uniqueId;
         $company->short_name = $request->short_name;
-        $company->logo_url = $url;
-        $company->logo_public_id = $public_id;
+        $company->logo_url = $logo['url'];
+        $company->logo_public_id = $logo['path'];
         $company->is_default = $isFirstCompany ? 1 : ($request->is_default ?? null);
         $company->save();
 
@@ -51,14 +49,12 @@ class CompanyController extends Controller
         $company = Company::findOrFail($id);
 
         if($request->hasFile('logo')){
-            Cloudinary::destroy($company->logo_public_id);
-            $cloudinaryImage = $request->file('logo')->storeOnCloudinary('companies_logo');
-            $url = $cloudinaryImage->getSecurePath();
-            $public_id = $cloudinaryImage->getPublicId();
+            $logo = FileStorage::upload($request->file('logo'), 'companies_logo');
+            FileStorage::delete($company->logo_public_id);
 
             $company->update([
-                'logo_url' => $url,
-                'logo_public_id' => $public_id,
+                'logo_url' => $logo['url'],
+                'logo_public_id' => $logo['path'],
             ]);
 
         }
@@ -80,7 +76,7 @@ class CompanyController extends Controller
     {
         $company = Company::findOrFail($id);
     
-        Cloudinary::destroy($company->logo_public_id);
+        FileStorage::delete($company->logo_public_id);
         $company->delete();
     
         return redirect()->route('companies.index')

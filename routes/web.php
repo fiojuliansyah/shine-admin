@@ -9,6 +9,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomVariableController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeMovementController;
 use App\Http\Controllers\EmployeeNikConfigController;
 use App\Http\Controllers\GenerateController;
 use App\Http\Controllers\ImportController;
@@ -142,7 +143,8 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::put('/profile/{id}/detail', [AdminController::class, 'updateAccount'])->name('users.update.account');
     Route::post('/profile/{id}/profile/update', [AdminController::class, 'updateProfile'])->name('users.update.profile');
     Route::post('/profile/{id}/document/create', [AdminController::class, 'storeDocument'])->name('users.document.store');
-    Route::post('/profile/{id}/mutation/create', [AdminController::class, 'storeMutation'])->name('users.mutation.store');
+    Route::post('/profile/{id}/mutation/create', [EmployeeMovementController::class, 'store'])->name('users.mutation.store');
+    Route::post('/profile/{id}/contract/revise', [EmployeeMovementController::class, 'reviseContract'])->name('users.contract.revise');
 
     Route::post('/save-signature', [SignatureController::class, 'store'])->name('save.signature');
     Route::delete('/delete-signature', [SignatureController::class, 'delete'])->name('delete.signature');

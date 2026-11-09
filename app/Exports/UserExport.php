@@ -2,12 +2,16 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\BindsLongNumbersAsText;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class UserExport implements FromCollection, WithHeadings
+class UserExport implements FromCollection, WithHeadings, WithCustomValueBinder
 {
+    use BindsLongNumbersAsText;
+
     protected $siteId;
 
     public function __construct($siteId)
@@ -31,12 +35,12 @@ class UserExport implements FromCollection, WithHeadings
                     'is_employee'      => $user->is_employee,
                     'gender'           => optional($user->profile)->gender,
                     'birth_place'      => optional($user->profile)->birth_place,
-                    'birth_date'       => optional($user->profile)->birth_date,
+                    'birth_date'       => format_tanggal(optional($user->profile)->birth_date, ''),
                     'npwp_number'      => optional($user->profile)->npwp_number,
                     'marriage_status'  => optional($user->profile)->marriage_status,
                     'address'          => optional($user->profile)->address,
-                    'join_date'        => optional($user->profile)->join_date,
-                    'resign_date'      => optional($user->profile)->resign_date,
+                    'join_date'        => format_tanggal(optional($user->profile)->join_date, ''),
+                    'resign_date'      => format_tanggal(optional($user->profile)->resign_date, ''),
                     'bank_name'        => optional($user->profile)->bank_name,
                     'account_name'     => optional($user->profile)->account_name,
                     'account_number'   => optional($user->profile)->account_number,

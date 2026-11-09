@@ -135,7 +135,9 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
             if ($col['type'] === 'nik') {
                 $result['nik']['employee_nik'] = $value;
             } elseif ($col['type'] === 'fixed') {
-                $result['fixed'][$col['key']] = $value;
+                $result['fixed'][$col['key']] = in_array($col['key'], ['start_date', 'end_date'], true)
+                    ? $this->normalizeDate($value)
+                    : $value;
             } elseif ($col['type'] === 'custom') {
                 $result['custom'][$col['key']] = $value;
             } elseif ($col['type'] === 'salary') {
@@ -144,6 +146,34 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
         }
 
         return $result;
+    }
+
+    /**
+     * Tanggal di template boleh DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD, atau sel tanggal Excel (angka serial).
+     * Disimpan sebagai YYYY-MM-DD.
+     */
+    protected function normalizeDate($value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            if (is_numeric($value)) {
+                return \Illuminate\Support\Carbon::instance(
+                    \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float) $value)
+                )->toDateString();
+            }
+
+            $value = trim((string) $value);
+            if (preg_match('/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/', $value, $m)) {
+                return sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
+            }
+
+            return \Illuminate\Support\Carbon::parse($value)->toDateString();
+        } catch (\Throwable) {
+            return (string) $value;
+        }
     }
 
     protected function nextSequence(): int

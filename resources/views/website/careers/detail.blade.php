@@ -53,7 +53,7 @@
                                 <div class="col-6 col-md-3">
                                     <small class="text-muted d-block">Batas Akhir</small>
                                     <span
-                                        class="fw-semibold">{{ \Carbon\Carbon::parse($career->until_date)->format('d M Y') }}</span>
+                                        class="fw-semibold">{{ \Carbon\Carbon::parse($career->until_date)->format('d-m-Y') }}</span>
                                 </div>
                                 <div class="col-6 col-md-3">
                                     <small class="text-muted d-block">Kebutuhan</small>

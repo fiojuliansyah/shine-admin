@@ -117,6 +117,10 @@
                             <div class="d-flex align-items-center justify-content-between flex-fill">
                                 <h5>Informasi Profil</h5>
                                 <div class="d-flex">
+                                    <a href="#" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
+                                        data-bs-target="#ktpScanModal">
+                                        <i class="ti ti-scan me-1"></i>Scan KTP
+                                    </a>
                                     <a href="#" class="btn btn-icon btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#profileModal">
                                         <i class="ti ti-edit"></i>
@@ -138,7 +142,7 @@
                                         Tempat & Tanggal Lahir
                                     </span>
                                     <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->birth_place ?? '' }}, {{ $user->profile->birth_date ?? '' }}
+                                        {{ $user->profile->birth_place ?? '' }}, {{ format_tanggal($user->profile?->birth_date, '') }}
                                     </h6>
                                 </div>
                                 <div class="col-md-3">
@@ -180,17 +184,45 @@
                                 </div>
                                 <div class="col-md-3">
                                     <span class="d-inline-flex align-items-center">
+                                        No Kartu Keluarga
+                                    </span>
+                                    <h6 class="d-flex align-items-center fw-medium mt-1">
+                                        {{ $user->profile->no_kk ?? '' }}</h6>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-3">
+                                    <span class="d-inline-flex align-items-center">
                                         Tanggal Join
                                     </span>
                                     <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->join_date ?? '' }}</h6>
+                                        {{ format_tanggal($user->profile?->join_date, '') }}</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="d-inline-flex align-items-center">
+                                        Akhir Kontrak
+                                    </span>
+                                    <h6 class="d-flex align-items-center fw-medium mt-1">
+                                        {{ format_tanggal($user->profile?->end_date, '') }}</h6>
                                 </div>
                                 <div class="col-md-3">
                                     <span class="d-inline-flex align-items-center">
                                         Tanggal Resign
                                     </span>
                                     <h6 class="d-flex align-items-center fw-medium mt-1">
-                                        {{ $user->profile->resign_date ?? '' }}</h6>
+                                        {{ format_tanggal($user->profile?->resign_date, '') }}</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="d-inline-flex align-items-center">
+                                        Status
+                                    </span>
+                                    <h6 class="d-flex align-items-center fw-medium mt-1">
+                                        @if ($user->profile->isResigned())
+                                            <span class="badge bg-danger">Resign</span>
+                                        @else
+                                            <span class="badge bg-success">Aktif</span>
+                                        @endif
+                                    </h6>
                                 </div>
                             </div>
                         </div>
@@ -310,7 +342,7 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link active" id="info-tab2" data-bs-toggle="tab"
                                             data-bs-target="#basic-info2" type="button" role="tab"
-                                            aria-selected="true">Mutasi</button>
+                                            aria-selected="true">Riwayat Karier</button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="address-tab2" data-bs-toggle="tab"
@@ -322,38 +354,63 @@
                             <div class="tab-content" id="myTabContent3">
                                 <div class="tab-pane fade show active" id="basic-info2" role="tabpanel"
                                     aria-labelledby="info-tab2" tabindex="0">
-                                    <div
-                                        class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
-                                        <div class="my-auto mb-2">
-                                        </div>
-                                        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
-                                            <div class="mb-2">
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#mutationModal"
-                                                    class="btn btn-primary d-flex align-items-center">
-                                                    <i class="ti ti-circle-plus me-2"></i>Lakukan Mutasi
-                                                </a>
-                                            </div>
-                                        </div>
+                                    @php $isResigned = $user->profile->isResigned(); @endphp
+                                    <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
+                                        <button type="button" class="btn btn-sm btn-info movement-btn" data-type="mutasi"
+                                            data-bs-toggle="modal" data-bs-target="#movementModal" @disabled($isResigned)>
+                                            <i class="ti ti-arrows-exchange me-1"></i>Mutasi
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-success movement-btn" data-type="promosi"
+                                            data-bs-toggle="modal" data-bs-target="#movementModal" @disabled($isResigned)>
+                                            <i class="ti ti-trending-up me-1"></i>Promosi
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-warning movement-btn" data-type="demosi"
+                                            data-bs-toggle="modal" data-bs-target="#movementModal" @disabled($isResigned)>
+                                            <i class="ti ti-trending-down me-1"></i>Demosi
+                                        </button>
+                                        @if ($isResigned)
+                                            <button type="button" class="btn btn-sm btn-primary movement-btn" data-type="aktif"
+                                                data-bs-toggle="modal" data-bs-target="#movementModal">
+                                                <i class="ti ti-user-check me-1"></i>Aktifkan Kembali
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-sm btn-danger movement-btn" data-type="resign"
+                                                data-bs-toggle="modal" data-bs-target="#movementModal">
+                                                <i class="ti ti-logout me-1"></i>Resign
+                                            </button>
+                                        @endif
+                                        <button type="button" class="btn btn-sm btn-outline-dark"
+                                            data-bs-toggle="modal" data-bs-target="#contractModal">
+                                            <i class="ti ti-file-pencil me-1"></i>Revisi Periode Kontrak
+                                        </button>
                                     </div>
-                                    <div class="row">
+                                    <div class="table-responsive">
                                         <table class="table">
                                             <thead>
                                                 <tr>
+                                                    <th>Jenis</th>
                                                     <th>Tanggal</th>
                                                     <th>Dari</th>
-                                                    <th>Tujuan</th>
-                                                    <th>Alasan</th>
+                                                    <th>Ke</th>
+                                                    <th>Keterangan</th>
+                                                    <th>Oleh</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($mutations as $mutation)
+                                                @forelse ($mutations as $mutation)
                                                     <tr>
-                                                        <td>{{ $mutation->date }}</td>
-                                                        <td>{{ $mutation->from->name }}</td>
-                                                        <td>{{ $mutation->to->name }}</td>
-                                                        <td>{{ $mutation->description }}</td>
+                                                        <td><span class="badge {{ $mutation->badge_class }}">{{ $mutation->type_label }}</span></td>
+                                                        <td>{{ format_tanggal($mutation->date) }}</td>
+                                                        <td>{{ $mutation->from_label }}</td>
+                                                        <td>{{ $mutation->to_label }}</td>
+                                                        <td>{{ $mutation->description ?: '-' }}</td>
+                                                        <td>{{ $mutation->creator?->name ?? '-' }}</td>
                                                     </tr>
-                                                @endforeach
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted">Belum ada riwayat karier.</td>
+                                                    </tr>
+                                                @endforelse
                                             </tbody>
                                         </table>
                                     </div>
@@ -460,8 +517,10 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">NIK KTP <span class="text-danger"> *</span></label>
-                                    <input type="text" name="nik" class="form-control"
-                                        value="{{ $user->nik }}">
+                                    <input type="text" name="nik" class="form-control" id="account_nik"
+                                        inputmode="numeric" pattern="\d{16}" minlength="16" maxlength="16"
+                                        title="NIK KTP wajib 16 digit angka" {{ $user->is_employee ? 'required' : '' }}
+                                        value="{{ old('nik', $user->nik) }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -728,11 +787,43 @@
                                         value="{{ $user->profile?->npwp_number }}">
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">No Kartu Keluarga (KK)</label>
+                                    <input type="text" name="no_kk" class="form-control"
+                                        inputmode="numeric" pattern="\d{16}" minlength="16" maxlength="16"
+                                        title="No KK wajib 16 digit angka" value="{{ old('no_kk', $user->profile?->no_kk) }}">
+                                </div>
+                            </div>
+                            <div class="col-md-12 d-none" id="ocrAccountNotice">
+                                <div class="alert alert-warning py-2 small mb-3">
+                                    NIK / Nama hasil Scan KTP sudah diisikan ke form <strong>Edit Info</strong>.
+                                    Simpan juga form tersebut agar NIK / Nama ikut tersimpan.
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Alamat<span class="text-danger"> *</span></label>
                                     <input type="text" name="address" class="form-control"
                                         value="{{ $user->profile?->address }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">RT/RW</label>
+                                    <input type="text" name="rt_rw" class="form-control" value="{{ $user->profile?->rt_rw }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Kelurahan/Desa</label>
+                                    <input type="text" name="kelurahan" class="form-control" value="{{ $user->profile?->kelurahan }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Kecamatan</label>
+                                    <input type="text" name="kecamatan" class="form-control" value="{{ $user->profile?->kecamatan }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -779,22 +870,23 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Nama BANK<span class="text-danger"> *</span></label>
-                                    <input type="text" name="bank_name" class="form-control"
-                                        value="{{ $user->profile?->bank_name }}">
+                                    <input type="text" name="bank_name" class="form-control" required
+                                        value="{{ old('bank_name', $user->profile?->bank_name) }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Nama rekening<span class="text-danger"> *</span></label>
-                                    <input type="text" name="account_name" class="form-control"
-                                        value="{{ $user->profile?->account_name }}">
+                                    <input type="text" name="account_name" class="form-control" required
+                                        value="{{ old('account_name', $user->profile?->account_name) }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">No rekening<span class="text-danger"> *</span></label>
-                                    <input type="text" name="account_number" class="form-control"
-                                        value="{{ $user->profile?->account_number }}">
+                                    <input type="text" name="account_number" class="form-control" required
+                                        inputmode="numeric" pattern="[0-9 .\-]{5,25}" title="No rekening hanya angka"
+                                        value="{{ old('account_number', $user->profile?->account_number) }}">
                                 </div>
                             </div>
                         </div>
@@ -893,6 +985,7 @@
                                         <option value="NPWP">NPWP</option>
                                         <option value="IJAZAH">IJAZAH</option>
                                         <option value="KARTU KELUARGA">KARTU KELUARGA</option>
+                                        <option value="SKCK">SKCK</option>
                                         <option value="PAKLARING">PAKLARING</option>
                                         <option value="CERTIFICATE">CERTIFICATE</option>
                                     </select>
@@ -937,59 +1030,191 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="mutationModal">
+    <div class="modal fade" id="movementModal">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="d-flex align-items-center">
-                        <h4 class="modal-title me-2">Mutasi</h4></span>
-                    </div>
-                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal"
-                        aria-label="Close">
+                    <h4 class="modal-title" id="movementTitle">Proses Karier</h4>
+                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <i class="ti ti-x"></i>
                     </button>
                 </div>
                 <form class="form" action="{{ route('users.mutation.store', $user->id) }}" method="POST">
                     @csrf
-                    <div class="modal-body pb-0 ">
+                    <input type="hidden" name="type" id="movement_type" value="{{ old('type', 'mutasi') }}">
+                    <div class="modal-body pb-0">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6 movement-group" data-for="mutasi">
                                 <div class="mb-3">
-                                    <label class="form-label">Tujuan Lokasi<span class="text-danger"> *</span></label>
+                                    <label class="form-label">Site Saat Ini</label>
+                                    <input type="text" class="form-control" value="{{ $user->site->name ?? '-' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6 movement-group" data-for="mutasi">
+                                <div class="mb-3">
+                                    <label class="form-label">Site Tujuan<span class="text-danger"> *</span></label>
                                     <select class="form-control select2" name="to">
+                                        <option value="">Pilih site tujuan</option>
                                         @foreach ($sites as $site)
-                                            <option value="{{ $site->id }}"
-                                                {{ $user->site_id == $site->id ? 'selected' : '' }}>
-                                                {{ $site->name }}
-                                            </option>
+                                            @continue($site->id == $user->site_id)
+                                            <option value="{{ $site->id }}" @selected(old('to') == $site->id)>{{ $site->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6 movement-group" data-for="promosi demosi">
+                                <div class="mb-3">
+                                    <label class="form-label">Jabatan Saat Ini</label>
+                                    @php $currentRoles = $user->getRoleNames()->reject(fn ($r) => $r === 'App Administrator')->values(); @endphp
+                                    @if ($currentRoles->count() > 1)
+                                        <select class="form-select" name="from_role">
+                                            @foreach ($currentRoles as $role)
+                                                <option value="{{ $role }}">{{ $role }}</option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-muted">Pilih jabatan yang digantikan.</small>
+                                    @else
+                                        <input type="text" class="form-control" value="{{ $currentRoles->first() ?? '-' }}" readonly>
+                                        <input type="hidden" name="from_role" value="{{ $currentRoles->first() }}">
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6 movement-group" data-for="promosi demosi">
+                                <div class="mb-3">
+                                    <label class="form-label">Jabatan Baru<span class="text-danger"> *</span></label>
+                                    <select class="form-control select2" name="to_role">
+                                        <option value="">Pilih jabatan baru</option>
+                                        @foreach ($roleOptions as $role)
+                                            <option value="{{ $role }}" @selected(old('to_role') === $role)>{{ $role }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12 movement-group" data-for="resign">
+                                <div class="alert alert-warning py-2">
+                                    Karyawan akan berstatus <strong>Resign</strong> per tanggal efektif dan tidak lagi muncul di daftar karyawan aktif.
+                                </div>
+                            </div>
+                            <div class="col-md-12 movement-group" data-for="aktif">
+                                <div class="alert alert-info py-2">
+                                    Tanggal resign ({{ format_tanggal($user->profile?->resign_date) }}) akan dihapus dan karyawan kembali berstatus <strong>Aktif</strong>.
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Tanggal<span class="text-danger"> *</span></label>
-                                    <input type="date" name="date" class="form-control">
+                                    <label class="form-label">Tanggal Efektif<span class="text-danger"> *</span></label>
+                                    <input type="date" name="date" class="form-control" value="{{ old('date', now()->toDateString()) }}" required>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">Keterangan / Alasan<span class="text-danger">
-                                            *</span></label>
-                                    <textarea name="description" class="form-control"></textarea>
+                                    <label class="form-label">Keterangan / Alasan</label>
+                                    <textarea name="description" class="form-control" rows="2">{{ old('description') }}</textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-light border me-2"
-                            data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save </button>
+                        <button type="button" class="btn btn-outline-light border me-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="contractModal">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Revisi Periode Kontrak</h4>
+                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+                @if ($contracts->isEmpty())
+                    <div class="modal-body">
+                        <div class="alert alert-info mb-0">
+                            {{ $user->name }} belum memiliki surat kontrak (surat dengan periode tanggal). Buat surat PKWT terlebih dahulu
+                            melalui proses Offering / Generate Surat.
+                        </div>
+                    </div>
+                @else
+                    <form class="form" action="{{ route('users.contract.revise', $user->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-body pb-0">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Surat Kontrak<span class="text-danger"> *</span></label>
+                                        <select class="form-select" name="generate_id" id="contract_generate" required>
+                                            @foreach ($contracts as $contract)
+                                                <option value="{{ $contract->id }}"
+                                                    data-start="{{ $contract->start_date ? \Illuminate\Support\Carbon::parse($contract->start_date)->toDateString() : '' }}"
+                                                    data-end="{{ $contract->end_date ? \Illuminate\Support\Carbon::parse($contract->end_date)->toDateString() : '' }}">
+                                                    {{ $contract->formatted_letter_number ?? '-' }} &mdash; {{ $contract->letter->title ?? 'Surat' }}
+                                                    ({{ format_tanggal($contract->start_date) }} s/d {{ format_tanggal($contract->end_date, 'selesai') }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Mulai Kontrak<span class="text-danger"> *</span></label>
+                                        <input type="date" name="start_date" id="contract_start" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Akhir Kontrak</label>
+                                        <input type="date" name="end_date" id="contract_end" class="form-control">
+                                        <small class="text-muted">Kosongkan bila tanpa batas waktu.</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Keterangan / Alasan Revisi</label>
+                                        <textarea name="description" class="form-control" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="reset_signatures" value="1" id="reset_signatures" checked>
+                                        <label class="form-check-label" for="reset_signatures">
+                                            Minta tanda tangan ulang (tanda tangan HRD &amp; karyawan pada surat ini dihapus)
+                                        </label>
+                                    </div>
+                                    <div class="alert alert-light border py-2 small">
+                                        Surat PKWT akan otomatis memakai periode baru (nomor surat tetap). Tanggal akhir kontrak di profil karyawan ikut diperbarui.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-light border me-2" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan Revisi</button>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    @include('admin.partials.ktp-ocr', [
+        'ocrTargets' => [
+            'nik' => '#account_nik',
+            'name' => '#employeeModal [name="name"]',
+            'gender' => '#profileModal [name="gender"]',
+            'birth_place' => '#profileModal [name="birth_place"]',
+            'birth_date' => '#profileModal [name="birth_date"]',
+            'address' => '#profileModal [name="address"]',
+            'rt_rw' => '#profileModal [name="rt_rw"]',
+            'kelurahan' => '#profileModal [name="kelurahan"]',
+            'kecamatan' => '#profileModal [name="kecamatan"]',
+        ],
+        'ocrOpenModal' => 'profileModal',
+    ])
 
 @endsection
 
@@ -1005,11 +1230,53 @@
     </script>
     <script>
         $(document).ready(function() {
-            $('#mutationModal').on('shown.bs.modal', function() {
-                $(this).find('.select2').select2({
-                    dropdownParent: $('#mutationModal')
+            var movementTitles = {
+                mutasi: 'Mutasi Karyawan',
+                promosi: 'Promosi Jabatan',
+                demosi: 'Demosi Jabatan',
+                resign: 'Proses Resign',
+                aktif: 'Aktifkan Kembali Karyawan'
+            };
+
+            function setMovementType(type) {
+                $('#movement_type').val(type);
+                $('#movementTitle').text(movementTitles[type] || 'Proses Karier');
+                $('#movementModal .movement-group').each(function() {
+                    var show = String($(this).data('for')).split(' ').indexOf(type) !== -1;
+                    $(this).toggle(show).find('input, select, textarea').prop('disabled', !show);
+                });
+            }
+
+            $('.movement-btn').on('click', function() {
+                setMovementType($(this).data('type'));
+            });
+
+            $('#movementModal').on('shown.bs.modal', function() {
+                $(this).find('select.select2').select2({
+                    dropdownParent: $('#movementModal')
                 });
             });
+
+            function fillContractDates() {
+                var $opt = $('#contract_generate option:selected');
+                $('#contract_start').val($opt.data('start') || '').trigger('change');
+                $('#contract_end').val($opt.data('end') || '').trigger('change');
+            }
+            $('#contract_generate').on('change', fillContractDates);
+            $('#contractModal').on('show.bs.modal', fillContractDates);
+
+            setMovementType($('#movement_type').val() || 'mutasi');
+
+            // Scan KTP: NIK & Nama ada di form Edit Info, beri pengingat bila berubah
+            document.addEventListener('ktp-ocr:applied', function(e) {
+                var changed = (e.detail.nik && e.detail.nik !== @json($user->nik)) ||
+                    (e.detail.name && e.detail.name !== @json($user->name));
+                $('#ocrAccountNotice').toggleClass('d-none', !changed);
+            });
+
+            @if ($errors->any() && old('type'))
+                new bootstrap.Modal(document.getElementById('movementModal')).show();
+            @endif
         });
     </script>
 @endpush

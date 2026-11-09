@@ -91,14 +91,31 @@
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Filter Site</label>
-                            <select name="site_id" class="form-select select2-modal">
-                                <option value="">Semua Site</option>
-                                @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
+                            <label class="form-label fw-bold">Filter Perusahaan (PT)</label>
+                            <select name="company_id" id="export_company_id" class="form-select">
+                                <option value="">Semua PT</option>
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
                                 @endforeach
                             </select>
-                            <div class="form-text">Kosongkan untuk export semua site.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Filter Site</label>
+                            <select name="site_id" id="export_site_id" class="form-select select2-modal">
+                                <option value="">Semua Site</option>
+                                @foreach ($sites as $site)
+                                    <option value="{{ $site->id }}" data-company="{{ $site->company_id }}">{{ $site->name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">Kosongkan untuk export semua site (pada PT terpilih).</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status Karyawan</label>
+                            <select name="status" class="form-select">
+                                <option value="">Semua (Aktif &amp; Resign)</option>
+                                <option value="aktif">Aktif</option>
+                                <option value="resign">Resign</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
@@ -165,6 +182,23 @@ $(document).ready(function () {
         $('.tab-pane').removeClass('show active');
         $('#company-pane-all').addClass('show active');
         reloadTable();
+    });
+
+    // Daftar site di modal export mengikuti PT terpilih (default: PT pada tab aktif)
+    var allExportSites = $('#export_site_id option').clone();
+    function filterExportSites() {
+        var companyId = String($('#export_company_id').val() || '');
+        var $select = $('#export_site_id');
+        $select.empty().append(allExportSites.filter(function () {
+            return !this.value || !companyId || String($(this).data('company')) === companyId;
+        }).clone());
+        $select.val('').trigger('change');
+    }
+    $('#export_company_id').on('change', filterExportSites);
+
+    $('#exportModal').on('show.bs.modal', function () {
+        $('#export_company_id').val($('#filter_company_id').val() || '');
+        filterExportSites();
     });
 
     $('#exportModal').on('shown.bs.modal', function () {

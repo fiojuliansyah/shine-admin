@@ -12,6 +12,8 @@ use App\Models\UserHasSites;
 use Illuminate\Http\Request;
 use App\Imports\EmployeeImport;
 use App\Models\UserNotification;
+use App\Services\FileStorage;
+use App\Support\IdentityRules;
 use App\DataTables\AdminsDataTable;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -45,7 +47,9 @@ class AdminController extends Controller
         $sites = Site::all();
         $roles = Role::pluck('name', 'name')->all();
         $userRoles = $user->roles->pluck('name', 'name')->all();
-        $mutations = Mutation::where('user_id', $id)->get();
+        $mutations = Mutation::with(['from', 'to', 'creator'])->where('user_id', $id)->orderByDesc('date')->orderByDesc('id')->get();
+        $roleOptions = EmployeeMovementController::roleOptions();
+        $contracts = $user->generates()->with('letter.type')->whereNotNull('start_date')->latest()->get();
         $activities = Activity::where('causer_id', $id)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -54,17 +58,35 @@ class AdminController extends Controller
         $userSites = User::with('sites_leader')->find($id);
         $userHasSignLeader = User::where('id', $id)->first();
 
-        return view('admin.admins.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader'));
+        return view('admin.admins.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader', 'roleOptions', 'contracts'));
     }
 
 
     public function updateAccount(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        IdentityRules::normalize($request, ['nik']);
+        $request->validate([
+            'nik' => IdentityRules::nik(required: (bool) $user->is_employee),
+        ], IdentityRules::messages());
+
         $input = $request->all();
 
-        // Update site_id tunggal (kalau memang user punya kolom site_id sendiri)
+        // Update site_id tunggal; perubahan site dicatat sebagai riwayat mutasi
         if ($request->has('site_id')) {
+            if (filled($request->site_id) && (string) $request->site_id !== (string) $user->site_id) {
+                Mutation::create([
+                    'type' => 'mutasi',
+                    'date' => now()->toDateString(),
+                    'user_id' => $user->id,
+                    'from_id' => $user->site_id,
+                    'to_id' => $request->site_id,
+                    'description' => 'Perubahan Site Utama melalui Edit Akun',
+                    'created_by' => Auth::id(),
+                ]);
+            }
+
             $user->site_id = $request->site_id;
             $user->save();
         }
@@ -109,7 +131,12 @@ class AdminController extends Controller
     public function updateProfile(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        IdentityRules::normalize($request, ['no_kk', 'account_number']);
+        $request->validate(['no_kk' => IdentityRules::kk()] + IdentityRules::bank(), IdentityRules::messages());
+
         $profileData = $request->only([
+            'no_kk',
             'address',
             'rt_rw',
             'kelurahan',
@@ -131,10 +158,15 @@ class AdminController extends Controller
             'emergency_address',
         ]);
 
+        // Status karyawan selalu mengikuti tanggal resign
+        if ($request->exists('resign_date')) {
+            $profileData['employment_status'] = filled($profileData['resign_date'] ?? null) ? 'RESIGN' : 'ACTIVE';
+        }
+
         if ($request->hasFile('avatar')) {
-            $cloudinaryImage = $request->file('avatar')->storeOnCloudinary('avatars');
-            $profileData['avatar_url'] = $cloudinaryImage->getSecurePath();
-            $profileData['avatar_public_id'] = $cloudinaryImage->getPublicId();
+            $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
+            $profileData['avatar_url'] = $avatar['url'];
+            $profileData['avatar_public_id'] = $avatar['path'];
         }
 
         $user->profile()->updateOrCreate(['user_id' => $user->id], $profileData);
@@ -151,38 +183,18 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $cloudinaryFile = $request->file('file')->storeOnCloudinary('Documents');
-        $url = $cloudinaryFile->getSecurePath();
-        $public_id = $cloudinaryFile->getPublicId();
+        $file = FileStorage::upload($request->file('file'), 'Documents');
 
         $document = new Document;
         $document->user_id = $user->id;
         $document->name = $request->name;
         $document->description = $request->description ?? null;
         $document->validate = $request->validate ?? null;
-        $document->file_url = $url;
-        $document->file_public_id = $public_id;
+        $document->file_url = $file['url'];
+        $document->file_public_id = $file['path'];
         $document->save();
 
         return redirect()->back()->with('success', 'Dokumen ' . $document->name . ' berhasil diunggah');
-    }
-
-    public function storeMutation(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-
-        $mutation = new Mutation;
-        $mutation->date = $request->date;
-        $mutation->user_id = $user->id;
-        $mutation->from_id = $user->site_id;
-        $mutation->to_id = $request->to;
-        $mutation->description = $request->description;
-        $mutation->save();
-
-        $user->site_id = $request->to;
-        $user->save();
-
-        return redirect()->back()->with('success', 'Mutasi ' . $user->name . ' berhasil dilakukan');
     }
 
     public function storeNotification(Request $request, $id)
@@ -218,7 +230,7 @@ class AdminController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv'
         ]);
 
-        Excel::import(new EmployeeImport($request->site_id), $request->file('file')->store('files'));
+        Excel::import(new EmployeeImport($request->site_id), $request->file('file'));
         return redirect()->back()->with('success', 'Data pegawai berhasil diimport!');
     }
 
@@ -227,7 +239,7 @@ class AdminController extends Controller
         $request->validate([
             'site_id' => 'required|exists:sites,id'
         ]);
-        $filename = 'users_' . date('d-M-Y') . '.xlsx';
+        $filename = 'users_' . date('d-m-Y') . '.xlsx';
         return Excel::download(new UserExport($request->site_id), $filename);
     }
 }

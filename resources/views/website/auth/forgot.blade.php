@@ -27,6 +27,13 @@
                                             <p class="mb-0">Masukkan Nomor WhatsApp yang terdaftar untuk menerima kode OTP.</p>
                                         </div>
 
+                                        @if (isset($waConnected) && ! $waConnected)
+                                            <div class="alert alert-warning py-2 small">
+                                                Layanan OTP WhatsApp sedang tidak tersedia. Silakan coba beberapa saat lagi,
+                                                atau hubungi HRD / admin untuk mereset password Anda.
+                                            </div>
+                                        @endif
+
                                         <div class="mb-3">
                                             <label class="form-label">Nomor WhatsApp</label>
                                             <div class="input-group">

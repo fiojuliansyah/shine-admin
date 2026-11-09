@@ -19,7 +19,9 @@ class ApplicantAuthController extends Controller
      */
     public function showLoginForm()
     {
-        return view('website.auth.login', ['waConnected' => $this->isWhatsappConnected()]);
+        // Link "Lupa Password" selalu tampil; status WhatsApp dicek di halaman lupa password
+        // (tidak memperlambat halaman login dengan request ke Fonnte).
+        return view('website.auth.login');
     }
 
     private function isWhatsappConnected(): bool
@@ -119,7 +121,7 @@ class ApplicantAuthController extends Controller
 
     public function showForgotForm()
     {
-        return view('website.auth.forgot');
+        return view('website.auth.forgot', ['waConnected' => $this->isWhatsappConnected()]);
     }
 
     public function sendOtp(Request $request)

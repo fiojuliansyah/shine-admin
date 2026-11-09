@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Intervention\Image\Facades\Image;
 use Spatie\Activitylog\Models\Activity;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use App\Services\FileStorage;
+use App\Support\IdentityRules;
 
 class ProfileController extends Controller
 {
@@ -42,6 +43,10 @@ class ProfileController extends Controller
     public function updateAccount(Request $request)
     {
         $user = Auth::user();
+
+        IdentityRules::normalize($request, ['nik']);
+        $request->validate(['nik' => IdentityRules::nik(required: (bool) $user->is_employee)], IdentityRules::messages());
+
         $input = $request->all();
     
         if (isset($input['password'])) {
@@ -68,14 +73,11 @@ class ProfileController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            if ($user->profile && $user->profile->avatar_public_id) {
-                Cloudinary::destroy($user->profile->avatar_public_id); 
-            }
+            $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
+            FileStorage::delete($user->profile?->avatar_public_id);
 
-            $cloudinaryImage = $request->file('avatar')->storeOnCloudinary('avatars');
-            
-            $profileData['avatar_url'] = $cloudinaryImage->getSecurePath();
-            $profileData['avatar_public_id'] = $cloudinaryImage->getPublicId();
+            $profileData['avatar_url'] = $avatar['url'];
+            $profileData['avatar_public_id'] = $avatar['path'];
         }
         
         $user->profile()->updateOrCreate(['user_id' => $user->id], $profileData);
@@ -93,17 +95,15 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
         ]);
     
-        $cloudinaryFile = $request->file('file')->storeOnCloudinary('Documents');
-        $url = $cloudinaryFile->getSecurePath();
-        $public_id = $cloudinaryFile->getPublicId();
+        $file = FileStorage::upload($request->file('file'), 'Documents');
     
         $document = new Document;
         $document->user_id = $user->id;
         $document->name = $request->name;
         $document->description = $request->description ?? null;
         $document->validate = $request->validate ?? null;
-        $document->file_url = $url;
-        $document->file_public_id = $public_id;
+        $document->file_url = $file['url'];
+        $document->file_public_id = $file['path'];
         $document->save();
     
         return redirect()->back()->with('success', 'Dokumen ' . $document->name . ' berhasil diunggah');

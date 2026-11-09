@@ -68,32 +68,7 @@
                                 <h5 class="mb-0">Informasi Profil</h5>
                                 <div class="d-flex align-items-center gap-2">
                                     @php
-                                        $requiredFields = [
-                                            'avatar_url' => 'Pas Foto',
-                                            'gender' => 'Jenis Kelamin',
-                                            'birth_place' => 'Tempat Lahir',
-                                            'birth_date' => 'Tanggal Lahir',
-                                            'mother_name' => 'Nama Ibu Kandung',
-                                            'last_education' => 'Pendidikan Terakhir',
-                                            'marriage_status' => 'Status Pernikahan',
-                                            'living_with' => 'Status Tempat Tinggal',
-                                            'height' => 'Tinggi Badan',
-                                            'weight' => 'Berat Badan',
-                                            'eye_condition' => 'Kondisi Mata',
-                                            'hearing' => 'Pendengaran',
-                                            'address' => 'Alamat KTP',
-                                            'current_address' => 'Alamat Domisili',
-                                            'family_name' => 'Nama Kontak Darurat',
-                                            'family_relation' => 'Hubungan Kontak Darurat',
-                                            'family_phone' => 'No. Telp Kontak Darurat',
-                                        ];
-
-                                        $emptyFields = [];
-                                        foreach ($requiredFields as $field => $label) {
-                                            if (empty($user->profile->$field)) {
-                                                $emptyFields[] = $label;
-                                            }
-                                        }
+                                        $emptyFields = \App\Support\ApplicantRequirements::missingFields($user);
                                     @endphp
 
                                     @if(empty($emptyFields))
@@ -137,7 +112,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <span class="text-muted d-block small">Tempat, Tanggal Lahir</span>
-                                            <h6 class="fw-medium mb-0">{{ $user->profile->birth_place ?? '-' }}, {{ $user->profile->birth_date ?? '-' }}</h6>
+                                            <h6 class="fw-medium mb-0">{{ $user->profile->birth_place ?? '-' }}, {{ format_tanggal($user->profile?->birth_date) }}</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <span class="text-muted d-block small">Pendidikan Terakhir</span>
@@ -165,6 +140,10 @@
 
                             <!-- Bagian 2: Fisik & Alamat -->
                             <div class="row g-3 mb-4">
+                                <div class="col-md-3">
+                                    <span class="text-muted d-block small">No. Kartu Keluarga</span>
+                                    <h6 class="fw-medium mb-0">{{ $user->profile->no_kk ?? '-' }}</h6>
+                                </div>
                                 <div class="col-md-3">
                                     <span class="text-muted d-block small">No. NPWP (Opsional)</span>
                                     <h6 class="fw-medium mb-0 text-secondary">{{ $user->profile->npwp_number ?? '-' }}</h6>
@@ -297,15 +276,7 @@
                                 <h5 class="mb-0">Dokumen Pendukung</h5>
                                 <div class="d-flex align-items-center gap-2">
                                     @php
-                                        $requiredDocs = ['KTP', 'IJAZAH', 'KARTU KELUARGA'];
-                                        
-                                        if ($user->profile?->gada_pratama === 'yes') $requiredDocs[] = 'GADA PRATAMA';
-                                        if ($user->profile?->gada_madya === 'yes') $requiredDocs[] = 'GADA MADYA';
-                                        if ($user->profile?->gada_utama === 'yes') $requiredDocs[] = 'GADA UTAMA';
-
-                                        $uploadedDocs = $documents->pluck('name')->toArray();
-                                        
-                                        $missingDocs = array_diff($requiredDocs, $uploadedDocs);
+                                        $missingDocs = \App\Support\ApplicantRequirements::missingDocuments($user, $documents->pluck('name')->all());
                                     @endphp
 
                                     @if(empty($missingDocs))
@@ -415,8 +386,10 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">NIK KTP <span class="text-danger"> *</span></label>
-                                    <input type="text" name="nik" class="form-control"
-                                        value="{{ $user->nik }}">
+                                    <input type="text" name="nik" class="form-control" required
+                                        inputmode="numeric" pattern="\d{16}" minlength="16" maxlength="16"
+                                        title="NIK KTP wajib 16 digit angka" value="{{ old('nik', $user->nik) }}">
+                                    <small class="text-muted">Wajib 16 digit angka sesuai KTP.</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -583,7 +556,15 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">No Kartu Keluarga (KK)<span class="text-danger"> *</span></label>
+                                    <input type="text" name="no_kk" class="form-control"
+                                        inputmode="numeric" pattern="\d{16}" minlength="16" maxlength="16"
+                                        title="No KK wajib 16 digit angka" value="{{ old('no_kk', $user->profile?->no_kk) }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">No NPWP</label>
                                     <input type="text" name="npwp_number" class="form-control"
@@ -830,23 +811,23 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Nama BANK</label>
-                                    <input type="text" name="bank_name" class="form-control"
-                                        value="{{ $user->profile?->bank_name }}">
+                                    <label class="form-label">Nama BANK<span class="text-danger"> *</span></label>
+                                    <input type="text" name="bank_name" class="form-control" required
+                                        value="{{ old('bank_name', $user->profile?->bank_name) }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Nama rekening</label>
-                                    <input type="text" name="account_name" class="form-control"
-                                        value="{{ $user->profile?->account_name }}">
+                                    <label class="form-label">Nama rekening<span class="text-danger"> *</span></label>
+                                    <input type="text" name="account_name" class="form-control" required
+                                        value="{{ old('account_name', $user->profile?->account_name) }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label class="form-label">No rekening</label>
-                                    <input type="text" name="account_number" class="form-control"
-                                        value="{{ $user->profile?->account_number }}">
+                                    <label class="form-label">No rekening<span class="text-danger"> *</span></label>
+                                    <input type="text" name="account_number" class="form-control" required inputmode="numeric" pattern="[0-9 .\-]{5,25}" title="No rekening hanya angka"
+                                        value="{{ old('account_number', $user->profile?->account_number) }}">
                                 </div>
                             </div>
                         </div>
@@ -885,7 +866,7 @@
                                 <option value="KTP">KTP (Wajib)</option>
                                 <option value="IJAZAH">IJAZAH (Wajib)</option>
                                 <option value="KARTU KELUARGA">KARTU KELUARGA (Wajib)</option>
-                                <option value="SKCK">SKCK</option>
+                                <option value="SKCK">SKCK (Wajib)</option>
                                 <option value="SIM">SIM</option>
                                 <option value="NPWP">NPWP</option>
                                 <option value="PAKLARING">PAKLARING</option>

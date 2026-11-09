@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
@@ -36,13 +37,22 @@ class EmployeesDataTable extends DataTable
                 $query->whereHas('site', fn($q) => $q->where('name', 'like', "%{$keyword}%"));
             })
 
+            ->orderColumn('nama', 'users.name $1')
+            ->orderColumn('site', function ($query, $order) {
+                $query->orderBy(Site::select('name')->whereColumn('sites.id', 'users.site_id'), $order);
+            })
+
             ->addColumn('jabatan', function ($row) {
                 return e($row->getRoleNames()->implode(', ') ?: '-');
             })
 
+            ->filterColumn('jabatan', function ($query, $keyword) {
+                $query->whereHas('roles', fn($q) => $q->where('name', 'like', "%{$keyword}%"));
+            })
+
             ->addColumn('ttl', function ($row) {
                 $bp = $row->profile->birth_place ?? '-';
-                $bd = $row->profile->birth_date ?? '-';
+                $bd = format_tanggal($row->profile?->birth_date);
                 return e($bp . ', ' . $bd);
             })
 
@@ -56,9 +66,9 @@ class EmployeesDataTable extends DataTable
                 return e(implode(', ', $parts) ?: '-');
             })
 
-            ->addColumn('join_date', fn($row) => e($row->profile->join_date ?? '-'))
+            ->addColumn('join_date', fn($row) => e(format_tanggal($row->profile?->join_date)))
             ->addColumn('status', function ($row) {
-                return $row->profile && $row->profile->resign_date
+                return $row->profile->isResigned()
                     ? '<span class="badge bg-danger">Resign</span>'
                     : '<span class="badge bg-success">Aktif</span>';
             })
@@ -96,7 +106,7 @@ class EmployeesDataTable extends DataTable
     public function query(User $model): QueryBuilder
     {
         $query = $model->newQuery()
-            ->with(['profile' => fn($q) => $q->select('user_id', 'birth_place', 'birth_date', 'address', 'rt_rw', 'kelurahan', 'kecamatan', 'join_date', 'resign_date'), 'roles', 'site', 'generates.letter.type'])
+            ->with(['profile' => fn($q) => $q->select('user_id', 'birth_place', 'birth_date', 'address', 'rt_rw', 'kelurahan', 'kecamatan', 'join_date', 'resign_date', 'employment_status'), 'roles', 'site', 'generates.letter.type'])
             ->where('is_employee', 1)
             ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'));
 

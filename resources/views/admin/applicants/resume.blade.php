@@ -181,7 +181,7 @@
                                 <div class="col-md-4">
                                     <label class="text-muted small">Tempat & Tanggal Lahir</label>
                                     <p class="fw-bold">{{ $user->profile->birth_place ?? '-' }},
-                                        {{ $user->profile->birth_date ?? '-' }}</p>
+                                        {{ format_tanggal($user->profile?->birth_date) }}</p>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="text-muted small">Tinggal Dengan</label>

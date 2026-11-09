@@ -224,8 +224,8 @@ class StatusController extends Controller
                 $applicant->user->profile()->updateOrCreate(
                     ['user_id' => $applicant->user_id],
                     array_filter([
-                        'join_date'   => $request->start_date,
-                        'resign_date' => $request->end_date,
+                        'join_date' => $request->start_date,
+                        'end_date'  => $request->end_date, // akhir kontrak, BUKAN tanggal resign
                     ], fn($v) => !is_null($v))
                 );
 
@@ -324,8 +324,8 @@ class StatusController extends Controller
                 $applicant->user->profile()->updateOrCreate(
                     ['user_id' => $applicant->user_id],
                     [
-                        'join_date'   => $request->start_date,
-                        'resign_date' => $request->end_date,
+                        'join_date' => $request->start_date,
+                        'end_date'  => $request->end_date, // akhir kontrak, BUKAN tanggal resign
                     ]
                 );
 

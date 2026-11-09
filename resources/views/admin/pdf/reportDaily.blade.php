@@ -60,7 +60,7 @@
             @foreach ($tasks as $index => $task)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $task->created_at->format('d/m/Y') }}</td>
+                    <td>{{ $task->created_at->format('d-m-Y') }}</td>
                     <td>{{ $task->user->name ?? '-' }}</td>
                     <td>{{ $task->taskPlanner->name ?? '-' }}</td>
                     <td>{{ $task->start_time }} - {{ $task->end_time }}</td>

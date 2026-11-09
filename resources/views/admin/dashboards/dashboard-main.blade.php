@@ -143,7 +143,7 @@
                     </div>
                     <div class="card-body">
                         <div id="roles-chart"></div>
-                        <p class="fs-13"><i class="ti ti-circle-filled me-2 fs-8 text-primary"></i>Pegawai berdasarkan Jabatan updated on <span class="text-success fw-bold">{{ date('d M Y') }}</span>
+                        <p class="fs-13"><i class="ti ti-circle-filled me-2 fs-8 text-primary"></i>Pegawai berdasarkan Jabatan updated on <span class="text-success fw-bold">{{ date('d-m-Y') }}</span>
                         </p>
                     </div>
                 </div>

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use App\Services\FileStorage;
 use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
@@ -53,22 +53,25 @@ class ProfileController extends Controller
 
         $data = $validator->validated();
 
-        // Upload gambar wajah ke Cloudinary jika ada base64 image
+        // Upload gambar wajah ke storage jika ada base64 image
         if (!empty($data['face_image_data'])) {
             try {
-                $upload = Cloudinary::upload($data['face_image_data'], [
-                    'folder' => 'faces',
-                    'public_id' => 'face_' . $userId,
-                    'overwrite' => true,
-                    'format' => 'jpg',
-                ]);
-
-                $data['avatar_url'] = $upload->getSecurePath();
-                $data['avatar_public_id'] = $upload->getPublicId();
+                $upload = FileStorage::uploadBase64($data['face_image_data'], 'faces', 'face_' . $userId . '_' . time());
             } catch (\Exception $e) {
-                return response()->json(['message' => 'Gagal upload gambar wajah ke Cloudinary.', 'error' => $e->getMessage()], 500);
+                return response()->json(['message' => 'Gagal upload gambar wajah ke storage.', 'error' => $e->getMessage()], 500);
             }
+
+            // Gantikan foto wajah lama (sebelumnya di-overwrite di Cloudinary)
+            if (str_starts_with((string) $profile->avatar_public_id, 'faces/')) {
+                FileStorage::delete($profile->avatar_public_id);
+            }
+
+            $data['avatar_url'] = $upload['url'];
+            $data['avatar_public_id'] = $upload['path'];
         }
+
+        // Base64 mentah tidak disimpan ke DB (kolomnya memang tidak ada) — file sudah di storage
+        unset($data['face_image_data']);
 
         // Simpan face_id (face descriptor)
         if (!empty($data['face_id'])) {
@@ -106,10 +109,10 @@ class ProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'name'     => 'nullable|string|max:255',
             'email'    => 'nullable|email|max:255',
-            'nik'      => 'nullable|string|max:50',
+            'nik'      => 'nullable|digits:16',
             'phone'    => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6',
-        ]);
+        ], ['nik.digits' => 'NIK KTP wajib 16 digit angka.']);
 
         if ($validator->fails()) {
             return response()->json([
@@ -164,33 +167,30 @@ class ProfileController extends Controller
         if ($request->esign) {
             $imageData = $request->input('esign');
 
-            list($type, $imageData) = explode(';', $imageData);
-            list(, $imageData)      = explode(',', $imageData);
+            // Paksa format PNG, sama seperti sebelumnya
+            $base64 = str_contains($imageData, ',') ? substr($imageData, strpos($imageData, ',') + 1) : $imageData;
 
-            $imageData = 'data:image/png;base64,' . $imageData;
+            try {
+                $upload = FileStorage::uploadBase64('data:image/png;base64,' . $base64, 'esign_images');
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Gagal upload e-signature ke storage.', 'error' => $e->getMessage()], 500);
+            }
 
-            $cloudinaryImageIn = Cloudinary::upload($imageData, [
-                'folder' => 'esign_images'
+            $esign = json_encode([
+                'esign_url' => $upload['url'],
+                'esign_public_id' => $upload['path'],
             ]);
 
-            $esignUrl = $cloudinaryImageIn->getSecurePath();
-            $esignPublicId = $cloudinaryImageIn->getPublicId();
-
             if ($profile) {
-                $esignProfile = json_decode($profile->esign, true);
-                if ($esignProfile && isset($esignProfile['esign_public_id'])) {
-                    // Hapus esign lama dari Cloudinary
-                    $esignProfile['esign_url'] = $esignUrl;
-                    $esignProfile['esign_public_id'] = $esignPublicId;
-                    $esign = json_encode($esignProfile);
+                // Hapus file esign lama (jika sebelumnya tersimpan sebagai file)
+                $oldEsign = json_decode((string) $profile->esign, true);
+                if (is_array($oldEsign) && !empty($oldEsign['esign_public_id'])) {
+                    FileStorage::delete($oldEsign['esign_public_id']);
                 }
+
                 $profile->esign = $esign;
                 $profile->save();
             } else {
-                $esign = json_encode([
-                    'esign_url' => $esignUrl,
-                    'esign_public_id' => $esignPublicId
-                ]);
                 $user->profile()->create([
                     'esign' => $esign
                 ]);

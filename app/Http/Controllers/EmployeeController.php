@@ -46,15 +46,10 @@ class EmployeeController extends Controller
                 $query->where('site_id', $request->site_id);
             }
 
-            if ($request->filled('status')) {
-                if ($request->status === 'resign') {
-                    $query->whereHas('profile', fn ($q) => $q->whereNotNull('resign_date'));
-                } elseif ($request->status === 'aktif') {
-                    $query->where(function ($q) {
-                        $q->whereDoesntHave('profile')
-                            ->orWhereHas('profile', fn ($q2) => $q2->whereNull('resign_date'));
-                    });
-                }
+            if ($request->status === 'resign') {
+                $query->resigned();
+            } elseif ($request->status === 'aktif') {
+                $query->activeEmployee();
             }
 
             $columnKeys = array_column($columns, 'key');
@@ -65,6 +60,16 @@ class EmployeeController extends Controller
                 $dt->addColumn($key, function ($row) use ($key) {
                     return $this->resolveColumnValue($row, $key);
                 });
+            }
+
+            // Semua kolom di atas virtual; tanpa filter eksplisit Yajra akan mencari
+            // "users.<key>" yang tidak ada di tabel dan query-nya error.
+            foreach (self::columnFilters() as $key => $filter) {
+                $dt->filterColumn($key, $filter);
+            }
+
+            foreach (self::ORDERABLE_COLUMNS as $key => $column) {
+                $dt->orderColumn($key, "{$column} \$1");
             }
 
             $dt->addColumn('aksi', function ($row) {
@@ -85,8 +90,47 @@ class EmployeeController extends Controller
         }
 
         $sites = Site::where('company_id', $company->id)->orderBy('name')->get();
+        $searchableKeys = array_keys(self::columnFilters());
+        $orderableKeys = array_keys(self::ORDERABLE_COLUMNS);
 
-        return view('admin.employees.company', compact('company', 'sites', 'columns'));
+        return view('admin.employees.company', compact('company', 'sites', 'columns', 'searchableKeys', 'orderableKeys'));
+    }
+
+    /** Kolom tabel per-PT yang bisa diurutkan => kolom database. */
+    private const ORDERABLE_COLUMNS = [
+        'name' => 'users.name',
+        'email' => 'users.email',
+        'phone' => 'users.phone',
+        'nik' => 'users.nik',
+        'employee_nik' => 'users.employee_nik',
+    ];
+
+    /**
+     * Kolom tabel per-PT yang bisa dicari => filter query. Kolom lain hanya tampilan.
+     *
+     * @return array<string, \Closure>
+     */
+    private static function columnFilters(): array
+    {
+        $user = fn (string $column) => fn ($query, $keyword) => $query->where("users.{$column}", 'like', "%{$keyword}%");
+        $profile = fn (string $column) => fn ($query, $keyword) => $query->whereHas('profile', fn ($q) => $q->where($column, 'like', "%{$keyword}%"));
+        $site = fn (string $column) => fn ($query, $keyword) => $query->whereHas('site', fn ($q) => $q->where($column, 'like', "%{$keyword}%"));
+
+        return [
+            'name' => $user('name'),
+            'email' => $user('email'),
+            'phone' => $user('phone'),
+            'nik' => $user('nik'),
+            'employee_nik' => $user('employee_nik'),
+            'area' => $site('name'),
+            'klien' => $site('client_name'),
+            'jabatan1' => fn ($query, $keyword) => $query->whereHas('roles', fn ($q) => $q->where('name', 'like', "%{$keyword}%")),
+            'mother_name' => $profile('mother_name'),
+            'no_kk' => $profile('no_kk'),
+            'npwp_number' => $profile('npwp_number'),
+            'birth_place' => $profile('birth_place'),
+            'account_number' => $profile('account_number'),
+        ];
     }
 
     private function resolveColumnValue($row, string $key): string
@@ -112,10 +156,12 @@ class EmployeeController extends Controller
             'jabatan1' => e($row->getRoleNames()->first() ?? '-'),
             'jabatan2' => e($row->getRoleNames()->skip(1)->first() ?? '-'),
             'birth_place' => e($row->profile->birth_place ?? '-'),
-            'birth_date' => e($row->profile->birth_date ?? '-'),
+            'birth_date' => e(format_tanggal($row->profile?->birth_date)),
             'gender' => e($row->profile->gender ?? '-'),
             'mother_name' => e($row->profile->mother_name ?? '-'),
             'npwp_number' => e($row->profile->npwp_number ?? '-'),
+            'no_kk' => e($row->profile->no_kk ?? '-'),
+            'keterangan' => e($row->profile->keterangan ?? '-'),
             'address' => e(implode(', ', array_filter([
                 $row->profile->address ?? null,
                 $row->profile->rt_rw ?? null,
@@ -124,12 +170,13 @@ class EmployeeController extends Controller
             ])) ?: '-'),
             'religion' => e($row->profile->religion ?? '-'),
             'marriage_status' => e($row->profile->marriage_status ?? '-'),
-            'join_date' => e($row->profile->join_date ?? '-'),
-            'resign_date' => e($row->profile->resign_date ?? '-'),
+            'join_date' => e(format_tanggal($row->profile?->join_date)),
+            'end_date' => e(format_tanggal($row->profile?->end_date)),
+            'resign_date' => e(format_tanggal($row->profile?->resign_date)),
             'bank_name' => e($row->profile->bank_name ?? '-'),
             'account_number' => e($row->profile->account_number ?? '-'),
             'account_name' => e($row->profile->account_name ?? '-'),
-            'status' => $row->profile && $row->profile->resign_date
+            'status' => $row->profile->isResigned()
                                     ? '<span class="badge bg-danger">Resign</span>'
                                     : '<span class="badge bg-success">Aktif</span>',
             'tgl_aktif' => e($row->profile->join_date ? date('d', strtotime($row->profile->join_date)) : '-'),
@@ -326,10 +373,28 @@ class EmployeeController extends Controller
 
     public function export(Request $request)
     {
-        $siteId = $request->integer('site_id') ?: null;
-        $siteName = $siteId ? Site::find($siteId)?->name : 'Semua Site';
-        $filename = 'Data Pegawai - '.$siteName.' - '.date('d-m-Y').'.xlsx';
+        $request->validate([
+            'site_id' => ['nullable', 'integer', 'exists:sites,id'],
+            'company_id' => ['nullable', 'integer', 'exists:companies,id'],
+            'status' => ['nullable', 'in:aktif,resign'],
+        ]);
 
-        return Excel::download(new EmployeeDataExport($siteId), $filename);
+        $site = $request->filled('site_id') ? Site::find($request->integer('site_id')) : null;
+        $company = $request->filled('company_id') ? Company::find($request->integer('company_id')) : null;
+        $status = $request->input('status') ?: null;
+
+        $scope = $site?->name ?? ($company ? ($company->short_name ?: $company->name).' - Semua Site' : 'Semua Site');
+        $statusLabel = match ($status) {
+            'aktif' => ' - Aktif',
+            'resign' => ' - Resign',
+            default => '',
+        };
+        $filename = 'Data Pegawai - '.str_replace(['/', '\\'], '-', $scope).$statusLabel.' - '.date('d-m-Y').'.xlsx';
+
+        return Excel::download(new EmployeeDataExport(
+            siteId: $site?->id,
+            companyId: $company?->id,
+            status: $status,
+        ), $filename);
     }
 }

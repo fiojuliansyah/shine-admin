@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\BindsLongNumbersAsText;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -9,8 +11,10 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SalarySettingsExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+class SalarySettingsExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithCustomValueBinder
 {
+    use BindsLongNumbersAsText;
+
     protected $siteId;
 
     public static array $componentFields = [

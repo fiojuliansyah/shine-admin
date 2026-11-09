@@ -156,6 +156,9 @@
 	<!-- Bootstrap Core JS -->
 	<script src="/admin/assets/js/bootstrap.bundle.min.js"></script>
 
+	<!-- Input tanggal DD-MM-YYYY -->
+	@include('partials.date-inputs')
+
 	<!-- Feather Icon JS -->
 	<script src="/admin/assets/js/feather.min.js"></script>
 

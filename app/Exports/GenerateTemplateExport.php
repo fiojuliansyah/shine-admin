@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\BindsLongNumbersAsText;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use App\Models\User;
 use App\Models\Letter;
 use App\Traits\GenerateTemplateColumns;
@@ -12,8 +14,10 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class GenerateTemplateExport implements FromArray, WithHeadings, WithStyles, WithTitle, ShouldAutoSize
+class GenerateTemplateExport implements FromArray, WithHeadings, WithStyles, WithTitle, ShouldAutoSize, WithCustomValueBinder
 {
+    use BindsLongNumbersAsText;
+
     use GenerateTemplateColumns;
 
     protected Letter $letter;

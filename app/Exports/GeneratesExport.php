@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\BindsLongNumbersAsText;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use App\Models\Generate;
 use App\Models\CustomVariable;
 use App\Models\TypeLetter;
@@ -13,8 +15,10 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class GeneratesExport implements FromArray, WithHeadings, WithStyles, WithTitle, ShouldAutoSize
+class GeneratesExport implements FromArray, WithHeadings, WithStyles, WithTitle, ShouldAutoSize, WithCustomValueBinder
 {
+    use BindsLongNumbersAsText;
+
     protected ?string $startDate;
     protected ?string $endDate;
     protected $siteId;
@@ -97,7 +101,7 @@ class GeneratesExport implements FromArray, WithHeadings, WithStyles, WithTitle,
             $data = [
                 $no++,
                 $row->formatted_letter_number ?? '-',
-                $row->user->employee_nik ? "'" . $row->user->employee_nik : '-',
+                $row->user->employee_nik ?: '-',
                 $userSite->company->name ?? $row->site->company->name ?? '-',
                 $row->created_at ? date('d', strtotime($row->created_at)) : '-',
                 $row->created_at ? Carbon::parse($row->created_at)->locale('id')->translatedFormat('F') : '-',
@@ -106,13 +110,13 @@ class GeneratesExport implements FromArray, WithHeadings, WithStyles, WithTitle,
                 $row->user->email ?? '-',
                 $profile->mother_name ?? '-',
                 $profile->birth_place ?? '-',
-                $profile->birth_date ?? '-',
+                format_tanggal($profile->birth_date ?? null),
                 $profile->gender ?? '-',
-                $row->user->nik ? "'" . $row->user->nik : '-',
-                $profile?->kk_number ? "'" . $profile->kk_number : '-',
-                $profile?->npwp_number ? "'" . $profile->npwp_number : '-',
+                $row->user->nik ?: '-',
+                $profile?->no_kk ?: '-',
+                $profile?->npwp_number ?: '-',
                 $this->formatAddress($profile),
-                $row->user->phone ? "'" . $row->user->phone : '-',
+                $row->user->phone ?: '-',
                 $profile->religion ?? '-',
                 $profile->marriage_status ?? '-',
                 $row->user && $row->user->roles->isNotEmpty() ? $row->user->roles->pluck('name')->implode(', ') : '-',
@@ -124,7 +128,7 @@ class GeneratesExport implements FromArray, WithHeadings, WithStyles, WithTitle,
                 $join ? date('Y', strtotime($join)) : '-',
                 $profile->bank_name ?? '-',
                 $profile->account_name ?? '-',
-                $profile?->account_number ? "'" . $profile->account_number : '-',
+                $profile?->account_number ?: '-',
             ];
 
             foreach ($this->customVarColumns as $col) {

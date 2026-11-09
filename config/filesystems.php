@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Upload Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disk tujuan semua file upload aplikasi (avatar, dokumen, logo
+    | perusahaan, foto wajah, e-sign, gambar surat) lewat App\Services\FileStorage.
+    | Default ke object storage S3. Untuk development tanpa S3 bisa diisi "public".
+    |
+    */
+
+    'upload_disk' => env('UPLOAD_DISK', 's3'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -50,10 +63,15 @@ return [
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
+            // Nilai kosong di .env diabaikan (string kosong akan merusak URL / endpoint).
+            'url' => env('AWS_URL') ?: null,
+            'endpoint' => env('AWS_ENDPOINT') ?: null,
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
+            // "public" => objek di-upload dengan ACL public-read agar URL bisa dibuka langsung.
+            // Isi "private" bila bucket tidak mendukung ACL (mis. AWS S3 dengan ACL disabled)
+            // dan akses publik diatur lewat bucket policy / CDN.
+            'visibility' => env('AWS_VISIBILITY', 'public'),
+            'throw' => true,
         ],
         
         'cloudinary' => [

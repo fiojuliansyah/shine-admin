@@ -19,7 +19,7 @@ class MinutesDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('date', function ($row) {
-                return optional($row->date)->format('d M Y') ?? '';
+                return optional($row->date)->format('d-m-Y') ?? '';
             })
             ->addColumn('user', function ($row) {
                 return optional($row->user)->name ?? '';

@@ -77,14 +77,23 @@
                 </div>
                 <form action="{{ route('employees.export') }}" method="POST">
                     @csrf
+                    <input type="hidden" name="company_id" value="{{ $company->id }}">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Filter Site</label>
                             <select name="site_id" class="form-select select2-modal">
-                                <option value="">Semua Site</option>
+                                <option value="">Semua Site {{ $company->short_name ?: $company->name }}</option>
                                 @foreach($sites as $site)
                                     <option value="{{ $site->id }}">{{ $site->name }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status Karyawan</label>
+                            <select name="status" class="form-select">
+                                <option value="">Semua (Aktif &amp; Resign)</option>
+                                <option value="aktif">Aktif</option>
+                                <option value="resign">Resign</option>
                             </select>
                         </div>
                     </div>
@@ -116,7 +125,7 @@ $(document).ready(function () {
     var columns = [
         { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, width: '40px', className: 'text-center' },
         @foreach($columns as $col)
-        { data: '{{ $col['key'] }}', name: '{{ $col['key'] }}', defaultContent: '-' },
+        { data: '{{ $col['key'] }}', name: '{{ $col['key'] }}', defaultContent: '-', searchable: {{ in_array($col['key'], $searchableKeys) ? 'true' : 'false' }}, orderable: {{ in_array($col['key'], $orderableKeys) ? 'true' : 'false' }} },
         @endforeach
         { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' },
     ];
@@ -135,6 +144,7 @@ $(document).ready(function () {
             }
         },
         columns: columns,
+        order: [],
     });
 
     $('#siteFilter, #statusFilter').on('change', function () {

@@ -11,11 +11,15 @@ use App\Models\Letter;
 use App\Models\Profile;
 use App\Models\Site;
 use App\Models\User;
+use App\Support\ApplicantRequirements;
+use App\Support\IdentityRules;
+use App\Services\FileStorage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class DataController extends Controller
 {
@@ -33,47 +37,9 @@ class DataController extends Controller
             ->orderBy('created_at', 'DESC')
             ->get();
 
-        // 1. Cek Kelengkapan Field Profil
-        $requiredFields = [
-            'avatar_url' => 'Pas Foto', // Sesuaikan dengan nama kolom di DB Anda
-            'gender' => 'Jenis Kelamin',
-            'birth_place' => 'Tempat Lahir',
-            'birth_date' => 'Tanggal Lahir',
-            'mother_name' => 'Nama Ibu Kandung',
-            'last_education' => 'Pendidikan Terakhir',
-            'marriage_status' => 'Status Pernikahan',
-            'living_with' => 'Status Tempat Tinggal',
-            'height' => 'Tinggi Badan',
-            'weight' => 'Berat Badan',
-            'eye_condition' => 'Kondisi Mata',
-            'hearing' => 'Pendengaran',
-            'address' => 'Alamat KTP',
-            'current_address' => 'Alamat Domisili',
-            'family_name' => 'Nama Kontak Darurat',
-            'family_relation' => 'Hubungan Kontak Darurat',
-            'family_phone' => 'No. Telp Kontak Darurat',
-        ];
-
-        $missingProfileFields = [];
-        if (!$user->profile) {
-            $missingProfileFields = array_values($requiredFields);
-        } else {
-            foreach ($requiredFields as $field => $label) {
-                if (empty($user->profile->$field)) {
-                    $missingProfileFields[] = $label;
-                }
-            }
-        }
-
-        // 2. Cek Kelengkapan Dokumen
-        $requiredDocs = ['KTP', 'IJAZAH', 'KARTU KELUARGA'];
-        if ($user->profile?->gada_pratama === 'yes') $requiredDocs[] = 'GADA PRATAMA';
-        if ($user->profile?->gada_madya === 'yes') $requiredDocs[] = 'GADA MADYA';
-        if ($user->profile?->gada_utama === 'yes') $requiredDocs[] = 'GADA UTAMA';
-
-        // Ambil dokumen yang sudah diupload
-        $uploadedDocs = Document::where('user_id', $user->id)->pluck('name')->toArray();
-        $missingDocuments = array_diff($requiredDocs, $uploadedDocs);
+        // 1-2. Kelengkapan profil & dokumen (lihat App\Support\ApplicantRequirements)
+        $missingProfileFields = ApplicantRequirements::missingFields($user);
+        $missingDocuments = ApplicantRequirements::missingDocuments($user);
 
         // 3. Status Akhir
         $showWarning = !empty($missingProfileFields) || !empty($missingDocuments);
@@ -175,7 +141,7 @@ class DataController extends Controller
 
         $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
         $tgl_surat = isset($eletter->created_at) 
-            ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') 
+            ? Carbon::parse($eletter->created_at)->format('d-m-Y') 
             : '';
         $romawi = $eletter->romawi ?? 'belum ada data';
         $tahun = $eletter->year ?? 'belum ada tahun';
@@ -278,7 +244,7 @@ class DataController extends Controller
         $user = $eletter->user;
 
         $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
-        $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->format('d-m-Y') : '';
         $romawi = $eletter->romawi ?? 'belum ada data';
         $tahun = $eletter->year ?? 'belum ada tahun';
         $hari = $eletter->day ?? 'belum ada hari';
@@ -391,7 +357,7 @@ class DataController extends Controller
 
         $user = $eletter->user;
         $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
-        $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->format('d-m-Y') : '';
         $romawi = $eletter->romawi ?? 'belum ada data';
         $tahun = $eletter->year ?? 'belum ada tahun';
         $hari = $eletter->day ?? 'belum ada hari';
@@ -539,59 +505,19 @@ class DataController extends Controller
     {
         $user = Auth::user();
 
-        // Key adalah nama kolom di database, Value adalah label untuk tampilan error
-        $requiredFields = [
-            'avatar_url' => 'Pas Foto',
-            'gender' => 'Jenis Kelamin',
-            'birth_place' => 'Tempat Lahir',
-            'birth_date' => 'Tanggal Lahir',
-            'mother_name' => 'Nama Ibu Kandung',
-            'last_education' => 'Pendidikan Terakhir',
-            'marriage_status' => 'Status Pernikahan',
-            'living_with' => 'Status Tempat Tinggal',
-            'height' => 'Tinggi Badan',
-            'weight' => 'Berat Badan',
-            'eye_condition' => 'Kondisi Mata',
-            'hearing' => 'Pendengaran',
-            'address' => 'Alamat KTP',
-            'current_address' => 'Alamat Domisili',
-            'family_name' => 'Nama Kontak Darurat',
-            'family_relation' => 'Hubungan Kontak Darurat',
-            'family_phone' => 'No. Telp Kontak Darurat',
-        ];
+        // Syarat kelengkapan: lihat App\Support\ApplicantRequirements
+        $emptyFields = ApplicantRequirements::missingFields($user);
 
-        // 1. Cek apakah profil ada, jika tidak ada langsung error
-        if (!$user->profile) {
-            return redirect()->back()->with('error', 'Silahkan lengkapi data profil Anda terlebih dahulu.');
-        }
-
-        // 2. Cari field mana saja yang masih kosong
-        $emptyFields = [];
-        foreach ($requiredFields as $column => $label) {
-            if (empty($user->profile->$column)) {
-                $emptyFields[] = $label;
-            }
-        }
-
-        // 3. Jika ada yang kosong, tampilkan listnya
         if (!empty($emptyFields)) {
-            $listMissing = implode(', ', $emptyFields);
             return redirect()->back()
-                ->with('error', 'Profil belum lengkap. Mohon isi: ' . $listMissing);
+                ->with('error', 'Profil belum lengkap. Mohon isi: ' . implode(', ', $emptyFields));
         }
 
-        $requiredDocuments = ['KTP', 'KARTU KELUARGA'];
-        
-        $userDocuments = Document::where('user_id', $user->id)
-            ->pluck('name')
-            ->toArray();
-
-        $missingDocuments = array_diff($requiredDocuments, $userDocuments);
+        $missingDocuments = ApplicantRequirements::missingDocuments($user);
 
         if (!empty($missingDocuments)) {
-            $listMissingDoc = implode(', ', $missingDocuments);
             return redirect()->back()
-                ->with('error', 'Dokumen belum lengkap. Silahkan unggah dokumen: ' . $listMissingDoc);
+                ->with('error', 'Dokumen belum lengkap. Silahkan unggah dokumen: ' . implode(', ', $missingDocuments));
         }
 
         $career = Career::where('slug', $slug)->firstOrFail();
@@ -667,9 +593,20 @@ class DataController extends Controller
     public function updateAccount(Request $request)
     {
         $user = Auth::user();
-        $input = $request->all();
 
-        if (isset($input['password'])) {
+        IdentityRules::normalize($request, ['nik']);
+
+        // Hanya field akun milik pelamar; jangan pakai $request->all() (bisa mengubah
+        // is_employee, employee_nik, site_id, dsb. lewat request yang dimanipulasi).
+        $input = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'nik' => IdentityRules::nik(),
+            'phone' => ['nullable', 'string', 'max:20'],
+            'password' => ['nullable', 'string', 'min:6'],
+        ], IdentityRules::messages());
+
+        if (!empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         } else {
             unset($input['password']);
@@ -684,7 +621,12 @@ class DataController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
+
+        IdentityRules::normalize($request, ['no_kk', 'account_number']);
+        $request->validate(['no_kk' => IdentityRules::kk()] + IdentityRules::bank(), IdentityRules::messages());
+
         $profileData = $request->only([
+            'no_kk',
             'address',
             'current_address',
             'rt_rw',
@@ -721,9 +663,9 @@ class DataController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            $cloudinaryImage = $request->file('avatar')->storeOnCloudinary('avatars');
-            $profileData['avatar_url'] = $cloudinaryImage->getSecurePath();
-            $profileData['avatar_public_id'] = $cloudinaryImage->getPublicId();
+            $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
+            $profileData['avatar_url'] = $avatar['url'];
+            $profileData['avatar_public_id'] = $avatar['path'];
         }
 
         $user->profile()->updateOrCreate(['user_id' => $user->id], $profileData);
@@ -740,17 +682,15 @@ class DataController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $cloudinaryFile = $request->file('file')->storeOnCloudinary('Documents');
-        $url = $cloudinaryFile->getSecurePath();
-        $public_id = $cloudinaryFile->getPublicId();
+        $file = FileStorage::upload($request->file('file'), 'Documents');
 
         $document = new Document;
         $document->user_id = $user->id;
         $document->name = $request->name;
         $document->description = $request->description ?? null;
         $document->validate = $request->validate ?? null;
-        $document->file_url = $url;
-        $document->file_public_id = $public_id;
+        $document->file_url = $file['url'];
+        $document->file_public_id = $file['path'];
         $document->save();
 
         return redirect()->back()->with('success', 'Dokumen ' . $document->name . ' berhasil diunggah');

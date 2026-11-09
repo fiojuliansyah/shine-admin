@@ -167,7 +167,7 @@ class GenerateController extends Controller
                     return e($row->user->profile->birth_place ?? '-');
                 })
                 ->addColumn('tanggal_lahir', function ($row) {
-                    return e($row->user->profile->birth_date ?? '-');
+                    return e(format_tanggal($row->user->profile?->birth_date));
                 })
                 ->addColumn('jenis_kelamin', function ($row) {
                     return e($row->user->profile->gender ?? '-');
@@ -470,7 +470,7 @@ class GenerateController extends Controller
         $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
         
         $tgl_surat = isset($generate->created_at) 
-            ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') 
+            ? Carbon::parse($generate->created_at)->format('d-m-Y') 
             : '';
             
         $romawi = $generate->romawi ?? 'belum ada data';
@@ -556,11 +556,11 @@ class GenerateController extends Controller
         }
         
         $mulai = isset($generate->start_date) 
-            ? Carbon::parse($generate->start_date)->locale('id')->translatedFormat('j F Y') 
+            ? Carbon::parse($generate->start_date)->format('d-m-Y') 
             : 'belum ada data';
 
         $selesai = isset($generate->end_date) 
-            ? Carbon::parse($generate->end_date)->locale('id')->translatedFormat('j F Y') 
+            ? Carbon::parse($generate->end_date)->format('d-m-Y') 
             : 'Sampai dengan Selesai';
 
         $search = [
@@ -602,7 +602,7 @@ class GenerateController extends Controller
     private function _buildSearchReplace(Generate $generate): array
     {
         $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
-        $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->format('d-m-Y') : '';
         $romawi = $generate->romawi ?? 'belum ada data';
         $tahun = $generate->year ?? 'belum ada tahun';
         $hari = $generate->day ?? 'belum ada hari';
@@ -646,8 +646,8 @@ class GenerateController extends Controller
             }
         }
 
-        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->locale('id')->translatedFormat('j F Y') : 'belum ada data';
-        $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->locale('id')->translatedFormat('j F Y') : 'Sampai dengan Selesai';
+        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->format('d-m-Y') : 'belum ada data';
+        $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->format('d-m-Y') : 'Sampai dengan Selesai';
 
         $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[nik_ktp]','[jenis_kelamin]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[area]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]','[komisi]','[potongan]','[nama_kontak]','[no_kontak]','[alamat_kontak]','[hubungan]'];
         $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$nik_ktp,$jenis_kelamin,$ttl,$alamat,$handphone,$no_karyawan,$area,$area_project,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan,$komisi,$potongan,$nama_kontak,$no_kontak,$alamat_kontak,$hubungan];
@@ -695,7 +695,7 @@ class GenerateController extends Controller
     public function pdf(Generate $generate)
     {
         $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
-        $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->locale('id')->translatedFormat('j F Y') : '';
+        $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->format('d-m-Y') : '';
         $romawi = $generate->romawi ?? 'belum ada data';
         $tahun = $generate->year ?? 'belum ada tahun';
         $hari = $generate->day ?? 'belum ada hari';
@@ -776,8 +776,8 @@ class GenerateController extends Controller
             }
         }
 
-        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->locale('id')->translatedFormat('j F Y') : 'belum ada data';
-        $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->locale('id')->translatedFormat('j F Y') : 'Sampai dengan Selesai';
+        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->format('d-m-Y') : 'belum ada data';
+        $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->format('d-m-Y') : 'Sampai dengan Selesai';
 
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',

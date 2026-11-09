@@ -18,7 +18,7 @@ class AttendancesDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('date', function ($row) {
-                return $row->date ? $row->date->format('d M Y') : '';
+                return $row->date ? $row->date->format('d-m-Y') : '';
             })
 
             ->addColumn('user', function ($row) {

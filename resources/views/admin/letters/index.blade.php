@@ -48,6 +48,28 @@
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
                 <h5>List E-Letter</h5>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <select id="filter_site" class="form-select form-select-sm letter-filter" style="width: 200px;">
+                        <option value="">Semua Site</option>
+                        @foreach ($sites as $site)
+                            <option value="{{ $site->id }}">{{ $site->name }}</option>
+                        @endforeach
+                    </select>
+                    <select id="filter_type" class="form-select form-select-sm letter-filter" style="width: 180px;">
+                        <option value="">Semua Jenis Surat</option>
+                        @foreach ($types as $type)
+                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                        @endforeach
+                    </select>
+                    <select id="filter_editor" class="form-select form-select-sm letter-filter" style="width: 150px;">
+                        <option value="">Semua Editor</option>
+                        <option value="canvas">Canvas</option>
+                        <option value="text">Teks</option>
+                    </select>
+                    <button type="button" id="reset_letter_filter" class="btn btn-sm btn-outline-secondary">
+                        <i class="ti ti-refresh me-1"></i>Reset
+                    </button>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="custom-datatable-filter table-responsive">
@@ -128,4 +150,16 @@
 <script src="/admin/assets/js/jquery.dataTables.min.js"></script>
 <script src="/admin/assets/js/dataTables.bootstrap5.min.js"></script>	
 {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+
+<script>
+    $(document).ready(function() {
+        $('.letter-filter').on('change', function() {
+            window.LaravelDataTables['letters-table'].draw();
+        });
+        $('#reset_letter_filter').on('click', function() {
+            $('.letter-filter').val('');
+            window.LaravelDataTables['letters-table'].draw();
+        });
+    });
+</script>
 @endpush

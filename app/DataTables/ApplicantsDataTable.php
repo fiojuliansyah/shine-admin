@@ -38,7 +38,7 @@ class ApplicantsDataTable extends DataTable
             })
             ->addColumn('created_at', function ($row) {
                 return $row->created_at
-                    ? $row->created_at->format('d M Y H:i')
+                    ? $row->created_at->format('d-m-Y H:i')
                     : '-';
             })
             ->addColumn('resume', function ($row) {

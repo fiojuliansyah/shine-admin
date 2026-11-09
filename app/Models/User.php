@@ -53,6 +53,18 @@ class User extends Authenticatable
         return $this->hasOne(Profile::class)->withDefault();
     }
 
+    /** Karyawan yang sudah resign (lihat Profile::isResigned). */
+    public function scopeResigned($query)
+    {
+        return $query->whereHas('profile', Profile::resignedConstraint());
+    }
+
+    /** Karyawan yang masih aktif (belum resign / belum punya profil). */
+    public function scopeActiveEmployee($query)
+    {
+        return $query->whereDoesntHave('profile', Profile::resignedConstraint());
+    }
+
     public function salarySetting()
     {
         return $this->hasOne(SalarySetting::class);

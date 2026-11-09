@@ -46,7 +46,7 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>{{ $app->created_at->format('d M Y, H:i') }}</td>
+                                                <td>{{ $app->created_at->format('d-m-Y H:i') }}</td>
                                                 <td>
                                                     @php
                                                         $badgeClass = 'bg-warning-transparent text-warning';
