@@ -148,6 +148,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::post('/profile/{id}/document/create', [AdminController::class, 'storeDocument'])->name('users.document.store');
     Route::post('/profile/{id}/mutation/create', [EmployeeMovementController::class, 'store'])->name('users.mutation.store');
     Route::post('/profile/{id}/contract/revise', [EmployeeMovementController::class, 'reviseContract'])->name('users.contract.revise');
+    Route::post('/client-log', [\App\Http\Controllers\ClientLogController::class, 'store'])->middleware('throttle:30,1')->name('client-log');
 
     Route::post('/save-signature', [SignatureController::class, 'store'])->name('save.signature');
     Route::delete('/delete-signature', [SignatureController::class, 'delete'])->name('delete.signature');

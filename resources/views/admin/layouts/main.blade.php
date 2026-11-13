@@ -175,6 +175,59 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     @stack('js')
 
+	{{-- Error "Ajax error" DataTables: tampilkan kode HTTP & kirim detailnya ke laravel.log --}}
+	<script>
+		(function () {
+			if (!window.jQuery || !$.fn.dataTable) return;
+
+			var hints = {
+				0: 'Koneksi ke server terputus / request dibatalkan.',
+				401: 'Sesi login habis. Muat ulang halaman lalu login kembali.',
+				403: 'Akun Anda tidak punya izin untuk data ini.',
+				404: 'Alamat data tidak ditemukan.',
+				419: 'Sesi halaman kedaluwarsa. Muat ulang halaman.',
+				429: 'Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.',
+				500: 'Terjadi error di server.',
+				502: 'Server sedang bermasalah (bad gateway).',
+				503: 'Server sedang tidak tersedia.',
+				504: 'Server terlalu lama memproses (timeout). Coba kurangi jumlah baris per halaman atau perketat filter.'
+			};
+
+			$.fn.dataTable.ext.errMode = function (settings, techNote, message) {
+				var xhr = settings.jqXHR || {};
+				var ajax = settings.ajax;
+				var lastParams = settings.oAjaxData || null;
+
+				$.ajax({
+					url: @json(route('client-log')),
+					method: 'POST',
+					headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+					data: {
+						message: String(message || '').substring(0, 1000),
+						table: settings.sTableId,
+						page_url: window.location.href,
+						ajax_url: String((ajax && (ajax.url || (typeof ajax === 'string' ? ajax : ''))) || settings.sAjaxSource || ''),
+						status: xhr.status || 0,
+						status_text: xhr.statusText || '',
+						response: String(xhr.responseText || '').substring(0, 4000),
+						params: lastParams ? JSON.stringify({
+							start: lastParams.start, length: lastParams.length,
+							search: lastParams.search && lastParams.search.value,
+							site_id: lastParams.site_id, type_id: lastParams.type_id,
+							start_date: lastParams.start_date, end_date: lastParams.end_date
+						}).substring(0, 2000) : ''
+					}
+				});
+
+				var status = xhr.status;
+				var detail = status !== undefined
+					? '\n\nHTTP ' + status + (xhr.statusText ? ' ' + xhr.statusText : '') + (hints[status] ? ' - ' + hints[status] : '')
+					: '';
+				alert(message + detail + '\n\nDetail error sudah dicatat di laravel.log.');
+			};
+		})();
+	</script>
+
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
 		$(document).on('submit', 'form', function(e) {
