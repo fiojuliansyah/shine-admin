@@ -6,6 +6,10 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Encoders\JpegEncoder;
+use Intervention\Image\Encoders\PngEncoder;
+use Intervention\Image\Encoders\WebpEncoder;
+use Intervention\Image\Laravel\Facades\Image;
 use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Mime\MimeTypes;
@@ -26,6 +30,27 @@ class FileStorage
 
     /** Folder berisi data pribadi (KTP, KK, SKCK, e-sign): tidak publik, dibuka lewat link sementara. */
     public const PRIVATE_FOLDERS = ['Documents', 'esign_images'];
+
+    /** Sisi terpanjang maksimum (px) gambar per folder; gambar yang lebih besar diperkecil. */
+    private const IMAGE_MAX_SIDE = [
+        'Documents' => 2000, // scan KTP / KK / SKCK harus tetap terbaca jelas
+        'avatars' => 1024,
+        'faces' => 1024,
+        'companies_logo' => 1000,
+        'esign_images' => 1000,
+    ];
+
+    private const IMAGE_DEFAULT_MAX_SIDE = 1600;
+
+    /** Kualitas JPEG / WebP (0-100). */
+    private const IMAGE_QUALITY = ['Documents' => 85];
+
+    private const IMAGE_DEFAULT_QUALITY = 80;
+
+    /** Gambar di atas jumlah piksel ini tidak diproses (menghindari kehabisan memori PHP). */
+    private const IMAGE_MAX_PIXELS = 40_000_000;
+
+    private const COMPRESSIBLE_IMAGES = ['image/jpeg', 'image/png', 'image/webp'];
 
     private static ?string $baseUrl = null;
 
@@ -49,10 +74,17 @@ class FileStorage
      */
     public static function upload(UploadedFile $file, string $folder): array
     {
+        $mime = $file->getMimeType() ?: 'application/octet-stream';
+
+        // Gambar dikompres dulu (lihat compressImage); file lain disimpan apa adanya.
+        if (in_array($mime, self::COMPRESSIBLE_IMAGES, true)) {
+            return static::putContents((string) $file->get(), $folder, $mime);
+        }
+
         $path = static::disk()->putFile(
             trim($folder, '/'),
             $file,
-            static::writeOptions($folder, $file->getMimeType() ?: 'application/octet-stream')
+            static::writeOptions($folder, $mime)
         );
 
         if ($path === false) {
@@ -88,13 +120,17 @@ class FileStorage
     }
 
     /**
-     * Simpan konten mentah. Nama file dibuat acak bila $filename tidak diisi,
-     * ekstensi diambil dari MIME type.
+     * Simpan konten mentah. Gambar dikompres lebih dulu. Nama file dibuat acak bila
+     * $filename tidak diisi, ekstensi diambil dari MIME type (hasil kompresi).
      *
      * @return array{path: string, url: string}
      */
     public static function putContents(string $contents, string $folder, string $mime, ?string $filename = null): array
     {
+        if ($compressed = static::compressImage($contents, $mime, $folder)) {
+            [$contents, $mime] = $compressed;
+        }
+
         $extension = MimeTypes::getDefault()->getExtensions($mime)[0] ?? 'bin';
         $path = trim($folder, '/') . '/' . ($filename ?? Str::random(40)) . '.' . $extension;
 
@@ -126,6 +162,99 @@ class FileStorage
     public static function url(string $path): string
     {
         return static::disk()->url($path);
+    }
+
+    /**
+     * Perkecil & kompres gambar sebelum disimpan:
+     * - diperkecil bila sisi terpanjang melebihi batas folder (rasio tetap, tidak pernah diperbesar),
+     * - dirotasi sesuai EXIF, metadata (EXIF/GPS) dibuang,
+     * - JPEG/WebP di-encode ulang; PNG tanpa transparansi diubah ke JPEG, PNG transparan tetap PNG.
+     *
+     * Mengembalikan null (simpan file asli) bila bukan gambar yang didukung, terlalu besar
+     * untuk diproses, gagal diproses, atau hasilnya tidak lebih kecil dari aslinya.
+     *
+     * @return array{0: string, 1: string}|null [isi baru, mime baru]
+     */
+    public static function compressImage(string $contents, string $mime, string $folder): ?array
+    {
+        if (! in_array($mime, self::COMPRESSIBLE_IMAGES, true)) {
+            return null;
+        }
+
+        $size = @getimagesizefromstring($contents);
+        if (! $size || $size[0] * $size[1] > self::IMAGE_MAX_PIXELS || ! static::ensureMemoryFor($size[0], $size[1])) {
+            return null;
+        }
+
+        $top = Str::before(trim($folder, '/'), '/');
+        $maxSide = self::IMAGE_MAX_SIDE[$top] ?? self::IMAGE_DEFAULT_MAX_SIDE;
+        $quality = self::IMAGE_QUALITY[$top] ?? self::IMAGE_DEFAULT_QUALITY;
+
+        try {
+            $image = Image::read($contents)->scaleDown($maxSide, $maxSide);
+
+            [$encoder, $targetMime] = match (true) {
+                $mime === 'image/webp' => [new WebpEncoder($quality, strip: true), 'image/webp'],
+                $mime === 'image/png' && static::pngHasTransparency($contents) => [new PngEncoder, 'image/png'],
+                default => [new JpegEncoder($quality, progressive: true, strip: true), 'image/jpeg'],
+            };
+
+            $output = (string) $image->encode($encoder);
+        } catch (Throwable $e) {
+            report($e);
+
+            return null;
+        }
+
+        return strlen($output) < strlen($contents) ? [$output, $targetMime] : null;
+    }
+
+    /**
+     * GD memuat gambar utuh ke memori (~5 byte/piksel). Kehabisan memori adalah fatal error yang
+     * tidak bisa ditangkap, jadi pastikan cukup dulu: naikkan memory_limit sementara bila perlu
+     * (maks. 512M); bila tetap tidak cukup, gambar disimpan tanpa kompresi.
+     */
+    private static function ensureMemoryFor(int $width, int $height): bool
+    {
+        $limit = static::toBytes((string) ini_get('memory_limit'));
+        if ($limit <= 0) {
+            return true; // tanpa batas
+        }
+
+        $needed = memory_get_usage(true) + $width * $height * 5 + 16 * 1024 * 1024;
+        if ($needed <= $limit) {
+            return true;
+        }
+
+        $max = 512 * 1024 * 1024;
+
+        return $needed <= $max && ini_set('memory_limit', (string) (int) ceil($needed / 1048576) . 'M') !== false;
+    }
+
+    private static function toBytes(string $value): int
+    {
+        $value = trim($value);
+        $number = (int) $value;
+
+        return match (strtolower(substr($value, -1))) {
+            'g' => $number * 1024 ** 3,
+            'm' => $number * 1024 ** 2,
+            'k' => $number * 1024,
+            default => $number,
+        };
+    }
+
+    /** PNG dengan kanal alpha (RGBA / gray+alpha) atau chunk tRNS dianggap transparan. */
+    private static function pngHasTransparency(string $contents): bool
+    {
+        if (in_array(ord($contents[25] ?? "\0"), [4, 6], true)) {
+            return true;
+        }
+
+        $trns = strpos($contents, 'tRNS');
+        $idat = strpos($contents, 'IDAT');
+
+        return $trns !== false && ($idat === false || $trns < $idat);
     }
 
     public static function isPrivate(?string $path): bool
