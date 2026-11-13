@@ -13,6 +13,7 @@ use App\Imports\GenerateTemplateImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -124,60 +125,80 @@ class GenerateController extends Controller
                     return $query->where('created_at', '<=', request('end_date') . ' 23:59:59');
                 });
     
+            // Satu surat yang datanya bermasalah tidak boleh membuat seluruh tabel gagal (Ajax error):
+            // sel tersebut tampil "⚠" dan detail error dicatat ke laravel.log.
+            $safe = fn (string $column, \Closure $callback) => function ($row) use ($column, $callback) {
+                try {
+                    return $callback($row);
+                } catch (\Throwable $e) {
+                    Log::error("Surat Terbit: kolom [{$column}] gagal untuk surat #{$row->id}", [
+                        'generate_id' => $row->id,
+                        'letter_number' => $row->getRawOriginal('letter_number'),
+                        'letter_id' => $row->letter_id,
+                        'user_id' => $row->user_id,
+                        'site_id' => $row->site_id,
+                        'error' => get_class($e) . ': ' . $e->getMessage(),
+                        'at' => $e->getFile() . ':' . $e->getLine(),
+                    ]);
+
+                    return '⚠';
+                }
+            };
+
             $dataTable = DataTables::of($generates)
                 ->addIndexColumn()
-                ->addColumn('checkbox', function ($row) {
+                ->addColumn('checkbox', $safe('checkbox', function ($row) {
                     return '<input type="checkbox" class="generate-checkbox" value="' . $row->id . '">';
-                })
-                ->addColumn('no_surat', function ($row) {
+                }))
+                ->addColumn('no_surat', $safe('no_surat', function ($row) {
                     return e($row->formatted_letter_number ?? '-');
-                })
-                ->addColumn('nik_karyawan', function ($row) {
+                }))
+                ->addColumn('nik_karyawan', $safe('nik_karyawan', function ($row) {
                     return e($row->user->employee_nik ?? '-');
-                })
-                ->addColumn('nama_perusahaan', function ($row) {
+                }))
+                ->addColumn('nama_perusahaan', $safe('nama_perusahaan', function ($row) {
                     $company = $row->user->site->company->name
                         ?? $row->site->company->name
                         ?? null;
                     return e($company ?: '-');
-                })
-                ->addColumn('tgl_surat', function ($row) {
+                }))
+                ->addColumn('tgl_surat', $safe('tgl_surat', function ($row) {
                     return $row->created_at ? $row->created_at->translatedFormat('d') : '-';
-                })
-                ->addColumn('bulan_surat', function ($row) {
+                }))
+                ->addColumn('bulan_surat', $safe('bulan_surat', function ($row) {
                     return $row->created_at ? $row->created_at->locale('id')->translatedFormat('F') : '-';
-                })
-                ->addColumn('tahun_surat', function ($row) {
+                }))
+                ->addColumn('tahun_surat', $safe('tahun_surat', function ($row) {
                     return $row->created_at ? $row->created_at->translatedFormat('Y') : '-';
-                })
-                ->addColumn('nama', function ($row) {
+                }))
+                ->addColumn('nama', $safe('nama', function ($row) {
                     return e($row->user->name ?? '-');
-                })
-                ->addColumn('email', function ($row) {
+                }))
+                ->addColumn('email', $safe('email', function ($row) {
                     return e($row->user->email ?? '-');
-                })
-                ->addColumn('ibu_kandung', function ($row) {
+                }))
+                ->addColumn('ibu_kandung', $safe('ibu_kandung', function ($row) {
                     return e($row->user->profile->mother_name ?? '-');
-                })
-                ->addColumn('tempat_lahir', function ($row) {
+                }))
+                ->addColumn('tempat_lahir', $safe('tempat_lahir', function ($row) {
                     return e($row->user->profile->birth_place ?? '-');
-                })
-                ->addColumn('tanggal_lahir', function ($row) {
+                }))
+                ->addColumn('tanggal_lahir', $safe('tanggal_lahir', function ($row) {
                     return e(format_tanggal($row->user?->profile?->birth_date));
-                })
-                ->addColumn('jenis_kelamin', function ($row) {
+                }))
+                ->addColumn('jenis_kelamin', $safe('jenis_kelamin', function ($row) {
                     return e($row->user->profile->gender ?? '-');
-                })
-                ->addColumn('no_ktp', function ($row) {
+                }))
+                ->addColumn('no_ktp', $safe('no_ktp', function ($row) {
                     return e($row->user->nik ?? '-');
-                })
-                ->addColumn('no_kk', function ($row) {
+                }))
+                ->addColumn('no_kk', $safe('no_kk', function ($row) {
                     return e($row->user->profile->no_kk ?? '-');
-                })
-                ->addColumn('no_npwp', function ($row) {
+                }))
+                ->addColumn('no_npwp', $safe('no_npwp', function ($row) {
                     return e($row->user->profile->npwp_number ?? '-');
-                })
-                ->addColumn('alamat_ktp', function ($row) {
+                }))
+                ->addColumn('alamat_ktp', $safe('alamat_ktp', function ($row) {
                     $profile = $row->user?->profile; // surat bisa milik user yang sudah dihapus
                     $parts = array_filter([
                         $profile?->address,
@@ -186,50 +207,50 @@ class GenerateController extends Controller
                         $profile?->kecamatan ? 'Kec. ' . $profile->kecamatan : null,
                     ]);
                     return e(implode(', ', $parts) ?: '-');
-                })
-                ->addColumn('no_handphone', function ($row) {
+                }))
+                ->addColumn('no_handphone', $safe('no_handphone', function ($row) {
                     return e($row->user->phone ?? '-');
-                })
-                ->addColumn('agama', function ($row) {
+                }))
+                ->addColumn('agama', $safe('agama', function ($row) {
                     return e($row->user->profile->religion ?? '-');
-                })
-                ->addColumn('status_pernikahan', function ($row) {
+                }))
+                ->addColumn('status_pernikahan', $safe('status_pernikahan', function ($row) {
                     return e($row->user->profile->marriage_status ?? '-');
-                })
-                ->addColumn('jabatan', function ($row) {
+                }))
+                ->addColumn('jabatan', $safe('jabatan', function ($row) {
                     return e($row->user && $row->user->roles->isNotEmpty() ? $row->user->roles->pluck('name')->implode(', ') : '-');
-                })
-                ->addColumn('site_project', function ($row) {
+                }))
+                ->addColumn('site_project', $safe('site_project', function ($row) {
                     return e($row->user->site->name ?? $row->site->name ?? '-');
-                })
-                ->addColumn('nama_client', function ($row) {
+                }))
+                ->addColumn('nama_client', $safe('nama_client', function ($row) {
                     return e($row->user->site->client_name ?? $row->site->client_name ?? '-');
-                })
-                ->addColumn('jabatan_client', function ($row) {
+                }))
+                ->addColumn('jabatan_client', $safe('jabatan_client', function ($row) {
                     return e($row->user->site->client_position ?? $row->site->client_position ?? '-');
-                })
-                ->addColumn('tgl_join', function ($row) {
+                }))
+                ->addColumn('tgl_join', $safe('tgl_join', function ($row) {
                     $join = $row->user->profile->join_date ?? null;
                     return $join ? e(date('d', strtotime($join))) : '-';
-                })
-                ->addColumn('bulan_join', function ($row) {
+                }))
+                ->addColumn('bulan_join', $safe('bulan_join', function ($row) {
                     $join = $row->user->profile->join_date ?? null;
                     return $join ? e(\Illuminate\Support\Carbon::parse($join)->locale('id')->translatedFormat('F')) : '-';
-                })
-                ->addColumn('tahun_join', function ($row) {
+                }))
+                ->addColumn('tahun_join', $safe('tahun_join', function ($row) {
                     $join = $row->user->profile->join_date ?? null;
                     return $join ? e(date('Y', strtotime($join))) : '-';
-                })
-                ->addColumn('nama_bank', function ($row) {
+                }))
+                ->addColumn('nama_bank', $safe('nama_bank', function ($row) {
                     return e($row->user->profile->bank_name ?? '-');
-                })
-                ->addColumn('nama_rekening', function ($row) {
+                }))
+                ->addColumn('nama_rekening', $safe('nama_rekening', function ($row) {
                     return e($row->user->profile->account_name ?? '-');
-                })
-                ->addColumn('no_rekening', function ($row) {
+                }))
+                ->addColumn('no_rekening', $safe('no_rekening', function ($row) {
                     return e($row->user->profile->account_number ?? '-');
-                })
-                ->addColumn('signature', function ($row) {
+                }))
+                ->addColumn('signature', $safe('signature', function ($row) {
                     $requireHrd = $row->letter->require_hrd_signature ?? true;
                     $requireEmployee = $row->letter->require_employee_signature ?? true;
 
@@ -264,23 +285,37 @@ class GenerateController extends Controller
                     }
 
                     return $rows;
-                })
-                ->addColumn('action', function ($row) {
+                }))
+                ->addColumn('action', $safe('action', function ($row) {
                     return view('admin.generates.partials.actions', compact('row'))->render();
-                });
+                }));
 
             foreach ($customVarColumns as $col) {
                 $variable = $col['variable'];
-                $dataTable->addColumn($col['key'], function ($row) use ($variable) {
+                $dataTable->addColumn($col['key'], $safe($col['key'], function ($row) use ($variable) {
                     $value = $row->valueVariables
                         ->first(fn($cv) => $cv->customVariable && $cv->customVariable->variable === $variable);
                     return e($value->value ?? '-');
-                });
+                }));
             }
 
-            return $dataTable
-                ->rawColumns(['action', 'checkbox', 'signature'])
-                ->make(true);
+            try {
+                return $dataTable
+                    ->rawColumns(['action', 'checkbox', 'signature'])
+                    ->make(true);
+            } catch (\Throwable $e) {
+                // Error di luar kolom (query / filter): catat beserta filter yang sedang dipakai
+                Log::error('Surat Terbit: tabel gagal dimuat', [
+                    'error' => get_class($e) . ': ' . $e->getMessage(),
+                    'at' => $e->getFile() . ':' . $e->getLine(),
+                    'filters' => request()->only(['site_id', 'type_id', 'start_date', 'end_date']),
+                    'search' => request('search')['value'] ?? null,
+                    'start' => request('start'),
+                    'length' => request('length'),
+                ]);
+
+                throw $e;
+            }
         }
     
         // Pass filters to the view
