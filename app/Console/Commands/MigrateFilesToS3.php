@@ -47,6 +47,9 @@ class MigrateFilesToS3 extends Command
 
     protected int $failed = 0;
 
+    /** URL yang sudah di bucket ini tapi berawalan lama (mis. sebelum AWS_URL diubah). */
+    protected int $rebased = 0;
+
     /** @var array<string, string|null> URL lama => URL baru (null bila gagal) */
     protected array $copied = [];
 
@@ -73,6 +76,7 @@ class MigrateFilesToS3 extends Command
         // Instance command bisa dipakai ulang (Artisan::call berulang), jadi state selalu di-reset.
         $this->migrated = 0;
         $this->failed = 0;
+        $this->rebased = 0;
         $this->copied = [];
         $this->dryRun = (bool) $this->option('dry-run');
         $this->diskBaseUrl = Str::beforeLast(FileStorage::url('__probe__'), '__probe__');
@@ -93,6 +97,7 @@ class MigrateFilesToS3 extends Command
         $this->newLine();
         $this->table(['Hasil', 'Jumlah'], [
             [$this->dryRun ? 'Akan dipindah' : 'Berhasil dipindah', $this->migrated],
+            [$this->dryRun ? 'URL akan diperbarui (tanpa salin)' : 'URL diperbarui (tanpa salin)', $this->rebased],
             ['Gagal', $this->failed],
         ]);
 
@@ -111,12 +116,7 @@ class MigrateFilesToS3 extends Command
             ->chunkById(100, function ($rows) use ($target) {
                 foreach ($rows as $row) {
                     $url = $row->{$target['url']};
-
-                    if ($this->isOnTargetDisk($url)) {
-                        continue;
-                    }
-
-                    $stored = $this->copyToDisk($url, $target['folder'], "{$target['table']}#{$row->id}");
+                    $stored = $this->resolve($url, $target['folder'], "{$target['table']}#{$row->id}");
 
                     if ($stored) {
                         DB::table($target['table'])->where('id', $row->id)->update([
@@ -139,11 +139,11 @@ class MigrateFilesToS3 extends Command
                     $esign = json_decode($row->esign, true);
                     $url = is_array($esign) ? ($esign['esign_url'] ?? null) : null;
 
-                    if (blank($url) || $this->isOnTargetDisk($url)) {
+                    if (blank($url)) {
                         continue;
                     }
 
-                    $stored = $this->copyToDisk($url, 'esign_images', "profiles#{$row->id} esign");
+                    $stored = $this->resolve($url, 'esign_images', "profiles#{$row->id} esign");
 
                     if ($stored) {
                         $esign['esign_url'] = $stored['url'];
@@ -165,6 +165,7 @@ class MigrateFilesToS3 extends Command
                 ->chunkById(50, function ($rows) use ($table) {
                     foreach ($rows as $row) {
                         $changed = false;
+                        $description = $this->rebaseLetterImages($row->description, $changed, "{$table}#{$row->id}");
 
                         $description = preg_replace_callback(self::LETTER_IMAGE_PATTERN, function ($match) use ($table, $row, &$changed) {
                             $escaped = str_contains($match[0], '\\/');
@@ -183,7 +184,7 @@ class MigrateFilesToS3 extends Command
                             $changed = true;
 
                             return $escaped ? str_replace('/', '\\/', $newUrl) : $newUrl;
-                        }, $row->description);
+                        }, $description);
 
                         if ($changed && $description !== null) {
                             DB::table($table)->where('id', $row->id)->update(['description' => $description]);
@@ -191,6 +192,61 @@ class MigrateFilesToS3 extends Command
                     }
                 });
         }
+    }
+
+    /**
+     * File yang sudah ada di bucket ini cukup diperbarui URL-nya; selain itu disalin.
+     * Mengembalikan null bila tidak ada perubahan (sudah benar / dry-run / gagal).
+     *
+     * @return array{path: string, url: string}|null
+     */
+    protected function resolve(string $url, string $folder, string $label): ?array
+    {
+        $path = FileStorage::pathFromUrl($url);
+
+        if ($path === null) {
+            return $this->copyToDisk($url, $folder, $label);
+        }
+
+        $current = FileStorage::url($path);
+        if ($url === $current) {
+            return null;
+        }
+
+        $this->rebased++;
+        $this->line("  {$label}: URL diperbarui -> {$current}", null, $this->dryRun ? null : 'v');
+
+        return $this->dryRun ? null : ['path' => $path, 'url' => $current];
+    }
+
+    /** Ganti awalan URL bucket lama pada gambar surat (termasuk bentuk JSON-escaped) ke awalan sekarang. */
+    protected function rebaseLetterImages(string $description, bool &$changed, string $label): string
+    {
+        $target = FileStorage::baseUrl() . 'letter-images/';
+
+        foreach (FileStorage::storageBaseUrls() as $base) {
+            $old = $base . 'letter-images/';
+            if ($old === $target) {
+                continue;
+            }
+
+            foreach ([[$old, $target], [str_replace('/', '\\/', $old), str_replace('/', '\\/', $target)]] as [$from, $to]) {
+                $count = substr_count($description, $from);
+                if ($count === 0) {
+                    continue;
+                }
+
+                $this->rebased += $count;
+                $this->line("  {$label}: {$count} URL gambar surat diperbarui", null, $this->dryRun ? null : 'v');
+
+                if (! $this->dryRun) {
+                    $description = str_replace($from, $to, $description);
+                    $changed = true;
+                }
+            }
+        }
+
+        return $description;
     }
 
     /**
@@ -220,7 +276,7 @@ class MigrateFilesToS3 extends Command
                 $key .= '.' . (MimeTypes::getDefault()->getExtensions($mime)[0] ?? 'bin');
             }
 
-            if (! FileStorage::disk()->put($key, $contents, ['ContentType' => $mime])) {
+            if (! FileStorage::disk()->put($key, $contents, FileStorage::writeOptions($key, $mime))) {
                 throw new \RuntimeException('upload ditolak oleh storage');
             }
         } catch (Throwable $e) {
@@ -284,6 +340,6 @@ class MigrateFilesToS3 extends Command
 
     protected function isOnTargetDisk(string $url): bool
     {
-        return str_starts_with($url, $this->diskBaseUrl);
+        return FileStorage::pathFromUrl($url) !== null;
     }
 }

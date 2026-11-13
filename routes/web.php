@@ -25,6 +25,9 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TypeLetterController;
 use Illuminate\Support\Facades\Route;
 
+// File publik dari object storage (lihat MediaController); tanpa login.
+Route::get('/media/{path}', \App\Http\Controllers\MediaController::class)->where('path', '.*')->name('media.show');
+
 Route::prefix('manage')->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login']);

@@ -143,7 +143,8 @@ class ProfileController extends Controller
     {
         $user = Auth::user()->load('profile');
         $esign = json_decode($user['profile']['esign'] ?? null, true) ;
-        $signature = $esign['esign_url'] ?? null;
+        // E-sign disimpan private di S3: kirim link sementara
+        $signature = FileStorage::displayUrl($esign['esign_public_id'] ?? null, $esign['esign_url'] ?? null);
 
         if (!$signature) {
             return response()->json([

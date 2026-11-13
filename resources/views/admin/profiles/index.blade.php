@@ -286,7 +286,7 @@
                                             <div class="card-body">
                                                 <h6 class="card-title">{{ $document->name }}</h6>
                                                 <p class="card-text">{{ $document->description }}</p>
-                                                <a href="{{ $document->file_url }}" class="btn btn-primary"
+                                                <a href="{{ $document->view_url }}" class="btn btn-primary"
                                                     target="_blank">
                                                     <i class="ti ti-download"></i> Download
                                                 </a>

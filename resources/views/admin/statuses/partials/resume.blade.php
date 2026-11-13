@@ -59,7 +59,7 @@
                 @foreach ($documents as $doc)
                     <label>{{ $doc->name }}</label>
                     <p>{{ $doc->description }}</p>
-                    <img src="{{ $doc->file_url }}" alt=""
+                    <img src="{{ $doc->view_url }}" alt=""
                     class="text-center" width="200px">
                     <br>
                     <br>

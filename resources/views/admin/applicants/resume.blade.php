@@ -181,7 +181,7 @@
                                 <div class="col-md-4">
                                     <label class="text-muted small">Tempat & Tanggal Lahir</label>
                                     <p class="fw-bold">{{ $user->profile->birth_place ?? '-' }},
-                                        {{ format_tanggal($user->profile?->birth_date) }}</p>
+                                        {{ format_tanggal($user?->profile?->birth_date) }}</p>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="text-muted small">Tinggal Dengan</label>
@@ -338,7 +338,7 @@
                                                 </td>
                                                 <td>{{ Str::limit($doc->description, 50) }}</td>
                                                 <td class="text-center">
-                                                    <a href="{{ $doc->file_url }}" target="_blank"
+                                                    <a href="{{ $doc->view_url }}" target="_blank"
                                                         class="btn btn-sm btn-outline-primary">
                                                         <i class="ti ti-download me-1"></i> Download
                                                     </a>

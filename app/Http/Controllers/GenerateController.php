@@ -86,16 +86,12 @@ class GenerateController extends Controller
                 ])
                 ->orderBy('created_at', 'DESC')
                 // Search filter
-                ->when(request('search')['value'], function ($query) {
-                    $search = request('search')['value'];
-                    return $query->whereHas('letter', function ($q) use ($search) {
-                        $q->where('title', 'like', "%$search%");
-                    })
-                    ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
-                    })
-                    ->orWhereHas('site', function ($q) use ($search) {
-                        $q->where('name', 'like', "%$search%");
+                ->when(request('search')['value'] ?? null, function ($query, $search) {
+                    // Dikelompokkan agar OR pencarian tidak melewati filter site/jenis/tanggal
+                    return $query->where(function ($q) use ($search) {
+                        $q->whereHas('letter', fn ($l) => $l->where('title', 'like', "%$search%"))
+                            ->orWhereHas('user', fn ($u) => $u->where('name', 'like', "%$search%"))
+                            ->orWhereHas('site', fn ($st) => $st->where('name', 'like', "%$search%"));
                     });
                 })
                 // Site filter
@@ -167,7 +163,7 @@ class GenerateController extends Controller
                     return e($row->user->profile->birth_place ?? '-');
                 })
                 ->addColumn('tanggal_lahir', function ($row) {
-                    return e(format_tanggal($row->user->profile?->birth_date));
+                    return e(format_tanggal($row->user?->profile?->birth_date));
                 })
                 ->addColumn('jenis_kelamin', function ($row) {
                     return e($row->user->profile->gender ?? '-');
@@ -176,17 +172,18 @@ class GenerateController extends Controller
                     return e($row->user->nik ?? '-');
                 })
                 ->addColumn('no_kk', function ($row) {
-                    return e($row->user->profile->kk_number ?? '-');
+                    return e($row->user->profile->no_kk ?? '-');
                 })
                 ->addColumn('no_npwp', function ($row) {
                     return e($row->user->profile->npwp_number ?? '-');
                 })
                 ->addColumn('alamat_ktp', function ($row) {
+                    $profile = $row->user?->profile; // surat bisa milik user yang sudah dihapus
                     $parts = array_filter([
-                        $row->user->profile->address    ?? null,
-                        $row->user->profile->rt_rw      ?? null,
-                        $row->user->profile->kelurahan  ? 'Kel. ' . $row->user->profile->kelurahan : null,
-                        $row->user->profile->kecamatan  ? 'Kec. ' . $row->user->profile->kecamatan : null,
+                        $profile?->address,
+                        $profile?->rt_rw,
+                        $profile?->kelurahan ? 'Kel. ' . $profile->kelurahan : null,
+                        $profile?->kecamatan ? 'Kec. ' . $profile->kecamatan : null,
                     ]);
                     return e(implode(', ', $parts) ?: '-');
                 })
