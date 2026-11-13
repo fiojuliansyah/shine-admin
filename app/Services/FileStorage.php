@@ -29,6 +29,9 @@ class FileStorage
 
     private static ?string $baseUrl = null;
 
+    /** @var string[]|null */
+    private static ?array $storageBaseUrls = null;
+
     public static function diskName(): string
     {
         return config('filesystems.upload_disk', 's3');
@@ -156,6 +159,10 @@ class FileStorage
      */
     public static function storageBaseUrls(): array
     {
+        if (static::$storageBaseUrls !== null) {
+            return static::$storageBaseUrls;
+        }
+
         $bases = [static::baseUrl()];
         $config = config('filesystems.disks.' . static::diskName());
 
@@ -172,7 +179,19 @@ class FileStorage
             }
         }
 
-        return array_values(array_unique($bases));
+        return static::$storageBaseUrls = array_values(array_unique($bases));
+    }
+
+    /**
+     * URL file publik yang tersimpan di DB, ditulis ulang ke awalan AWS_URL sekarang bila
+     * menunjuk ke bucket ini (mis. tersimpan sebagai URL S3 langsung sebelum AWS_URL diisi).
+     * URL lain (Cloudinary, eksternal) dikembalikan apa adanya.
+     */
+    public static function normalizeUrl(?string $url): ?string
+    {
+        $path = static::pathFromUrl($url);
+
+        return $path === null ? $url : static::url($path);
     }
 
     /** Path file di bucket bila $url menunjuk ke bucket ini, selain itu null. */

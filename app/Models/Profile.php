@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\FileStorage;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -22,6 +23,12 @@ class Profile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Foto profil yang tersimpan sebagai URL S3 langsung ditampilkan lewat awalan AWS_URL (lihat FileStorage). */
+    public function getAvatarUrlAttribute($value): ?string
+    {
+        return FileStorage::normalizeUrl($value);
     }
 
     /** Karyawan dianggap resign bila punya tanggal resign atau berstatus RESIGN (hasil import / proses resign). */

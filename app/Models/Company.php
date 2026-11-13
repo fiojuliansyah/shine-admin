@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\FileStorage;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -16,6 +17,12 @@ class Company extends Model
     {
         return LogOptions::defaults()
         ->logAll(['*']);
+    }
+
+    /** Logo yang tersimpan sebagai URL S3 langsung ditampilkan lewat awalan AWS_URL (lihat FileStorage). */
+    public function getLogoUrlAttribute($value): ?string
+    {
+        return FileStorage::normalizeUrl($value);
     }
 
     public function sites()
