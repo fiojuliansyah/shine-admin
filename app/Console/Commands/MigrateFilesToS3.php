@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use App\Services\FileStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -83,15 +86,24 @@ class MigrateFilesToS3 extends Command
 
         $this->info("Disk tujuan: {$disk} ({$this->diskBaseUrl})" . ($this->dryRun ? ' [DRY RUN]' : ''));
 
-        foreach ($only ?: $all as $target) {
-            $this->newLine();
-            $this->comment("== {$target} ==");
+        $aborted = false;
 
-            match ($target) {
-                'esign' => $this->migrateEsign(),
-                'letters' => $this->migrateLetterImages(),
-                default => $this->migrateColumn(self::COLUMN_TARGETS[$target]),
-            };
+        try {
+            foreach ($only ?: $all as $target) {
+                $this->newLine();
+                $this->comment("== {$target} ==");
+
+                match ($target) {
+                    'esign' => $this->migrateEsign(),
+                    'letters' => $this->migrateLetterImages(),
+                    default => $this->migrateColumn(self::COLUMN_TARGETS[$target]),
+                };
+            }
+        } catch (MigrationAborted $e) {
+            $aborted = true;
+            $this->newLine();
+            $this->error('DIHENTIKAN: ' . $e->getMessage());
+            $this->line('Aktifkan kembali akun sumber (mis. Cloudinary) lalu jalankan ulang command ini; file yang sudah dipindah tidak diulang.');
         }
 
         $this->newLine();
@@ -101,7 +113,7 @@ class MigrateFilesToS3 extends Command
             ['Gagal', $this->failed],
         ]);
 
-        return $this->failed > 0 ? self::FAILURE : self::SUCCESS;
+        return $aborted || $this->failed > 0 ? self::FAILURE : self::SUCCESS;
     }
 
     /**
@@ -280,6 +292,15 @@ class MigrateFilesToS3 extends Command
                 throw new \RuntimeException('upload ditolak oleh storage');
             }
         } catch (Throwable $e) {
+            // Akun sumber dinonaktifkan (mis. "cloud_name ... is disabled"): semua file berikutnya
+            // pasti gagal juga, jadi hentikan daripada mencoba ribuan file satu per satu.
+            if ($e instanceof RequestException && $this->sourceDisabled($e->response)) {
+                throw new MigrationAborted(
+                    'sumber file menolak akses (' . Str::limit(Str::squish($e->response->header('X-Cld-Error') ?: $e->response->body()), 150) . ") saat mengambil {$url}",
+                    previous: $e
+                );
+            }
+
             $this->failed++;
             $this->warn("  GAGAL {$label}: {$url} (" . Str::limit(Str::squish($e->getMessage()), 200) . ')');
 
@@ -313,7 +334,11 @@ class MigrateFilesToS3 extends Command
             $url = rtrim(config('app.url'), '/') . '/' . ltrim($url, '/');
         }
 
-        $response = Http::timeout(60)->retry(2, 1000)->get($url);
+        // Coba ulang hanya untuk gangguan jaringan / error server; 4xx (akses ditolak, tidak ada) langsung gagal.
+        $response = Http::timeout(60)
+            ->retry(2, 1000, fn (Throwable $e) => $e instanceof ConnectionException
+                || ($e instanceof RequestException && $e->response->serverError()))
+            ->get($url);
         $mime = trim(explode(';', $response->header('Content-Type') ?: 'application/octet-stream')[0]);
 
         return [$response->body(), $mime];
@@ -338,8 +363,19 @@ class MigrateFilesToS3 extends Command
         return trim(preg_replace('~[^A-Za-z0-9/_.-]+~', '-', $key), '/');
     }
 
+    protected function sourceDisabled(Response $response): bool
+    {
+        return in_array($response->status(), [401, 403], true)
+            && str_contains(strtolower($response->header('X-Cld-Error') . ' ' . $response->body()), 'is disabled');
+    }
+
     protected function isOnTargetDisk(string $url): bool
     {
         return FileStorage::pathFromUrl($url) !== null;
     }
+}
+
+/** Menghentikan seluruh migrasi (mis. akun sumber dinonaktifkan). */
+class MigrationAborted extends \RuntimeException
+{
 }

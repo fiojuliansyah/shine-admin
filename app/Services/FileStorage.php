@@ -167,7 +167,7 @@ class FileStorage
                 $host = parse_url($config['endpoint'], PHP_URL_HOST);
                 $bases[] = "{$scheme}://{$bucket}.{$host}/";
                 $bases[] = "{$scheme}://{$host}/{$bucket}/";
-            } else {
+            } elseif (static::disk() instanceof \Illuminate\Filesystem\AwsS3V3Adapter) {
                 $bases[] = Str::beforeLast(static::disk()->getClient()->getObjectUrl($bucket, '__probe__'), '__probe__');
             }
         }
