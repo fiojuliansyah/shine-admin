@@ -136,8 +136,10 @@ $(document).ready(function () {
         autoWidth: false,
         scrollX: true,
         ajax: {
-            url: "{{ route('employees.company', $company->id) }}",
-            type: "GET",
+            // POST: dengan puluhan kolom, parameter DataTables terlalu panjang untuk URL GET (HTTP 414)
+            url: "{{ route('employees.company.data', $company->id) }}",
+            type: "POST",
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             data: function (d) {
                 d.site_id = $('#siteFilter').val();
                 d.status  = $('#statusFilter').val();

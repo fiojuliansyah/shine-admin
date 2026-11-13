@@ -78,6 +78,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::get('/employees/import/result', [EmployeeController::class, 'importResult'])->name('employees.import.result');
     Route::get('/employees/import/result/pdf', [EmployeeController::class, 'importResultPdf'])->name('employees.import.result.pdf');
     Route::get('/employees/company/{company}', [EmployeeController::class, 'byCompany'])->name('employees.company');
+    Route::post('/employees/company/{company}/data', [EmployeeController::class, 'byCompany'])->name('employees.company.data');
     Route::post('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
 
     Route::get('/get-sites-by-company/{company_id}', [StatusController::class, 'getSitesByCompany'])->name('sites.by.company');
@@ -89,6 +90,8 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::post('/generates/import-template', [GenerateController::class, 'importTemplate'])->name('generates.import-template');
     Route::get('/generate-folders', [GenerateController::class, 'folders'])->name('generates.folders');
     Route::get('/generates-export', [GenerateController::class, 'export'])->name('generates.export');
+    // Data tabel lewat POST: parameter puluhan kolom DataTables terlalu panjang untuk URL GET (HTTP 414)
+    Route::post('/generates/data', [GenerateController::class, 'index'])->name('generates.data');
     Route::resource('generates', GenerateController::class);
     Route::get('/generates/{generate}/pdf', [GenerateController::class, 'pdf'])->name('generates.pdf');
     Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');

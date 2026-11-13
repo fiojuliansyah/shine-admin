@@ -154,8 +154,10 @@
             serverSide: true,
             autoWidth: false,
             ajax: {
-                url: "{{ route('generates.index') }}",
-                type: "GET",
+                // POST: dengan puluhan kolom, parameter DataTables terlalu panjang untuk URL GET (HTTP 414)
+                url: "{{ route('generates.data') }}",
+                type: "POST",
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                 data: function (d) {
                     d.site_id = $('#siteFilter').val();
                     d.type_id = $('#typeFilter').val();
