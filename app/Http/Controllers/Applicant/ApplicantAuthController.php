@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Applicant;
 
+use App\Mail\PasswordResetOtpMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -126,17 +128,33 @@ class ApplicantAuthController extends Controller
 
     public function sendOtp(Request $request)
     {
-        $request->validate([
-            'phone' => 'required|string|max:20',
-        ], [
-            'phone.required' => 'Nomor WhatsApp wajib diisi.',
-        ]);
+        $channel = $request->input('channel') === 'email' ? 'email' : 'whatsapp';
 
-        $phone = $this->normalizePhone($request->phone);
-        $user = User::where('phone', $request->phone)->orWhere('phone', $phone)->first();
+        if ($channel === 'email') {
+            $request->validate([
+                'email' => 'required|email|max:255',
+            ], [
+                'email.required' => 'Alamat email wajib diisi.',
+                'email.email' => 'Format email tidak valid.',
+            ]);
 
-        if (!$user || !$user->email) {
-            return back()->with('error', 'Nomor WhatsApp tidak terdaftar.')->withInput();
+            $user = User::where('email', strtolower(trim($request->email)))->first();
+            if (!$user) {
+                return back()->with('error', 'Email tidak terdaftar.')->withInput();
+            }
+        } else {
+            $request->validate([
+                'phone' => 'required|string|max:20',
+            ], [
+                'phone.required' => 'Nomor WhatsApp wajib diisi.',
+            ]);
+
+            $phone = $this->normalizePhone($request->phone);
+            $user = User::where('phone', $request->phone)->orWhere('phone', $phone)->first();
+
+            if (!$user || !$user->email) {
+                return back()->with('error', 'Nomor WhatsApp tidak terdaftar.')->withInput();
+            }
         }
 
         $otp = (string) random_int(100000, 999999);
@@ -146,15 +164,27 @@ class ApplicantAuthController extends Controller
             ['token' => Hash::make($otp), 'created_at' => now()]
         );
 
-        $message = "🔐 *RESET PASSWORD* 🔐\n\nKode OTP Anda: *{$otp}*\n\nKode berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.\n\n*Tim HR Ciptakarir*";
+        if ($channel === 'email') {
+            try {
+                Mail::to($user->email)->send(new PasswordResetOtpMail($user->name ?? 'Pengguna', $otp, 10));
+            } catch (\Throwable $e) {
+                Log::error('Gagal mengirim OTP email: ' . $e->getMessage());
+                return back()->with('error', 'Gagal mengirim OTP ke email. Coba lagi nanti.')->withInput();
+            }
+            $successMessage = 'Kode OTP telah dikirim ke email Anda. Cek juga folder Spam.';
+        } else {
+            $message = "🔐 *RESET PASSWORD* 🔐\n\nKode OTP Anda: *{$otp}*\n\nKode berlaku 10 menit. Jangan bagikan kode ini kepada siapa pun.\n\n*Tim HR Ciptakarir*";
 
-        if (!$this->sendWhatsapp($phone, $message)) {
-            return back()->with('error', 'Gagal mengirim OTP. Coba lagi nanti.')->withInput();
+            if (!$this->sendWhatsapp($phone, $message)) {
+                return back()->with('error', 'Gagal mengirim OTP. Coba lagi nanti.')->withInput();
+            }
+            $successMessage = 'Kode OTP telah dikirim ke WhatsApp Anda.';
         }
 
         $request->session()->put('reset_email', $user->email);
+        $request->session()->put('reset_channel', $channel);
 
-        return redirect()->route('applicant-otp')->with('success', 'Kode OTP telah dikirim ke WhatsApp Anda.');
+        return redirect()->route('applicant-otp')->with('success', $successMessage);
     }
 
     public function showOtpForm(Request $request)
@@ -162,7 +192,9 @@ class ApplicantAuthController extends Controller
         if (!$request->session()->has('reset_email')) {
             return redirect()->route('applicant-forgot');
         }
-        return view('website.auth.otp');
+        return view('website.auth.otp', [
+            'channel' => $request->session()->get('reset_channel', 'whatsapp'),
+        ]);
     }
 
     public function verifyOtp(Request $request)
@@ -187,7 +219,7 @@ class ApplicantAuthController extends Controller
 
         DB::table('password_reset_tokens')->where('email', $email)->delete();
         $request->session()->put('reset_verified', $email);
-        $request->session()->forget('reset_email');
+        $request->session()->forget(['reset_email', 'reset_channel']);
 
         return redirect()->route('applicant-reset');
     }

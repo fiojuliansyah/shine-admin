@@ -117,7 +117,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Update Posisi User</label>
-                                    <select class="form-select" name="role_name">
+                                    <select id="roleNameSelect" name="role_name" placeholder="Cari posisi...">
                                         <option value="">-- Posisi Saat Ini --</option>
                                         @foreach ($roles as $role)
                                             <option value="{{ $role->name }}"
@@ -361,8 +361,19 @@
     </div>
 @endsection
 
+@push('css')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+@endpush
+
 @push('js')
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
+        new TomSelect('#roleNameSelect', {
+            allowEmptyOption: true,
+            maxOptions: null,
+            sortField: { field: 'text', direction: 'asc' },
+        });
+
         $('.select2-site').select2({
             placeholder: 'Pilih area Project',
             width: '100%'

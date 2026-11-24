@@ -42,9 +42,11 @@ return [
         'url' => env('MIDTRANS_URL', 'https://app.sandbox.midtrans.com/snap/v1/transactions')
     ],
 
-    'openai' => [
-        'key' => env('OPENAI_API_KEY'),
-        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+    // OCR KTP via Amanai (API kompatibel OpenAI Chat Completions).
+    'amanai' => [
+        'base_url' => env('AMANAI_BASE_URL', 'https://api.amanai.sh/v1'),
+        'key' => env('AMANAI_API_KEY'),
+        'ocr_model' => env('AMANAI_OCR_MODEL', 'amanai/gpt-5.6-luna'),
     ],
 
 ];

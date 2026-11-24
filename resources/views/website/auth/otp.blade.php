@@ -24,7 +24,10 @@
                                     <div class="">
                                         <div class="text-center mb-3">
                                             <h2 class="mb-2">Verifikasi OTP</h2>
-                                            <p class="mb-0">Masukkan kode OTP 6 digit yang telah dikirim ke WhatsApp Anda.</p>
+                                            <p class="mb-0">Masukkan kode OTP 6 digit yang telah dikirim ke {{ ($channel ?? 'whatsapp') === 'email' ? 'Email' : 'WhatsApp' }} Anda.</p>
+                                            @if (($channel ?? 'whatsapp') === 'email')
+                                                <p class="text-muted small mb-0 mt-1">Tidak menerima email? Cek folder Spam / Promosi.</p>
+                                            @endif
                                         </div>
 
                                         <div class="mb-3">
@@ -42,7 +45,7 @@
                                         </div>
                                         <div class="text-center">
                                             <h6 class="fw-normal text-dark mb-0">Tidak menerima kode?
-                                                <a href="{{ route('applicant-forgot') }}" class="hover-a">Kirim Ulang</a>
+                                                <a href="{{ route('applicant-forgot', (($channel ?? 'whatsapp') === 'email') ? ['via' => 'email'] : []) }}" class="hover-a">Kirim Ulang</a>
                                             </h6>
                                         </div>
                                     </div>

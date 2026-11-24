@@ -20,18 +20,9 @@
                         <h5 class="card-title mb-0">Upload KTP</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Metode Scan</label>
-                            <select id="ocr-method" class="form-select">
-                                <option value="local">OCR Sekarang (Polygon - di perangkat)</option>
-                                <option value="openai">OpenAI Vision (akurasi tinggi)</option>
-                            </select>
-                        </div>
-
                         <div class="text-center mb-3">
-                            <div id="preview-box" class="border rounded-3 d-flex align-items-center justify-content-center bg-light" style="min-height:250px; position:relative; overflow:hidden;">
-                                <img id="ktp-preview" src="#" class="img-fluid rounded-3" style="display:none; max-height:300px;">
-                                <canvas id="ktp-canvas" style="display:none; max-width:100%; cursor:crosshair;"></canvas>
+                            <div id="preview-box" class="border rounded-3 d-flex align-items-center justify-content-center bg-light" style="min-height:250px; overflow:hidden;">
+                                <img id="ktp-preview" src="#" alt="Preview KTP" class="img-fluid rounded-3" style="display:none; max-height:300px;">
                                 <div id="placeholder-ui">
                                     <i class="ti ti-id-badge text-muted" style="font-size:5rem;"></i>
                                     <p class="text-muted mt-2">Pilih foto KTP yang jelas</p>
@@ -40,20 +31,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <input type="file" id="input-ktp" class="form-control" accept="image/*">
-                        </div>
-
-                        <div id="polygon-tools" class="mb-3" style="display:none;">
-                            <label class="form-label text-muted small mb-1">Field aktif (klik lalu geser kotak di gambar)</label>
-                            <div id="field-list" class="d-flex flex-wrap gap-1 mb-2"></div>
-                            <div class="d-flex gap-2">
-                                <button type="button" id="btn-reset-template" class="btn btn-sm btn-outline-secondary">
-                                    <i class="ti ti-rotate me-1"></i>Reset
-                                </button>
-                                <button type="button" id="btn-save-template" class="btn btn-sm btn-outline-success">
-                                    <i class="ti ti-device-floppy me-1"></i>Simpan Template
-                                </button>
-                            </div>
+                            <input type="file" id="input-ktp" class="form-control" accept="image/png,image/jpeg,image/webp">
                         </div>
 
                         <button id="btn-scan" class="btn btn-primary w-100 py-2" disabled>
@@ -67,10 +45,6 @@
                             <small class="text-muted" id="ocr-status">Memproses...</small>
                         </div>
 
-                        <div id="raw-text-box" class="mt-3" style="display:none;">
-                            <label class="form-label text-muted small">Raw OCR (untuk debug)</label>
-                            <textarea id="raw-text" class="form-control form-control-sm font-monospace" rows="6" readonly style="font-size:11px;"></textarea>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -132,64 +106,20 @@
     </div>
 </div>
 
-<script src="/admin/assets/js/ktp-ocr.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const inputKtp    = document.getElementById('input-ktp');
     const previewImg  = document.getElementById('ktp-preview');
-    const canvas      = document.getElementById('ktp-canvas');
     const placeholder = document.getElementById('placeholder-ui');
     const btnScan     = document.getElementById('btn-scan');
     const loader      = document.getElementById('ocr-loader');
     const progressBar = document.getElementById('ocr-progress');
     const statusText  = document.getElementById('ocr-status');
-    const rawTextBox  = document.getElementById('raw-text-box');
-    const rawText     = document.getElementById('raw-text');
-    const methodSel   = document.getElementById('ocr-method');
-    const polygonTools= document.getElementById('polygon-tools');
-    const fieldList   = document.getElementById('field-list');
-    const btnReset    = document.getElementById('btn-reset-template');
-    const btnSave     = document.getElementById('btn-save-template');
 
-    const openaiUrl = '{{ route('applicant.profiles.ocr-openai') }}';
+    const scanUrl   = '{{ route('applicant.profiles.ocr-scan') }}';
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    let editor = null;
-    let sourceCanvas = null;
     let currentFile = null;
-
-    function buildFieldList() {
-        if (!window.KtpOcr) return;
-        fieldList.innerHTML = '';
-        KtpOcr.FIELDS.forEach(function (f, idx) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'btn btn-sm ' + (idx === 0 ? 'btn-dark' : 'btn-outline-dark');
-            btn.textContent = f.label;
-            btn.dataset.key = f.key;
-            btn.addEventListener('click', function () {
-                fieldList.querySelectorAll('button').forEach(function (b) {
-                    b.className = 'btn btn-sm btn-outline-dark';
-                });
-                btn.className = 'btn btn-sm btn-dark';
-                if (editor) editor.setActiveField(f.key);
-            });
-            fieldList.appendChild(btn);
-        });
-    }
-
-    function applyMethodUi() {
-        const isLocal = methodSel.value === 'local';
-        polygonTools.style.display = (isLocal && sourceCanvas) ? 'block' : 'none';
-        if (isLocal) {
-            canvas.style.display = sourceCanvas ? 'block' : 'none';
-            previewImg.style.display = 'none';
-        } else {
-            canvas.style.display = 'none';
-            previewImg.style.display = currentFile ? 'block' : 'none';
-        }
-    }
-    methodSel.addEventListener('change', applyMethodUi);
 
     function setField(id, value) {
         const el = document.getElementById(id);
@@ -214,47 +144,36 @@ document.addEventListener('DOMContentLoaded', function () {
         currentFile = file;
 
         const reader = new FileReader();
-        reader.onload = e => { previewImg.src = e.target.result; };
-        reader.readAsDataURL(file);
-
-        if (window.KtpOcr) {
-            KtpOcr.loadImageToCanvas(file).then(function (res) {
-                sourceCanvas = res.canvas;
-                placeholder.style.display = 'none';
-                if (!editor) {
-                    editor = new KtpOcr.PolygonEditor(canvas, { template: KtpOcr.loadTemplate() });
-                    buildFieldList();
-                }
-                editor.setImage(res.image);
-                btnScan.disabled = false;
-                applyMethodUi();
-            }).catch(function () {
-                placeholder.style.display = 'none';
-                btnScan.disabled = false;
-                applyMethodUi();
-            });
-        } else {
+        reader.onload = e => {
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
             placeholder.style.display = 'none';
-            btnScan.disabled = false;
-            applyMethodUi();
-        }
+        };
+        reader.readAsDataURL(file);
+        btnScan.disabled = false;
     });
 
-    function runLocalScan() {
-        if (!sourceCanvas || !editor) { alert('Gambar belum siap.'); return; }
+    btnScan.addEventListener('click', function () {
+        if (!currentFile) { alert('Unggah gambar KTP terlebih dahulu.'); return; }
         loader.style.display = 'block';
-        progressBar.style.width = '0%';
-        statusText.textContent = 'Memproses...';
+        progressBar.style.width = '40%';
+        statusText.textContent = 'Membaca KTP...';
         btnScan.disabled = true;
 
-        KtpOcr.scan(sourceCanvas, editor.getTemplate(), function (phase, value, label) {
-            const pct = Math.round(value * 100);
-            progressBar.style.width = pct + '%';
-            statusText.textContent = (phase === 'field' ? 'Membaca ' + (label || '') : 'OCR...') + ' ' + pct + '%';
-        }).then(function (result) {
-            rawText.value = JSON.stringify(result.raw, null, 2);
-            rawTextBox.style.display = 'block';
-            fillResults(result.mapped);
+        const fd = new FormData();
+        fd.append('image', currentFile);
+
+        fetch(scanUrl, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: fd
+        }).then(function (resp) {
+            return resp.json().catch(function () { return {}; }).then(function (json) {
+                if (!resp.ok) throw new Error(json.message || 'Gagal memproses OCR');
+                return json;
+            });
+        }).then(function (json) {
+            fillResults(json.mapped || {});
             progressBar.style.width = '100%';
             statusText.textContent = 'Selesai!';
         }).catch(function (err) {
@@ -263,56 +182,6 @@ document.addEventListener('DOMContentLoaded', function () {
             loader.style.display = 'none';
             btnScan.disabled = false;
         });
-    }
-
-    function runOpenaiScan() {
-        if (!currentFile) { alert('Unggah gambar KTP terlebih dahulu.'); return; }
-        loader.style.display = 'block';
-        progressBar.style.width = '30%';
-        statusText.textContent = 'Mengirim ke OpenAI...';
-        btnScan.disabled = true;
-
-        const fd = new FormData();
-        fd.append('image', currentFile);
-
-        fetch(openaiUrl, {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: fd
-        }).then(function (resp) {
-            return resp.json().then(function (json) {
-                if (!resp.ok) throw new Error(json.message || 'Gagal memproses');
-                return json;
-            });
-        }).then(function (json) {
-            rawText.value = JSON.stringify(json.mapped, null, 2);
-            rawTextBox.style.display = 'block';
-            fillResults(json.mapped || {});
-            progressBar.style.width = '100%';
-            statusText.textContent = 'Selesai!';
-        }).catch(function (err) {
-            alert(err.message || 'OpenAI gagal');
-        }).finally(function () {
-            loader.style.display = 'none';
-            btnScan.disabled = false;
-        });
-    }
-
-    btnScan.addEventListener('click', function () {
-        if (methodSel.value === 'openai') runOpenaiScan();
-        else runLocalScan();
-    });
-
-    if (btnReset) btnReset.addEventListener('click', function () { if (editor) editor.resetTemplate(); });
-    if (btnSave) btnSave.addEventListener('click', function () {
-        if (!editor) return;
-        KtpOcr.saveTemplate(editor.getTemplate());
-        btnSave.innerHTML = '<i class="ti ti-check me-1"></i>Tersimpan';
-        setTimeout(function () { btnSave.innerHTML = '<i class="ti ti-device-floppy me-1"></i>Simpan Template'; }, 1500);
-    });
-
-    window.addEventListener('resize', function () {
-        if (editor && sourceCanvas) { editor.resize(); editor.draw(); }
     });
 });
 </script>

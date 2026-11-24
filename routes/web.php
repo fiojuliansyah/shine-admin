@@ -156,7 +156,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::post('/save-signature', [SignatureController::class, 'store'])->name('save.signature');
     Route::delete('/delete-signature', [SignatureController::class, 'delete'])->name('delete.signature');
 
-    Route::post('/ktp-ocr/openai', [KtpOcrController::class, 'openai'])->name('ktp-ocr.openai');
+    Route::post('/ktp-ocr/scan', [KtpOcrController::class, 'scan'])->name('ktp-ocr.scan');
 });
 
 require __DIR__.'/guest.php';
