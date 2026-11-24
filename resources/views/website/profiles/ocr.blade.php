@@ -31,7 +31,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <input type="file" id="input-ktp" class="form-control" accept="image/png,image/jpeg,image/webp" data-doc-crop>
+                            <input type="file" id="input-ktp" class="form-control" accept="image/png,image/jpeg,image/webp">
                         </div>
 
                         <button id="btn-scan" class="btn btn-primary w-100 py-2" disabled>
@@ -199,5 +199,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-@include('partials.document-crop')
 @endsection
