@@ -1214,14 +1214,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" name="reset_signatures" value="1" id="reset_signatures" checked>
-                                        <label class="form-check-label" for="reset_signatures">
-                                            Minta tanda tangan ulang (tanda tangan HRD &amp; karyawan pada surat ini dihapus)
-                                        </label>
-                                    </div>
                                     <div class="alert alert-light border py-2 small">
-                                        Surat PKWT akan otomatis memakai periode baru (nomor surat tetap). Tanggal akhir kontrak di profil karyawan ikut diperbarui.
+                                        Surat PKWT akan otomatis memakai periode baru (nomor surat & tanda tangan tetap). Tanggal akhir kontrak di profil karyawan ikut diperbarui.
                                     </div>
                                 </div>
                             </div>

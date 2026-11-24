@@ -12,7 +12,12 @@
                 '{nik_karyawan}': '2026110001',
                 '{site}': 'Gedung Utama',
                 '{perusahaan}': 'PT Contoh',
-                '{tanggal}': new Date().toLocaleDateString('id-ID').replace(/\//g, '-')
+                '{tanggal}': new Date().toLocaleDateString('id-ID').replace(/\//g, '-'),
+                '{no_surat}': '012/PKWT/CK/XI/2026',
+                '{periode_lama}': '01-11-2026 s/d 30-04-2027',
+                '{periode_baru}': '15-11-2026 s/d 14-05-2027',
+                '{mulai}': '15-11-2026',
+                '{selesai}': '14-05-2027'
             },
             fill: function (text, values) {
                 return Object.keys(values).reduce(function (acc, key) {

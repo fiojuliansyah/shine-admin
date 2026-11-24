@@ -105,7 +105,7 @@
                                         class="d-flex gap-2 align-items-center" data-loading-text="Mengunggah {{ $docName }}...">
                                         @csrf
                                         <input type="hidden" name="name" value="{{ $docName }}">
-                                        <input type="file" name="file" class="form-control form-control-sm" accept="image/png,image/jpeg" required style="max-width: 230px;">
+                                        <input type="file" name="file" class="form-control form-control-sm" accept="image/png,image/jpeg" required style="max-width: 230px;" data-doc-crop>
                                         <button type="submit" class="btn btn-sm {{ $doc ? 'btn-outline-primary' : 'btn-primary' }} text-nowrap">
                                             <i class="ti ti-upload me-1"></i>{{ $doc ? 'Ganti' : 'Unggah' }}
                                         </button>
@@ -137,7 +137,7 @@
                                                 <div class="fw-semibold"><i class="ti ti-scan me-1 text-primary"></i>Isi otomatis dari foto KTP</div>
                                                 <small class="text-muted">Pilih foto KTP, data langsung terisi otomatis dan foto KTP sekaligus tersimpan ke dokumen.</small>
                                             </div>
-                                            <input type="file" id="onbKtpFile" class="form-control form-control-sm" accept="image/png,image/jpeg,image/webp" style="max-width: 230px;">
+                                            <input type="file" id="onbKtpFile" class="form-control form-control-sm" accept="image/png,image/jpeg,image/webp" style="max-width: 230px;" data-doc-crop>
                                             <button type="button" id="onbKtpScan" class="btn btn-sm btn-dark text-nowrap" disabled>
                                                 <i class="ti ti-refresh me-1"></i>Scan Ulang
                                             </button>
@@ -407,6 +407,7 @@
 </div>
 
 @include('website.auth.partials.alert-modal')
+@include('partials.document-crop')
 @endsection
 
 @push('js')

@@ -425,6 +425,102 @@ class GenerateController extends Controller
         return $esign;
     }
 
+    /**
+     * Revisi periode kontrak banyak surat sekaligus (mis. PKWT yang tanggalnya salah).
+     * Kolom tanggal yang dikosongkan tidak diubah.
+     */
+    public function bulkReviseContract(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'string'],
+            'start_date' => ['nullable', 'date', 'required_without:end_date'],
+            'end_date' => ['nullable', 'date', 'required_without:start_date'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'notify_channels' => ['nullable', 'array'],
+            'notify_channels.*' => ['in:whatsapp,email'],
+            'message_template_id' => ['nullable', 'exists:message_templates,id'],
+        ], [
+            'ids.required' => 'Pilih surat yang akan direvisi.',
+            'start_date.required_without' => 'Isi tanggal mulai dan/atau tanggal akhir kontrak yang baru.',
+            'end_date.required_without' => 'Isi tanggal mulai dan/atau tanggal akhir kontrak yang baru.',
+        ]);
+
+        $ids = array_filter(array_map('intval', explode(',', $data['ids'])));
+        $generates = Generate::with('user')->whereIn('id', $ids)->get();
+        $channels = $data['notify_channels'] ?? [];
+        $template = filled($data['message_template_id'] ?? null) ? \App\Models\MessageTemplate::find($data['message_template_id']) : null;
+
+        $updated = 0;
+        $notified = 0;
+        $notifyFailed = 0;
+        $skipped = [];
+
+        foreach ($generates as $generate) {
+            $label = ($generate->user?->name ?? 'Tanpa nama') . ' (' . ($generate->formatted_letter_number ?? $generate->letter_number) . ')';
+
+            // Hanya surat berperiode (punya tanggal mulai), mis. PKWT / kontrak.
+            if (blank($generate->start_date) && blank($data['start_date'] ?? null)) {
+                $skipped[] = $label . ': bukan surat kontrak';
+                continue;
+            }
+
+            $start = $data['start_date'] ?? $generate->start_date;
+            $end = $request->filled('end_date') ? $data['end_date'] : $generate->end_date;
+
+            if ($end && \Illuminate\Support\Carbon::parse($end)->lt(\Illuminate\Support\Carbon::parse($start))) {
+                $skipped[] = $label . ': tanggal akhir sebelum tanggal mulai';
+                continue;
+            }
+
+            $oldPeriod = \App\Services\ContractRevision::period($generate->start_date, $generate->end_date);
+
+            try {
+                \App\Services\ContractRevision::apply($generate, $start, $end ?: null, $data['description'] ?? null);
+                $updated++;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Revisi kontrak massal gagal untuk surat #' . $generate->id . ': ' . $e->getMessage());
+                $skipped[] = $label . ': gagal disimpan';
+                continue;
+            }
+
+            // Notifikasi ke karyawan (opsional). Gagal kirim tidak membatalkan revisi.
+            if ($channels && $generate->user) {
+                try {
+                    $values = \App\Models\MessageTemplate::valuesForUser($generate->user, [
+                        '{no_surat}' => (string) ($generate->formatted_letter_number ?? $generate->letter_number),
+                        '{periode_lama}' => $oldPeriod,
+                        '{periode_baru}' => \App\Services\ContractRevision::period($start, $end),
+                        '{mulai}' => format_tanggal($start),
+                        '{selesai}' => format_tanggal($end, 'selesai'),
+                    ]);
+                    $generate->user->notify(new \App\Notifications\TemplateMessageNotification(
+                        $template,
+                        $values,
+                        $channels,
+                        'Perubahan Periode Kontrak - {no_surat}',
+                        "Halo *{nama}*,\n\nPeriode kontrak Anda pada surat *{no_surat}* telah diperbarui:\n"
+                            . "• Sebelumnya: {periode_lama}\n• Menjadi: *{periode_baru}*\n\n"
+                            . "Surat dapat dilihat kembali di menu Dokumen Digital.\n\nSalam,\n*Tim HR Ciptakarir*"
+                    ));
+                    $notified++;
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Notifikasi revisi kontrak gagal untuk surat #' . $generate->id . ': ' . $e->getMessage());
+                    $notifyFailed++;
+                }
+            }
+        }
+
+        $message = "{$updated} surat diperbarui ke periode baru (nomor surat & tanda tangan tetap).";
+        if ($channels) {
+            $message .= " Notifikasi dikirim ke {$notified} karyawan" . ($notifyFailed ? ", {$notifyFailed} gagal (cek log)." : '.');
+        }
+        if ($skipped) {
+            $message .= ' ' . count($skipped) . ' dilewati: ' . implode('; ', array_slice($skipped, 0, 10)) . (count($skipped) > 10 ? '; ...' : '') . '.';
+        }
+
+        return redirect()->back()->with($updated > 0 ? 'success' : 'error', $message);
+    }
+
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('ids');
@@ -445,7 +541,7 @@ class GenerateController extends Controller
             $generate->delete();
         }
 
-        return redirect()->back()->with('success', 'Data yang dipilih berhasil dihapus. Nomor surat dan NIK karyawan telah direset.');
+        return redirect()->back()->with('success', 'Data yang dipilih berhasil dihapus. Nomor surat terakhir dikembalikan bila memungkinkan.');
     }
 
     public function destroy(Generate $generate)

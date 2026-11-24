@@ -108,7 +108,6 @@ class EmployeeMovementController extends Controller
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'reset_signatures' => ['nullable', 'boolean'],
         ], [
             'generate_id.required' => 'Pilih surat kontrak yang direvisi.',
             'start_date.required' => 'Tanggal mulai kontrak wajib diisi.',
@@ -116,34 +115,17 @@ class EmployeeMovementController extends Controller
         ]);
 
         $generate = Generate::findOrFail($data['generate_id']);
-        $resetSignatures = $request->boolean('reset_signatures');
-        $wasSigned = filled($generate->esign) || filled($generate->second_party_esign);
 
-        DB::transaction(function () use ($user, $generate, $data, $resetSignatures) {
-            $oldStart = $generate->start_date;
-            $oldPeriod = self::period($generate->start_date, $generate->end_date);
-
-            // Surat dirender dari start_date/end_date, jadi PDF/print langsung memakai periode baru.
-            $generate->update(array_merge(
-                ['start_date' => $data['start_date'], 'end_date' => $data['end_date'] ?? null],
-                $resetSignatures ? ['esign' => null, 'second_party_esign' => null] : []
-            ));
-
-            $profile = ['end_date' => $data['end_date'] ?? null];
-            if (blank($user->profile->join_date) || $user->profile->join_date === $oldStart) {
-                $profile['join_date'] = $data['start_date'];
-            }
-            $user->profile()->updateOrCreate(['user_id' => $user->id], $profile);
-
-            $this->record($user, 'kontrak', now()->toDateString(), $data['description'] ?? null, [
-                'from_value' => $oldPeriod,
-                'to_value' => self::period($data['start_date'], $data['end_date'] ?? null),
-            ]);
-        });
+        \App\Services\ContractRevision::apply(
+            $generate,
+            $data['start_date'],
+            $data['end_date'] ?? null,
+            $data['description'] ?? null
+        );
 
         $number = $generate->formatted_letter_number ?? $generate->letter_number;
         $message = "Periode kontrak {$user->name} diperbarui. Surat {$number} sudah memakai periode baru";
-        $message .= $resetSignatures && $wasSigned ? ' dan perlu ditandatangani ulang.' : '.';
+        $message .= '.';
 
         return redirect()->back()->with('success', $message);
     }
@@ -296,10 +278,5 @@ class EmployeeMovementController extends Controller
             'description' => $description,
             'created_by' => Auth::id(),
         ], $attributes));
-    }
-
-    private static function period($start, $end): string
-    {
-        return format_tanggal($start) . ' s/d ' . format_tanggal($end, 'selesai');
     }
 }

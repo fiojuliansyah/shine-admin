@@ -25,6 +25,9 @@
             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#approvemodal">
                 Bulk Approve
             </button>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reviseContractModal">
+                Revisi Periode Kontrak
+            </button>
             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deletemodal">
                 Bulk Delete
             </button>

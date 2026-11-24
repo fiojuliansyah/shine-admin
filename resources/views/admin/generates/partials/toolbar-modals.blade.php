@@ -203,3 +203,76 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Revisi Periode Kontrak (massal) -->
+<div class="modal fade" id="reviseContractModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('generates.bulkReviseContract') }}" method="POST" id="bulkReviseContractForm">
+                @csrf
+                <input type="hidden" name="ids" id="bulkReviseContractIds">
+                <div class="modal-header">
+                    <h5 class="modal-title">Revisi Periode Kontrak</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info small py-2">
+                        Berlaku untuk <strong><span id="bulkReviseContractCount">0</span> surat</strong> yang dicentang di tabel.
+                        Kosongkan tanggal yang tidak ingin diubah.
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tanggal Mulai Kontrak (baru)</label>
+                            <input type="date" name="start_date" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tanggal Akhir Kontrak (baru)</label>
+                            <input type="date" name="end_date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Alasan Revisi</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Contoh: Koreksi salah input tanggal PKWT batch November"></textarea>
+                    </div>
+                    <small class="text-muted d-block mb-3">
+                        Surat (lihat/PDF/cetak) langsung memakai periode baru — nomor surat & tanda tangan tetap.
+                        Profil karyawan ikut diperbarui bila surat ini kontrak terbarunya, dan perubahan dicatat di Riwayat Karier.
+                    </small>
+
+                    @php $reviseTemplates = \App\Models\MessageTemplate::active()->orderBy('name')->get(['id', 'name']); @endphp
+                    <div class="border rounded p-3 bg-light">
+                        <div class="fw-semibold mb-2"><i class="ti ti-bell me-1 text-primary"></i>Kirim Notifikasi ke Karyawan</div>
+                        <div class="d-flex flex-wrap gap-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input revise-notify-channel" type="checkbox" name="notify_channels[]" value="whatsapp" id="reviseNotifyWa">
+                                <label class="form-check-label" for="reviseNotifyWa"><i class="ti ti-brand-whatsapp text-success me-1"></i>WhatsApp</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input revise-notify-channel" type="checkbox" name="notify_channels[]" value="email" id="reviseNotifyEmail">
+                                <label class="form-check-label" for="reviseNotifyEmail"><i class="ti ti-mail text-primary me-1"></i>Email</label>
+                            </div>
+                        </div>
+                        @if ($reviseTemplates->isEmpty())
+                            <div class="small text-muted">Belum ada template aktif; pesan bawaan akan dipakai.
+                                <a href="{{ route('message-templates.index') }}" target="_blank">Buat template</a></div>
+                        @else
+                            <select name="message_template_id" class="form-select form-select-sm" id="reviseNotifyTemplate" disabled>
+                                @foreach ($reviseTemplates as $tpl)
+                                    <option value="{{ $tpl->id }}">{{ $tpl->name }}</option>
+                                @endforeach
+                            </select>
+                        @endif
+                        <small class="text-muted d-block mt-1">
+                            Variabel tambahan di template: <code>{no_surat}</code>, <code>{periode_lama}</code>, <code>{periode_baru}</code>, <code>{mulai}</code>, <code>{selesai}</code>.
+                            Tidak dicentang = tidak ada notifikasi.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Perbarui Surat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

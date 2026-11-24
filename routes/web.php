@@ -97,6 +97,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');
     Route::post('/bulk-approve', [GenerateController::class, 'bulkApprove'])->name('generates.bulkApprove');
     Route::post('/bulk-delete', [GenerateController::class, 'bulkDelete'])->name('generates.bulkDelete');
+    Route::post('/bulk-revise-contract', [GenerateController::class, 'bulkReviseContract'])->name('generates.bulkReviseContract');
     Route::get('/letter/{id}/regenerate', [GenerateController::class, 'regenerate'])->name('letter-regenerate');
 
     Route::resource('type_letters', TypeLetterController::class);

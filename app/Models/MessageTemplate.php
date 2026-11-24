@@ -27,6 +27,11 @@ class MessageTemplate extends Model
         '{site}' => 'Site / penempatan',
         '{perusahaan}' => 'Nama perusahaan site',
         '{tanggal}' => 'Tanggal hari ini',
+        '{no_surat}' => 'Nomor surat (khusus revisi kontrak)',
+        '{periode_lama}' => 'Periode kontrak lama (khusus revisi kontrak)',
+        '{periode_baru}' => 'Periode kontrak baru (khusus revisi kontrak)',
+        '{mulai}' => 'Tanggal mulai kontrak baru (khusus revisi kontrak)',
+        '{selesai}' => 'Tanggal akhir kontrak baru (khusus revisi kontrak)',
     ];
 
     public function scopeActive($query)
@@ -37,18 +42,36 @@ class MessageTemplate extends Model
     public static function valuesFor(Applicant $applicant): array
     {
         $applicant->loadMissing(['user.site.company', 'career', 'status']);
-        $user = $applicant->user;
 
-        return [
-            '{nama}' => $user->name ?? '',
+        return array_merge(self::valuesForUser($applicant->user), [
             '{posisi}' => $applicant->career->name ?? '',
             '{status}' => $applicant->status->name ?? '',
+        ]);
+    }
+
+    /** Nilai variabel untuk user/karyawan (tanpa data lamaran). $extra menimpa/menambah variabel. */
+    public static function valuesForUser(?User $user, array $extra = []): array
+    {
+        $user?->loadMissing('site.company', 'roles');
+
+        return array_merge([
+            '{nama}' => $user->name ?? '',
+            '{posisi}' => $user?->getRoleNames()->first() ?? '',
+            '{status}' => '',
             '{email}' => $user->email ?? '',
             '{no_hp}' => $user->phone ?? '',
             '{nik_karyawan}' => $user->employee_nik ?? '',
             '{site}' => $user->site->name ?? '',
             '{perusahaan}' => $user->site->company->name ?? '',
             '{tanggal}' => format_tanggal(now()),
+        ], $extra);
+    }
+
+    public function renderFor(array $values): array
+    {
+        return [
+            'subject' => strtr($this->subject ?: 'Pemberitahuan', $values),
+            'body' => strtr($this->body, $values),
         ];
     }
 

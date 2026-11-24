@@ -879,7 +879,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">File Gambar (JPG/PNG) <span class="text-danger">*</span></label>
-                            <input type="file" name="file" class="form-control" accept="image/*" required>
+                            <input type="file" name="file" class="form-control" accept="image/*" required data-doc-crop>
                             <div class="form-text mt-2 text-warning">
                                 <i class="ti ti-info-circle me-1 small"></i> Pastikan tulisan terbaca jelas.
                             </div>
@@ -893,6 +893,7 @@
             </div>
         </div>
     </div>
+@include('partials.document-crop')
 @endsection
 
 @push('js')

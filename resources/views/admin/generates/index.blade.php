@@ -293,6 +293,36 @@
             this.submit();
         });
 
+        // Pilihan lintas halaman tabel (selectedIds dikumpulkan saat checkbox dicentang)
+        function uniqueSelectedIds() {
+            return selectedIds.filter(function (id, i, arr) { return id && id !== 'on' && arr.indexOf(id) === i; });
+        }
+
+        $(document).on('change', '.revise-notify-channel', function () {
+            $('#reviseNotifyTemplate').prop('disabled', $('.revise-notify-channel:checked').length === 0);
+        });
+
+        $('#reviseContractModal').on('show.bs.modal', function () {
+            $('#bulkReviseContractCount').text(uniqueSelectedIds().length);
+        });
+
+        $('#bulkReviseContractForm').submit(function(e) {
+            e.preventDefault();
+
+            var ids = uniqueSelectedIds();
+            if (ids.length === 0) {
+                alert('Pilih setidaknya satu surat untuk direvisi.');
+                return;
+            }
+            if (!$(this).find('[name="start_date"]').val() && !$(this).find('[name="end_date"]').val()) {
+                alert('Isi tanggal mulai dan/atau tanggal akhir kontrak yang baru.');
+                return;
+            }
+
+            $('#bulkReviseContractIds').val(ids.join(','));
+            this.submit();
+        });
+
         $('#bulkDeleteForm').submit(function(e) {
             e.preventDefault();
 
