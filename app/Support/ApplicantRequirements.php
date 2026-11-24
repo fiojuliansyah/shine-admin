@@ -97,6 +97,8 @@ class ApplicantRequirements
     public static function missingDocuments(User $user, ?array $uploaded = null): array
     {
         $uploaded ??= Document::where('user_id', $user->id)->pluck('name')->all();
+        // Nama dokumen dibandingkan tanpa peduli huruf besar/kecil & spasi ("Ktp " = "KTP").
+        $uploaded = array_map(fn ($name) => strtoupper(trim((string) $name)), $uploaded);
 
         return array_values(array_diff(self::requiredDocuments($user), $uploaded));
     }

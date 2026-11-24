@@ -172,7 +172,8 @@ class StatusController extends Controller
         foreach ($applicant_ids as $applicant_id) {
             $applicant = Applicant::find($applicant_id);
 
-            if ($applicant) {
+            // Lewati yang sudah dipindahkan (klik ganda / halaman lama) agar tidak ada baris lamaran dobel.
+            if ($applicant && $applicant->done !== 'done') {
                 $newApplicantEntry = Applicant::create([
                     'status_id' => $status_id,
                     'user_id' => $applicant->user_id,
@@ -205,7 +206,7 @@ class StatusController extends Controller
         $applicant_ids = $request->applicant_ids;
         
         $request->validate([
-            'letter_id' => 'required',
+            'letter_id' => 'required|exists:letters,id',
             'start_date' => 'required|date',
             'applicant_ids' => 'required|array'
         ]);
@@ -222,7 +223,8 @@ class StatusController extends Controller
                 'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
         }
 
-        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
+        Applicant::whereIn('id', $applicant_ids)->where(fn ($q) => $q->whereNull('done')->orWhere('done', '!=', 'done'))
+            ->whereHas('user')->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
             DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig) {
                 $applicant->user->update([
                     'site_id' => $site_id,
@@ -247,10 +249,7 @@ class StatusController extends Controller
                 if ($letter->numberConfig) {
                     $newNumber = $letter->numberConfig->nextSequence();
                 } else {
-                    $currentNumberInt = (int) ($typeLetter?->number ?? 0);
-                    $startNumber = $letter->numberConfig?->start_number ?? 1;
-                    $newNumber = max($currentNumberInt + 1, $startNumber);
-                    $typeLetter?->update(['number' => $newNumber]);
+                    $newNumber = $typeLetter ? $typeLetter->nextNumber() : 1;
                 }
 
                 $letterNumber = ($letter->letter_number_config_id || $letter->number_format)
@@ -303,7 +302,7 @@ class StatusController extends Controller
         $applicant_ids = $request->applicant_ids;
         
         $request->validate([
-            'letter_id' => 'required',
+            'letter_id' => 'required|exists:letters,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'applicant_ids' => 'required|array'
@@ -321,7 +320,9 @@ class StatusController extends Controller
                 'Silakan atur di menu Konfigurasi NIK terlebih dahulu.');
         }
 
-        Applicant::whereIn('id', $applicant_ids)->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
+        // Kandidat yang sudah selesai (done) dilewati agar kontrak tidak terbit dobel saat klik ganda.
+        Applicant::whereIn('id', $applicant_ids)->where(fn ($q) => $q->whereNull('done')->orWhere('done', '!=', 'done'))
+            ->whereHas('user')->with('user.profile')->each(function ($applicant) use ($request, $site_id, $site, $nikConfig) {
             DB::transaction(function () use ($applicant, $request, $site_id, $site, $nikConfig) {
                 $applicant->user->update([
                     'site_id' => $site_id,
@@ -346,12 +347,7 @@ class StatusController extends Controller
                 if ($letter->numberConfig) {
                     $newNumber = $letter->numberConfig->nextSequence();
                 } else {
-                    $currentNumberInt = (int) ($typeLetter->number ?? 0);
-                    $startNumber = $letter->numberConfig?->start_number ?? 1;
-                    $newNumber = max($currentNumberInt + 1, $startNumber);
-                    if ($typeLetter) {
-                        $typeLetter->update(['number' => $newNumber]);
-                    }
+                    $newNumber = $typeLetter ? $typeLetter->nextNumber() : 1;
                 }
 
                 $letterNumber = ($letter->letter_number_config_id || $letter->number_format)

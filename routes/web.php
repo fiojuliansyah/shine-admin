@@ -3,7 +3,6 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomVariableController;
@@ -33,8 +32,7 @@ Route::prefix('manage')->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->middleware('web')->name('logout');
-    Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('register', [RegisterController::class, 'register']);
+    // Pendaftaran mandiri ke area manage dinonaktifkan (akun admin dibuat oleh admin).
 });
 
 Route::get('/career', [DashboardController::class, 'career'])->name('web-career');
@@ -46,7 +44,8 @@ Route::middleware(['auth'])->prefix('account')->group(function () {
     Route::get('/tab-document-detail', [DashboardController::class, 'indexDocument'])->name('web-document');
 });
 
-Route::middleware('auth')->group(function () {
+// Import/export data pegawai & site: khusus admin (view-desktop), bukan pelamar.
+Route::middleware(['auth', 'check.desktop'])->group(function () {
     Route::post('/import/process', [ImportController::class, 'processImport'])->name('import.process');
     Route::post('/admins/import', [AdminController::class, 'import'])->name('admins.import');
     Route::post('/admins/export', [AdminController::class, 'export'])->name('admins.export');

@@ -45,9 +45,13 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         IdentityRules::normalize($request, ['nik']);
-        $request->validate(['nik' => IdentityRules::nik(required: (bool) $user->is_employee)], IdentityRules::messages());
+        $request->validate([
+            'nik' => IdentityRules::nik(required: (bool) $user->is_employee),
+            'email' => ['nullable', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($user->id)],
+        ], IdentityRules::messages());
 
-        $input = $request->all();
+        // Hanya data akun milik sendiri; kolom HR (is_employee, employee_nik, site_id, dst.) tidak boleh diubah sendiri.
+        $input = $request->only(['name', 'email', 'nik', 'phone', 'password']);
     
         if (isset($input['password'])) {
             $input['password'] = Hash::make($input['password']);
@@ -73,6 +77,7 @@ class ProfileController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
+            $request->validate(['avatar' => 'image|mimes:jpg,jpeg,png,webp|max:5120'], ['avatar.image' => 'Pas foto harus berupa gambar.', 'avatar.mimes' => 'Pas foto harus JPG/PNG/WebP.', 'avatar.max' => 'Ukuran pas foto maksimal 5 MB.']);
             $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
             FileStorage::delete($user->profile?->avatar_public_id);
 

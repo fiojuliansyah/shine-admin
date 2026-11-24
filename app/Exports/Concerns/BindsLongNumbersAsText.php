@@ -17,6 +17,14 @@ trait BindsLongNumbersAsText
 {
     public function bindValue(Cell $cell, $value)
     {
+        // Cegah formula injection: teks dari data pengguna yang diawali "=" (mis. =HYPERLINK(...))
+        // jangan sampai menjadi rumus aktif di Excel HRD.
+        if (is_string($value) && str_starts_with(ltrim($value), '=')) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
+
         if (is_string($value) && preg_match('/^\+?\d+$/', $value) && (strlen($value) > 11 || str_starts_with($value, '0'))) {
             $cell->setValueExplicit($value, DataType::TYPE_STRING);
 

@@ -183,12 +183,8 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
         }
 
         $typeLetter = $this->letter->type;
-        $current = (int) ($typeLetter?->number ?? 0);
-        $start = $this->letter->numberConfig?->start_number ?? 1;
-        $next = max($current + 1, $start);
-        $typeLetter?->update(['number' => $next]);
 
-        return $next;
+        return $typeLetter ? $typeLetter->nextNumber() : 1;
     }
 
     protected function getRomawi($month): string

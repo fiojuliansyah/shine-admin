@@ -124,9 +124,10 @@ class DataController extends Controller
     {
         $user = Auth::user();
 
+        // Hanya surat milik pelamar yang login (cegah membuka surat orang lain lewat ID).
         $eletter = Generate::where('id', $id)
+            ->where('user_id', $user->id)
             ->with('letter')
-            ->orderBy('created_at', 'DESC')
             ->first();
 
         if (!$eletter) {
@@ -186,7 +187,7 @@ class DataController extends Controller
             }
         }
 
-        $tunjangan = !empty($tunjangan_items) ? implode("<br>", $tunjangan_items) : '-';
+        $tunjangan = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-'; // \n -> <br> setelah di-escape
         
         $mulai = isset($eletter->start_date)
             ? Carbon::parse($eletter->start_date)->format('d-m-Y')
@@ -224,14 +225,14 @@ class DataController extends Controller
             }
         }
 
-        $eletter->letter->description = str_replace($search, $replace, $eletter->letter->description);
+        $eletter->letter->description = str_replace($search, \App\Support\LetterPlaceholders::forHtml($replace), $eletter->letter->description);
 
         return view('website.letters.show', compact('eletter'));
     }
 
     public function letterPdf($id)
     {
-        $eletter = Generate::where('id', $id)->with('letter')->first();
+        $eletter = Generate::where('id', $id)->where('user_id', Auth::id())->with('letter')->first();
 
         if (!$eletter) {
             abort(404);
@@ -325,7 +326,7 @@ class DataController extends Controller
                 $parsed = json_decode($description, true);
                 if (isset($parsed['pages']) && is_array($parsed['pages'])) {
                     $isFabric = true;
-                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $descriptionReplaced = str_replace($search, \App\Support\LetterPlaceholders::forJson($replace), $description);
                     $parsedReplaced = json_decode($descriptionReplaced, true);
                     $pages = $this->savePageImages($parsedReplaced['pages'] ?? []);
                 }
@@ -333,7 +334,7 @@ class DataController extends Controller
         }
 
         if (!$isFabric) {
-            $description = str_replace($search, $replace, $description);
+            $description = str_replace($search, \App\Support\LetterPlaceholders::forHtml($replace), $description);
         }
 
         $title = $eletter->letter->title ?? 'surat';
@@ -348,7 +349,7 @@ class DataController extends Controller
 
     public function letterPrint($id)
     {
-        $eletter = Generate::where('id', $id)->with('letter')->first();
+        $eletter = Generate::where('id', $id)->where('user_id', Auth::id())->with('letter')->first();
         if (!$eletter) abort(404);
 
         if ($this->hrdSignaturePending($eletter)) {
@@ -422,7 +423,7 @@ class DataController extends Controller
                 $parsed = json_decode($description, true);
                 if (isset($parsed['pages']) && is_array($parsed['pages'])) {
                     $isFabric = true;
-                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $descriptionReplaced = str_replace($search, \App\Support\LetterPlaceholders::forJson($replace), $description);
                     $parsedReplaced = json_decode($descriptionReplaced, true);
                     $pages = $parsedReplaced['pages'] ?? [];
                 }
@@ -430,7 +431,7 @@ class DataController extends Controller
         }
 
         if (!$isFabric) {
-            $description = str_replace($search, $replace, $description);
+            $description = str_replace($search, \App\Support\LetterPlaceholders::forHtml($replace), $description);
         }
 
         return view('admin.letters.print', compact('pages', 'isFabric', 'title', 'description'));
@@ -442,22 +443,10 @@ class DataController extends Controller
             'second_party_esign' => 'required|string',
         ]);
 
-        $signatureData = $request->input('second_party_esign');
-
-        // 1. Cek apakah formatnya PNG (sesuai dengan JS toDataURL)
-        if (!$signatureData || strpos($signatureData, 'data:image/png;base64,') === false) {
-            return back()->with('error', 'Data tanda tangan tidak valid (Harus format PNG).');
-        }
-
-        // 2. Hapus prefix 'data:image/png;base64,'
-        $base64Data = str_replace('data:image/png;base64,', '', $signatureData);
-        $base64Data = str_replace(' ', '+', $base64Data); // Opsional: jaga-jaga jika ada spasi dalam transmisi
-
-        // 3. Decode
-        $imageData = base64_decode($base64Data);
-
-        if ($imageData === false) {
-            return back()->with('error', 'Gagal mengonversi data tanda tangan.');
+        // Validasi ketat: hanya PNG base64 murni (cegah HTML/JS disisipkan ke tanda tangan)
+        $signatureData = \App\Support\SignatureImage::normalizePng($request->input('second_party_esign'));
+        if (!$signatureData) {
+            return back()->with('error', 'Data tanda tangan tidak valid (harus gambar PNG).');
         }
 
         $generate = Generate::where('id', $id)
@@ -470,8 +459,8 @@ class DataController extends Controller
             ]);
             return redirect()->route('web.applicants.dashboard')->with('success', 'Berhasil!');
         } catch (\Exception $e) {
-            // Tampilkan pesan error asli untuk debugging
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Gagal menyimpan tanda tangan surat #' . $id . ': ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menyimpan tanda tangan. Silakan coba lagi.');
         }
     }
 
@@ -663,6 +652,7 @@ class DataController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
+            $request->validate(['avatar' => 'image|mimes:jpg,jpeg,png,webp|max:5120'], ['avatar.image' => 'Pas foto harus berupa gambar.', 'avatar.mimes' => 'Pas foto harus JPG/PNG/WebP.', 'avatar.max' => 'Ukuran pas foto maksimal 5 MB.']);
             $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
             $profileData['avatar_url'] = $avatar['url'];
             $profileData['avatar_public_id'] = $avatar['path'];
@@ -688,7 +678,7 @@ class DataController extends Controller
         $document->user_id = $user->id;
         $document->name = $request->name;
         $document->description = $request->description ?? null;
-        $document->validate = $request->validate ?? null;
+        $document->validate = null; // status validasi hanya diisi admin
         $document->file_url = $file['url'];
         $document->file_public_id = $file['path'];
         $document->save();

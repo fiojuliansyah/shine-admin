@@ -140,20 +140,20 @@
                                 <li>
                                     <a href="{{ route('applicants.index') }}"
                                         class="{{ Route::is('applicants.index') ? 'active' : '' }}">Pemberkasan
-                                        @if ($pendingApplicants && $pendingApplicants->count() > 0)
+                                        @if (($pendingApplicantsCount ?? 0) > 0)
                                             <span class="badge badge-xs rounded-pill bg-danger"
-                                                style="color: white">{{ $pendingApplicants->count() }}</span>
+                                                style="color: white">{{ $pendingApplicantsCount }}</span>
                                         @endif
                                     </a>
                                 </li>
-                                @foreach ($statuses as $status)
+                                @foreach ($sidebarStatuses ?? [] as $status)
                                     <li>
                                         <a href="{{ route('statuses.show', $status->slug) }}"
                                             class="{{ Request::is('manage/statuses/' . $status->slug) ? 'active' : '' }}">
                                             {{ $status->name }}
 
                                             @php
-                                                $pendingCount = $status->applicants()->whereNull('done')->count();
+                                                $pendingCount = $status->pending_count ?? 0;
                                             @endphp
 
                                             @if ($pendingCount > 0)

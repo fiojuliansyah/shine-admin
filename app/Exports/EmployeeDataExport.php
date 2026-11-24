@@ -127,7 +127,9 @@ class EmployeeDataExport extends DefaultValueBinder implements FromQuery, WithCo
     /** Nilai di kolom identitas dipaksa string agar tidak dikonversi ke angka oleh Excel. */
     public function bindValue(Cell $cell, mixed $value): bool
     {
-        if ($value !== null && $value !== '' && in_array($cell->getColumn(), self::TEXT_COLUMNS, true)) {
+        // Teks diawali "=" (formula injection) & kolom identitas ditulis sebagai teks.
+        $isFormulaLike = is_string($value) && str_starts_with(ltrim($value), '=');
+        if ($isFormulaLike || ($value !== null && $value !== '' && in_array($cell->getColumn(), self::TEXT_COLUMNS, true))) {
             $cell->setValueExplicit((string) $value, DataType::TYPE_STRING);
 
             return true;

@@ -52,6 +52,12 @@ class FileStorage
 
     private const COMPRESSIBLE_IMAGES = ['image/jpeg', 'image/png', 'image/webp'];
 
+    /** Jenis file yang boleh disimpan. Selain ini (HTML, SVG, script, dst.) ditolak agar tidak bisa dipakai XSS. */
+    private const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+    /** Folder yang juga menerima PDF. */
+    private const PDF_FOLDERS = ['Documents'];
+
     private static ?string $baseUrl = null;
 
     /** @var string[]|null */
@@ -74,7 +80,8 @@ class FileStorage
      */
     public static function upload(UploadedFile $file, string $folder): array
     {
-        $mime = $file->getMimeType() ?: 'application/octet-stream';
+        $mime = $file->getMimeType() ?: 'application/octet-stream'; // dideteksi dari isi file
+        static::assertAllowedMime($mime, $folder);
 
         // Gambar dikompres dulu (lihat compressImage); file lain disimpan apa adanya.
         if (in_array($mime, self::COMPRESSIBLE_IMAGES, true)) {
@@ -114,7 +121,9 @@ class FileStorage
             throw new InvalidArgumentException('Data base64 tidak valid.');
         }
 
-        $mime ??= (new \finfo(FILEINFO_MIME_TYPE))->buffer($binary) ?: 'application/octet-stream';
+        // Jangan percaya MIME yang ditulis di data URI; deteksi dari isi file.
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($binary) ?: 'application/octet-stream';
+        static::assertAllowedMime($mime, $folder);
 
         return static::putContents($binary, $folder, $mime, $filename);
     }
@@ -127,6 +136,8 @@ class FileStorage
      */
     public static function putContents(string $contents, string $folder, string $mime, ?string $filename = null): array
     {
+        static::assertAllowedMime((new \finfo(FILEINFO_MIME_TYPE))->buffer($contents) ?: $mime, $folder);
+
         if ($compressed = static::compressImage($contents, $mime, $folder)) {
             [$contents, $mime] = $compressed;
         }
@@ -255,6 +266,21 @@ class FileStorage
         $idat = strpos($contents, 'IDAT');
 
         return $trns !== false && ($idat === false || $trns < $idat);
+    }
+
+    /** Tolak file yang bukan gambar (atau PDF untuk folder dokumen). */
+    public static function assertAllowedMime(string $mime, string $folder): void
+    {
+        $mime = strtolower(trim($mime));
+        $allowed = self::ALLOWED_IMAGE_MIMES;
+        if (in_array(trim($folder, '/'), self::PDF_FOLDERS, true)) {
+            $allowed[] = 'application/pdf';
+        }
+
+        if (! in_array($mime, $allowed, true)) {
+            throw new InvalidArgumentException('Jenis file tidak diizinkan (' . $mime . '). Gunakan gambar JPG/PNG/WebP' .
+                (in_array(trim($folder, '/'), self::PDF_FOLDERS, true) ? ' atau PDF.' : '.'));
+        }
     }
 
     public static function isPrivate(?string $path): bool

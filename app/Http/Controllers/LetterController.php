@@ -111,8 +111,9 @@ class LetterController extends Controller
     public function uploadImage(Request $request)
     {
         $request->validate([
-            'image' => 'nullable|image|max:5120',
-            'file'  => 'nullable|image|max:5120',
+            // SVG ditolak (bisa berisi script); hanya gambar raster
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
+            'file'  => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:5120',
         ]);
 
         $file = $request->file('image') ?? $request->file('file');

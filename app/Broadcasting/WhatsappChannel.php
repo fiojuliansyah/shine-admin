@@ -26,7 +26,7 @@ class WhatsappChannel
         try {
             $response = Http::withHeaders([
                 'Authorization' => $token,
-            ])->asForm()->post($apiUrl, [
+            ])->timeout(15)->asForm()->post($apiUrl, [
                 'target' => $phoneNumber,
                 'message' => $message,
                 'countryCode' => '62',

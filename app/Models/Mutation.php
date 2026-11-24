@@ -51,6 +51,12 @@ class Mutation extends Model
         return $this->belongsTo(Site::class, 'to_id', 'id');
     }
 
+    /** Surat terbit untuk proses ini (mutasi/promosi/demosi/resign). */
+    public function generate()
+    {
+        return $this->belongsTo(Generate::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

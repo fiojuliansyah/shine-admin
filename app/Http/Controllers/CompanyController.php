@@ -20,8 +20,8 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'logo' => 'max:3000',
-        ]); 
+            'logo' => 'required|image|mimes:jpg,jpeg,png,webp|max:3000',
+        ]);
         
         $logo = FileStorage::upload($request->file('logo'), 'companies_logo');
 
@@ -49,6 +49,7 @@ class CompanyController extends Controller
         $company = Company::findOrFail($id);
 
         if($request->hasFile('logo')){
+            $request->validate(['logo' => 'image|mimes:jpg,jpeg,png,webp|max:3000']);
             $logo = FileStorage::upload($request->file('logo'), 'companies_logo');
             FileStorage::delete($company->logo_public_id);
 

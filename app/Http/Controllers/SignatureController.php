@@ -39,11 +39,8 @@ class SignatureController extends Controller
         }
         // Skenario 2: Jika user Menggambar di Canvas (PNG base64 dari signature_pad)
         elseif ($request->filled('signature')) {
-            $signatureData = $request->input('signature');
-
-            if (strpos($signatureData, 'data:image/png;base64,') !== false) {
-                $esign = $signatureData;
-            }
+            // Validasi ketat: hanya PNG base64 murni (cegah HTML/JS disisipkan ke tanda tangan)
+            $esign = \App\Support\SignatureImage::normalizePng($request->input('signature'));
         }
 
         if (!$esign) {

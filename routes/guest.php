@@ -21,7 +21,7 @@ Route::middleware(['applicant.auth'])->prefix('applicant/lengkapi-profil')->grou
 
 Route::prefix('applicant')->group(function () {
     Route::get('/login', [ApplicantAuthController::class, 'showLoginForm'])->name('applicant-login');
-    Route::post('/login', [ApplicantAuthController::class, 'storeLogin'])->name('applicant-login-store');
+    Route::post('/login', [ApplicantAuthController::class, 'storeLogin'])->middleware('throttle:10,1')->name('applicant-login-store');
     Route::post('/logout', [ApplicantAuthController::class, 'logout'])->middleware('web')->name('applicant-logout');
     Route::get('/register', [ApplicantAuthController::class, 'showRegisterForm'])->name('applicant-register');
     Route::post('/register', [ApplicantAuthController::class, 'storeRegister'])->name('applicant-register-store');

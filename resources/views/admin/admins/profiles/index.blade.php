@@ -393,6 +393,7 @@
                                                     <th>Dari</th>
                                                     <th>Ke</th>
                                                     <th>Keterangan</th>
+                                                    <th>Surat</th>
                                                     <th>Oleh</th>
                                                 </tr>
                                             </thead>
@@ -404,11 +405,20 @@
                                                         <td>{{ $mutation->from_label }}</td>
                                                         <td>{{ $mutation->to_label }}</td>
                                                         <td>{{ $mutation->description ?: '-' }}</td>
+                                                        <td>
+                                                            @if ($mutation->generate)
+                                                                <a href="{{ route('generates.show', $mutation->generate) }}" target="_blank" class="text-nowrap">
+                                                                    <i class="ti ti-file-text me-1"></i>{{ $mutation->generate->formatted_letter_number ?? $mutation->generate->letter_number }}
+                                                                </a>
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
                                                         <td>{{ $mutation->creator?->name ?? '-' }}</td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="6" class="text-center text-muted">Belum ada riwayat karier.</td>
+                                                        <td colspan="7" class="text-center text-muted">Belum ada riwayat karier.</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -1112,6 +1122,31 @@
                                     <textarea name="description" class="form-control" rows="2">{{ old('description') }}</textarea>
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <hr class="mt-0">
+                                <h6 class="mb-2"><i class="ti ti-file-text me-1 text-primary"></i>Surat Terbit</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Template Surat<span class="text-danger" id="movement_letter_required"> *</span></label>
+                                    <select class="form-control select2" name="letter_id" id="movement_letter">
+                                        <option value="">Pilih template surat</option>
+                                        @foreach ($movementLetters as $letterOption)
+                                            <option value="{{ $letterOption->id }}" @selected(old('letter_id') == $letterOption->id)>
+                                                {{ $letterOption->title }}{{ $letterOption->type ? ' - ' . $letterOption->type->name : '' }}{{ $letterOption->site ? ' (' . $letterOption->site->name . ')' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted" id="movement_letter_hint">Surat langsung terbit (masuk Surat Terbit & portal karyawan) dengan nomor otomatis.</small>
+                                </div>
+                                <div id="movement_custom_vars" class="row"></div>
+                                <div class="alert alert-light border small mb-3">
+                                    <div class="fw-semibold mb-1">Variabel otomatis untuk template surat:</div>
+                                    Tambahkan variabel kustom dengan nama berikut di template, nilainya terisi otomatis dari proses ini:
+                                    @foreach (\App\Http\Controllers\EmployeeMovementController::AUTO_VARIABLES as $key => $label)
+                                        <code title="{{ $label }}">[{{ $key }}]</code>{{ $loop->last ? '.' : ',' }}
+                                    @endforeach
+                                    Variabel bawaan seperti <code>[area]</code> dan <code>[jabatan]</code> memakai data setelah proses, <code>[mulai]</code> = tanggal efektif.
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1239,9 +1274,42 @@
                 aktif: 'Aktifkan Kembali Karyawan'
             };
 
+            var letterRequired = @json(\App\Http\Controllers\EmployeeMovementController::LETTER_REQUIRED);
+            var autoVariables = @json(array_keys(\App\Http\Controllers\EmployeeMovementController::AUTO_VARIABLES));
+            var oldCustomValues = {!! json_encode((object) old('custom_values', []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!};
+            var customVarsUrl = {!! json_encode(route('get.custom.variables', ['letterId' => '__ID__']), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) !!};
+
+            // Variabel kustom template surat terpilih: kosongkan untuk variabel otomatis
+            function loadMovementCustomVars() {
+                var letterId = $('#movement_letter').val();
+                var $wrap = $('#movement_custom_vars').empty();
+                if (!letterId) return;
+
+                $.getJSON(customVarsUrl.replace('__ID__', letterId), function (vars) {
+                    (vars || []).forEach(function (v) {
+                        var isAuto = autoVariables.indexOf(v.variable) !== -1;
+                        var $col = $('<div class="col-md-6 mb-3"></div>');
+                        $('<label class="form-label"></label>').text(v.name || v.variable).appendTo($col);
+                        $('<input type="text" class="form-control">')
+                            .attr('name', 'custom_values[' + v.id + ']')
+                            .attr('placeholder', isAuto ? 'Otomatis dari data proses' : '[' + v.variable + ']')
+                            .val(oldCustomValues[v.id] || '')
+                            .appendTo($col);
+                        if (isAuto) $('<small class="text-muted">Kosongkan untuk mengisi otomatis.</small>').appendTo($col);
+                        $col.appendTo($wrap);
+                    });
+                });
+            }
+            $('#movement_letter').on('change', loadMovementCustomVars);
+
             function setMovementType(type) {
                 $('#movement_type').val(type);
                 $('#movementTitle').text(movementTitles[type] || 'Proses Karier');
+                var required = letterRequired.indexOf(type) !== -1;
+                $('#movement_letter_required').toggle(required);
+                $('#movement_letter_hint').text(required
+                    ? 'Wajib: surat langsung terbit (masuk Surat Terbit & portal karyawan) dengan nomor otomatis.'
+                    : 'Opsional untuk proses ini.');
                 $('#movementModal .movement-group').each(function() {
                     var show = String($(this).data('for')).split(' ').indexOf(type) !== -1;
                     $(this).toggle(show).find('input, select, textarea').prop('disabled', !show);
@@ -1267,6 +1335,7 @@
             $('#contractModal').on('show.bs.modal', fillContractDates);
 
             setMovementType($('#movement_type').val() || 'mutasi');
+            if ($('#movement_letter').val()) loadMovementCustomVars();
 
             // Scan KTP: NIK & Nama ada di form Edit Info, beri pengingat bila berubah
             document.addEventListener('ktp-ocr:applied', function(e) {

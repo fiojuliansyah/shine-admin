@@ -165,6 +165,7 @@ class ApplicantAuthController extends Controller
             ['email' => $user->email],
             ['token' => Hash::make($otp), 'created_at' => now()]
         );
+        \Illuminate\Support\Facades\Cache::forget('otp_attempts:' . sha1($user->email));
 
         if ($channel === 'email') {
             try {
@@ -209,16 +210,30 @@ class ApplicantAuthController extends Controller
         }
 
         $row = DB::table('password_reset_tokens')->where('email', $email)->first();
-        if (!$row || now()->diffInMinutes($row->created_at) > 10) {
+        // Carbon 3: diffInMinutes() bertanda (negatif untuk waktu lampau), jadi pakai addMinutes()->isPast().
+        if (!$row || \Illuminate\Support\Carbon::parse($row->created_at)->addMinutes(10)->isPast()) {
             DB::table('password_reset_tokens')->where('email', $email)->delete();
             $request->session()->forget('reset_email');
             return redirect()->route('applicant-forgot')->with('error', 'Kode OTP kedaluwarsa. Silakan minta ulang.');
         }
 
         if (!Hash::check($request->otp, $row->token)) {
-            return back()->with('error', 'Kode OTP salah.');
+            // Maks. 5 kali salah per kode OTP; setelah itu kode dibatalkan (cegah tebak-tebakan).
+            $attemptsKey = 'otp_attempts:' . sha1($email);
+            $attempts = (int) \Illuminate\Support\Facades\Cache::get($attemptsKey, 0) + 1;
+            \Illuminate\Support\Facades\Cache::put($attemptsKey, $attempts, now()->addMinutes(10));
+
+            if ($attempts >= 5) {
+                DB::table('password_reset_tokens')->where('email', $email)->delete();
+                \Illuminate\Support\Facades\Cache::forget($attemptsKey);
+                $request->session()->forget('reset_email');
+                return redirect()->route('applicant-forgot')->with('error', 'Terlalu banyak percobaan kode OTP salah. Silakan minta kode baru.');
+            }
+
+            return back()->with('error', 'Kode OTP salah. Sisa percobaan: ' . (5 - $attempts) . '.');
         }
 
+        \Illuminate\Support\Facades\Cache::forget('otp_attempts:' . sha1($email));
         DB::table('password_reset_tokens')->where('email', $email)->delete();
         $request->session()->put('reset_verified', $email);
         $request->session()->forget(['reset_email', 'reset_channel']);

@@ -15,12 +15,11 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
+        // Path file (avatar_url, avatar_public_id, esign) & data HR (employee_nik, employee_status,
+        // join_date, resign_date) TIDAK boleh diisi user sendiri: path file dipakai untuk
+        // menghapus/menandatangani file di storage, data HR diatur oleh admin.
+        // Field yang tidak ada di sini diabaikan (tidak error) agar aplikasi mobile lama tetap jalan.
         $validator = Validator::make($request->all(), [
-            'avatar_url' => 'nullable|url',
-            'avatar_public_id' => 'nullable|string|max:255',
-            'avatar_encode' => 'nullable|string',
-            'esign' => 'nullable|string|max:255',
-            'employee_nik' => 'nullable|string|max:255',
             'gender' => 'nullable|string|max:255',
             'birth_place' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
@@ -28,9 +27,6 @@ class ProfileController extends Controller
             'npwp_number' => 'nullable|string|max:255',
             'marriage_status' => 'nullable|string|max:255',
             'address' => 'nullable|string',
-            'employee_status' => 'nullable|string|max:255',
-            'join_date' => 'nullable|date',
-            'resign_date' => 'nullable|date',
             'bank_name' => 'nullable|string|max:255',
             'account_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
@@ -108,7 +104,7 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'     => 'nullable|string|max:255',
-            'email'    => 'nullable|email|max:255',
+            'email'    => ['nullable', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore(Auth::id())],
             'nik'      => 'nullable|digits:16',
             'phone'    => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6',

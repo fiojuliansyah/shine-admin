@@ -47,7 +47,11 @@ class AdminController extends Controller
         $sites = Site::all();
         $roles = Role::pluck('name', 'name')->all();
         $userRoles = $user->roles->pluck('name', 'name')->all();
-        $mutations = Mutation::with(['from', 'to', 'creator'])->where('user_id', $id)->orderByDesc('date')->orderByDesc('id')->get();
+        $mutations = Mutation::with(['from', 'to', 'creator', 'generate.letter.numberConfig', 'generate.site.company'])->where('user_id', $id)->orderByDesc('date')->orderByDesc('id')->get();
+        // Template surat untuk proses karier (mutasi/promosi/demosi/resign)
+        $movementLetters = \App\Models\Letter::with(['site:id,name', 'type:id,name'])
+            ->orderBy('title')
+            ->get(['id', 'title', 'site_id', 'type_letter_id']);
         $roleOptions = EmployeeMovementController::roleOptions();
         $contracts = $user->generates()->with('letter.type')->whereNotNull('start_date')->latest()->get();
         $activities = Activity::where('causer_id', $id)
@@ -58,7 +62,7 @@ class AdminController extends Controller
         $userSites = User::with('sites_leader')->find($id);
         $userHasSignLeader = User::where('id', $id)->first();
 
-        return view('admin.admins.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader', 'roleOptions', 'contracts'));
+        return view('admin.admins.profiles.index', compact('user', 'users', 'userSites', 'sites', 'roles', 'userRoles', 'mutations', 'documents', 'activities', 'notificationSettings', 'userHasSignLeader', 'roleOptions', 'contracts', 'movementLetters'));
     }
 
 
@@ -69,9 +73,12 @@ class AdminController extends Controller
         IdentityRules::normalize($request, ['nik']);
         $request->validate([
             'nik' => IdentityRules::nik(required: (bool) $user->is_employee),
+            'email' => ['nullable', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($user->id)],
         ], IdentityRules::messages());
 
-        $input = $request->all();
+        // Hanya kolom yang memang ada di form Edit Akun (bukan $request->all(), yang bisa
+        // dipakai mengubah kolom lain seperti is_employee lewat request yang dimodifikasi).
+        $input = $request->only(['name', 'email', 'nik', 'phone', 'employee_nik', 'leader_id', 'department_id', 'password']);
 
         // Update site_id tunggal; perubahan site dicatat sebagai riwayat mutasi
         if ($request->has('site_id')) {
@@ -164,6 +171,7 @@ class AdminController extends Controller
         }
 
         if ($request->hasFile('avatar')) {
+            $request->validate(['avatar' => 'image|mimes:jpg,jpeg,png,webp|max:5120'], ['avatar.image' => 'Pas foto harus berupa gambar.', 'avatar.mimes' => 'Pas foto harus JPG/PNG/WebP.', 'avatar.max' => 'Ukuran pas foto maksimal 5 MB.']);
             $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
             $profileData['avatar_url'] = $avatar['url'];
             $profileData['avatar_public_id'] = $avatar['path'];

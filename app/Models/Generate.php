@@ -16,8 +16,11 @@ class Generate extends Model
     protected static function booted(): void
     {
         static::deleting(function (Generate $generate) {
+            // Nomor surat hanya dikembalikan bila surat ini nomor terakhir (aman).
             $generate->resetLetterNumber();
-            $generate->resetEmployeeNik();
+            // resetEmployeeNik() sengaja TIDAK dipanggil: menghapus surat apa pun dulu
+            // mengosongkan NIK karyawan & memundurkan counter NIK perusahaan tanpa cek,
+            // sehingga NIK berikutnya bisa bentrok dengan NIK yang sudah dipakai.
         });
     }
 

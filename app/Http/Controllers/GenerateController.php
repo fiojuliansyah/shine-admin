@@ -356,14 +356,19 @@ class GenerateController extends Controller
 
     public function bulkApprove(Request $request)
     {
-        $esign = $request->esign;
+        // Tanda tangan diambil dari profil admin yang login (bukan dari input form,
+        // yang bisa dimanipulasi untuk menyisipkan HTML ke surat).
+        $esign = Auth::user()->profile?->esign;
         $ids = $request->input('ids');
-    
+
         if (empty($esign)) {
             return redirect()->back()->with('error', 'Tanda tangan digital Anda belum ada.');
         }
 
         $esign = $this->convertEsignToBase64($esign);
+        if (!preg_match('/^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+\/]+={0,2}$/', $esign)) {
+            return redirect()->back()->with('error', 'Format tanda tangan digital Anda tidak valid. Buat ulang tanda tangan Anda.');
+        }
 
         $ids = explode(',', $ids);
     
@@ -385,6 +390,20 @@ class GenerateController extends Controller
         // Tanda tangan sudah berupa PNG base64 data URI, simpan apa adanya.
         if (str_starts_with($esign, 'data:image/')) {
             return $esign;
+        }
+
+        // Tanda tangan dari aplikasi mobile: JSON {"esign_url", "esign_public_id"} -> file di storage.
+        $json = json_decode($esign, true);
+        if (is_array($json) && !empty($json['esign_public_id'])) {
+            try {
+                $bytes = \App\Services\FileStorage::disk()->get($json['esign_public_id']);
+                $info = $bytes ? @getimagesizefromstring($bytes) : false;
+                if ($info && in_array($info['mime'], ['image/png', 'image/jpeg', 'image/webp'], true)) {
+                    return 'data:' . $info['mime'] . ';base64,' . base64_encode($bytes);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal membaca file tanda tangan: ' . $e->getMessage());
+            }
         }
 
         // Kompatibilitas data lama: markup SVG mentah dirasterisasi ke PNG base64.
@@ -626,7 +645,7 @@ class GenerateController extends Controller
             }
         }
 
-        $generate->letter->description = str_replace($search, $replace, $generate->letter->description);
+        $generate->letter->description = str_replace($search, \App\Support\LetterPlaceholders::forHtml($replace), $generate->letter->description);
 
         return view('admin.generates.show', compact('generate'));
     }
@@ -710,7 +729,7 @@ class GenerateController extends Controller
                 $parsed = json_decode($description, true);
                 if (isset($parsed['pages']) && is_array($parsed['pages'])) {
                     $isFabric = true;
-                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $descriptionReplaced = str_replace($search, \App\Support\LetterPlaceholders::forJson($replace), $description);
                     $parsedReplaced = json_decode($descriptionReplaced, true);
                     $pages = $parsedReplaced['pages'] ?? [];
                 }
@@ -718,7 +737,7 @@ class GenerateController extends Controller
         }
 
         if (!$isFabric) {
-            $description = str_replace($search, $replace, $description);
+            $description = str_replace($search, \App\Support\LetterPlaceholders::forHtml($replace), $description);
         }
 
         return view('admin.letters.print', compact('pages', 'isFabric', 'title', 'description'));
@@ -851,7 +870,7 @@ class GenerateController extends Controller
                 $parsed = json_decode($description, true);
                 if (isset($parsed['pages']) && is_array($parsed['pages'])) {
                     $isFabric = true;
-                    $descriptionReplaced = str_replace($search, $replace, $description);
+                    $descriptionReplaced = str_replace($search, \App\Support\LetterPlaceholders::forJson($replace), $description);
                     $parsedReplaced = json_decode($descriptionReplaced, true);
                     $pages = $this->savePageImages($parsedReplaced['pages'] ?? []);
                 }
@@ -859,7 +878,7 @@ class GenerateController extends Controller
         }
 
         if (!$isFabric) {
-            $description = str_replace($search, $replace, $description);
+            $description = str_replace($search, \App\Support\LetterPlaceholders::forHtml($replace), $description);
         }
 
         $title = $generate->letter->title ?? 'surat';

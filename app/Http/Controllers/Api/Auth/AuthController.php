@@ -32,18 +32,12 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-
-        if (!$user) {
+        // Pesan sama untuk email tidak terdaftar & password salah agar tidak bisa
+        // dipakai menebak email mana yang terdaftar.
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => false,
-                'message' => 'Email not found',
-            ], 404);
-        }
-
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Incorrect password',
+                'message' => 'Email atau password salah.',
             ], 401);
         }
 
