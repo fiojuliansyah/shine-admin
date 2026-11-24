@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Applicant;
 
 use App\Mail\PasswordResetOtpMail;
 use App\Models\User;
+use App\Rules\Turnstile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -59,7 +60,7 @@ class ApplicantAuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|max:20',
             'password' => 'required|string|min:6|confirmed',
-        ], [
+        ] + Turnstile::rules(), Turnstile::messages() + [
             'name.required' => 'Nama lengkap wajib diisi.',
             'email.required' => 'Alamat email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
@@ -97,7 +98,7 @@ class ApplicantAuthController extends Controller
         $request->validate([
             'login' => 'required|string',
             'password' => 'required|string',
-        ], [
+        ] + Turnstile::rules(), Turnstile::messages() + [
             'login.required' => 'Email atau Nomor WhatsApp wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);

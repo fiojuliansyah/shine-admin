@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Rules\Turnstile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -30,7 +31,7 @@ class LoginController extends Controller
         $request->validate([
             'login' => 'required|string|max:255',
             'password' => 'required|string',
-        ], [
+        ] + Turnstile::rules(), Turnstile::messages() + [
             'required' => 'Kolom :attribute wajib diisi.',
             'string' => 'Kolom :attribute harus berupa teks.',
         ]);

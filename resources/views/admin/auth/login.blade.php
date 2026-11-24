@@ -30,10 +30,17 @@
                                             <h2 class="mb-2">Masuk Dashboard Management</h2>
                                             <p class="mb-0">Masukan detail login dibawah ini!</p>
                                         </div>
+                                        @if ($errors->any())
+                                            <div class="alert alert-danger py-2 small">
+                                                @foreach ($errors->all() as $error)
+                                                    <div>{{ $error }}</div>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                             <div class="mb-3">
                                                 <label class="form-label">Alamat Email</label>
                                                 <div class="input-group">
-                                                    <input type="text" name="login" class="form-control border-end-0">
+                                                    <input type="text" name="login" class="form-control border-end-0" value="{{ old('login') }}">
                                                     <span class="input-group-text border-start-0">
                                                         <i class="ti ti-mail"></i>
                                                     </span>
@@ -46,6 +53,7 @@
                                                     <span class="ti toggle-password ti-eye-off"></span>
                                                 </div>
                                             </div>
+                                            @include('partials.turnstile')
                                             <div class="mb-3">
                                                 <button type="submit" class="btn btn-primary w-100">Masuk</button>
                                             </div>

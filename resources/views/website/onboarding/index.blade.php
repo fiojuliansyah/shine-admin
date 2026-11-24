@@ -134,11 +134,11 @@
                                         <div class="d-flex flex-wrap align-items-center gap-2">
                                             <div class="me-auto">
                                                 <div class="fw-semibold"><i class="ti ti-scan me-1 text-primary"></i>Isi otomatis dari foto KTP</div>
-                                                <small class="text-muted">Data KTP diisi otomatis dan foto KTP sekaligus tersimpan ke dokumen.</small>
+                                                <small class="text-muted">Pilih foto KTP, data langsung terisi otomatis dan foto KTP sekaligus tersimpan ke dokumen.</small>
                                             </div>
                                             <input type="file" id="onbKtpFile" class="form-control form-control-sm" accept="image/png,image/jpeg,image/webp" style="max-width: 230px;">
                                             <button type="button" id="onbKtpScan" class="btn btn-sm btn-dark text-nowrap" disabled>
-                                                <i class="ti ti-scan me-1"></i>Scan KTP
+                                                <i class="ti ti-refresh me-1"></i>Scan Ulang
                                             </button>
                                         </div>
                                         <div id="onbKtpPreviewWrap" class="mt-3 text-center d-none">
@@ -477,11 +477,17 @@
                     preview.removeAttribute('src');
                     previewWrap.classList.add('d-none');
                 }
+
+                // Langsung scan begitu file dipilih
+                if (file) runScan();
             });
 
-            scanBtn.addEventListener('click', function () {
+            scanBtn.addEventListener('click', runScan);
+
+            function runScan() {
                 if (!fileInput.files.length) return;
                 scanBtn.disabled = true;
+                fileInput.disabled = true; // cegah ganti file saat scan berjalan
                 setStatus('text-muted', '<span class="spinner-border spinner-border-sm me-1"></span>Membaca KTP...');
 
                 var fd = new FormData();
@@ -512,8 +518,9 @@
                     setStatus('text-danger', err.message || 'Gagal membaca KTP');
                 }).finally(function () {
                     scanBtn.disabled = false;
+                    fileInput.disabled = false;
                 });
-            });
+            }
         }
     })();
 </script>

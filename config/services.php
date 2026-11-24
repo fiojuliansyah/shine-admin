@@ -42,6 +42,12 @@ return [
         'url' => env('MIDTRANS_URL', 'https://app.sandbox.midtrans.com/snap/v1/transactions')
     ],
 
+    // Captcha login/daftar (https://developers.cloudflare.com/turnstile/)
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
     // OCR KTP via Amanai (API kompatibel OpenAI Chat Completions).
     'amanai' => [
         'base_url' => env('AMANAI_BASE_URL', 'https://api.amanai.sh/v1'),
