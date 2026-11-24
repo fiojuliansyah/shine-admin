@@ -42,6 +42,11 @@ return [
         'url' => env('MIDTRANS_URL', 'https://app.sandbox.midtrans.com/snap/v1/transactions')
     ],
 
+    // WhatsApp gateway (https://fonnte.com). Dibaca lewat config agar tetap jalan saat config:cache.
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+    ],
+
     // Captcha login/daftar (https://developers.cloudflare.com/turnstile/)
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),

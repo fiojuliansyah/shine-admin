@@ -15,7 +15,7 @@ class WhatsappChannel
         $phoneNumber = $messageData['to'];
         $message = $messageData['message'];
 
-        $token = env('FONNTE_TOKEN');
+        $token = config('services.fonnte.token');
         $apiUrl = 'https://api.fonnte.com/send';
 
         if (!$token) {

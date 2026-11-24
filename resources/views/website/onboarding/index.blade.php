@@ -36,7 +36,7 @@
             <img src="/admin/assets/img/logo-dark-ciptakarir.svg" alt="Cipta Karir" width="130">
             <div class="d-flex align-items-center gap-3">
                 <span class="d-none d-sm-inline text-muted small">Halo, <strong class="text-dark">{{ $user->name }}</strong></span>
-                <form action="{{ route('applicant-logout') }}" method="POST">
+                <form action="{{ route('applicant-logout') }}" method="POST" data-loading-text="Keluar...">
                     @csrf
                     <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="ti ti-logout me-1"></i>Keluar</button>
                 </form>
@@ -102,7 +102,7 @@
                                         @endif
                                     </div>
                                     <form action="{{ route('applicant.onboarding.document') }}" method="POST" enctype="multipart/form-data"
-                                        class="d-flex gap-2 align-items-center">
+                                        class="d-flex gap-2 align-items-center" data-loading-text="Mengunggah {{ $docName }}...">
                                         @csrf
                                         <input type="hidden" name="name" value="{{ $docName }}">
                                         <input type="file" name="file" class="form-control form-control-sm" accept="image/png,image/jpeg" required style="max-width: 230px;">
@@ -117,13 +117,14 @@
                 </div>
                 <div class="card-footer bg-white d-flex justify-content-between">
                     <a href="{{ route('applicant.onboarding', ['step' => 4]) }}" class="btn btn-light"><i class="ti ti-arrow-left me-1"></i>Sebelumnya</a>
-                    <form action="{{ route('applicant.onboarding.save', ['step' => 5]) }}" method="POST">
+                    <form action="{{ route('applicant.onboarding.save', ['step' => 5]) }}" method="POST" data-loading-text="Memeriksa kelengkapan data...">
                         @csrf
                         <button type="submit" class="btn btn-success"><i class="ti ti-check me-1"></i>Selesai & Masuk Dashboard</button>
                     </form>
                 </div>
             @else
-                <form action="{{ route('applicant.onboarding.save', ['step' => $step]) }}" method="POST" enctype="multipart/form-data" novalidate>
+                <form action="{{ route('applicant.onboarding.save', ['step' => $step]) }}" method="POST" enctype="multipart/form-data" novalidate
+                    id="onbStepForm" data-step="{{ $step }}" data-loading-text="Menyimpan data...">
                     @csrf
                     <div class="card-body">
                         <div class="row">
@@ -164,7 +165,7 @@
                                         <input type="file" name="avatar" class="form-control @error('avatar') is-invalid @enderror" accept="image/png,image/jpeg">
                                     </div>
                                     @error('avatar')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                    @if ($p?->avatar_url)<small class="text-muted">Kosongkan bila tidak ingin mengganti.</small>@endif
+                                    @if ($p?->avatar_url)<small class="text-success"><i class="ti ti-circle-check me-1"></i>Pas foto sudah tersimpan. Kosongkan bila tidak ingin mengganti.</small>@endif
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
@@ -411,6 +412,53 @@
 @push('js')
 <script>
     (function () {
+        // ===== Draf isian per langkah (sessionStorage) =====
+        // Isian yang belum disimpan tidak hilang saat klik "Sebelumnya", pindah langkah, atau muat ulang.
+        // Bila validasi server gagal, nilai dari server (old input) yang dipakai.
+        var stepForm = document.getElementById('onbStepForm');
+        if (stepForm) {
+            var draftKey = 'onbDraft:{{ $user->id }}:' + stepForm.dataset.step;
+            var hasOldInput = @json(session()->hasOldInput());
+
+            function fields() {
+                return Array.prototype.filter.call(stepForm.elements, function (el) {
+                    return el.name && el.name !== '_token' && el.type !== 'file' && el.type !== 'hidden' && el.type !== 'submit';
+                });
+            }
+            function saveDraft() {
+                var data = {};
+                fields().forEach(function (el) { data[el.name] = el.type === 'checkbox' ? el.checked : el.value; });
+                try { sessionStorage.setItem(draftKey, JSON.stringify(data)); } catch (e) {}
+            }
+
+            if (!hasOldInput) {
+                try {
+                    var draft = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
+                    if (draft) {
+                        fields().forEach(function (el) {
+                            if (!(el.name in draft)) return;
+                            if (el.type === 'checkbox') el.checked = !!draft[el.name];
+                            else if (el._flatpickr) el._flatpickr.setDate(draft[el.name] || null, false);
+                            else el.value = draft[el.name];
+                            el.dispatchEvent(new Event('change', { bubbles: true }));
+                        });
+                    }
+                } catch (e) {}
+            }
+
+            stepForm.addEventListener('input', saveDraft);
+            stepForm.addEventListener('change', saveDraft);
+            // Tetap simpan draf saat submit; dihapus setelah langkah ini tersimpan (lihat di bawah)
+            stepForm.addEventListener('submit', saveDraft);
+        }
+
+        // Draf langkah sebelumnya sudah tersimpan ke server -> hapus
+        @if (! $errors->any())
+            for (var i = 1; i < {{ $step }}; i++) {
+                try { sessionStorage.removeItem('onbDraft:{{ $user->id }}:' + i); } catch (e) {}
+            }
+        @endif
+
         // Langkah 2: alamat domisili sama dengan KTP
         var same = document.getElementById('onbSameAddress');
         if (same) {
@@ -489,6 +537,7 @@
                 scanBtn.disabled = true;
                 fileInput.disabled = true; // cegah ganti file saat scan berjalan
                 setStatus('text-muted', '<span class="spinner-border spinner-border-sm me-1"></span>Membaca KTP...');
+                if (window.PageLoading) window.PageLoading.show('Membaca KTP...');
 
                 var fd = new FormData();
                 fd.append('image', fileInput.files[0]);
@@ -517,6 +566,7 @@
                 }).catch(function (err) {
                     setStatus('text-danger', err.message || 'Gagal membaca KTP');
                 }).finally(function () {
+                    if (window.PageLoading) window.PageLoading.hide();
                     scanBtn.disabled = false;
                     fileInput.disabled = false;
                 });

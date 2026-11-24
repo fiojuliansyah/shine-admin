@@ -148,9 +148,26 @@ class OnboardingController extends Controller
     {
         IdentityRules::normalize($request, ['nik', 'no_kk']);
 
+        // Pas foto disimpan lebih dulu, terpisah dari kolom lain: file upload tidak bisa
+        // dikembalikan browser setelah validasi gagal, jadi pelamar tidak perlu memilih ulang.
+        if ($request->hasFile('avatar')) {
+            $request->validate(
+                ['avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:5120']],
+                ['avatar.image' => 'Pas foto harus berupa gambar.', 'avatar.mimes' => 'Pas foto harus JPG/PNG.', 'avatar.max' => 'Ukuran pas foto maksimal 5 MB.']
+            );
+
+            $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
+            $oldAvatar = $user->profile?->avatar_public_id;
+            $this->saveProfile($user, ['avatar_url' => $avatar['url'], 'avatar_public_id' => $avatar['path']]);
+            if ($oldAvatar && $oldAvatar !== $avatar['path']) {
+                FileStorage::delete($oldAvatar);
+            }
+            $user->load('profile');
+        }
+
         $data = $request->validate([
             'nik' => IdentityRules::nik(),
-            'avatar' => [Rule::requiredIf(blank($user->profile?->avatar_url)), 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
+            'avatar' => [Rule::requiredIf(blank($user->profile?->avatar_url)), 'nullable'],
             'gender' => ['required', Rule::in(['Laki-Laki', 'Perempuan'])],
             'birth_place' => ['required', 'string', 'max:100'],
             'birth_date' => ['required', 'date', 'before:today'],
@@ -169,19 +186,7 @@ class OnboardingController extends Controller
 
         $user->update(['nik' => $data['nik']]);
 
-        $profileData = collect($data)->except(['nik', 'avatar'])->all();
-
-        if ($request->hasFile('avatar')) {
-            $avatar = FileStorage::upload($request->file('avatar'), 'avatars');
-            $oldAvatar = $user->profile?->avatar_public_id;
-            $profileData['avatar_url'] = $avatar['url'];
-            $profileData['avatar_public_id'] = $avatar['path'];
-            if ($oldAvatar && $oldAvatar !== $avatar['path']) {
-                FileStorage::delete($oldAvatar);
-            }
-        }
-
-        $this->saveProfile($user, $profileData);
+        $this->saveProfile($user, collect($data)->except(['nik', 'avatar'])->all());
     }
 
     private function saveAlamat(Request $request, User $user): void

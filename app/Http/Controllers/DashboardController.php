@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
@@ -172,36 +173,54 @@ class DashboardController extends Controller
 
     public function getWhatsappStatus()
     {
-        try {
-            $token = env('FONNTE_TOKEN');
+        $token = config('services.fonnte.token');
 
-            if (!$token) {
-                return response()->json([
-                    'status' => false,
-                    'reason' => 'Token Fonnte tidak ditemukan'
-                ], 404);
-            }
-
-            $response = Http::withHeaders([
-                'Authorization' => $token
-            ])->timeout(15)->post('https://api.fonnte.com/qr', [
-                'type' => 'qr'
-            ]);
-
-            return response()->json($response->json());
-
-        } catch (\Exception $e) {
+        if (!$token) {
             return response()->json([
                 'status' => false,
-                'reason' => 'Server Error'
-            ], 500);
+                'reason' => 'Token Fonnte (FONNTE_TOKEN) belum diatur di .env server.',
+            ]);
         }
+
+        try {
+            $response = Http::withHeaders(['Authorization' => $token])
+                ->timeout(20)
+                ->post('https://api.fonnte.com/qr', ['type' => 'qr']);
+        } catch (\Throwable $e) {
+            Log::warning('Fonnte QR: gagal menghubungi server', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status' => false,
+                'reason' => 'Server Fonnte tidak merespons (timeout). Coba lagi beberapa saat.',
+            ]);
+        }
+
+        $data = $response->json();
+
+        if (!is_array($data)) {
+            Log::warning('Fonnte QR: respons bukan JSON', ['http' => $response->status(), 'body' => mb_substr($response->body(), 0, 500)]);
+
+            return response()->json([
+                'status' => false,
+                'reason' => 'Respons Fonnte tidak valid (HTTP ' . $response->status() . '). Coba lagi beberapa saat.',
+            ]);
+        }
+
+        $connected = ($data['reason'] ?? null) === 'device already connect' || ($data['status'] ?? null) === 'connected';
+        if (!$connected && empty($data['url'])) {
+            Log::info('Fonnte QR: QR tidak tersedia', ['response' => $data]);
+        }
+
+        // Status koneksi dipakai halaman lupa password pelamar; segarkan cache-nya.
+        \Illuminate\Support\Facades\Cache::put('fonnte_connected', $connected, 60);
+
+        return response()->json($data + ['connected' => $connected]);
     }
 
     public function disconnectWhatsapp()
     {
         try {
-            $token = env('FONNTE_TOKEN');
+            $token = config('services.fonnte.token');
 
             $response = Http::withHeaders([
                 'Authorization' => $token

@@ -30,7 +30,7 @@ class ApplicantAuthController extends Controller
     private function isWhatsappConnected(): bool
     {
         return \Illuminate\Support\Facades\Cache::remember('fonnte_connected', 60, function () {
-            $token = env('FONNTE_TOKEN');
+            $token = config('services.fonnte.token');
             if (!$token) {
                 return false;
             }
@@ -263,7 +263,7 @@ class ApplicantAuthController extends Controller
 
     private function sendWhatsapp($phone, $message)
     {
-        $token = env('FONNTE_TOKEN');
+        $token = config('services.fonnte.token');
         if (!$token) {
             Log::error('Fonnte TOKEN tidak terkonfigurasi di .env.');
             return false;

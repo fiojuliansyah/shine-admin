@@ -41,6 +41,18 @@
                             </div>
                         </div>
 
+                        <div id="wa-error-area" class="hidden py-4">
+                            <div class="mb-2">
+                                <i class="ti ti-alert-triangle text-warning" style="font-size: 3rem;"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1">QR Code belum tersedia</h6>
+                            <p class="text-muted small px-3 mb-3" id="wa-error-reason">-</p>
+                            <button type="button" onclick="checkWhatsappStatus(true)" class="btn btn-primary btn-sm px-3">
+                                <i class="ti ti-refresh me-1"></i> Coba Lagi
+                            </button>
+                            <p class="text-muted small mt-2 mb-0">Dicoba ulang otomatis setiap 15 detik.</p>
+                        </div>
+
                         <div id="wa-success-area" class="hidden py-4">
                             <div class="mb-3">
                                 <i class="mdi mdi-check-circle text-success" style="font-size: 4rem;"></i>
@@ -128,12 +140,24 @@
 
 <script>
     let pollingInterval;
+    let isChecking = false;
 
-    function checkWhatsappStatus() {
-        const loading = document.getElementById('wa-loading');
-        const qrArea = document.getElementById('wa-qr-area');
-        const qrImage = document.getElementById('wa-qr-image');
-        const successArea = document.getElementById('wa-success-area');
+    function showWaArea(id) {
+        ['wa-loading', 'wa-qr-area', 'wa-success-area', 'wa-error-area'].forEach(function (el) {
+            document.getElementById(el).classList.toggle('hidden', el !== id);
+        });
+    }
+
+    function showWaError(reason) {
+        document.getElementById('wa-error-reason').textContent = reason || 'Terjadi kesalahan tidak diketahui.';
+        showWaArea('wa-error-area');
+    }
+
+    function checkWhatsappStatus(manual) {
+        // Jangan kirim permintaan baru selama yang sebelumnya belum selesai
+        if (isChecking) return;
+        isChecking = true;
+        if (manual) showWaArea('wa-loading');
 
         fetch("{{ route('whatsapp.status') }}", {
             headers: {
@@ -144,25 +168,29 @@
         .then(response => {
             const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
-                throw new TypeError("Server tidak mengembalikan JSON. Cek login atau Route!");
+                throw new Error("Sesi login mungkin habis. Muat ulang halaman ini.");
             }
             return response.json();
         })
         .then(data => {
-            loading.classList.add('hidden');
-            
-            if (data.status === true && data.url) {
-                qrImage.src = "data:image/png;base64," + data.url;
-                qrArea.classList.remove('hidden');
-                successArea.classList.add('hidden');
-            } else if (data.reason === "device already connect" || data.status === "connected") {
-                qrArea.classList.add('hidden');
-                successArea.classList.remove('hidden');
+            data = data || {};
+            if (data.connected || data.reason === "device already connect" || data.status === "connected") {
+                showWaArea('wa-success-area');
+            } else if (data.url) {
+                const url = String(data.url);
+                document.getElementById('wa-qr-image').src = url.startsWith('data:') ? url : "data:image/png;base64," + url;
+                showWaArea('wa-qr-area');
+            } else {
+                // Tampilkan alasan dari Fonnte (mis. QR belum siap, device/token bermasalah)
+                showWaError(data.reason || data.message || data.detail || 'Fonnte tidak mengirim QR Code.');
             }
         })
         .catch(error => {
             console.error('Status Error:', error);
-            // Tetap tampilkan loading atau pesan error di UI jika perlu
+            showWaError(error.message || 'Gagal mengecek status WhatsApp.');
+        })
+        .finally(() => {
+            isChecking = false;
         });
     }
 
