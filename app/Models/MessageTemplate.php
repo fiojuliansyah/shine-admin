@@ -32,6 +32,7 @@ class MessageTemplate extends Model
         '{periode_baru}' => 'Periode kontrak baru (khusus revisi kontrak)',
         '{mulai}' => 'Tanggal mulai kontrak baru (khusus revisi kontrak)',
         '{selesai}' => 'Tanggal akhir kontrak baru (khusus revisi kontrak)',
+        '{perubahan}' => 'Daftar perubahan isi surat (khusus revisi surat)',
     ];
 
     public function scopeActive($query)

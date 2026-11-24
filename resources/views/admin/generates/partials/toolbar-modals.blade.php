@@ -204,39 +204,46 @@
     </div>
 </div>
 
-<!-- Modal Revisi Periode Kontrak (massal) -->
+<!-- Modal Revisi Surat Massal: kolom mengikuti template surat yang dicentang -->
 <div class="modal fade" id="reviseContractModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <form action="{{ route('generates.bulkReviseContract') }}" method="POST" id="bulkReviseContractForm">
+            <form action="{{ route('generates.bulkRevise') }}" method="POST" id="bulkReviseContractForm" class="d-flex flex-column h-100">
                 @csrf
                 <input type="hidden" name="ids" id="bulkReviseContractIds">
                 <div class="modal-header">
-                    <h5 class="modal-title">Revisi Periode Kontrak</h5>
+                    <h5 class="modal-title">Revisi Surat Massal</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-info small py-2">
-                        Berlaku untuk <strong><span id="bulkReviseContractCount">0</span> surat</strong> yang dicentang di tabel.
-                        Kosongkan tanggal yang tidak ingin diubah.
+                    <div class="alert alert-info small py-2 mb-3">
+                        Berlaku untuk <strong><span id="bulkReviseContractCount">0</span> surat</strong> yang dicentang
+                        <span id="bulkReviseLetters"></span>.
+                        Kolom mengikuti template surat; <strong>kosongkan kolom yang tidak ingin diubah</strong>.
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Mulai Kontrak (baru)</label>
-                            <input type="date" name="start_date" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Akhir Kontrak (baru)</label>
-                            <input type="date" name="end_date" class="form-control">
+
+                    <div id="bulkReviseLoading" class="text-center py-4 d-none">
+                        <div class="spinner-border text-primary"></div>
+                        <div class="small text-muted mt-2">Memuat kolom template surat...</div>
+                    </div>
+
+                    <div id="bulkReviseFieldsWrap">
+                        <h6 class="mb-2 d-none" id="bulkReviseFieldsTitle">Isi Surat</h6>
+                        <div class="row" id="bulkReviseFields"></div>
+                        <h6 class="mb-2 mt-2 d-none" id="bulkReviseVarsTitle">Variabel Template</h6>
+                        <div class="row" id="bulkReviseVars"></div>
+                        <div class="text-muted small d-none" id="bulkReviseEmpty">
+                            Template surat terpilih tidak memiliki kolom yang bisa direvisi per surat.
                         </div>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="mb-3 mt-2">
                         <label class="form-label">Alasan Revisi</label>
                         <textarea name="description" class="form-control" rows="2" placeholder="Contoh: Koreksi salah input tanggal PKWT batch November"></textarea>
                     </div>
                     <small class="text-muted d-block mb-3">
-                        Surat (lihat/PDF/cetak) langsung memakai periode baru — nomor surat & tanda tangan tetap.
-                        Profil karyawan ikut diperbarui bila surat ini kontrak terbarunya, dan perubahan dicatat di Riwayat Karier.
+                        Nomor surat & tanda tangan tetap. Surat (lihat/PDF/cetak) langsung memakai isi baru dan perubahan dicatat di Riwayat Karier.
+                        Data seperti nama, alamat, jabatan, site & gaji diambil dari data karyawan — ubah di menu karyawan.
                     </small>
 
                     @php $reviseTemplates = \App\Models\MessageTemplate::active()->orderBy('name')->get(['id', 'name']); @endphp
@@ -263,8 +270,8 @@
                             </select>
                         @endif
                         <small class="text-muted d-block mt-1">
-                            Variabel tambahan di template: <code>{no_surat}</code>, <code>{periode_lama}</code>, <code>{periode_baru}</code>, <code>{mulai}</code>, <code>{selesai}</code>.
-                            Tidak dicentang = tidak ada notifikasi.
+                            Variabel tambahan di template pesan: <code>{no_surat}</code>, <code>{perubahan}</code>, <code>{periode_lama}</code>,
+                            <code>{periode_baru}</code>, <code>{mulai}</code>, <code>{selesai}</code>. Tidak dicentang = tidak ada notifikasi.
                         </small>
                     </div>
                 </div>

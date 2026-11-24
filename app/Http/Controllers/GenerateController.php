@@ -426,27 +426,116 @@ class GenerateController extends Controller
     }
 
     /**
-     * Revisi periode kontrak banyak surat sekaligus (mis. PKWT yang tanggalnya salah).
-     * Kolom tanggal yang dikosongkan tidak diubah.
+     * Kolom surat (tersimpan per surat di tabel generates) yang bisa direvisi massal.
+     * Data lain (nama, alamat, jabatan, site, gaji) berasal dari profil karyawan.
      */
-    public function bulkReviseContract(Request $request)
+    private const REVISABLE_FIELDS = [
+        'start_date' => ['label' => 'Tanggal Mulai Kontrak', 'placeholder' => '[mulai]', 'type' => 'date'],
+        'end_date' => ['label' => 'Tanggal Akhir Kontrak', 'placeholder' => '[selesai]', 'type' => 'date'],
+        'day' => ['label' => 'Hari', 'placeholder' => '[hari]', 'type' => 'text'],
+        'second_party' => ['label' => 'Pihak Kedua', 'placeholder' => '[pihak_2]', 'type' => 'text'],
+        'emergency_name' => ['label' => 'Nama Kontak Darurat', 'placeholder' => '[nama_kontak]', 'type' => 'text'],
+        'emergency_number' => ['label' => 'No. Kontak Darurat', 'placeholder' => '[no_kontak]', 'type' => 'text'],
+        'emergency_address' => ['label' => 'Alamat Kontak Darurat', 'placeholder' => '[alamat_kontak]', 'type' => 'text'],
+        'relationship' => ['label' => 'Hubungan Kontak Darurat', 'placeholder' => '[hubungan]', 'type' => 'text'],
+    ];
+
+    /** Apakah template surat memakai kolom ini (placeholder ada di isi template). */
+    private static function letterUsesField(?Letter $letter, string $field): bool
+    {
+        $description = (string) ($letter?->description ?? '');
+
+        return str_contains($description, self::REVISABLE_FIELDS[$field]['placeholder']);
+    }
+
+    private static function selectedIds(?string $ids): array
+    {
+        return array_values(array_unique(array_filter(array_map('intval', explode(',', (string) $ids)))));
+    }
+
+    /**
+     * Daftar kolom yang bisa direvisi untuk surat terpilih, mengikuti template-nya:
+     * kolom surat yang placeholder-nya dipakai template + variabel kustom template.
+     */
+    public function bulkReviseFields(Request $request)
+    {
+        $ids = self::selectedIds($request->input('ids'));
+        $generates = Generate::with(['letter:id,title,description', 'letter.customVariables:id,letter_id,name,variable', 'valueVariables'])
+            ->whereIn('id', $ids)
+            ->get(array_merge(['id', 'letter_id'], array_keys(self::REVISABLE_FIELDS)));
+
+        $fields = [];
+        foreach (self::REVISABLE_FIELDS as $key => $meta) {
+            $applicable = $generates->filter(fn ($g) => self::letterUsesField($g->letter, $key)
+                || (in_array($key, ['start_date', 'end_date'], true) && filled($g->start_date)));
+            if ($applicable->isEmpty()) {
+                continue;
+            }
+            $values = $applicable->pluck($key)->unique()->values();
+            $fields[] = $meta + [
+                'key' => $key,
+                'count' => $applicable->count(),
+                'current' => $values->count() === 1 ? (string) $values->first() : null,
+            ];
+        }
+
+        $variables = [];
+        foreach ($generates as $generate) {
+            foreach ($generate->letter?->customVariables ?? [] as $variable) {
+                $key = $variable->variable;
+                $variables[$key] ??= ['variable' => $key, 'name' => $variable->name ?: $key, 'count' => 0, 'values' => []];
+                $variables[$key]['count']++;
+                $variables[$key]['values'][] = (string) optional($generate->valueVariables->firstWhere('custom_variable_id', $variable->id))->value;
+            }
+        }
+        $variables = array_values(array_map(function ($v) {
+            $unique = array_values(array_unique($v['values']));
+            $v['current'] = count($unique) === 1 ? $unique[0] : null;
+            unset($v['values']);
+
+            return $v;
+        }, $variables));
+
+        return response()->json([
+            'total' => $generates->count(),
+            'letters' => $generates->groupBy('letter_id')->map(fn ($g) => [
+                'title' => $g->first()->letter?->title ?? 'Tanpa template',
+                'count' => $g->count(),
+            ])->values(),
+            'fields' => $fields,
+            'variables' => $variables,
+        ]);
+    }
+
+    /**
+     * Revisi massal isi surat terbit: periode kontrak, kolom surat lain, dan variabel kustom
+     * template. Kolom yang dikosongkan tidak diubah. Nomor surat & tanda tangan tetap.
+     */
+    public function bulkRevise(Request $request)
     {
         $data = $request->validate([
             'ids' => ['required', 'string'],
-            'start_date' => ['nullable', 'date', 'required_without:end_date'],
-            'end_date' => ['nullable', 'date', 'required_without:start_date'],
+            'fields' => ['nullable', 'array'],
+            'fields.start_date' => ['nullable', 'date'],
+            'fields.end_date' => ['nullable', 'date'],
+            'fields.*' => ['nullable', 'string', 'max:1000'],
+            'values' => ['nullable', 'array'],
+            'values.*' => ['nullable', 'string', 'max:2000'],
             'description' => ['nullable', 'string', 'max:1000'],
             'notify_channels' => ['nullable', 'array'],
             'notify_channels.*' => ['in:whatsapp,email'],
             'message_template_id' => ['nullable', 'exists:message_templates,id'],
         ], [
             'ids.required' => 'Pilih surat yang akan direvisi.',
-            'start_date.required_without' => 'Isi tanggal mulai dan/atau tanggal akhir kontrak yang baru.',
-            'end_date.required_without' => 'Isi tanggal mulai dan/atau tanggal akhir kontrak yang baru.',
         ]);
 
-        $ids = array_filter(array_map('intval', explode(',', $data['ids'])));
-        $generates = Generate::with('user')->whereIn('id', $ids)->get();
+        $fields = array_filter(array_intersect_key($data['fields'] ?? [], self::REVISABLE_FIELDS), fn ($v) => filled($v));
+        $values = array_filter($data['values'] ?? [], fn ($v) => filled($v));
+        if (empty($fields) && empty($values)) {
+            return redirect()->back()->with('error', 'Isi minimal satu kolom yang akan diubah.');
+        }
+
+        $generates = Generate::with(['user', 'letter.customVariables'])->whereIn('id', self::selectedIds($data['ids']))->get();
         $channels = $data['notify_channels'] ?? [];
         $template = filled($data['message_template_id'] ?? null) ? \App\Models\MessageTemplate::find($data['message_template_id']) : null;
 
@@ -457,60 +546,110 @@ class GenerateController extends Controller
 
         foreach ($generates as $generate) {
             $label = ($generate->user?->name ?? 'Tanpa nama') . ' (' . ($generate->formatted_letter_number ?? $generate->letter_number) . ')';
-
-            // Hanya surat berperiode (punya tanggal mulai), mis. PKWT / kontrak.
-            if (blank($generate->start_date) && blank($data['start_date'] ?? null)) {
-                $skipped[] = $label . ': bukan surat kontrak';
-                continue;
-            }
-
-            $start = $data['start_date'] ?? $generate->start_date;
-            $end = $request->filled('end_date') ? $data['end_date'] : $generate->end_date;
-
-            if ($end && \Illuminate\Support\Carbon::parse($end)->lt(\Illuminate\Support\Carbon::parse($start))) {
-                $skipped[] = $label . ': tanggal akhir sebelum tanggal mulai';
-                continue;
-            }
-
+            $changes = [];
             $oldPeriod = \App\Services\ContractRevision::period($generate->start_date, $generate->end_date);
 
             try {
-                \App\Services\ContractRevision::apply($generate, $start, $end ?: null, $data['description'] ?? null);
-                $updated++;
+                \Illuminate\Support\Facades\DB::transaction(function () use ($generate, $fields, $values, $data, &$changes) {
+                    // 1. Periode kontrak (lewat ContractRevision: ikut perbarui profil & riwayat)
+                    $periodApplies = filled($generate->start_date)
+                        || self::letterUsesField($generate->letter, 'start_date')
+                        || self::letterUsesField($generate->letter, 'end_date');
+                    if ($periodApplies && (isset($fields['start_date']) || isset($fields['end_date']))) {
+                        $start = $fields['start_date'] ?? $generate->start_date;
+                        $end = $fields['end_date'] ?? $generate->end_date;
+                        if (blank($start)) {
+                            throw new \RuntimeException('tanggal mulai kontrak kosong');
+                        }
+                        if ($end && \Illuminate\Support\Carbon::parse($end)->lt(\Illuminate\Support\Carbon::parse($start))) {
+                            throw new \RuntimeException('tanggal akhir sebelum tanggal mulai');
+                        }
+                        \App\Services\ContractRevision::apply($generate, $start, $end ?: null, $data['description'] ?? null);
+                        $changes[] = 'Periode: ' . \App\Services\ContractRevision::period($start, $end);
+                    }
+
+                    // 2. Kolom surat lain yang dipakai template
+                    $other = [];
+                    foreach (array_diff_key($fields, ['start_date' => 1, 'end_date' => 1]) as $key => $value) {
+                        if (self::letterUsesField($generate->letter, $key)) {
+                            $other[$key] = $value;
+                            $changes[] = self::REVISABLE_FIELDS[$key]['label'] . ': ' . $value;
+                        }
+                    }
+                    if ($other) {
+                        $generate->update($other);
+                    }
+
+                    // 3. Variabel kustom template surat ini
+                    foreach ($generate->letter?->customVariables ?? [] as $variable) {
+                        if (! array_key_exists($variable->variable, $values)) {
+                            continue;
+                        }
+                        \App\Models\ValueVariable::updateOrCreate(
+                            ['generate_id' => $generate->id, 'custom_variable_id' => $variable->id],
+                            ['value' => $values[$variable->variable]]
+                        );
+                        $changes[] = ($variable->name ?: $variable->variable) . ': ' . $values[$variable->variable];
+                    }
+
+                    // Riwayat (periode sudah dicatat ContractRevision sebagai "kontrak")
+                    $nonPeriod = array_values(array_filter($changes, fn ($c) => ! str_starts_with($c, 'Periode: ')));
+                    if ($nonPeriod && $generate->user_id) {
+                        \App\Models\Mutation::create([
+                            'type' => 'surat',
+                            'date' => now()->toDateString(),
+                            'user_id' => $generate->user_id,
+                            'generate_id' => $generate->id,
+                            'description' => trim(($data['description'] ?? '') . ' ' . '(' . implode('; ', $nonPeriod) . ')'),
+                            'created_by' => \Illuminate\Support\Facades\Auth::id(),
+                            'to_value' => \Illuminate\Support\Str::limit(implode('; ', $nonPeriod), 250),
+                        ]);
+                    }
+                });
+            } catch (\RuntimeException $e) {
+                $skipped[] = $label . ': ' . $e->getMessage();
+                continue;
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Revisi kontrak massal gagal untuk surat #' . $generate->id . ': ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Revisi surat massal gagal untuk surat #' . $generate->id . ': ' . $e->getMessage());
                 $skipped[] = $label . ': gagal disimpan';
                 continue;
             }
 
+            if (empty($changes)) {
+                $skipped[] = $label . ': template tidak memakai kolom yang diubah';
+                continue;
+            }
+            $updated++;
+
             // Notifikasi ke karyawan (opsional). Gagal kirim tidak membatalkan revisi.
             if ($channels && $generate->user) {
                 try {
-                    $values = \App\Models\MessageTemplate::valuesForUser($generate->user, [
+                    $generate->refresh();
+                    $values4msg = \App\Models\MessageTemplate::valuesForUser($generate->user, [
                         '{no_surat}' => (string) ($generate->formatted_letter_number ?? $generate->letter_number),
                         '{periode_lama}' => $oldPeriod,
-                        '{periode_baru}' => \App\Services\ContractRevision::period($start, $end),
-                        '{mulai}' => format_tanggal($start),
-                        '{selesai}' => format_tanggal($end, 'selesai'),
+                        '{periode_baru}' => \App\Services\ContractRevision::period($generate->start_date, $generate->end_date),
+                        '{mulai}' => format_tanggal($generate->start_date),
+                        '{selesai}' => format_tanggal($generate->end_date, 'selesai'),
+                        '{perubahan}' => '• ' . implode("\n• ", $changes),
                     ]);
                     $generate->user->notify(new \App\Notifications\TemplateMessageNotification(
                         $template,
-                        $values,
+                        $values4msg,
                         $channels,
-                        'Perubahan Periode Kontrak - {no_surat}',
-                        "Halo *{nama}*,\n\nPeriode kontrak Anda pada surat *{no_surat}* telah diperbarui:\n"
-                            . "• Sebelumnya: {periode_lama}\n• Menjadi: *{periode_baru}*\n\n"
+                        'Perubahan Surat - {no_surat}',
+                        "Halo *{nama}*,\n\nSurat *{no_surat}* Anda telah diperbarui:\n{perubahan}\n\n"
                             . "Surat dapat dilihat kembali di menu Dokumen Digital.\n\nSalam,\n*Tim HR Ciptakarir*"
                     ));
                     $notified++;
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Notifikasi revisi kontrak gagal untuk surat #' . $generate->id . ': ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::error('Notifikasi revisi surat gagal untuk surat #' . $generate->id . ': ' . $e->getMessage());
                     $notifyFailed++;
                 }
             }
         }
 
-        $message = "{$updated} surat diperbarui ke periode baru (nomor surat & tanda tangan tetap).";
+        $message = "{$updated} surat diperbarui (nomor surat & tanda tangan tetap).";
         if ($channels) {
             $message .= " Notifikasi dikirim ke {$notified} karyawan" . ($notifyFailed ? ", {$notifyFailed} gagal (cek log)." : '.');
         }

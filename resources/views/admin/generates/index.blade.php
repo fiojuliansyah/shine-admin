@@ -302,8 +302,59 @@
             $('#reviseNotifyTemplate').prop('disabled', $('.revise-notify-channel:checked').length === 0);
         });
 
+        // Revisi Surat Massal: kolom dimuat sesuai template surat yang dicentang
+        function escapeHtml(v) { return $('<div>').text(v == null ? '' : String(v)).html(); }
+
+        function reviseInput(name, meta, total) {
+            var countNote = meta.count < total ? ' <span class="badge bg-light text-muted fw-normal">' + meta.count + ' dari ' + total + ' surat</span>' : '';
+            var current = meta.current ? 'Saat ini: ' + meta.current : (meta.count > 1 ? 'Nilai saat ini berbeda-beda' : '');
+            var $col = $('<div class="col-md-6 mb-3"></div>');
+            $col.append('<label class="form-label">' + escapeHtml(meta.label || meta.name) +
+                ' <code class="small">' + escapeHtml(meta.placeholder || ('[' + meta.variable + ']')) + '</code>' + countNote + '</label>');
+            $('<input class="form-control">')
+                .attr('type', meta.type === 'date' ? 'date' : 'text')
+                .attr('name', name)
+                .attr('placeholder', current || 'Kosongkan bila tidak diubah')
+                .appendTo($col);
+            if (meta.current && meta.type === 'date') $col.append('<small class="text-muted">' + escapeHtml(current) + '</small>');
+            return $col;
+        }
+
         $('#reviseContractModal').on('show.bs.modal', function () {
-            $('#bulkReviseContractCount').text(uniqueSelectedIds().length);
+            var ids = uniqueSelectedIds();
+            $('#bulkReviseContractCount').text(ids.length);
+            $('#bulkReviseFields, #bulkReviseVars').empty();
+            $('#bulkReviseFieldsTitle, #bulkReviseVarsTitle, #bulkReviseEmpty').addClass('d-none');
+            $('#bulkReviseLetters').text('');
+            if (!ids.length) return;
+
+            $('#bulkReviseLoading').removeClass('d-none');
+            $.post(@json(route('generates.bulkReviseFields')), { _token: @json(csrf_token()), ids: ids.join(',') })
+                .done(function (res) {
+                    if (res.letters && res.letters.length) {
+                        $('#bulkReviseLetters').text('(' + res.letters.map(function (l) { return l.title + ': ' + l.count; }).join(', ') + ')');
+                    }
+                    (res.fields || []).forEach(function (f) {
+                        $('#bulkReviseFields').append(reviseInput('fields[' + f.key + ']', f, res.total));
+                    });
+                    (res.variables || []).forEach(function (v) {
+                        $('#bulkReviseVars').append(reviseInput('values[' + v.variable + ']', v, res.total));
+                    });
+                    $('#bulkReviseFieldsTitle').toggleClass('d-none', !(res.fields || []).length);
+                    $('#bulkReviseVarsTitle').toggleClass('d-none', !(res.variables || []).length);
+                    $('#bulkReviseEmpty').toggleClass('d-none', (res.fields || []).length + (res.variables || []).length > 0);
+
+                    // tanggal memakai format DD-MM-YYYY aplikasi (flatpickr) bila tersedia
+                    if (window.flatpickr) {
+                        $('#bulkReviseFields input[type="date"]').each(function () {
+                            flatpickr(this, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd-m-Y', allowInput: true });
+                        });
+                    }
+                })
+                .fail(function () {
+                    $('#bulkReviseEmpty').removeClass('d-none').text('Gagal memuat kolom template. Tutup lalu buka lagi modal ini.');
+                })
+                .always(function () { $('#bulkReviseLoading').addClass('d-none'); });
         });
 
         $('#bulkReviseContractForm').submit(function(e) {
@@ -314,8 +365,9 @@
                 alert('Pilih setidaknya satu surat untuk direvisi.');
                 return;
             }
-            if (!$(this).find('[name="start_date"]').val() && !$(this).find('[name="end_date"]').val()) {
-                alert('Isi tanggal mulai dan/atau tanggal akhir kontrak yang baru.');
+            var anyFilled = $(this).find('#bulkReviseFields input, #bulkReviseVars input').filter(function () { return $.trim(this.value) !== ''; }).length;
+            if (!anyFilled) {
+                alert('Isi minimal satu kolom yang akan diubah.');
                 return;
             }
 

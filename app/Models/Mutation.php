@@ -25,6 +25,7 @@ class Mutation extends Model
         'resign' => 'Resign',
         'aktif' => 'Aktif Kembali',
         'kontrak' => 'Revisi Kontrak',
+        'surat' => 'Revisi Surat',
     ];
 
     private const BADGES = [
@@ -34,6 +35,7 @@ class Mutation extends Model
         'resign' => 'bg-danger',
         'aktif' => 'bg-primary',
         'kontrak' => 'bg-secondary',
+        'surat' => 'bg-dark',
     ];
 
     public function user()
