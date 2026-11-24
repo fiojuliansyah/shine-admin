@@ -69,7 +69,7 @@
                                     <td class="text-center">
                                         <div class="d-inline-flex gap-1">
                                             <button type="button" class="btn btn-sm btn-white btn-template-edit"
-                                                data-template='@json($template->only(['id', 'name', 'subject', 'body', 'is_active']))'
+                                                data-template="{{ json_encode($template->only(['id', 'name', 'subject', 'body', 'is_active'])) }}"
                                                 data-action="{{ route('message-templates.update', $template) }}">
                                                 <i class="ti ti-edit"></i>
                                             </button>
@@ -215,7 +215,7 @@
         });
 
         @if ($errors->any())
-            alert(@json(implode("\n", $errors->all())));
+            alert({!! json_encode(implode("\n", $errors->all()), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!});
         @endif
     });
 </script>
