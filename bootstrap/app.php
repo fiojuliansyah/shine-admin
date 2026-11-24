@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.desktop' => \App\Http\Middleware\CheckViewDesktopPermission::class,
             'check.mobile'  => \App\Http\Middleware\CheckViewMobilePermission::class,
             'applicant.auth' => \App\Http\Middleware\ApplicantAuth::class,
+            'applicant.onboarded' => \App\Http\Middleware\EnsureApplicantProfileComplete::class,
             'mobile.auth' => \App\Http\Middleware\MobileAuth::class,
         ]);
         $middleware->web(append: [

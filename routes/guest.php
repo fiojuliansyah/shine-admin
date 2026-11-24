@@ -3,9 +3,19 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Applicant\DataController;
 use App\Http\Controllers\Applicant\ApplicantAuthController;
+use App\Http\Controllers\Applicant\OnboardingController;
 
-Route::middleware(['applicant.auth'])->group(function () {   
+Route::middleware(['applicant.auth', 'applicant.onboarded'])->group(function () {
     Route::get('/', [DataController::class, 'index']);
+});
+
+// Wizard "Lengkapi Profil" setelah daftar (tanpa applicant.onboarded agar tidak redirect berulang).
+Route::middleware(['applicant.auth'])->prefix('applicant/lengkapi-profil')->group(function () {
+    Route::get('/{step?}', [OnboardingController::class, 'show'])->whereNumber('step')->name('applicant.onboarding');
+    Route::post('/dokumen', [OnboardingController::class, 'uploadDocument'])->name('applicant.onboarding.document');
+    Route::post('/{step}', [OnboardingController::class, 'save'])->whereNumber('step')->name('applicant.onboarding.save');
+    // Scan KTP dari wizard (sekaligus menyimpan foto KTP ke dokumen)
+    Route::post('/scan-ktp', [\App\Http\Controllers\KtpOcrController::class, 'scan'])->name('applicant.onboarding.ocr-scan');
 });
 
 
@@ -24,7 +34,7 @@ Route::prefix('applicant')->group(function () {
     Route::post('/reset-password', [ApplicantAuthController::class, 'resetPassword'])->name('applicant-reset-store');
 });
 
-Route::middleware(['applicant.auth'])->prefix('applicant')->group(function () {   
+Route::middleware(['applicant.auth', 'applicant.onboarded'])->prefix('applicant')->group(function () {
     Route::get('/dashboard', [DataController::class, 'dashboard'])->name('web.applicants.dashboard');
     Route::get('/pertanyaan', [DataController::class, 'faq'])->name('web.applicants.faq');
     Route::get('/riwayat-lamar-pekerjaan', [DataController::class, 'history'])->name('web.applicants.history');

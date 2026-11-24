@@ -46,6 +46,14 @@ class ApplicantRequirements
         'gada_utama' => 'GADA UTAMA',
     ];
 
+    /** Profil & dokumen wajib sudah lengkap (dipakai wizard "Lengkapi Profil"). */
+    public static function isComplete(User $user): bool
+    {
+        $user->loadMissing('profile');
+
+        return empty(self::missingFields($user)) && empty(self::missingDocuments($user));
+    }
+
     /** @return string[] */
     public static function requiredDocuments(User $user): array
     {

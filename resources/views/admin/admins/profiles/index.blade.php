@@ -1214,6 +1214,7 @@
             'kecamatan' => '#profileModal [name="kecamatan"]',
         ],
         'ocrOpenModal' => 'profileModal',
+        'ocrUserId' => $user->id,
     ])
 
 @endsection

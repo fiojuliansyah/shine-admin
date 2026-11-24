@@ -75,18 +75,6 @@
                                                 <a href="{{ route('applicant-login') }}" class="hover-a">Masuk</a>
                                             </h6>
                                         </div>
-                                        <div class="login-or">
-                                            <span class="span-or">Or</span>
-                                        </div>
-                                        <div class="mt-2">
-                                            <div class="d-flex align-items-center justify-content-center flex-wrap">
-                                                <div class="text-center me-2 flex-fill">
-                                                    <a href="javascript:void(0);" class="br-10 p-2 btn btn-outline-light border d-flex align-items-center justify-content-center">
-                                                        <img class="img-fluid m-1" src="/admin/assets/img/icons/google-logo.svg" alt="Google">
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                     <div class="mt-5 pb-4 text-center">
                                         <p class="mb-0 text-gray-9">Copyright &copy; 2025 - Cipta Karir</p>

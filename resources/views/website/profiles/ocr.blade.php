@@ -38,6 +38,9 @@
                             <i class="ti ti-scan me-1"></i>Mulai Scan OCR
                         </button>
 
+                        <p class="text-muted small mt-2 mb-0">Foto KTP juga otomatis disimpan ke Dokumen Anda (menggantikan KTP sebelumnya).</p>
+                        <div id="ocr-doc-status" class="small mt-2" style="display:none;"></div>
+
                         <div id="ocr-loader" class="mt-3" style="display:none;">
                             <div class="progress progress-xs mb-1">
                                 <div id="ocr-progress" class="progress-bar bg-success" style="width:0%"></div>
@@ -176,6 +179,17 @@ document.addEventListener('DOMContentLoaded', function () {
             fillResults(json.mapped || {});
             progressBar.style.width = '100%';
             statusText.textContent = 'Selesai!';
+
+            const docStatus = document.getElementById('ocr-doc-status');
+            if (json.document) {
+                docStatus.className = 'small mt-2 text-success';
+                docStatus.innerHTML = '<i class="ti ti-circle-check me-1"></i>Foto KTP tersimpan ke Dokumen.';
+                docStatus.style.display = 'block';
+            } else if (json.document_error) {
+                docStatus.className = 'small mt-2 text-danger';
+                docStatus.textContent = json.document_error;
+                docStatus.style.display = 'block';
+            }
         }).catch(function (err) {
             alert(err.message || 'OCR gagal');
         }).finally(function () {

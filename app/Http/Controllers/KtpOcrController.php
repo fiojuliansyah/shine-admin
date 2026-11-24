@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use App\Models\Document;
+use App\Models\User;
+use App\Services\FileStorage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -21,6 +25,7 @@ class KtpOcrController extends Controller
     {
         $request->validate([
             'image' => 'required|file|mimes:png,jpg,jpeg,webp|max:8192',
+            'user_id' => 'nullable|integer|exists:users,id',
         ]);
 
         $apiKey = config('services.amanai.key');
@@ -88,7 +93,67 @@ class KtpOcrController extends Controller
         }
         $mapped['nik'] = preg_replace('/\D/', '', $mapped['nik']);
 
-        return response()->json(['mapped' => $mapped]);
+        // Foto KTP sekalian disimpan ke dokumen user (menggantikan dokumen KTP lama).
+        $document = null;
+        $documentError = null;
+        try {
+            $document = $this->storeKtpDocument($this->targetUser($request), $file);
+        } catch (\Throwable $e) {
+            Log::error('OCR KTP: gagal menyimpan foto KTP ke dokumen', ['error' => $e->getMessage()]);
+            $documentError = 'Data KTP terbaca, tetapi foto KTP gagal disimpan ke dokumen.';
+        }
+
+        return response()->json([
+            'mapped' => $mapped,
+            'document' => $document ? ['name' => $document->name, 'url' => $document->view_url] : null,
+            'document_error' => $documentError,
+        ]);
+    }
+
+    /**
+     * Pelamar selalu menyimpan ke akunnya sendiri; admin (route manage) boleh
+     * menyimpan ke user yang sedang dibuka lewat user_id.
+     */
+    private function targetUser(Request $request): ?User
+    {
+        if ($request->routeIs('applicant.*') || ! $request->filled('user_id')) {
+            return Auth::user();
+        }
+
+        return User::find($request->integer('user_id'));
+    }
+
+    private function storeKtpDocument(?User $user, \Illuminate\Http\UploadedFile $file): ?Document
+    {
+        if (! $user) {
+            return null;
+        }
+
+        $uploaded = FileStorage::upload($file, 'Documents');
+
+        $document = Document::where('user_id', $user->id)
+            ->whereRaw('UPPER(TRIM(name)) = ?', ['KTP'])
+            ->latest('id')
+            ->first();
+
+        if ($document) {
+            $oldPath = $document->file_public_id;
+        } else {
+            $document = new Document(['user_id' => $user->id]);
+            $oldPath = null;
+        }
+
+        $document->name = 'KTP';
+        $document->description = 'Diunggah otomatis dari Scan KTP (OCR)';
+        $document->file_url = $uploaded['url'];
+        $document->file_public_id = $uploaded['path'];
+        $document->save();
+
+        if ($oldPath && $oldPath !== $uploaded['path']) {
+            FileStorage::delete($oldPath);
+        }
+
+        return $document;
     }
 
     /**

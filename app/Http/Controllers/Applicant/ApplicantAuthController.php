@@ -87,7 +87,8 @@ class ApplicantAuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('web.applicants.dashboard')->with('success', 'Pendaftaran berhasil!');
+        return redirect()->route('applicant.onboarding')
+            ->with('success', 'Pendaftaran berhasil! Lengkapi profil Anda terlebih dahulu sebelum melamar.');
     }
     
 
