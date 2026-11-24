@@ -141,6 +141,10 @@
                                                 <i class="ti ti-scan me-1"></i>Scan KTP
                                             </button>
                                         </div>
+                                        <div id="onbKtpPreviewWrap" class="mt-3 text-center d-none">
+                                            <img id="onbKtpPreview" alt="Preview KTP" class="img-fluid rounded border bg-white"
+                                                style="max-height: 240px;">
+                                        </div>
                                         <div id="onbKtpStatus" class="small mt-2 d-none"></div>
                                     </div>
                                 </div>
@@ -456,7 +460,24 @@
                 else el.value = value;
             }
 
-            fileInput.addEventListener('change', function () { scanBtn.disabled = !fileInput.files.length; });
+            var previewWrap = document.getElementById('onbKtpPreviewWrap');
+            var preview = document.getElementById('onbKtpPreview');
+
+            fileInput.addEventListener('change', function () {
+                var file = fileInput.files[0];
+                scanBtn.disabled = !file;
+                status.className = 'small mt-2 d-none';
+
+                // Preview foto KTP sebelum di-scan
+                if (preview.src) URL.revokeObjectURL(preview.src);
+                if (file) {
+                    preview.src = URL.createObjectURL(file);
+                    previewWrap.classList.remove('d-none');
+                } else {
+                    preview.removeAttribute('src');
+                    previewWrap.classList.add('d-none');
+                }
+            });
 
             scanBtn.addEventListener('click', function () {
                 if (!fileInput.files.length) return;
