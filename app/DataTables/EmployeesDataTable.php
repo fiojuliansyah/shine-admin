@@ -95,12 +95,16 @@ class EmployeesDataTable extends DataTable
 
             ->addColumn('resume', function ($row) {
                 $applicant = $row->applicants->sortByDesc('id')->first();
-                if (!$applicant) {
-                    return '<span class="text-muted">-</span>';
-                }
-                return '<a href="' . route('applicants.resume', $applicant->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
+                $html = '<div class="d-flex gap-1 justify-content-center">';
+                if ($applicant) {
+                    $html .= '<a href="' . route('applicants.resume', $applicant->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center text-nowrap">
                             <i class="ti ti-file-description me-1"></i> Resume
                         </a>';
+                }
+                $html .= '<a href="' . route('users.account', $row->id) . '" target="_blank" class="btn btn-sm btn-primary d-inline-flex align-items-center text-nowrap">
+                            <i class="ti ti-edit me-1"></i> Edit Profil
+                        </a>';
+                return $html . '</div>';
             })
 
             ->rawColumns(['nama', 'status', 'no_surat', 'resume'])
@@ -152,7 +156,7 @@ class EmployeesDataTable extends DataTable
             Column::make('join_date')->title('Tgl Masuk')->orderable(false)->searchable(false),
             Column::make('status')->title('Status')->orderable(false)->searchable(false),
             Column::make('no_surat')->title('No Surat')->orderable(false)->searchable(false),
-            Column::make('resume')->title('Resume')->orderable(false)->searchable(false),
+            Column::make('resume')->title('Aksi')->orderable(false)->searchable(false),
         ];
     }
 

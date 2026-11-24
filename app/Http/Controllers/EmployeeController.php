@@ -75,13 +75,19 @@ class EmployeeController extends Controller
             $dt->addColumn('aksi', function ($row) {
                 $applicant = $row->applicants->sortByDesc('id')->first();
 
-                if (! $applicant) {
-                    return '<span class="text-muted">-</span>';
-                }
+                $html = '<div class="d-flex gap-1 justify-content-center">';
 
-                return '<a href="'.route('applicants.resume', $applicant->id).'" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
+                if ($applicant) {
+                    $html .= '<a href="'.route('applicants.resume', $applicant->id).'" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center text-nowrap">
                             <i class="ti ti-file-description me-1"></i> Resume
                         </a>';
+                }
+
+                $html .= '<a href="'.route('users.account', $row->id).'" target="_blank" class="btn btn-sm btn-primary d-inline-flex align-items-center text-nowrap">
+                            <i class="ti ti-edit me-1"></i> Edit Profil
+                        </a>';
+
+                return $html.'</div>';
             });
 
             $dt->rawColumns(['status', 'aksi']);
