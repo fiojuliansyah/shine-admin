@@ -47,6 +47,12 @@ return [
         'token' => env('FONNTE_TOKEN'),
     ],
 
+    // OpenCV.js untuk crop & deteksi sudut dokumen pelamar (~9 MB, di-cache browser).
+    // Isi OPENCV_JS_URL=/vendor/opencv/opencv.js bila file di-host sendiri (lebih cepat).
+    'opencv' => [
+        'url' => env('OPENCV_JS_URL') ?: 'https://docs.opencv.org/4.10.0/opencv.js',
+    ],
+
     // Captcha login/daftar (https://developers.cloudflare.com/turnstile/)
     'turnstile' => [
         'site_key' => env('TURNSTILE_SITE_KEY'),

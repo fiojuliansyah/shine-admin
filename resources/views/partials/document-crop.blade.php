@@ -46,7 +46,8 @@
 @push('js')
 <script>
 (function () {
-    var OPENCV_URL = 'https://docs.opencv.org/4.10.0/opencv.js';
+    // Bisa diarahkan ke file di server sendiri lewat OPENCV_JS_URL (lebih cepat dari CDN luar negeri)
+    var OPENCV_URL = @json(config('services.opencv.url'));
     var MAX_WORK_SIDE = 2400;   // sisi terpanjang gambar yang diproses / hasil
     var DETECT_SIDE = 700;      // ukuran kecil untuk deteksi tepi (cepat)
     var HANDLE_RADIUS = 14;
@@ -60,7 +61,7 @@
     var statusEl = document.getElementById('docCropStatus');
     var applyBtn = document.getElementById('docCropApply');
 
-    var state = { input: null, file: null, source: null, corners: null, scale: 1, drag: -1, applied: false };
+    var state = { input: null, file: null, source: null, corners: null, scale: 1, drag: -1, applied: false, session: 0, userMoved: false };
     var cvReady = null;
 
     // ---------- OpenCV (dimuat sekali, saat pertama dibutuhkan) ----------
@@ -193,7 +194,7 @@
         var p = pointer(e), best = -1, bestD = (HANDLE_RADIUS * 2) / state.scale;
         state.corners.forEach(function (c, i) { var d = dist(c, p); if (d < bestD) { bestD = d; best = i; } });
         state.drag = best;
-        if (best >= 0) e.preventDefault();
+        if (best >= 0) { e.preventDefault(); state.userMoved = true; }
     }
     function onMove(e) {
         if (state.drag < 0) return;
@@ -270,24 +271,59 @@
         return found;
     }
 
-    function runDetect() {
-        setLoading(true, 'Mendeteksi sudut dokumen...');
+    function cvIsReady() { return !!(window.cv && window.cv.Mat); }
+
+    function applyDetection(cv) {
+        var corners = detectCorners(cv, state.source);
+        if (corners) {
+            state.corners = corners;
+            setStatus('text-success', 'Sudut dokumen terdeteksi. Periksa dan geser titik bila perlu.');
+        } else {
+            state.corners = fullCorners(state.source.width, state.source.height, 0.04);
+            setStatus('text-warning', 'Sudut tidak terdeteksi otomatis. Geser 4 titik ke sudut dokumen.');
+        }
+        draw();
+    }
+
+    /**
+     * Deteksi sudut. Bila OpenCV sudah siap -> langsung (cepat).
+     * Bila belum (masih diunduh ~9 MB, hanya sekali): pelamar TIDAK menunggu — titik manual
+     * langsung tampil, dan deteksi otomatis diterapkan begitu OpenCV siap (selama titik belum digeser).
+     */
+    function runDetect(manualClick) {
+        var session = state.session;
+
+        if (cvIsReady()) {
+            setLoading(true, 'Mendeteksi sudut dokumen...');
+            // beri kesempatan overlay tampil sebelum proses
+            return new Promise(function (r) { setTimeout(r, 20); }).then(function () {
+                applyDetection(window.cv);
+            }).catch(function () {
+                setStatus('text-warning', 'Deteksi gagal. Geser 4 titik secara manual.');
+            }).finally(function () {
+                setLoading(false);
+                applyBtn.disabled = false;
+            });
+        }
+
+        state.corners = state.corners || fullCorners(state.source.width, state.source.height, 0.04);
+        state.userMoved = manualClick ? false : state.userMoved;
+        setLoading(false);
+        applyBtn.disabled = false;
+        draw();
+        setStatus('text-muted', 'Menyiapkan deteksi otomatis (hanya pertama kali)... Anda bisa langsung menggeser titik.');
+
         return loadOpenCv().then(function (cv) {
-            var corners = detectCorners(cv, state.source);
-            if (corners) {
-                state.corners = corners;
-                setStatus('text-success', 'Sudut dokumen terdeteksi. Periksa dan geser titik bila perlu.');
-            } else {
-                state.corners = fullCorners(state.source.width, state.source.height, 0.04);
-                setStatus('text-warning', 'Sudut tidak terdeteksi otomatis. Geser 4 titik ke sudut dokumen.');
+            // Modal sudah ditutup / file lain / pelamar sudah menggeser titik -> jangan timpa
+            if (session !== state.session || !modalEl.classList.contains('show')) return;
+            if (state.userMoved && !manualClick) {
+                setStatus('text-muted', 'Deteksi otomatis siap. Klik "Deteksi Otomatis" bila ingin dipakai.');
+                return;
             }
+            applyDetection(cv);
         }).catch(function () {
-            state.corners = state.corners || fullCorners(state.source.width, state.source.height, 0.04);
+            if (session !== state.session) return;
             setStatus('text-warning', 'Deteksi otomatis tidak tersedia (koneksi). Geser 4 titik secara manual.');
-        }).finally(function () {
-            setLoading(false);
-            applyBtn.disabled = false;
-            draw();
         });
     }
 
@@ -334,6 +370,8 @@
         state.file = file;
         state.applied = false;
         state.corners = null;
+        state.userMoved = false;
+        state.session++;
         applyBtn.disabled = true;
         setStatus('text-muted', '');
         setLoading(true, 'Memuat gambar...');
@@ -350,7 +388,7 @@
         });
     }
 
-    document.getElementById('docCropDetect').addEventListener('click', function () { if (state.source) runDetect(); });
+    document.getElementById('docCropDetect').addEventListener('click', function () { if (state.source) runDetect(true); });
     document.getElementById('docCropFull').addEventListener('click', function () {
         if (!state.source) return;
         state.corners = fullCorners(state.source.width, state.source.height, 0);
@@ -419,6 +457,22 @@
         e.stopImmediatePropagation();
         open(input, file);
     }, true);
+
+    // ---------- Unduh OpenCV lebih awal ----------
+    // Mulai unduh saat pelamar akan memilih file (fokus/klik input atau modal upload dibuka),
+    // atau saat halaman idle bila input dokumen langsung terlihat (mis. langkah Dokumen).
+    function preload() { if (!cvIsReady()) loadOpenCv().catch(function () {}); }
+    var SELECTOR = 'input[type="file"][data-doc-crop]';
+
+    document.addEventListener('pointerdown', function (e) { if (e.target.closest && e.target.closest(SELECTOR)) preload(); }, true);
+    document.addEventListener('focusin', function (e) { if (e.target.matches && e.target.matches(SELECTOR)) preload(); }, true);
+    document.addEventListener('show.bs.modal', function (e) { if (e.target.querySelector && e.target.querySelector(SELECTOR)) preload(); });
+
+    window.addEventListener('load', function () {
+        var visible = Array.prototype.some.call(document.querySelectorAll(SELECTOR), function (el) { return el.offsetParent !== null; });
+        if (!visible) return;
+        (window.requestIdleCallback || function (fn) { setTimeout(fn, 1500); })(preload);
+    });
 })();
 </script>
 @endpush
