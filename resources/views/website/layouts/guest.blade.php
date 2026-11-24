@@ -61,6 +61,7 @@
 
 	@include('partials.loading-modal')
 
+	@include('partials.document-preview')
 	@stack('js')
 
 </body>

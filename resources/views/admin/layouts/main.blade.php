@@ -173,6 +173,7 @@
 
 	{{-- lightbox img --}}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+	@include('partials.document-preview')
     @stack('js')
 
 	{{-- Error "Ajax error" DataTables: tampilkan kode HTTP & kirim detailnya ke laravel.log --}}

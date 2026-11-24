@@ -97,6 +97,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::get('/generates/{generate}/print', [GenerateController::class, 'printView'])->name('generates.print');
     Route::post('/bulk-approve', [GenerateController::class, 'bulkApprove'])->name('generates.bulkApprove');
     Route::post('/bulk-delete', [GenerateController::class, 'bulkDelete'])->name('generates.bulkDelete');
+    Route::get('/documents/{document}/file', [\App\Http\Controllers\DocumentFileController::class, 'admin'])->name('documents.file');
     Route::post('/bulk-revise/fields', [GenerateController::class, 'bulkReviseFields'])->name('generates.bulkReviseFields');
     Route::post('/bulk-revise', [GenerateController::class, 'bulkRevise'])->name('generates.bulkRevise');
     Route::get('/letter/{id}/regenerate', [GenerateController::class, 'regenerate'])->name('letter-regenerate');

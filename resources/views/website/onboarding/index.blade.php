@@ -99,9 +99,8 @@
                                             <span class="onb-doc-saved">
                                                 @if ($doc)
                                                     <span class="badge bg-success-transparent text-success"><i class="ti ti-circle-check me-1"></i>Sudah diunggah</span>
-                                                    @if ($doc->view_url)
-                                                        <a href="{{ $doc->view_url }}" target="_blank" class="small ms-1">Lihat</a>
-                                                    @endif
+                                                    <a href="{{ $doc->previewUrl(false) }}" class="small ms-1"
+                                                        data-doc-preview data-kind="{{ $doc->file_kind }}" data-title="{{ $docName }}">Lihat</a>
                                                 @else
                                                     <span class="badge bg-warning-transparent text-warning"><i class="ti ti-alert-circle me-1"></i>Belum diunggah</span>
                                                 @endif

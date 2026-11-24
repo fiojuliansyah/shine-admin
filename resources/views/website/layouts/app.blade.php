@@ -157,6 +157,7 @@
 	<!-- Custom JS -->
 	<script src="/admin/assets/js/script.js"></script>
 
+	@include('partials.document-preview')
     @stack('js')
 
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

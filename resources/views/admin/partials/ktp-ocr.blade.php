@@ -114,8 +114,16 @@
                 docStatus.classList.remove('d-none', 'text-success', 'text-danger');
                 if (json.document) {
                     docStatus.classList.add('text-success');
-                    docStatus.innerHTML = '<i class="ti ti-circle-check me-1"></i>Foto KTP tersimpan ke Dokumen. ' +
-                        (json.document.url ? '<a href="' + json.document.url + '" target="_blank">Lihat</a>' : '');
+                    docStatus.innerHTML = '<i class="ti ti-circle-check me-1"></i>Foto KTP tersimpan ke Dokumen. ';
+                    if (json.document.url) {
+                        var link = document.createElement('a');
+                        link.href = json.document.url;
+                        link.textContent = 'Lihat';
+                        link.setAttribute('data-doc-preview', '');
+                        link.dataset.kind = json.document.kind || 'image';
+                        link.dataset.title = 'KTP';
+                        docStatus.appendChild(link);
+                    }
                 } else if (json.document_error) {
                     docStatus.classList.add('text-danger');
                     docStatus.textContent = json.document_error;

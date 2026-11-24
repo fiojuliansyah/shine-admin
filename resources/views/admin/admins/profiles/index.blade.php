@@ -321,9 +321,12 @@
                                             <div class="card-body">
                                                 <h6 class="card-title">{{ $document->name }}</h6>
                                                 <p class="card-text">{{ $document->description }}</p>
-                                                <a href="{{ $document->view_url }}" class="btn btn-primary"
-                                                    target="_blank">
-                                                    <i class="ti ti-download"></i> Download
+                                                <a href="{{ $document->previewUrl() }}" class="btn btn-primary"
+                                                    data-doc-preview data-kind="{{ $document->file_kind }}" data-title="{{ $document->name }}">
+                                                    <i class="ti ti-eye"></i> Lihat
+                                                </a>
+                                                <a href="{{ $document->previewUrl(true, true) }}" class="btn btn-outline-primary" title="Unduh">
+                                                    <i class="ti ti-download"></i>
                                                 </a>
                                             </div>
                                         </div>

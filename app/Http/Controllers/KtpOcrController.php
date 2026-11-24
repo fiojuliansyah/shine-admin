@@ -105,7 +105,12 @@ class KtpOcrController extends Controller
 
         return response()->json([
             'mapped' => $mapped,
-            'document' => $document ? ['name' => $document->name, 'url' => $document->view_url] : null,
+            'document' => $document ? [
+                'name' => $document->name,
+                // Lewat aplikasi (modal pratinjau), bukan link storage
+                'url' => $document->previewUrl(! $request->routeIs('applicant.*')),
+                'kind' => $document->file_kind,
+            ] : null,
             'document_error' => $documentError,
         ]);
     }

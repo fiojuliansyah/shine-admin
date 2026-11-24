@@ -327,10 +327,11 @@
                                                 <p class="small text-muted mb-3">Format: JPG/PNG</p>
                                                 
                                                 <div class="d-flex gap-2">
-                                                    <a href="{{ $document->view_url }}" class="btn btn-sm btn-label-primary flex-grow-1" target="_blank">
+                                                    <a href="{{ $document->previewUrl(false) }}" class="btn btn-sm btn-label-primary flex-grow-1"
+                                                        data-doc-preview data-kind="{{ $document->file_kind }}" data-title="{{ $document->name }}">
                                                         <i class="ti ti-eye me-1"></i> Lihat
                                                     </a>
-                                                    <a href="{{ $document->view_url }}" class="btn btn-sm btn-primary btn-icon" download>
+                                                    <a href="{{ $document->previewUrl(false, true) }}" class="btn btn-sm btn-primary btn-icon" title="Unduh">
                                                         <i class="ti ti-download"></i>
                                                     </a>
                                                 </div>

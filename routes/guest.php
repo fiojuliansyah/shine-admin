@@ -9,6 +9,11 @@ Route::middleware(['applicant.auth', 'applicant.onboarded'])->group(function () 
     Route::get('/', [DataController::class, 'index']);
 });
 
+// File dokumen milik sendiri (pratinjau di modal, tanpa link storage). Tanpa applicant.onboarded
+// agar bisa dilihat dari wizard onboarding.
+Route::middleware(['applicant.auth'])->get('/applicant/dokumen/{document}/file', [\App\Http\Controllers\DocumentFileController::class, 'own'])
+    ->name('applicant.documents.file');
+
 // Wizard "Lengkapi Profil" setelah daftar (tanpa applicant.onboarded agar tidak redirect berulang).
 Route::middleware(['applicant.auth'])->prefix('applicant/lengkapi-profil')->group(function () {
     Route::get('/{step?}', [OnboardingController::class, 'show'])->whereNumber('step')->name('applicant.onboarding');

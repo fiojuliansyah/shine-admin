@@ -338,9 +338,9 @@
                                                 </td>
                                                 <td>{{ Str::limit($doc->description, 50) }}</td>
                                                 <td class="text-center">
-                                                    <a href="{{ $doc->view_url }}" target="_blank"
-                                                        class="btn btn-sm btn-outline-primary">
-                                                        <i class="ti ti-download me-1"></i> Download
+                                                    <a href="{{ $doc->previewUrl() }}" class="btn btn-sm btn-outline-primary"
+                                                        data-doc-preview data-kind="{{ $doc->file_kind }}" data-title="{{ $doc->name }}">
+                                                        <i class="ti ti-eye me-1"></i> Lihat
                                                     </a>
                                                 </td>
                                             </tr>
