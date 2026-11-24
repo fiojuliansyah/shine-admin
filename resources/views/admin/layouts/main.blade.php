@@ -230,7 +230,25 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
+		function readDownloadCookie() {
+			const match = document.cookie.match(/(?:^|;\s*)download_token=([^;]*)/);
+			return match ? decodeURIComponent(match[1]) : null;
+		}
+
+		function clearDownloadCookie() {
+			document.cookie = 'download_token=; Max-Age=0; path=/';
+		}
+
 		$(document).on('submit', 'form', function(e) {
+			const form = this;
+
+			// Token unik per submit; server membalas cookie dengan token yang sama
+			// bila responsnya berupa file download (lihat MarkDownloadComplete).
+			const token = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+			$(form).find('input[name="download_token"]').remove();
+			$('<input>', { type: 'hidden', name: 'download_token', value: token }).appendTo(form);
+			clearDownloadCookie();
+
 			$('.modal').modal('hide');
 			Swal.fire({
 				title: 'Sedang memproses...',
@@ -242,9 +260,18 @@
 				}
 			});
 
+			// Download tidak berpindah halaman: tutup popup begitu file mulai diunduh.
+			const poll = setInterval(() => {
+				if (readDownloadCookie() === token) {
+					clearInterval(poll);
+					clearDownloadCookie();
+					Swal.close();
+				}
+			}, 500);
+
 			setTimeout(() => {
-				this.submit();
-			}, 1000); 
+				form.submit();
+			}, 1000);
 			e.preventDefault();
 		});
 	</script>

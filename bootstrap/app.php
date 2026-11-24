@@ -18,6 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'applicant.auth' => \App\Http\Middleware\ApplicantAuth::class,
             'mobile.auth' => \App\Http\Middleware\MobileAuth::class,
         ]);
+        $middleware->web(append: [
+            \App\Http\Middleware\MarkDownloadComplete::class,
+        ]);
+        // Dibaca JS untuk menutup popup loading setelah download dimulai.
+        $middleware->encryptCookies(except: [
+            'download_token',
+        ]);
         $middleware->validateCsrfTokens(except: [
             'manage/letters/upload-image',
         ]);
