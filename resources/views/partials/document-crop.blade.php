@@ -328,39 +328,112 @@
     }
 
     // ---------- Hasil crop (koreksi perspektif) ----------
+    var OUTPUT_MAX_SIDE = 2000; // sama dengan batas server untuk folder Documents
+
+    /** Homografi 3x3 (h8 = 1) yang memetakan 4 titik "from" ke 4 titik "to". */
+    function homography(from, to) {
+        var A = [], i, j, k;
+        for (i = 0; i < 4; i++) {
+            var x = from[i].x, y = from[i].y, u = to[i].x, v = to[i].y;
+            A.push([x, y, 1, 0, 0, 0, -u * x, -u * y, u]);
+            A.push([0, 0, 0, x, y, 1, -v * x, -v * y, v]);
+        }
+        // Eliminasi Gauss dengan pivot parsial (sistem 8x8)
+        for (i = 0; i < 8; i++) {
+            var max = i;
+            for (k = i + 1; k < 8; k++) if (Math.abs(A[k][i]) > Math.abs(A[max][i])) max = k;
+            var tmp = A[i]; A[i] = A[max]; A[max] = tmp;
+            if (Math.abs(A[i][i]) < 1e-12) throw new Error('Titik sudut tidak valid (segaris).');
+            for (k = i + 1; k < 8; k++) {
+                var f = A[k][i] / A[i][i];
+                for (j = i; j < 9; j++) A[k][j] -= f * A[i][j];
+            }
+        }
+        var h = new Array(8);
+        for (i = 7; i >= 0; i--) {
+            var sum = A[i][8];
+            for (j = i + 1; j < 8; j++) sum -= A[i][j] * h[j];
+            h[i] = sum / A[i][i];
+        }
+        return h;
+    }
+
+    /** Koreksi perspektif dengan JavaScript murni (bilinear) — tanpa menunggu OpenCV. */
+    function warpJs(src, c, outW, outH) {
+        var sw = src.width, sh = src.height;
+        var sdata = src.getContext('2d').getImageData(0, 0, sw, sh).data;
+        var out = document.createElement('canvas');
+        out.width = outW;
+        out.height = outH;
+        var octx = out.getContext('2d');
+        var img = octx.createImageData(outW, outH), d = img.data;
+
+        // Peta piksel hasil -> piksel sumber
+        var h = homography(
+            [{ x: 0, y: 0 }, { x: outW, y: 0 }, { x: outW, y: outH }, { x: 0, y: outH }],
+            c
+        );
+        var maxX = sw - 1, maxY = sh - 1, o = 0;
+
+        for (var y = 0; y < outH; y++) {
+            var py = y + 0.5;
+            var bx = h[1] * py + h[2], by = h[4] * py + h[5], bw = h[7] * py + 1;
+            for (var x = 0; x < outW; x++) {
+                var px = x + 0.5;
+                var w = h[6] * px + bw;
+                var sx = (h[0] * px + bx) / w - 0.5;
+                var sy = (h[3] * px + by) / w - 0.5;
+                if (sx < 0) sx = 0; else if (sx > maxX) sx = maxX;
+                if (sy < 0) sy = 0; else if (sy > maxY) sy = maxY;
+
+                var x0 = sx | 0, y0 = sy | 0;
+                var x1 = x0 < maxX ? x0 + 1 : x0, y1 = y0 < maxY ? y0 + 1 : y0;
+                var fx = sx - x0, fy = sy - y0;
+                var i00 = (y0 * sw + x0) * 4, i10 = (y0 * sw + x1) * 4, i01 = (y1 * sw + x0) * 4, i11 = (y1 * sw + x1) * 4;
+                var w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy;
+
+                d[o]     = sdata[i00] * w00 + sdata[i10] * w10 + sdata[i01] * w01 + sdata[i11] * w11;
+                d[o + 1] = sdata[i00 + 1] * w00 + sdata[i10 + 1] * w10 + sdata[i01 + 1] * w01 + sdata[i11 + 1] * w11;
+                d[o + 2] = sdata[i00 + 2] * w00 + sdata[i10 + 2] * w10 + sdata[i01 + 2] * w01 + sdata[i11 + 2] * w11;
+                d[o + 3] = 255;
+                o += 4;
+            }
+        }
+        octx.putImageData(img, 0, 0);
+        return out;
+    }
+
+    function warpOpenCv(cv, src, c, outW, outH) {
+        var out = document.createElement('canvas');
+        out.width = outW;
+        out.height = outH;
+        var mat = cv.imread(src), dst = new cv.Mat();
+        var from = cv.matFromArray(4, 1, cv.CV_32FC2, [c[0].x, c[0].y, c[1].x, c[1].y, c[2].x, c[2].y, c[3].x, c[3].y]);
+        var to = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, outW, 0, outW, outH, 0, outH]);
+        var M = cv.getPerspectiveTransform(from, to);
+        try {
+            cv.warpPerspective(mat, dst, M, new cv.Size(outW, outH), cv.INTER_LINEAR, cv.BORDER_REPLICATE);
+            cv.imshow(out, dst);
+        } finally {
+            mat.delete(); dst.delete(); from.delete(); to.delete(); M.delete();
+        }
+        return out;
+    }
+
     function warp() {
         var c = orderCorners(state.corners), src = state.source; // rapikan bila titik diseret bersilangan
         var outW = Math.round(Math.max(dist(c[0], c[1]), dist(c[3], c[2])));
         var outH = Math.round(Math.max(dist(c[0], c[3]), dist(c[1], c[2])));
-        var ratio = Math.min(1, MAX_WORK_SIDE / Math.max(outW, outH));
+        var ratio = Math.min(1, OUTPUT_MAX_SIDE / Math.max(outW, outH));
         outW = Math.max(1, Math.round(outW * ratio));
         outH = Math.max(1, Math.round(outH * ratio));
 
-        var out = document.createElement('canvas');
-        out.width = outW;
-        out.height = outH;
-
-        return loadOpenCv().then(function (cv) {
-            var mat = cv.imread(src), dst = new cv.Mat();
-            var from = cv.matFromArray(4, 1, cv.CV_32FC2, [c[0].x, c[0].y, c[1].x, c[1].y, c[2].x, c[2].y, c[3].x, c[3].y]);
-            var to = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, outW, 0, outW, outH, 0, outH]);
-            var M = cv.getPerspectiveTransform(from, to);
-            try {
-                cv.warpPerspective(mat, dst, M, new cv.Size(outW, outH), cv.INTER_LINEAR, cv.BORDER_REPLICATE);
-                cv.imshow(out, dst);
-            } finally {
-                mat.delete(); dst.delete(); from.delete(); to.delete(); M.delete();
+        // Jalankan setelah overlay loading sempat tampil; JANGAN menunggu unduhan OpenCV.
+        return new Promise(function (resolve) { setTimeout(resolve, 30); }).then(function () {
+            if (cvIsReady()) {
+                try { return warpOpenCv(window.cv, src, c, outW, outH); } catch (e) { /* lanjut ke JS */ }
             }
-            return out;
-        }).catch(function () {
-            // Tanpa OpenCV: potong kotak terluar dari 4 titik (tanpa koreksi perspektif)
-            var xs = c.map(function (p) { return p.x; }), ys = c.map(function (p) { return p.y; });
-            var x = Math.min.apply(null, xs), y = Math.min.apply(null, ys);
-            var w = Math.max.apply(null, xs) - x, h = Math.max.apply(null, ys) - y;
-            out.width = Math.round(w);
-            out.height = Math.round(h);
-            out.getContext('2d').drawImage(src, x, y, w, h, 0, 0, out.width, out.height);
-            return out;
+            return warpJs(src, c, outW, outH);
         });
     }
 
@@ -423,7 +496,7 @@
         setLoading(true, 'Meluruskan dokumen...');
 
         warp().then(function (out) {
-            return new Promise(function (resolve) { out.toBlob(resolve, 'image/jpeg', 0.9); });
+            return new Promise(function (resolve) { out.toBlob(resolve, 'image/jpeg', 0.88); });
         }).then(function (blob) {
             if (!blob) throw new Error('Gagal membuat gambar hasil crop.');
             var baseName = (state.file.name || 'dokumen').replace(/\.[^.]+$/, '');
