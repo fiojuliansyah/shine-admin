@@ -73,7 +73,7 @@ class EmployeeController extends Controller
             }
 
             $dt->addColumn('aksi', function ($row) {
-                $applicant = $row->applicants->first();
+                $applicant = $row->applicants->sortByDesc('id')->first();
 
                 if (! $applicant) {
                     return '<span class="text-muted">-</span>';

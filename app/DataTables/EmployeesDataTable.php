@@ -94,7 +94,11 @@ class EmployeesDataTable extends DataTable
             })
 
             ->addColumn('resume', function ($row) {
-                return '<a href="' . route('users.resume', $row->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
+                $applicant = $row->applicants->sortByDesc('id')->first();
+                if (!$applicant) {
+                    return '<span class="text-muted">-</span>';
+                }
+                return '<a href="' . route('applicants.resume', $applicant->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center">
                             <i class="ti ti-file-description me-1"></i> Resume
                         </a>';
             })
@@ -106,7 +110,7 @@ class EmployeesDataTable extends DataTable
     public function query(User $model): QueryBuilder
     {
         $query = $model->newQuery()
-            ->with(['profile' => fn($q) => $q->select('user_id', 'birth_place', 'birth_date', 'address', 'rt_rw', 'kelurahan', 'kecamatan', 'join_date', 'resign_date', 'employment_status'), 'roles', 'site', 'generates.letter.type'])
+            ->with(['profile' => fn($q) => $q->select('user_id', 'birth_place', 'birth_date', 'address', 'rt_rw', 'kelurahan', 'kecamatan', 'join_date', 'resign_date', 'employment_status'), 'roles', 'site', 'generates.letter.type', 'applicants:id,user_id'])
             ->where('is_employee', 1)
             ->whereDoesntHave('roles', fn($q) => $q->where('name', 'App Administrator'));
 
