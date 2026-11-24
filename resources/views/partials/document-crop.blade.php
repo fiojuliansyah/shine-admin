@@ -62,33 +62,103 @@
     var applyBtn = document.getElementById('docCropApply');
 
     var state = { input: null, file: null, source: null, corners: null, scale: 1, drag: -1, applied: false, session: 0, userMoved: false };
-    var cvReady = null;
+    // ---------- OpenCV di Web Worker ----------
+    // OpenCV.js (~9 MB, berisi WebAssembly) dimuat & dijalankan di thread terpisah agar
+    // halaman TIDAK membeku saat file di-parse/di-compile. Thread utama hanya kirim gambar
+    // kecil dan menerima 4 titik sudut.
+    var WORKER_SOURCE = [
+        'var ready = null;',
+        'function init(url) {',
+        '  if (ready) return ready;',
+        '  ready = new Promise(function (resolve, reject) {',
+        '    try { importScripts(url); } catch (e) { reject(e); return; }',
+        '    var c = self.cv;',
+        '    if (c && typeof c.then === "function") { c.then(function (r) { self.cv = r; resolve(r); }); }',
+        '    else if (c && c.Mat) { resolve(c); }',
+        '    else if (c) { c.onRuntimeInitialized = function () { resolve(self.cv); }; }',
+        '    else { reject(new Error("OpenCV tidak tersedia")); }',
+        '  });',
+        '  return ready;',
+        '}',
+        'function order(p) {',
+        '  var s = p.slice().sort(function (a, b) { return (a.x + a.y) - (b.x + b.y); });',
+        '  var d = p.slice().sort(function (a, b) { return (a.y - a.x) - (b.y - b.x); });',
+        '  return [s[0], d[0], s[3], d[3]];',
+        '}',
+        'function detect(cv, imageData) {',
+        '  var mat = cv.matFromImageData(imageData), gray = new cv.Mat(), edges = new cv.Mat();',
+        '  var contours = new cv.MatVector(), hierarchy = new cv.Mat();',
+        '  var kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(5, 5));',
+        '  var found = null, bestArea = 0, minArea = imageData.width * imageData.height * 0.15;',
+        '  try {',
+        '    cv.cvtColor(mat, gray, cv.COLOR_RGBA2GRAY);',
+        '    cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0);',
+        '    cv.Canny(gray, edges, 50, 150);',
+        '    cv.dilate(edges, edges, kernel);',
+        '    cv.findContours(edges, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);',
+        '    for (var i = 0; i < contours.size(); i++) {',
+        '      var cnt = contours.get(i), area = cv.contourArea(cnt);',
+        '      if (area > minArea && area > bestArea) {',
+        '        var approx = new cv.Mat();',
+        '        cv.approxPolyDP(cnt, approx, 0.02 * cv.arcLength(cnt, true), true);',
+        '        if (approx.rows === 4 && cv.isContourConvex(approx)) {',
+        '          var pts = [];',
+        '          for (var j = 0; j < 4; j++) pts.push({ x: approx.data32S[j * 2], y: approx.data32S[j * 2 + 1] });',
+        '          found = order(pts); bestArea = area;',
+        '        }',
+        '        approx.delete();',
+        '      }',
+        '      cnt.delete();',
+        '    }',
+        '  } finally { mat.delete(); gray.delete(); edges.delete(); contours.delete(); hierarchy.delete(); kernel.delete(); }',
+        '  return found;',
+        '}',
+        'self.onmessage = function (e) {',
+        '  var m = e.data;',
+        '  init(m.url).then(function (cv) {',
+        '    if (m.type === "init") { self.postMessage({ id: m.id, ok: true }); return; }',
+        '    self.postMessage({ id: m.id, ok: true, corners: detect(cv, m.image) });',
+        '  }).catch(function (err) { self.postMessage({ id: m.id, ok: false, error: String(err && err.message || err) }); });',
+        '};'
+    ].join('\n');
 
-    // ---------- OpenCV (dimuat sekali, saat pertama dibutuhkan) ----------
-    function loadOpenCv() {
-        if (cvReady) return cvReady;
-        cvReady = new Promise(function (resolve, reject) {
-            function done() {
-                var c = window.cv;
-                if (c && typeof c.then === 'function') {
-                    c.then(function (ready) { window.cv = ready; resolve(ready); });
-                } else if (c && c.Mat) {
-                    resolve(c);
-                } else if (c) {
-                    c.onRuntimeInitialized = function () { resolve(window.cv); };
-                } else {
-                    reject(new Error('OpenCV tidak tersedia'));
-                }
-            }
-            if (window.cv) return done();
-            var s = document.createElement('script');
-            s.src = OPENCV_URL;
-            s.async = true;
-            s.onload = done;
-            s.onerror = function () { cvReady = null; reject(new Error('Gagal memuat OpenCV')); };
-            document.head.appendChild(s);
+    var worker = null, workerReady = false, readyPromise = null, pending = {}, reqId = 0;
+
+    function cvIsReady() { return workerReady; }
+
+    function callWorker(message, transfer) {
+        return new Promise(function (resolve, reject) {
+            var id = ++reqId;
+            pending[id] = { resolve: resolve, reject: reject };
+            message.id = id;
+            message.url = new URL(OPENCV_URL, location.href).href;
+            worker.postMessage(message, transfer || []);
         });
-        return cvReady;
+    }
+
+    function loadOpenCv() {
+        if (readyPromise) return readyPromise;
+        readyPromise = new Promise(function (resolve, reject) {
+            try {
+                var blobUrl = URL.createObjectURL(new Blob([WORKER_SOURCE], { type: 'text/javascript' }));
+                worker = new Worker(blobUrl);
+            } catch (e) { reject(e); return; }
+
+            worker.onmessage = function (e) {
+                var p = pending[e.data.id];
+                if (!p) return;
+                delete pending[e.data.id];
+                e.data.ok ? p.resolve(e.data) : p.reject(new Error(e.data.error));
+            };
+            worker.onerror = function (e) { reject(new Error(e.message || 'Worker OpenCV gagal')); };
+
+            callWorker({ type: 'init' }).then(function () { workerReady = true; resolve(); }, reject);
+        }).catch(function (err) {
+            readyPromise = null; // boleh dicoba lagi nanti
+            if (worker) { worker.terminate(); worker = null; }
+            throw err;
+        });
+        return readyPromise;
     }
 
     // ---------- Util ----------
@@ -226,55 +296,23 @@
 
     window.addEventListener('resize', function () { if (modalEl.classList.contains('show') && state.source) layout(); });
 
-    // ---------- Deteksi sudut otomatis ----------
-    function detectCorners(cv, src) {
+    // ---------- Deteksi sudut otomatis (di worker) ----------
+    function detectCorners(src) {
         var ratio = Math.min(1, DETECT_SIDE / Math.max(src.width, src.height));
         var small = document.createElement('canvas');
         small.width = Math.round(src.width * ratio);
         small.height = Math.round(src.height * ratio);
-        small.getContext('2d').drawImage(src, 0, 0, small.width, small.height);
+        var sctx = small.getContext('2d');
+        sctx.drawImage(src, 0, 0, small.width, small.height);
+        var image = sctx.getImageData(0, 0, small.width, small.height);
 
-        var mat = cv.imread(small), gray = new cv.Mat(), edges = new cv.Mat();
-        var contours = new cv.MatVector(), hierarchy = new cv.Mat();
-        var kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(5, 5));
-        var found = null;
-
-        try {
-            cv.cvtColor(mat, gray, cv.COLOR_RGBA2GRAY);
-            cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0);
-            cv.Canny(gray, edges, 50, 150);
-            cv.dilate(edges, edges, kernel);
-            cv.findContours(edges, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
-
-            var minArea = small.width * small.height * 0.15, bestArea = 0;
-            for (var i = 0; i < contours.size(); i++) {
-                var cnt = contours.get(i);
-                var area = cv.contourArea(cnt);
-                if (area > minArea && area > bestArea) {
-                    var approx = new cv.Mat();
-                    cv.approxPolyDP(cnt, approx, 0.02 * cv.arcLength(cnt, true), true);
-                    if (approx.rows === 4 && cv.isContourConvex(approx)) {
-                        var pts = [];
-                        for (var j = 0; j < 4; j++) {
-                            pts.push({ x: approx.data32S[j * 2] / ratio, y: approx.data32S[j * 2 + 1] / ratio });
-                        }
-                        found = orderCorners(pts);
-                        bestArea = area;
-                    }
-                    approx.delete();
-                }
-                cnt.delete();
-            }
-        } finally {
-            mat.delete(); gray.delete(); edges.delete(); contours.delete(); hierarchy.delete(); kernel.delete();
-        }
-        return found;
+        return callWorker({ type: 'detect', image: image }, [image.data.buffer]).then(function (res) {
+            if (!res.corners) return null;
+            return res.corners.map(function (p) { return { x: p.x / ratio, y: p.y / ratio }; });
+        });
     }
 
-    function cvIsReady() { return !!(window.cv && window.cv.Mat); }
-
-    function applyDetection(cv) {
-        var corners = detectCorners(cv, state.source);
+    function applyDetection(corners) {
         if (corners) {
             state.corners = corners;
             setStatus('text-success', 'Sudut dokumen terdeteksi. Periksa dan geser titik bila perlu.');
@@ -286,44 +324,34 @@
     }
 
     /**
-     * Deteksi sudut. Bila OpenCV sudah siap -> langsung (cepat).
-     * Bila belum (masih diunduh ~9 MB, hanya sekali): pelamar TIDAK menunggu — titik manual
-     * langsung tampil, dan deteksi otomatis diterapkan begitu OpenCV siap (selama titik belum digeser).
+     * Deteksi sudut di worker. Pelamar tidak pernah menunggu: titik manual langsung tampil,
+     * hasil deteksi diterapkan begitu siap (selama titik belum digeser sendiri).
      */
     function runDetect(manualClick) {
         var session = state.session;
 
-        if (cvIsReady()) {
-            setLoading(true, 'Mendeteksi sudut dokumen...');
-            // beri kesempatan overlay tampil sebelum proses
-            return new Promise(function (r) { setTimeout(r, 20); }).then(function () {
-                applyDetection(window.cv);
-            }).catch(function () {
-                setStatus('text-warning', 'Deteksi gagal. Geser 4 titik secara manual.');
-            }).finally(function () {
-                setLoading(false);
-                applyBtn.disabled = false;
-            });
-        }
-
         state.corners = state.corners || fullCorners(state.source.width, state.source.height, 0.04);
-        state.userMoved = manualClick ? false : state.userMoved;
+        if (manualClick) state.userMoved = false;
         setLoading(false);
         applyBtn.disabled = false;
         draw();
-        setStatus('text-muted', 'Menyiapkan deteksi otomatis (hanya pertama kali)... Anda bisa langsung menggeser titik.');
+        setStatus('text-muted', cvIsReady()
+            ? 'Mendeteksi sudut dokumen...'
+            : 'Menyiapkan deteksi otomatis (hanya pertama kali)... Anda bisa langsung menggeser titik.');
 
-        return loadOpenCv().then(function (cv) {
-            // Modal sudah ditutup / file lain / pelamar sudah menggeser titik -> jangan timpa
+        return loadOpenCv().then(function () {
             if (session !== state.session || !modalEl.classList.contains('show')) return;
-            if (state.userMoved && !manualClick) {
-                setStatus('text-muted', 'Deteksi otomatis siap. Klik "Deteksi Otomatis" bila ingin dipakai.');
-                return;
-            }
-            applyDetection(cv);
+            return detectCorners(state.source).then(function (corners) {
+                if (session !== state.session || !modalEl.classList.contains('show')) return;
+                if (state.userMoved && !manualClick) {
+                    setStatus('text-muted', 'Deteksi otomatis siap. Klik "Deteksi Otomatis" bila ingin dipakai.');
+                    return;
+                }
+                applyDetection(corners);
+            });
         }).catch(function () {
             if (session !== state.session) return;
-            setStatus('text-warning', 'Deteksi otomatis tidak tersedia (koneksi). Geser 4 titik secara manual.');
+            setStatus('text-warning', 'Deteksi otomatis tidak tersedia. Geser 4 titik secara manual.');
         });
     }
 
@@ -403,23 +431,6 @@
         return out;
     }
 
-    function warpOpenCv(cv, src, c, outW, outH) {
-        var out = document.createElement('canvas');
-        out.width = outW;
-        out.height = outH;
-        var mat = cv.imread(src), dst = new cv.Mat();
-        var from = cv.matFromArray(4, 1, cv.CV_32FC2, [c[0].x, c[0].y, c[1].x, c[1].y, c[2].x, c[2].y, c[3].x, c[3].y]);
-        var to = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, outW, 0, outW, outH, 0, outH]);
-        var M = cv.getPerspectiveTransform(from, to);
-        try {
-            cv.warpPerspective(mat, dst, M, new cv.Size(outW, outH), cv.INTER_LINEAR, cv.BORDER_REPLICATE);
-            cv.imshow(out, dst);
-        } finally {
-            mat.delete(); dst.delete(); from.delete(); to.delete(); M.delete();
-        }
-        return out;
-    }
-
     function warp() {
         var c = orderCorners(state.corners), src = state.source; // rapikan bila titik diseret bersilangan
         var outW = Math.round(Math.max(dist(c[0], c[1]), dist(c[3], c[2])));
@@ -428,11 +439,8 @@
         outW = Math.max(1, Math.round(outW * ratio));
         outH = Math.max(1, Math.round(outH * ratio));
 
-        // Jalankan setelah overlay loading sempat tampil; JANGAN menunggu unduhan OpenCV.
+        // Jalankan setelah overlay loading sempat tampil (pelurusan JS murni, ~puluhan ms).
         return new Promise(function (resolve) { setTimeout(resolve, 30); }).then(function () {
-            if (cvIsReady()) {
-                try { return warpOpenCv(window.cv, src, c, outW, outH); } catch (e) { /* lanjut ke JS */ }
-            }
             return warpJs(src, c, outW, outH);
         });
     }
