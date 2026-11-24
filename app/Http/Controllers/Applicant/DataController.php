@@ -139,30 +139,30 @@ class DataController extends Controller
             return redirect()->route('web.applicants.letter')->with('error', 'Surat belum tersedia. Menunggu persetujuan HRD.');
         }
 
-        $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
+        $no_surat = $eletter->formatted_letter_number ?? '';
         $tgl_surat = isset($eletter->created_at) 
             ? Carbon::parse($eletter->created_at)->format('d-m-Y') 
             : '';
-        $romawi = $eletter->romawi ?? 'belum ada data';
-        $tahun = $eletter->year ?? 'belum ada tahun';
-        $hari = $eletter->day ?? 'belum ada hari';
-        $pihak_2 = $eletter->second_party ?? 'belum ada data';
-        $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = strtoupper($eletter->user->name ?? 'belum ada nama');
-        $nik_ktp = $eletter->user->nik ?? 'belum ada NIK KTP';
-        $jenis_kelamin = $eletter->user->profile->gender ?? 'belum ada Jenis Kelamin';
+        $romawi = $eletter->romawi ?? '';
+        $tahun = $eletter->year ?? '';
+        $hari = $eletter->day ?? '';
+        $pihak_2 = $eletter->second_party ?? '';
+        $sign_2 = $eletter->second_party_esign ?? '';
+        $nama_karyawan = strtoupper($eletter->user->name ?? '');
+        $nik_ktp = $eletter->user->nik ?? '';
+        $jenis_kelamin = $eletter->user->profile->gender ?? '';
         $ttl = isset($eletter->user->profile->birth_place) && isset($eletter->user->profile->birth_date)
             ? $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y')
-            : 'belum ada data';
-        $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
-        $handphone = $eletter->user->phone ?? 'belum ada no handphone';
-        $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
-        $lokasi_project = $eletter->site->name ?? 'belum ada area';
-        $area = $eletter->site->area ?? 'belum ada area';
-        $nama_client = $eletter->site->client_name ?? 'belum ada area';
-        $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
-        $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
-        $esign = $eletter->esign ?? 'belum ada tanda tangan';
+            : '';
+        $alamat = $eletter->user->profile->address ?? '';
+        $handphone = $eletter->user->phone ?? '';
+        $no_karyawan = $eletter->user->employee_nik ?? '';
+        $lokasi_project = $eletter->site->name ?? '';
+        $area = $eletter->site->area ?? '';
+        $nama_client = $eletter->site->client_name ?? '';
+        $jabatan_client = $eletter->site->client_position ?? '';
+        $jabatan = strtoupper($eletter->user->roles->first()->name ?? '');
+        $esign = $eletter->esign ?? '';
         
         $payroll = $user->payroll;
         $gaji_raw = 0;
@@ -190,10 +190,10 @@ class DataController extends Controller
         
         $mulai = isset($eletter->start_date)
             ? Carbon::parse($eletter->start_date)->format('d-m-Y')
-            : 'belum ada data';
+            : '';
         $selesai = isset($eletter->end_date)
             ? Carbon::parse($eletter->end_date)->format('d-m-Y')
-            : 'belum ada data';
+            : '';
 
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
@@ -243,28 +243,28 @@ class DataController extends Controller
 
         $user = $eletter->user;
 
-        $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
+        $no_surat = $eletter->formatted_letter_number ?? '';
         $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->format('d-m-Y') : '';
-        $romawi = $eletter->romawi ?? 'belum ada data';
-        $tahun = $eletter->year ?? 'belum ada tahun';
-        $hari = $eletter->day ?? 'belum ada hari';
-        $pihak_2 = $eletter->second_party ?? 'belum ada data';
-        $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = strtoupper($eletter->user->name ?? 'belum ada nama');
-        $nik_ktp = $eletter->user->nik ?? 'belum ada NIK KTP';
-        $jenis_kelamin = $eletter->user->profile->gender ?? 'belum ada Jenis Kelamin';
+        $romawi = $eletter->romawi ?? '';
+        $tahun = $eletter->year ?? '';
+        $hari = $eletter->day ?? '';
+        $pihak_2 = $eletter->second_party ?? '';
+        $sign_2 = $eletter->second_party_esign ?? '';
+        $nama_karyawan = strtoupper($eletter->user->name ?? '');
+        $nik_ktp = $eletter->user->nik ?? '';
+        $jenis_kelamin = $eletter->user->profile->gender ?? '';
         $ttl = isset($eletter->user->profile->birth_place) && isset($eletter->user->profile->birth_date)
             ? $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y')
-            : 'belum ada data';
-        $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
-        $handphone = $eletter->user->phone ?? 'belum ada no handphone';
-        $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
-        $lokasi_project = $eletter->site->name ?? 'belum ada area';
-        $area = $eletter->site->area ?? 'belum ada area';
-        $nama_client = $eletter->site->client_name ?? 'belum ada area';
-        $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
-        $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
-        $esign = $eletter->esign ?? 'belum ada tanda tangan';
+            : '';
+        $alamat = $eletter->user->profile->address ?? '';
+        $handphone = $eletter->user->phone ?? '';
+        $no_karyawan = $eletter->user->employee_nik ?? '';
+        $lokasi_project = $eletter->site->name ?? '';
+        $area = $eletter->site->area ?? '';
+        $nama_client = $eletter->site->client_name ?? '';
+        $jabatan_client = $eletter->site->client_position ?? '';
+        $jabatan = strtoupper($eletter->user->roles->first()->name ?? '');
+        $esign = $eletter->esign ?? '';
 
         $payroll = $user->payroll;
         $gaji_raw = 0;
@@ -285,8 +285,8 @@ class DataController extends Controller
         }
         $tunjangan = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
 
-        $mulai = isset($eletter->start_date) ? Carbon::parse($eletter->start_date)->format('d-m-Y') : 'belum ada data';
-        $selesai = isset($eletter->end_date) ? Carbon::parse($eletter->end_date)->format('d-m-Y') : 'belum ada data';
+        $mulai = isset($eletter->start_date) ? Carbon::parse($eletter->start_date)->format('d-m-Y') : '';
+        $selesai = isset($eletter->end_date) ? Carbon::parse($eletter->end_date)->format('d-m-Y') : '';
 
         $search = [
             '[no_surat]', '[tgl_surat]', '[romawi]', '[tahun]', '[hari]', '[mulai]', '[selesai]',
@@ -356,28 +356,28 @@ class DataController extends Controller
         }
 
         $user = $eletter->user;
-        $no_surat = $eletter->formatted_letter_number ?? 'belum ada no surat';
+        $no_surat = $eletter->formatted_letter_number ?? '';
         $tgl_surat = isset($eletter->created_at) ? Carbon::parse($eletter->created_at)->format('d-m-Y') : '';
-        $romawi = $eletter->romawi ?? 'belum ada data';
-        $tahun = $eletter->year ?? 'belum ada tahun';
-        $hari = $eletter->day ?? 'belum ada hari';
-        $pihak_2 = $eletter->second_party ?? 'belum ada data';
-        $sign_2 = $eletter->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = strtoupper($eletter->user->name ?? 'belum ada nama');
-        $nik_ktp = $eletter->user->nik ?? 'belum ada NIK KTP';
-        $jenis_kelamin = $eletter->user->profile->gender ?? 'belum ada Jenis Kelamin';
+        $romawi = $eletter->romawi ?? '';
+        $tahun = $eletter->year ?? '';
+        $hari = $eletter->day ?? '';
+        $pihak_2 = $eletter->second_party ?? '';
+        $sign_2 = $eletter->second_party_esign ?? '';
+        $nama_karyawan = strtoupper($eletter->user->name ?? '');
+        $nik_ktp = $eletter->user->nik ?? '';
+        $jenis_kelamin = $eletter->user->profile->gender ?? '';
         $ttl = isset($eletter->user->profile->birth_place) && isset($eletter->user->profile->birth_date)
             ? $eletter->user->profile->birth_place . ', ' . Carbon::parse($eletter->user->profile->birth_date)->format('d-m-Y')
-            : 'belum ada data';
-        $alamat = $eletter->user->profile->address ?? 'belum ada alamat';
-        $handphone = $eletter->user->phone ?? 'belum ada no handphone';
-        $no_karyawan = $eletter->user->employee_nik ?? 'belum ada no karyawan';
-        $lokasi_project = $eletter->site->name ?? 'belum ada area';
-        $area = $eletter->site->area ?? 'belum ada area';
-        $nama_client = $eletter->site->client_name ?? 'belum ada area';
-        $jabatan_client = $eletter->site->client_position ?? 'belum ada jabatan client';
-        $jabatan = strtoupper($eletter->user->roles->first()->name ?? 'belum ada jabatan');
-        $esign = $eletter->esign ?? 'belum ada tanda tangan';
+            : '';
+        $alamat = $eletter->user->profile->address ?? '';
+        $handphone = $eletter->user->phone ?? '';
+        $no_karyawan = $eletter->user->employee_nik ?? '';
+        $lokasi_project = $eletter->site->name ?? '';
+        $area = $eletter->site->area ?? '';
+        $nama_client = $eletter->site->client_name ?? '';
+        $jabatan_client = $eletter->site->client_position ?? '';
+        $jabatan = strtoupper($eletter->user->roles->first()->name ?? '');
+        $esign = $eletter->esign ?? '';
 
         $payroll = $user->payroll;
         $gaji_raw = 0; $gaji_label = '';
@@ -397,8 +397,8 @@ class DataController extends Controller
         }
         $tunjangan = !empty($tunjangan_items) ? implode("\n", $tunjangan_items) : '-';
 
-        $mulai = isset($eletter->start_date) ? Carbon::parse($eletter->start_date)->format('d-m-Y') : 'belum ada data';
-        $selesai = isset($eletter->end_date) ? Carbon::parse($eletter->end_date)->format('d-m-Y') : 'belum ada data';
+        $mulai = isset($eletter->start_date) ? Carbon::parse($eletter->start_date)->format('d-m-Y') : '';
+        $selesai = isset($eletter->end_date) ? Carbon::parse($eletter->end_date)->format('d-m-Y') : '';
 
         $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[jenis_kelamin]','[nik_ktp]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[area]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]'];
         $replace = [$no_surat,$tgl_surat,$romawi,$tahun,$hari,$mulai,$selesai,$pihak_2,$sign_2,$nama_karyawan,$jenis_kelamin,$nik_ktp,$ttl,$alamat,$handphone,$no_karyawan,$lokasi_project,$area,$nama_client,$jabatan_client,$jabatan,$esign,$gaji,$tunjangan];

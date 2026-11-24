@@ -140,6 +140,7 @@
 
 @push('css')
 <link rel="stylesheet" href="/admin/assets/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
 @endpush
 
 @push('js')
@@ -331,34 +332,34 @@
     
 </script>
 
-<script>
-    $(document).ready(function() {
-        $('#importModal').on('shown.bs.modal', function () {
-            $(this).find('.select2').select2({
-                dropdownParent: $('#importModal')
-            });
-        });
-    });
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
     (function () {
-        const tplSelect = document.getElementById('templateSelect');
-        if (!tplSelect) return;
+        const modal = document.getElementById('templateModal');
+        if (!modal) return;
 
-        const exportId = document.getElementById('exportLetterId');
-        const importId = document.getElementById('importLetterId');
-        const exportBtn = document.getElementById('exportTemplateBtn');
-        const importBtn = document.getElementById('importTemplateBtn');
+        const letterInputs = modal.querySelectorAll('.tpl-letter-id');
+        const siteInputs = modal.querySelectorAll('.tpl-site-id');
+        const submitBtns = modal.querySelectorAll('.tpl-submit');
 
-        tplSelect.addEventListener('change', function () {
-            const val = this.value;
-            if (exportId) exportId.value = val;
-            if (importId) importId.value = val;
-            const disabled = !val;
-            if (exportBtn) exportBtn.disabled = disabled;
-            if (importBtn) importBtn.disabled = disabled;
-        });
+        const tsOptions = {
+            allowEmptyOption: true,
+            maxOptions: null,
+            sortField: { field: 'text', direction: 'asc' },
+        };
+
+        const templateTs = new TomSelect('#templateSelect', Object.assign({}, tsOptions, {
+            onChange(val) {
+                letterInputs.forEach(el => el.value = val);
+                submitBtns.forEach(btn => btn.disabled = !val);
+            },
+        }));
+
+        const siteTs = new TomSelect('#templateSiteSelect', Object.assign({}, tsOptions, {
+            onChange(val) {
+                siteInputs.forEach(el => el.value = val);
+            },
+        }));
     })();
 </script>
 @endpush

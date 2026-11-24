@@ -75,19 +75,7 @@ class EmployeeController extends Controller
             $dt->addColumn('aksi', function ($row) {
                 $applicant = $row->applicants->sortByDesc('id')->first();
 
-                $html = '<div class="d-flex gap-1 justify-content-center">';
-
-                if ($applicant) {
-                    $html .= '<a href="'.route('applicants.resume', $applicant->id).'" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center text-nowrap">
-                            <i class="ti ti-file-description me-1"></i> Resume
-                        </a>';
-                }
-
-                $html .= '<a href="'.route('users.account', $row->id).'" target="_blank" class="btn btn-sm btn-primary d-inline-flex align-items-center text-nowrap">
-                            <i class="ti ti-edit me-1"></i> Edit Profil
-                        </a>';
-
-                return $html.'</div>';
+                return view('admin.employees.partials.actions', ['row' => $row, 'applicant' => $applicant])->render();
             });
 
             $dt->rawColumns(['status', 'aksi']);

@@ -499,38 +499,38 @@ class GenerateController extends Controller
 
     public function show(Generate $generate)
     {
-        $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
+        $no_surat = $generate->formatted_letter_number ?? '';
         
         $tgl_surat = isset($generate->created_at) 
             ? Carbon::parse($generate->created_at)->format('d-m-Y') 
             : '';
             
-        $romawi = $generate->romawi ?? 'belum ada data';
-        $tahun = $generate->year ?? 'belum ada tahun';
-        $hari = $generate->day ?? 'belum ada hari';
-        $pihak_2 = $generate->second_party ?? 'belum ada data';
-        $sign_2 = $generate->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = strtoupper($generate->user->name ?? 'belum ada nama');
+        $romawi = $generate->romawi ?? '';
+        $tahun = $generate->year ?? '';
+        $hari = $generate->day ?? '';
+        $pihak_2 = $generate->second_party ?? '';
+        $sign_2 = $generate->second_party_esign ?? '';
+        $nama_karyawan = strtoupper($generate->user->name ?? '');
         
         $ttl = isset($generate->user->profile->birth_place) && isset($generate->user->profile->birth_date)
             ? $generate->user->profile->birth_place . ', ' . Carbon::parse($generate->user->profile->birth_date)->format('d-m-Y')
-            : 'belum ada data';
+            : '';
             
-        $alamat = $generate->user->profile->address ?? 'belum ada alamat';
-        $handphone = $generate->user->phone ?? 'belum ada no handphone';
-        $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
-        $area = strtoupper($generate->user->site->name ?? 'belum ada area');
-        $area_project = $generate->user->site->area ?? 'belum ada area';
-        $nik_ktp = $generate->user->nik ?? 'belum ada NIK KTP';
-        $jenis_kelamin = $generate->user->profile->gender ?? 'belum ada Jenis Kelamin';
-        $nama_client = $generate->user->site->client_name ?? 'belum ada area';
-        $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
-        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
-        $esign = $generate->esign ?? 'belum ada tanda tangan';
-        $nama_kontak = $generate->emergency_name ?? 'belum ada nama';
-        $no_kontak = $generate->emergency_number ?? 'belum ada no hp';
-        $alamat_kontak = $generate->emergency_address ?? 'belum ada alamat';
-        $hubungan = $generate->relationship ?? 'belum ada hubungan';
+        $alamat = $generate->user->profile->address ?? '';
+        $handphone = $generate->user->phone ?? '';
+        $no_karyawan = $generate->user->employee_nik ?? '';
+        $area = strtoupper($generate->user->site->name ?? '');
+        $area_project = $generate->user->site->area ?? '';
+        $nik_ktp = $generate->user->nik ?? '';
+        $jenis_kelamin = $generate->user->profile->gender ?? '';
+        $nama_client = $generate->user->site->client_name ?? '';
+        $jabatan_client = $generate->user->site->client_position ?? '';
+        $jabatan = strtoupper($generate->user->roles->first()->name ?? '');
+        $esign = $generate->esign ?? '';
+        $nama_kontak = $generate->emergency_name ?? '';
+        $no_kontak = $generate->emergency_number ?? '';
+        $alamat_kontak = $generate->emergency_address ?? '';
+        $hubungan = $generate->relationship ?? '';
         
         $gaji_type = $generate->gaji_type ?? 'monthly'; 
         if ($gaji_type === 'monthly') {
@@ -542,7 +542,7 @@ class GenerateController extends Controller
         }
 
         $tunjangan_calculation = 0;
-        $tunjangan = 'Tidak ada data';
+        $tunjangan = '';
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
                 if ($component->amount) {
@@ -556,7 +556,7 @@ class GenerateController extends Controller
         }
 
         $komisi_calculation = 0;
-        $komisi = 'Tidak ada data';
+        $komisi = '';
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
                 if ($component->component_type === 'comission') {
@@ -572,7 +572,7 @@ class GenerateController extends Controller
         }
 
         $potongan_calculation = 0;
-        $potongan = 'Tidak ada data';
+        $potongan = '';
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
                 if ($component->component_type === 'deduction') {
@@ -589,7 +589,7 @@ class GenerateController extends Controller
         
         $mulai = isset($generate->start_date) 
             ? Carbon::parse($generate->start_date)->format('d-m-Y') 
-            : 'belum ada data';
+            : '';
 
         $selesai = isset($generate->end_date) 
             ? Carbon::parse($generate->end_date)->format('d-m-Y') 
@@ -633,41 +633,41 @@ class GenerateController extends Controller
 
     private function _buildSearchReplace(Generate $generate): array
     {
-        $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
+        $no_surat = $generate->formatted_letter_number ?? '';
         $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->format('d-m-Y') : '';
-        $romawi = $generate->romawi ?? 'belum ada data';
-        $tahun = $generate->year ?? 'belum ada tahun';
-        $hari = $generate->day ?? 'belum ada hari';
-        $pihak_2 = $generate->second_party ?? 'belum ada data';
-        $sign_2 = $generate->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = strtoupper($generate->user->name ?? 'belum ada nama');
+        $romawi = $generate->romawi ?? '';
+        $tahun = $generate->year ?? '';
+        $hari = $generate->day ?? '';
+        $pihak_2 = $generate->second_party ?? '';
+        $sign_2 = $generate->second_party_esign ?? '';
+        $nama_karyawan = strtoupper($generate->user->name ?? '');
         $ttl = isset($generate->user->profile->birth_place) && isset($generate->user->profile->birth_date)
             ? $generate->user->profile->birth_place . ', ' . Carbon::parse($generate->user->profile->birth_date)->format('d-m-Y')
-            : 'belum ada data';
-        $alamat = $generate->user->profile->address ?? 'belum ada alamat';
-        $handphone = $generate->user->phone ?? 'belum ada no handphone';
-        $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
-        $area = strtoupper($generate->user->site->name ?? 'belum ada area');
-        $area_project = $generate->user->site->area ?? 'belum ada area';
-        $nik_ktp = $generate->user->nik ?? 'belum ada NIK KTP';
-        $jenis_kelamin = $generate->user->profile->gender ?? 'belum ada Jenis Kelamin';
-        $nama_client = $generate->user->site->client_name ?? 'belum ada area';
-        $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
-        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
-        $esign = $generate->esign ?? 'belum ada tanda tangan';
-        $nama_kontak = $generate->emergency_name ?? 'belum ada nama';
-        $no_kontak = $generate->emergency_number ?? 'belum ada no hp';
-        $alamat_kontak = $generate->emergency_address ?? 'belum ada alamat';
-        $hubungan = $generate->relationship ?? 'belum ada hubungan';
+            : '';
+        $alamat = $generate->user->profile->address ?? '';
+        $handphone = $generate->user->phone ?? '';
+        $no_karyawan = $generate->user->employee_nik ?? '';
+        $area = strtoupper($generate->user->site->name ?? '');
+        $area_project = $generate->user->site->area ?? '';
+        $nik_ktp = $generate->user->nik ?? '';
+        $jenis_kelamin = $generate->user->profile->gender ?? '';
+        $nama_client = $generate->user->site->client_name ?? '';
+        $jabatan_client = $generate->user->site->client_position ?? '';
+        $jabatan = strtoupper($generate->user->roles->first()->name ?? '');
+        $esign = $generate->esign ?? '';
+        $nama_kontak = $generate->emergency_name ?? '';
+        $no_kontak = $generate->emergency_number ?? '';
+        $alamat_kontak = $generate->emergency_address ?? '';
+        $hubungan = $generate->relationship ?? '';
 
         $gaji_type = $generate->gaji_type ?? 'monthly';
         if ($gaji_type === 'monthly') $gaji = $generate->user->payroll->salary_amount ?? 0;
         elseif ($gaji_type === 'daily') $gaji = $generate->user->payroll->daily_rate ?? 0;
         else $gaji = 0;
 
-        $tunjangan_calculation = 0; $tunjangan = 'Tidak ada data';
-        $komisi_calculation = 0; $komisi = 'Tidak ada data';
-        $potongan_calculation = 0; $potongan = 'Tidak ada data';
+        $tunjangan_calculation = 0; $tunjangan = '';
+        $komisi_calculation = 0; $komisi = '';
+        $potongan_calculation = 0; $potongan = '';
 
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
@@ -678,7 +678,7 @@ class GenerateController extends Controller
             }
         }
 
-        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->format('d-m-Y') : 'belum ada data';
+        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->format('d-m-Y') : '';
         $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->format('d-m-Y') : 'Sampai dengan Selesai';
 
         $search = ['[no_surat]','[tgl_surat]','[romawi]','[tahun]','[hari]','[mulai]','[selesai]','[pihak_2]','[sign_2]','[nama_karyawan]','[nik_ktp]','[jenis_kelamin]','[ttl]','[alamat]','[handphone]','[no_karyawan]','[lokasi_project]','[area]','[nama_client]','[jabatan_client]','[jabatan]','[esign]','[gaji]','[tunjangan]','[komisi]','[potongan]','[nama_kontak]','[no_kontak]','[alamat_kontak]','[hubungan]'];
@@ -726,32 +726,32 @@ class GenerateController extends Controller
 
     public function pdf(Generate $generate)
     {
-        $no_surat = $generate->formatted_letter_number ?? 'belum ada no surat';
+        $no_surat = $generate->formatted_letter_number ?? '';
         $tgl_surat = isset($generate->created_at) ? Carbon::parse($generate->created_at)->format('d-m-Y') : '';
-        $romawi = $generate->romawi ?? 'belum ada data';
-        $tahun = $generate->year ?? 'belum ada tahun';
-        $hari = $generate->day ?? 'belum ada hari';
-        $pihak_2 = $generate->second_party ?? 'belum ada data';
-        $sign_2 = $generate->second_party_esign ?? 'belum ada data';
-        $nama_karyawan = strtoupper($generate->user->name ?? 'belum ada nama');
+        $romawi = $generate->romawi ?? '';
+        $tahun = $generate->year ?? '';
+        $hari = $generate->day ?? '';
+        $pihak_2 = $generate->second_party ?? '';
+        $sign_2 = $generate->second_party_esign ?? '';
+        $nama_karyawan = strtoupper($generate->user->name ?? '');
         $ttl = isset($generate->user->profile->birth_place) && isset($generate->user->profile->birth_date)
             ? $generate->user->profile->birth_place . ', ' . Carbon::parse($generate->user->profile->birth_date)->format('d-m-Y')
-            : 'belum ada data';
-        $alamat = $generate->user->profile->address ?? 'belum ada alamat';
-        $handphone = $generate->user->phone ?? 'belum ada no handphone';
-        $no_karyawan = $generate->user->employee_nik ?? 'belum ada no karyawan';
-        $area = strtoupper($generate->user->site->name ?? 'belum ada area');
-        $area_project = $generate->user->site->area ?? 'belum ada area';
-        $nik_ktp = $generate->user->nik ?? 'belum ada NIK KTP';
-        $jenis_kelamin = $generate->user->profile->gender ?? 'belum ada Jenis Kelamin';
-        $nama_client = $generate->user->site->client_name ?? 'belum ada area';
-        $jabatan_client = $generate->user->site->client_position ?? 'belum ada jabatan client';
-        $jabatan = strtoupper($generate->user->roles->first()->name ?? 'belum ada jabatan');
-        $esign = $generate->esign ?? 'belum ada tanda tangan';
-        $nama_kontak = $generate->emergency_name ?? 'belum ada nama';
-        $no_kontak = $generate->emergency_number ?? 'belum ada no hp';
-        $alamat_kontak = $generate->emergency_address ?? 'belum ada alamat';
-        $hubungan = $generate->relationship ?? 'belum ada hubungan';
+            : '';
+        $alamat = $generate->user->profile->address ?? '';
+        $handphone = $generate->user->phone ?? '';
+        $no_karyawan = $generate->user->employee_nik ?? '';
+        $area = strtoupper($generate->user->site->name ?? '');
+        $area_project = $generate->user->site->area ?? '';
+        $nik_ktp = $generate->user->nik ?? '';
+        $jenis_kelamin = $generate->user->profile->gender ?? '';
+        $nama_client = $generate->user->site->client_name ?? '';
+        $jabatan_client = $generate->user->site->client_position ?? '';
+        $jabatan = strtoupper($generate->user->roles->first()->name ?? '');
+        $esign = $generate->esign ?? '';
+        $nama_kontak = $generate->emergency_name ?? '';
+        $no_kontak = $generate->emergency_number ?? '';
+        $alamat_kontak = $generate->emergency_address ?? '';
+        $hubungan = $generate->relationship ?? '';
 
         $gaji_type = $generate->gaji_type ?? 'monthly';
         if ($gaji_type === 'monthly') {
@@ -763,7 +763,7 @@ class GenerateController extends Controller
         }
 
         $tunjangan_calculation = 0;
-        $tunjangan = 'Tidak ada data';
+        $tunjangan = '';
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
                 if ($component->amount) {
@@ -777,7 +777,7 @@ class GenerateController extends Controller
         }
 
         $komisi_calculation = 0;
-        $komisi = 'Tidak ada data';
+        $komisi = '';
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
                 if ($component->component_type === 'comission') {
@@ -793,7 +793,7 @@ class GenerateController extends Controller
         }
 
         $potongan_calculation = 0;
-        $potongan = 'Tidak ada data';
+        $potongan = '';
         if ($generate->user->payroll && $generate->user->payroll->payroll_components) {
             foreach ($generate->user->payroll->payroll_components as $component) {
                 if ($component->component_type === 'deduction') {
@@ -808,7 +808,7 @@ class GenerateController extends Controller
             }
         }
 
-        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->format('d-m-Y') : 'belum ada data';
+        $mulai = isset($generate->start_date) ? Carbon::parse($generate->start_date)->format('d-m-Y') : '';
         $selesai = isset($generate->end_date) ? Carbon::parse($generate->end_date)->format('d-m-Y') : 'Sampai dengan Selesai';
 
         $search = [

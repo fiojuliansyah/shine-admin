@@ -1,72 +1,15 @@
-<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <form id="importForm" action="{{ route('import.process') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="importModalTitle">Import Surat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div>
-                        <div class="mb-3">
-                            <label for="template" class="col-form-label">Template</label>
-                            <select name="template" id="template" class="form-select">
-                                <option value="">Pilih Template Surat</option>
-                                @foreach ($letters as $letter)
-                                    <option value="{{ $letter->id }}">{{ $letter->title }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="site" class="col-form-label">Lokasi Area</label>
-                            <select name="site" id="site" class="select2 form-select">
-                                <option value="">Pilih Lokasi Area</option>
-                                @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="start_date" class="col-form-label">Tanggal Mulai</label>
-                            <input type="date" name="start_date" id="start_date" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="end_date" class="col-form-label">Tanggal Selesai</label>
-                            <input type="date" name="end_date" id="end_date" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="file" class="col-form-label">File Import</label>
-                            <input type="file" name="file" id="file" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Import <i
-                            class="fas fa-file-import ms-1"></i></button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Export / Import Template Custom -->
+<!-- Modal Export / Import Surat (satu format file: hasil export bisa langsung diimport) -->
 <div class="modal fade" id="templateModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Export / Import Template Surat</h5>
+                <h5 class="modal-title">Export / Import Surat</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="templateSelect" class="col-form-label">Template Surat</label>
-                    <select id="templateSelect" class="form-select">
+                    <select id="templateSelect" placeholder="Cari template surat...">
                         <option value="">Pilih Template Surat</option>
                         @foreach ($letters as $letter)
                             <option value="{{ $letter->id }}">{{ $letter->title }}</option>
@@ -75,38 +18,41 @@
                     <small class="text-muted">Kolom file mengikuti variabel tetap & variabel kustom template yang dipilih.</small>
                 </div>
 
+                <div class="mb-3">
+                    <label for="templateSiteSelect" class="col-form-label">Filter Site</label>
+                    <select id="templateSiteSelect" placeholder="Semua Site">
+                        <option value="">Semua Site</option>
+                        @foreach ($sites as $site)
+                            <option value="{{ $site->id }}">{{ $site->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Export: hanya karyawan site ini. Import: hanya karyawan site ini yang diproses.</small>
+                </div>
+
                 <ul class="nav nav-tabs mb-3" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#tplExportTab">Export Template</a>
+                        <a class="nav-link active" data-bs-toggle="tab" href="#tplExportTab">1. Export</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tplImportTab">Import Data</a>
+                        <a class="nav-link" data-bs-toggle="tab" href="#tplImportTab">2. Import</a>
                     </li>
                 </ul>
 
                 <div class="tab-content">
                     <div id="tplExportTab" class="tab-pane fade show active">
-                        <p class="text-muted small mb-3">Unduh file Excel sesuai template terpilih. Kolom otomatis (nama, jabatan, gaji, dll) terisi dari data karyawan sebagai referensi; kolom input & kustom dikosongkan untuk diisi, lalu import kembali.</p>
+                        <p class="text-muted small mb-3">Unduh file Excel sesuai template terpilih. Kolom otomatis (nama, jabatan, gaji, dll) terisi dari data karyawan sebagai referensi; kolom input & kustom dikosongkan untuk diisi, lalu import kembali file yang sama.</p>
                         <form action="{{ route('generates.export-template') }}" method="POST">
                             @csrf
-                            <input type="hidden" name="letter_id" id="exportLetterId">
-                            <div class="mb-3">
-                                <label for="exportSite" class="col-form-label">Filter Site</label>
-                                <select name="site_id" id="exportSite" class="form-select">
-                                    <option value="">Semua Site</option>
-                                    @foreach ($sites as $site)
-                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <input type="hidden" name="letter_id" class="tpl-letter-id">
+                            <input type="hidden" name="site_id" class="tpl-site-id">
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" name="empty_template" value="1" id="emptyTemplate">
                                 <label class="form-check-label" for="emptyTemplate">
                                     Template kosong (hanya header, tanpa data karyawan)
                                 </label>
                             </div>
-                            <button type="submit" class="btn btn-success w-100" id="exportTemplateBtn" disabled>
-                                <i class="fas fa-download me-1"></i> Download Template
+                            <button type="submit" class="btn btn-success w-100 tpl-submit" disabled>
+                                <i class="fas fa-download me-1"></i> Download File
                             </button>
                         </form>
                     </div>
@@ -114,25 +60,16 @@
                     <div id="tplImportTab" class="tab-pane fade">
                         <form action="{{ route('generates.import-template') }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="letter_id" id="importLetterId">
-                            <div class="mb-3">
-                                <label for="templateSite" class="col-form-label">Batasi ke Site (opsional)</label>
-                                <select name="site_id" id="templateSite" class="form-select">
-                                    <option value="">Semua Site</option>
-                                    @foreach ($sites as $site)
-                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">Jika dipilih, hanya karyawan pada site tersebut yang diproses.</small>
-                            </div>
+                            <input type="hidden" name="letter_id" class="tpl-letter-id">
+                            <input type="hidden" name="site_id" class="tpl-site-id">
                             <div class="mb-3">
                                 <label for="templateFile" class="col-form-label">File Excel</label>
                                 <input type="file" name="file" id="templateFile" class="form-control" accept=".xlsx,.xls,.csv">
                             </div>
                             <div class="alert alert-light border small mb-3">
-                                Setiap baris akan membuat <strong>surat terbit baru</strong>. Karyawan dicocokkan berdasarkan kolom <strong>NIK Karyawan</strong>. Gunakan file hasil Export template di atas.
+                                Gunakan <strong>file hasil Export</strong> dengan template yang sama. Setiap baris akan membuat <strong>surat terbit baru</strong>; karyawan dicocokkan berdasarkan kolom <strong>NIK Karyawan</strong>.
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" id="importTemplateBtn" disabled>
+                            <button type="submit" class="btn btn-primary w-100 tpl-submit" disabled>
                                 <i class="fas fa-file-import me-1"></i> Import Data
                             </button>
                         </form>

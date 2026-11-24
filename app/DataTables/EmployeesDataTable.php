@@ -73,38 +73,31 @@ class EmployeesDataTable extends DataTable
                     : '<span class="badge bg-success">Aktif</span>';
             })
             ->addColumn('no_surat', function ($row) {
-                $generate = null;
-                if ($row->generates) {
-                    $generate = $row->generates
-                        ->filter(fn($gen) => $gen->letter && $gen->letter->type)
-                        ->sortByDesc('created_at')
-                        ->first();
-                }
-                if (!$generate) {
-                    return '-';
-                }
-                $category = $generate->letter->type->name ?? null;
-                $number = $generate->formatted_letter_number ?? null;
-                if (!$number) {
-                    return '-';
-                }
-                return $category
-                    ? e($number) . '<br><small class="text-muted">' . e($category) . '</small>'
-                    : e($number);
+                // Tampilkan semua surat pegawai (mis. Penempatan & PKWT), terbaru di atas,
+                // supaya surat lama tidak tertutup saat surat baru terbit.
+                $lines = $row->generates
+                    ->filter(fn($gen) => $gen->letter && $gen->letter->type)
+                    ->sortByDesc('created_at')
+                    ->map(function ($generate) {
+                        $number = $generate->formatted_letter_number;
+                        if (!$number) {
+                            return null;
+                        }
+                        $category = $generate->letter->type->name ?? null;
+                        return $category
+                            ? e($number) . '<br><small class="text-muted">' . e($category) . '</small>'
+                            : e($number);
+                    })
+                    ->filter();
+
+                return $lines->isEmpty()
+                    ? '-'
+                    : '<div class="text-nowrap">' . $lines->implode('<hr class="my-1">') . '</div>';
             })
 
             ->addColumn('resume', function ($row) {
                 $applicant = $row->applicants->sortByDesc('id')->first();
-                $html = '<div class="d-flex gap-1 justify-content-center">';
-                if ($applicant) {
-                    $html .= '<a href="' . route('applicants.resume', $applicant->id) . '" target="_blank" class="btn btn-sm btn-white d-inline-flex align-items-center text-nowrap">
-                            <i class="ti ti-file-description me-1"></i> Resume
-                        </a>';
-                }
-                $html .= '<a href="' . route('users.account', $row->id) . '" target="_blank" class="btn btn-sm btn-primary d-inline-flex align-items-center text-nowrap">
-                            <i class="ti ti-edit me-1"></i> Edit Profil
-                        </a>';
-                return $html . '</div>';
+                return view('admin.employees.partials.actions', ['row' => $row, 'applicant' => $applicant])->render();
             })
 
             ->rawColumns(['nama', 'status', 'no_surat', 'resume'])
