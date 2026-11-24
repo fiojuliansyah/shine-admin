@@ -2,6 +2,7 @@
     Crop dokumen sebelum upload (KTP, KK, Ijazah, SKCK, dst.).
 
     Pemakaian: tambahkan atribut data-doc-crop pada <input type="file">.
+    Tambahkan juga data-doc-crop-submit agar form langsung dikirim setelah crop selesai.
     Saat file gambar dipilih, modal crop muncul:
       - 4 sudut dokumen dideteksi otomatis (OpenCV.js, dimuat saat pertama dipakai),
       - sudut bisa digeser manual, gambar bisa diputar 90°,
@@ -523,6 +524,15 @@
             state.applied = true;
             modal.hide();
             input.dispatchEvent(new Event('change', { bubbles: true }));
+
+            // data-doc-crop-submit: langsung unggah setelah crop (form dikirim otomatis,
+            // termasuk validasi bawaan form & modal loading).
+            if (input.hasAttribute('data-doc-crop-submit') && input.form) {
+                setTimeout(function () {
+                    if (input.form.requestSubmit) input.form.requestSubmit();
+                    else input.form.submit();
+                }, 150);
+            }
         }).catch(function (err) {
             alert(err.message || 'Gagal memproses dokumen.');
         }).finally(function () {

@@ -116,7 +116,7 @@
                                         class="d-flex gap-2 align-items-center" data-loading-text="Mengunggah {{ $docName }}...">
                                         @csrf
                                         <input type="hidden" name="name" value="{{ $docName }}">
-                                        <input type="file" name="file" class="form-control form-control-sm onb-doc-input" accept="image/png,image/jpeg" required style="max-width: 230px;" data-doc-crop>
+                                        <input type="file" name="file" class="form-control form-control-sm onb-doc-input" accept="image/png,image/jpeg" required style="max-width: 230px;" data-doc-crop data-doc-crop-submit>
                                         <button type="submit" class="btn btn-sm {{ $doc ? 'btn-outline-primary' : 'btn-primary' }} text-nowrap onb-doc-submit">
                                             <i class="ti ti-upload me-1"></i>{{ $doc ? 'Ganti' : 'Unggah' }}
                                         </button>
