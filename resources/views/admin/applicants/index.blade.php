@@ -87,8 +87,14 @@ $(function () {
     });
 
     $('#reset-all-qr').click(function () {
-        if (confirm('Apakah Anda yakin ingin mereset SEMUA QR Code kandidat? Aksi ini tidak dapat dibatalkan.')) {
-            const btn = $(this);
+        const btn = $(this);
+        AppDialog.confirm({
+            title: 'Reset Semua QR Code',
+            message: 'Semua QR Code kandidat akan dibuat ulang. Aksi ini tidak dapat dibatalkan.',
+            confirmText: 'Ya, Reset',
+            danger: true
+        }).then(function (ok) {
+            if (!ok) return;
             btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
 
             $.ajax({
@@ -98,17 +104,17 @@ $(function () {
                     _token: "{{ csrf_token() }}"
                 },
                 success: function (response) {
-                    alert(response.message || 'Semua QR Code berhasil diperbarui!');
+                    AppDialog.success('Berhasil', response.message || 'Semua QR Code berhasil diperbarui!');
                     window.LaravelDataTables[tableId].draw();
                 },
                 error: function (xhr) {
-                    alert('Terjadi kesalahan saat mereset QR.');
+                    AppDialog.error('Gagal', 'Terjadi kesalahan saat mereset QR.');
                 },
                 complete: function () {
                     btn.prop('disabled', false).html('<i class="ti ti-qrcode me-1"></i> Reset All QR');
                 }
             });
-        }
+        });
     });
 });
 </script>

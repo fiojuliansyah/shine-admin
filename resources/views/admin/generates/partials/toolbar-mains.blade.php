@@ -22,13 +22,13 @@
             <i class="fa fa-folder"></i> <i class="mdi mdi-chevron-down ms-1"></i>
         </button>
         <div class="dropdown-menu">
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#approvemodal">
+            <button type="button" class="dropdown-item" id="btnBulkApprove">
                 Bulk Approve
             </button>
             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reviseContractModal">
                 Revisi Surat Massal
             </button>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deletemodal">
+            <button type="button" class="dropdown-item" id="btnBulkDelete">
                 Bulk Delete
             </button>
         </div>

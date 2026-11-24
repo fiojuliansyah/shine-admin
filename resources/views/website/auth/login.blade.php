@@ -80,41 +80,5 @@
     </div>
 </div>
 
-<div class="modal fade" id="loginErrorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Login Gagal</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="mb-0">
-                    @if($errors->any())
-                        @foreach ($errors->all() as $error)
-                            <li class="text-danger">{{ $error }}</li>
-                        @endforeach
-                    @endif
-                    
-                    @if(session('error'))
-                        <li class="text-danger">{{ session('error') }}</li>
-                    @endif
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Coba Lagi</button>
-            </div>
-        </div>
-    </div>
-</div>
+{{-- Pesan error ditampilkan dialog seragam di layout (partials.app-dialog) --}}
 @endsection
-
-@push('js')
-<script>
-    $(document).ready(function() {
-        @if($errors->any() || session('error'))
-            var errorModal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
-            errorModal.show();
-        @endif
-    });
-</script>
-@endpush

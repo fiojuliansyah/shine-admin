@@ -145,10 +145,10 @@
 
                             @if (!$user->is_employee)
                                 <hr>
-                                <form action="{{ route('applicants.set-employee', $applicant->id) }}" method="POST">
+                                <form action="{{ route('applicants.set-employee', $applicant->id) }}" method="POST"
+                                    data-confirm="Jadikan {{ $user->name }} sebagai karyawan aktif?" data-confirm-title="Jadikan Karyawan">
                                     @csrf
-                                    <button type="submit" class="btn btn-success w-100"
-                                        onclick="return confirm('Jadikan {{ $user->name }} sebagai karyawan aktif?')">
+                                    <button type="submit" class="btn btn-success w-100">
                                         <i class="ti ti-user-check me-1"></i> Jadikan Karyawan
                                     </button>
                                 </form>

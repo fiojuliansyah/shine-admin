@@ -195,7 +195,15 @@
     }
 
     function disconnectWA() {
-        if (!confirm('Apakah Anda yakin ingin memutuskan koneksi WhatsApp?')) return;
+        AppDialog.confirm({
+            title: 'Putuskan Koneksi WhatsApp',
+            message: 'Notifikasi & OTP WhatsApp tidak akan terkirim sampai perangkat dihubungkan lagi.',
+            confirmText: 'Ya, Putuskan',
+            danger: true
+        }).then(function (ok) { if (ok) doDisconnectWA(); });
+    }
+
+    function doDisconnectWA() {
 
         const btn = document.getElementById('btn-disconnect');
         btn.disabled = true;
@@ -215,7 +223,7 @@
         })
         .catch(error => {
             console.error('Disconnect Error:', error);
-            alert('Gagal memutuskan koneksi.');
+            AppDialog.error('Gagal', 'Gagal memutuskan koneksi WhatsApp.');
             btn.disabled = false;
             btn.innerHTML = '<i class="mdi mdi-link-variant-off me-1"></i> Putuskan Koneksi';
         });

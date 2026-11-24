@@ -86,9 +86,9 @@
         <form action="{{ route('letters.import') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white"><i class="ti ti-file-import me-1"></i>Import Template dari DOCX</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ti ti-file-import me-1"></i>Import Template dari DOCX</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="alert alert-info py-2 small">

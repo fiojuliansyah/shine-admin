@@ -30,13 +30,6 @@
                                             <h2 class="mb-2">Masuk Dashboard Management</h2>
                                             <p class="mb-0">Masukan detail login dibawah ini!</p>
                                         </div>
-                                        @if ($errors->any())
-                                            <div class="alert alert-danger py-2 small">
-                                                @foreach ($errors->all() as $error)
-                                                    <div>{{ $error }}</div>
-                                                @endforeach
-                                            </div>
-                                        @endif
                                             <div class="mb-3">
                                                 <label class="form-label">Alamat Email</label>
                                                 <div class="input-group">

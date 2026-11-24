@@ -62,5 +62,4 @@
     </div>
 </div>
 
-@include('website.auth.partials.alert-modal')
 @endsection

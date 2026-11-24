@@ -56,7 +56,7 @@
 	<!-- Custom JS -->
 	<script src="/admin/assets/js/script.js"></script>
 
-	@include('partials.loading-modal')
+	@include('partials.app-dialog')
 
 </body>
 

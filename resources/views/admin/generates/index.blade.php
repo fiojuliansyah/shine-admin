@@ -279,18 +279,20 @@
             }
         }
 
-        $('#bulkApproveForm').submit(function(e) {
-            e.preventDefault();
-
-            updateSelectedIds();
-
-            if (selectedIds.length === 0) {
-                alert('Pilih setidaknya satu surat untuk di-approve.');
-                return;
-            }
-
-            $('#bulkApproveIds').val(selectedIds.join(',')); 
-            this.submit();
+        // Bulk Approve: tanda tangan HRD disalin ke surat terpilih
+        $('#btnBulkApprove').on('click', function () {
+            var ids = uniqueSelectedIds();
+            if (!ids.length) { AppDialog.warning('Belum Ada Surat Dipilih', 'Centang surat yang akan ditandatangani.'); return; }
+            AppDialog.confirm({
+                title: 'Tandatangani Surat',
+                message: 'Tanda tangan digital Anda akan dibubuhkan ke ' + ids.length + ' surat terpilih.',
+                confirmText: 'Ya, Tandatangani'
+            }).then(function (ok) {
+                if (!ok) return;
+                $('#bulkApproveIds').val(ids.join(','));
+                var f = document.getElementById('bulkApproveForm');
+                f.requestSubmit ? f.requestSubmit() : f.submit();
+            });
         });
 
         // Pilihan lintas halaman tabel (selectedIds dikumpulkan saat checkbox dicentang)
@@ -375,18 +377,21 @@
             this.submit();
         });
 
-        $('#bulkDeleteForm').submit(function(e) {
-            e.preventDefault();
-
-            updateSelectedIds();
-
-            if (selectedIds.length === 0) {
-                alert('Pilih setidaknya satu surat untuk di-delete.');
-                return;
-            }
-
-            $('#bulkDeleteIds').val(selectedIds.join(',')); 
-            this.submit(); 
+        // Bulk Delete
+        $('#btnBulkDelete').on('click', function () {
+            var ids = uniqueSelectedIds();
+            if (!ids.length) { AppDialog.warning('Belum Ada Surat Dipilih', 'Centang surat yang akan dihapus.'); return; }
+            AppDialog.confirm({
+                title: 'Hapus Surat',
+                message: ids.length + ' surat terpilih akan dihapus permanen. Lanjutkan?',
+                confirmText: 'Ya, Hapus',
+                danger: true
+            }).then(function (ok) {
+                if (!ok) return;
+                $('#bulkDeleteIds').val(ids.join(','));
+                var f = document.getElementById('bulkDeleteForm');
+                f.requestSubmit ? f.requestSubmit() : f.submit();
+            });
         });
     });
 </script>

@@ -156,53 +156,17 @@
     </div>
 </div>
 
-<div class="modal fade" id="approvemodal" tabindex="-1" role="dialog" aria-labelledby="approvemodalTitle"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <form action="{{ route('generates.bulkApprove') }}" method="POST" id="bulkApproveForm">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="signaturemodalTitle">Bulk Approve</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Apakah Anda yakin ingin menanda tanganin yang anda pilih?</p>
-                    <input type="hidden" name="esign"
-                        value="{{ Auth::user()->profile ? Auth::user()->profile->esign : 'Profil tidak ditemukan' }}">
-                    <input type="hidden" name="ids" id="bulkApproveIds">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="bulk-update-btn">Approve</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="deletemodal" tabindex="-1" role="dialog" aria-labelledby="deletemodalTitle"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <form action="{{ route('generates.bulkDelete') }}" method="POST" id="bulkDeleteForm">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="signaturemodalTitle">Bulk Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Apakah Anda yakin ingin menghapus yang anda pilih?</p>
-                    <input type="hidden" name="ids" id="bulkDeleteIds">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2"" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger" id="bulk-delete-btn">Hapus</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+{{-- Bulk Approve / Bulk Delete: konfirmasi lewat dialog seragam (AppDialog), form tersembunyi --}}
+<form action="{{ route('generates.bulkApprove') }}" method="POST" id="bulkApproveForm" class="d-none"
+    data-loading-text="Menandatangani surat...">
+    @csrf
+    <input type="hidden" name="ids" id="bulkApproveIds">
+</form>
+<form action="{{ route('generates.bulkDelete') }}" method="POST" id="bulkDeleteForm" class="d-none"
+    data-loading-text="Menghapus surat...">
+    @csrf
+    <input type="hidden" name="ids" id="bulkDeleteIds">
+</form>
 
 <!-- Modal Revisi Surat Massal: kolom mengikuti template surat yang dicentang -->
 <div class="modal fade" id="reviseContractModal" tabindex="-1" aria-hidden="true">

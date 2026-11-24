@@ -131,13 +131,14 @@
     @endif
 
     function removeVar(btn, id) {
-        if (confirm('Hapus variabel ini?')) {
+        AppDialog.confirm({ title: 'Hapus Variabel', message: 'Hapus variabel ini dari template?', confirmText: 'Ya, Hapus', danger: true }).then(function (ok) {
+            if (!ok) return;
             if (id) {
                 const container = document.getElementById('customVarsContainer');
                 container.insertAdjacentHTML('beforeend', '<input type="hidden" name="delete_vars[]" value="' + id + '">');
             }
             btn.closest('li').remove();
-        }
+        });
     }
 
     function submitForm() {

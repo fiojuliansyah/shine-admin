@@ -74,7 +74,7 @@
                                                 <i class="ti ti-edit"></i>
                                             </button>
                                             <form action="{{ route('message-templates.destroy', $template) }}" method="POST"
-                                                onsubmit="return confirm('Hapus template {{ addslashes($template->name) }}?')">
+                                                data-confirm="Hapus template {{ $template->name }}?" data-confirm-title="Hapus Template" data-confirm-danger>
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-white text-danger">
@@ -214,9 +214,6 @@
             renderPreview();
         });
 
-        @if ($errors->any())
-            alert({!! json_encode(implode("\n", $errors->all()), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!});
-        @endif
     });
 </script>
 @endpush

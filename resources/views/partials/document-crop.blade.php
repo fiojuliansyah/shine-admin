@@ -466,7 +466,7 @@
         }).catch(function (err) {
             modal.hide();
             input.value = '';
-            alert(err.message || 'Gagal membuka gambar.');
+            AppDialog.error('Gambar Tidak Valid', err.message || 'Gagal membuka gambar.');
         });
     }
 
@@ -534,7 +534,7 @@
                 }, 150);
             }
         }).catch(function (err) {
-            alert(err.message || 'Gagal memproses dokumen.');
+            AppDialog.error('Gagal Memproses', err.message || 'Gagal memproses dokumen.');
         }).finally(function () {
             setLoading(false);
             applyBtn.disabled = false;

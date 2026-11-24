@@ -90,37 +90,5 @@
     </div>
 </div>
 
-<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white" id="errorModalLabel">Terjadi Kesalahan</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="mb-0" id="errorList">
-                    @if($errors->any())
-                        @foreach ($errors->all() as $error)
-                            <li class="text-danger">{{ $error }}</li>
-                        @endforeach
-                    @endif
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
+{{-- Pesan error ditampilkan dialog seragam di layout (partials.app-dialog) --}}
 @endsection
-
-@push('js')
-<script>
-    $(document).ready(function() {
-        @if($errors->any())
-            var myModal = new bootstrap.Modal(document.getElementById('errorModal'));
-            myModal.show();
-        @endif
-    });
-</script>
-@endpush

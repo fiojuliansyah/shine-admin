@@ -416,7 +416,6 @@
     </div>
 </div>
 
-@include('website.auth.partials.alert-modal')
 @include('partials.document-crop')
 @endsection
 
@@ -526,9 +525,18 @@
                     return i.files && i.files.length;
                 }).map(function (i) { return i.form.querySelector('[name="name"]').value; });
 
-                if (pendingDocs.length && !confirm('File ' + pendingDocs.join(', ') + ' sudah dipilih tapi BELUM diunggah. Lanjutkan tanpa mengunggahnya?')) {
-                    e.preventDefault();
-                }
+                if (!pendingDocs.length || finishForm._confirmed) { finishForm._confirmed = false; return; }
+                e.preventDefault();
+                AppDialog.confirm({
+                    title: 'Dokumen Belum Diunggah',
+                    message: 'File ' + pendingDocs.join(', ') + ' sudah dipilih tapi belum diunggah. Lanjutkan tanpa mengunggahnya?',
+                    confirmText: 'Lanjutkan',
+                    cancelText: 'Unggah Dulu'
+                }).then(function (ok) {
+                    if (!ok) return;
+                    finishForm._confirmed = true;
+                    finishForm.requestSubmit ? finishForm.requestSubmit() : finishForm.submit();
+                });
             });
         }
 

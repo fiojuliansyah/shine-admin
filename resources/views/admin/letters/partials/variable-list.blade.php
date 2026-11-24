@@ -1,9 +1,9 @@
 <div class="modal fade" id="lihatVariable" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-dark">
-                <h5 class="modal-title text-white">Klik Variable Untuk Menyalin</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header">
+                <h5 class="modal-title">Klik Variable Untuk Menyalin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="row g-4">

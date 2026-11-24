@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 docStatus.style.display = 'block';
             }
         }).catch(function (err) {
-            alert(err.message || 'OCR gagal');
+            AppDialog.error('OCR Gagal', err.message || 'KTP tidak dapat dibaca. Coba foto yang lebih jelas.');
         }).finally(function () {
             loader.style.display = 'none';
             btnScan.disabled = false;

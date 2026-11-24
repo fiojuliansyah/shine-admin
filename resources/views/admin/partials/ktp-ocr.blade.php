@@ -178,7 +178,7 @@
                     showDocStatus(json);
                 }).catch(function (err) {
                     setProgress(0, 'Gagal');
-                    alert(err.message || 'OCR gagal');
+                    AppDialog.error('OCR Gagal', err.message || 'KTP tidak dapat dibaca. Coba foto yang lebih jelas.');
                 }).finally(function () {
                     scanBtn.disabled = false;
                 });

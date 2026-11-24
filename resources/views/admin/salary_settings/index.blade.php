@@ -110,7 +110,7 @@
                                         >
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <form action="{{ route('salary-settings.destroy', $setting->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pengaturan gaji {{ $setting->user->name ?? '' }}?');">
+                                        <form action="{{ route('salary-settings.destroy', $setting->id) }}" method="POST" class="d-inline" data-confirm="Hapus pengaturan gaji {{ $setting->user->name ?? '' }}?" data-confirm-title="Hapus Pengaturan Gaji" data-confirm-danger>
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-sm btn-outline-danger"><i class="ti ti-trash"></i></button>
@@ -161,9 +161,9 @@
     <div class="modal fade" id="modalExport" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-success text-white">
+                <div class="modal-header">
                     <h5 class="modal-title">Export Pengaturan Gaji</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('salary-settings.export') }}" method="POST">
                     @csrf
@@ -192,9 +192,9 @@
     <div class="modal fade" id="modalImport" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-success text-white">
+                <div class="modal-header">
                     <h5 class="modal-title">Import Pengaturan Gaji</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('salary-settings.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -233,9 +233,9 @@
     <div class="modal fade" id="modalTambah" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header">
                     <h5 class="modal-title">Tambah Pengaturan Gaji</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('salary-settings.store') }}" method="POST">
                     @csrf
@@ -274,7 +274,7 @@
     <div class="modal fade" id="modalEdit" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-warning text-dark">
+                <div class="modal-header">
                     <h5 class="modal-title">Edit Pengaturan Gaji <span id="editUserName" class="fw-normal"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
