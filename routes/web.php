@@ -14,6 +14,7 @@ use App\Http\Controllers\EmployeeNikConfigController;
 use App\Http\Controllers\GenerateController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\KtpOcrController;
+use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\LetterNumberConfigController;
 use App\Http\Controllers\ProfileController;
@@ -129,6 +130,7 @@ Route::middleware(['auth', 'check.desktop'])->prefix('manage')->group(function (
     Route::put('/applicants/{id}/update-status', [ApplicantController::class, 'updateStatus'])->name('update-status');
     Route::put('/applicants/{id}/update-approve', [ApplicantController::class, 'updateApprove'])->name('update-approve');
     Route::post('/statuses/bulk-update', [StatusController::class, 'bulkUpdateStatus'])->name('bulk.update.status');
+    Route::resource('message-templates', MessageTemplateController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('/statuses/bulk-applicant-document', [StatusController::class, 'bulkUpdateApplicantDocument'])->name('bulk.update.applicant-document');
     Route::post('/statuses/bulk-offering', [StatusController::class, 'bulkUpdateOffering'])->name('bulk.update.offering');
     Route::delete('/applicants/{id}', [ApplicantController::class, 'destroy'])->name('applicants.destroy');

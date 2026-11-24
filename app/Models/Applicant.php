@@ -37,4 +37,9 @@ class Applicant extends Model
     {
         return $this->user ? $this->user->phone : null;
     }
+
+    public function routeNotificationForMail()
+    {
+        return $this->user?->email;
+    }
 }

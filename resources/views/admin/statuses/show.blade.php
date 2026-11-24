@@ -253,6 +253,7 @@
         </div>
     </div>
 </div>
+@include('admin.partials.notify-confirm', ['notifyFormSelector' => '#form-bulk-update-status'])
 @endsection
 
 @push('css')

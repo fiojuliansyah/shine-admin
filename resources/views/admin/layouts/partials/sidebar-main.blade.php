@@ -181,6 +181,11 @@
                                 <i class="ti ti-timeline-event-text"></i><span>Tingkatan</span>
                             </a>
                         </li>
+                        <li class="{{ Route::is('message-templates.*') ? 'active' : '' }}">
+                            <a href="{{ route('message-templates.index') }}">
+                                <i class="ti ti-message-2"></i><span>Template Pesan</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 <li class="menu-title"><span>PRODUCTIVITY</span>

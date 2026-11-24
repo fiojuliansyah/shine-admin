@@ -195,11 +195,15 @@ class ApplicantController extends Controller
             }
         }
 
-        try {
-            $applicant->load(['status', 'career']);
-            $applicant->notify(new ApplicantStatusNotification($applicant));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('success', 'Data diperbarui (termasuk Site & NIK), tapi notifikasi gagal.');
+        $applicant->load(['status', 'career', 'user']);
+        $notification = ApplicantStatusNotification::fromRequest($applicant, $request);
+        if ($notification) {
+            try {
+                $applicant->notify($notification);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Gagal mengirim notifikasi status ke pelamar ID {$applicant->id}: " . $e->getMessage());
+                return redirect()->back()->with('success', 'Data diperbarui (termasuk Site & NIK), tapi notifikasi gagal dikirim.');
+            }
         }
 
         return redirect()->back()->with('success', 'Status, Site, Role, dan NIK Karyawan berhasil diperbarui.');

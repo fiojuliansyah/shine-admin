@@ -63,7 +63,7 @@
                             <h5>Proses Status Kandidat</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('applicants.update-status-single', $applicant->id) }}" method="POST">
+                            <form id="form-update-status-single" action="{{ route('applicants.update-status-single', $applicant->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
 
@@ -359,6 +359,17 @@
             </div>
         </div>
     </div>
+    @include('admin.partials.notify-confirm', [
+        'notifyFormSelector' => '#form-update-status-single',
+        'notifyContext' => [
+            '{nama}' => $user->name ?? '',
+            '{posisi}' => $applicant->career->name ?? '',
+            '{email}' => $user->email ?? '',
+            '{no_hp}' => $user->phone ?? '',
+            '{nik_karyawan}' => $user->employee_nik ?? '',
+            '{site}' => $user->site->name ?? '',
+        ],
+    ])
 @endsection
 
 @push('css')

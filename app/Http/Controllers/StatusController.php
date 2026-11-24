@@ -181,15 +181,22 @@ class StatusController extends Controller
 
                 $applicant->update(['done' => 'done']);
 
-                try {
-                    $newApplicantEntry->notify(new ApplicantStatusNotification($newApplicantEntry));
-                } catch (\Exception $e) {
-                    Log::error("Gagal mengirim WA ke ID {$applicant->id}: " . $e->getMessage());
+                $notification = ApplicantStatusNotification::fromRequest($newApplicantEntry, $request);
+                if ($notification) {
+                    try {
+                        $newApplicantEntry->notify($notification);
+                    } catch (\Throwable $e) {
+                        Log::error("Gagal mengirim notifikasi status ke pelamar ID {$applicant->id}: " . $e->getMessage());
+                    }
                 }
             }
         }
 
-        return redirect()->back()->with('success', 'Status kandidat berhasil diperbarui dan notifikasi sedang dikirim.');
+        $message = $request->filled('notify_channels')
+            ? 'Status kandidat berhasil diperbarui dan notifikasi telah dikirim.'
+            : 'Status kandidat berhasil diperbarui (tanpa notifikasi).';
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function bulkUpdateApplicantDocument(Request $request)

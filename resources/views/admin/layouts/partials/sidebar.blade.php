@@ -100,6 +100,11 @@
                                 <i class="ti ti-timeline-event-text"></i><span>Tingkatan</span>
                             </a>
                         </li>
+                        <li class="{{ Route::is('message-templates.*') ? 'active' : '' }}">
+                            <a href="{{ route('message-templates.index') }}">
+                                <i class="ti ti-message-2"></i><span>Template Pesan</span>
+                            </a>
+                        </li>
                         <li class="{{ Route::is('salary-settings.index') ? 'active' : '' }}">
                             <a href="{{ route('salary-settings.index') }}">
                                 <i class="ti ti-coin"></i><span>Pengaturan Gaji</span>
