@@ -88,25 +88,36 @@
                     <div class="list-group">
                         @foreach ($requiredDocuments as $docName)
                             @php $doc = $documents->get($docName); @endphp
-                            <div class="list-group-item py-3">
+                            <div class="list-group-item py-3 onb-doc-row">
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                    <div>
-                                        <div class="fw-semibold">{{ $docName }} <span class="text-danger">*</span></div>
-                                        @if ($doc)
-                                            <span class="badge bg-success-transparent text-success"><i class="ti ti-circle-check me-1"></i>Sudah diunggah</span>
-                                            @if ($doc->view_url)
-                                                <a href="{{ $doc->view_url }}" target="_blank" class="small ms-1">Lihat</a>
-                                            @endif
-                                        @else
-                                            <span class="badge bg-warning-transparent text-warning"><i class="ti ti-alert-circle me-1"></i>Belum diunggah</span>
-                                        @endif
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img class="onb-doc-thumb rounded border d-none" alt="Pratinjau {{ $docName }}"
+                                            style="width: 48px; height: 48px; object-fit: cover;">
+                                        <div>
+                                            <div class="fw-semibold">{{ $docName }} <span class="text-danger">*</span></div>
+                                            {{-- Status tersimpan di server --}}
+                                            <span class="onb-doc-saved">
+                                                @if ($doc)
+                                                    <span class="badge bg-success-transparent text-success"><i class="ti ti-circle-check me-1"></i>Sudah diunggah</span>
+                                                    @if ($doc->view_url)
+                                                        <a href="{{ $doc->view_url }}" target="_blank" class="small ms-1">Lihat</a>
+                                                    @endif
+                                                @else
+                                                    <span class="badge bg-warning-transparent text-warning"><i class="ti ti-alert-circle me-1"></i>Belum diunggah</span>
+                                                @endif
+                                            </span>
+                                            {{-- Status setelah file dipilih (belum dikirim) --}}
+                                            <span class="onb-doc-ready badge bg-info-transparent text-info d-none">
+                                                <i class="ti ti-file-check me-1"></i>File siap &mdash; klik {{ $doc ? 'Ganti' : 'Unggah' }}
+                                            </span>
+                                        </div>
                                     </div>
                                     <form action="{{ route('applicant.onboarding.document') }}" method="POST" enctype="multipart/form-data"
                                         class="d-flex gap-2 align-items-center" data-loading-text="Mengunggah {{ $docName }}...">
                                         @csrf
                                         <input type="hidden" name="name" value="{{ $docName }}">
-                                        <input type="file" name="file" class="form-control form-control-sm" accept="image/png,image/jpeg" required style="max-width: 230px;" data-doc-crop>
-                                        <button type="submit" class="btn btn-sm {{ $doc ? 'btn-outline-primary' : 'btn-primary' }} text-nowrap">
+                                        <input type="file" name="file" class="form-control form-control-sm onb-doc-input" accept="image/png,image/jpeg" required style="max-width: 230px;" data-doc-crop>
+                                        <button type="submit" class="btn btn-sm {{ $doc ? 'btn-outline-primary' : 'btn-primary' }} text-nowrap onb-doc-submit">
                                             <i class="ti ti-upload me-1"></i>{{ $doc ? 'Ganti' : 'Unggah' }}
                                         </button>
                                     </form>
@@ -117,7 +128,7 @@
                 </div>
                 <div class="card-footer bg-white d-flex justify-content-between">
                     <a href="{{ route('applicant.onboarding', ['step' => 4]) }}" class="btn btn-light"><i class="ti ti-arrow-left me-1"></i>Sebelumnya</a>
-                    <form action="{{ route('applicant.onboarding.save', ['step' => 5]) }}" method="POST" data-loading-text="Memeriksa kelengkapan data...">
+                    <form action="{{ route('applicant.onboarding.save', ['step' => 5]) }}" method="POST" data-loading-text="Memeriksa kelengkapan data..." id="onbFinishForm">
                         @csrf
                         <button type="submit" class="btn btn-success"><i class="ti ti-check me-1"></i>Selesai & Masuk Dashboard</button>
                     </form>
@@ -481,6 +492,45 @@
                     });
                 }
             } catch (e) {}
+        }
+
+        // Langkah 5: tandai baris dokumen yang file-nya sudah dipilih (hasil crop) tapi belum diunggah
+        document.querySelectorAll('.onb-doc-input').forEach(function (input) {
+            input.addEventListener('change', function () {
+                var row = input.closest('.onb-doc-row');
+                var file = input.files && input.files[0];
+                var thumb = row.querySelector('.onb-doc-thumb');
+                var btn = row.querySelector('.onb-doc-submit');
+
+                row.querySelector('.onb-doc-saved').classList.toggle('d-none', !!file);
+                row.querySelector('.onb-doc-ready').classList.toggle('d-none', !file);
+                row.classList.toggle('list-group-item-info', !!file);
+
+                if (thumb.src) URL.revokeObjectURL(thumb.src);
+                if (file) {
+                    thumb.src = URL.createObjectURL(file);
+                    thumb.classList.remove('d-none');
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-primary');
+                } else {
+                    thumb.removeAttribute('src');
+                    thumb.classList.add('d-none');
+                }
+            });
+        });
+
+        // Langkah 5: ingatkan bila ada file yang sudah dipilih tapi belum diunggah
+        var finishForm = document.getElementById('onbFinishForm');
+        if (finishForm) {
+            finishForm.addEventListener('submit', function (e) {
+                var pendingDocs = Array.prototype.filter.call(document.querySelectorAll('.onb-doc-input'), function (i) {
+                    return i.files && i.files.length;
+                }).map(function (i) { return i.form.querySelector('[name="name"]').value; });
+
+                if (pendingDocs.length && !confirm('File ' + pendingDocs.join(', ') + ' sudah dipilih tapi BELUM diunggah. Lanjutkan tanpa mengunggahnya?')) {
+                    e.preventDefault();
+                }
+            });
         }
 
         // Langkah 3: tampilkan isian security

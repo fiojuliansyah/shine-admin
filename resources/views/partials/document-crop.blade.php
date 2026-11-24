@@ -494,8 +494,13 @@
     });
 
     document.getElementById('docCropCancel').addEventListener('click', function () {
-        if (state.input) state.input.value = ''; // tidak boleh upload tanpa crop
+        var input = state.input;
         modal.hide();
+        if (!input) return;
+        input.value = ''; // tidak boleh upload tanpa crop
+        // Beri tahu halaman bahwa pilihan file kosong (mis. sembunyikan badge "File siap")
+        input._docCropDone = true;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
     applyBtn.addEventListener('click', function () {
