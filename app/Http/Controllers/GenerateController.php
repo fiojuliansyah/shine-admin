@@ -670,7 +670,13 @@ class GenerateController extends Controller
     
         $ids = explode(',', $ids);
 
-        $generates = Generate::whereIn('id', $ids)->get();
+        // Hapus dari nomor urut terbesar: nomor surat hanya bisa dikembalikan bila surat
+        // yang dihapus adalah nomor terakhir, jadi urutan ini memulihkan nomor berurutan.
+        $generates = Generate::whereIn('id', $ids)
+            ->orderByRaw('sequence_number IS NULL')
+            ->orderByDesc('sequence_number')
+            ->orderByDesc('id')
+            ->get();
 
         if ($generates->isEmpty()) {
             return redirect()->back()->with('error', 'Tidak ada data yang dihapus.');
@@ -742,9 +748,9 @@ class GenerateController extends Controller
             $message .= " {$import->getEmptyNikRows()} baris dilewati (kolom NIK Karyawan kosong).";
         }
         if ($import->getSkipped() > 0) {
-            $niks = implode(', ', array_slice($import->getSkippedNiks(), 0, 10));
-            $more = $import->getSkipped() > 10 ? ' ...' : '';
-            $message .= " {$import->getSkipped()} baris dilewati (NIK karyawan tidak ditemukan: {$niks}{$more}).";
+            $reasons = array_slice($import->getSkipReasons(), 0, 10);
+            $more = $import->getSkipped() > 10 ? '; ...' : '';
+            $message .= " {$import->getSkipped()} baris dilewati: " . implode('; ', $reasons) . $more . '.';
         }
 
         $flash = $import->getCreated() > 0 ? 'success' : 'warning';

@@ -28,6 +28,10 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
     protected int $emptyNikRows = 0;
     protected int $totalRows = 0;
     protected array $skippedNiks = [];
+    /** Alasan per baris yang dilewati, mis. "IC06.1024 (baris 5): NIK tidak ditemukan". */
+    protected array $skipReasons = [];
+    /** user_id yang sudah dibuatkan surat pada import ini (cegah 1 karyawan dapat beberapa surat). */
+    protected array $issuedUserIds = [];
 
     public function __construct(Letter $letter, $siteId = null)
     {
@@ -38,37 +42,35 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
 
     public function collection(Collection $rows)
     {
-        foreach ($rows as $row) {
+        foreach ($rows as $index => $row) {
             if ($row->filter(fn ($v) => $v !== null && $v !== '')->isEmpty()) {
                 continue;
             }
 
             $this->totalRows++;
+            $rowNumber = $index + $this->startRow(); // nomor baris di Excel
             $values = $this->mapRow($row);
 
             $employeeNik = trim((string) ($values['nik']['employee_nik'] ?? ''));
-            if (is_numeric($employeeNik)) {
-                $employeeNik = (string) (int) $employeeNik;
-            }
             if ($employeeNik === '') {
                 $this->emptyNikRows++;
                 continue;
             }
 
-            $userQuery = User::where('employee_nik', $employeeNik);
-            if (!$userQuery->exists()) {
-                $userQuery = User::whereRaw('CAST(employee_nik AS UNSIGNED) = ?', [(int) $employeeNik]);
+            [$user, $reason] = $this->findEmployee($employeeNik);
+
+            if ($user && in_array($user->id, $this->issuedUserIds, true)) {
+                [$user, $reason] = [null, "karyawan {$user->name} sudah dibuatkan surat dari baris lain"];
             }
-            if ($this->siteId) {
-                $userQuery->where('site_id', $this->siteId);
-            }
-            $user = $userQuery->first();
 
             if (!$user) {
                 $this->skipped++;
                 $this->skippedNiks[] = $employeeNik;
+                $this->skipReasons[] = "{$employeeNik} (baris {$rowNumber}): {$reason}";
                 continue;
             }
+
+            $this->issuedUserIds[] = $user->id;
 
             DB::transaction(function () use ($user, $values) {
                 $siteId = $this->siteId ?: $user->site_id;
@@ -119,6 +121,42 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
                 $this->created++;
             });
         }
+    }
+
+    /**
+     * Cari tepat SATU karyawan untuk NIK di file.
+     *
+     * 1) Cocok persis (tanpa beda huruf besar/kecil & spasi).
+     * 2) Khusus NIK yang seluruhnya angka: Excel bisa menghapus angka 0 di depan,
+     *    jadi cocokkan dengan NIK angka di database yang nilainya sama.
+     * Tidak ada pencocokan "CAST ke angka" untuk NIK berhuruf (dulu: semua NIK
+     * berawalan huruf dibaca 0 sehingga semua baris cocok ke karyawan yang sama).
+     * Bila lebih dari satu karyawan cocok, baris dilewati (ambigu).
+     *
+     * @return array{0: ?User, 1: ?string} [user, alasan bila tidak ketemu]
+     */
+    protected function findEmployee(string $employeeNik): array
+    {
+        $base = fn () => User::query()->when($this->siteId, fn ($q) => $q->where('site_id', $this->siteId));
+
+        $matches = $base()->whereRaw('UPPER(TRIM(employee_nik)) = ?', [strtoupper($employeeNik)])->limit(2)->get();
+
+        if ($matches->isEmpty() && ctype_digit($employeeNik)) {
+            $matches = $base()
+                ->whereRaw("employee_nik REGEXP '^[0-9]+$'")
+                ->whereRaw('TRIM(LEADING \'0\' FROM employee_nik) = ?', [ltrim($employeeNik, '0')])
+                ->limit(2)
+                ->get();
+        }
+
+        if ($matches->count() > 1) {
+            return [null, 'NIK cocok ke lebih dari satu karyawan'];
+        }
+        if ($matches->isEmpty()) {
+            return [null, $this->siteId ? 'NIK tidak ditemukan di site terpilih' : 'NIK tidak ditemukan'];
+        }
+
+        return [$matches->first(), null];
     }
 
     /**
@@ -211,6 +249,12 @@ class GenerateTemplateImport implements ToCollection, WithStartRow
     public function getSalaryUpdated(): int
     {
         return $this->salaryUpdated;
+    }
+
+    /** @return string[] */
+    public function getSkipReasons(): array
+    {
+        return $this->skipReasons;
     }
 
     public function getSkippedNiks(): array
